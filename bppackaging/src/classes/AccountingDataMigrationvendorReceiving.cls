@@ -86,10 +86,12 @@ global with sharing class AccountingDataMigrationvendorReceiving implements Data
     **/
 	global void execute(Database.BatchableContext BC, List<sObject> scope) {
 		if(AccessControl.ifObjectFieldIsUpdateable('Vendor_Receiving_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('GL_Account__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		
 		List<Vendor_Receiving_Group__c> vrRecords = (List<Vendor_Receiving_Group__c>) scope;
 		
 		if(vrRecords.size() > 0){
+			if(AccessControl.ifObjectFieldIsAccessible('GL_Account__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+			
 	    	// Map of General Journal Entries records for all applicable saleforce customer records (a map of VR sf fields to equivalent values)
 	    	Map<Integer, Map<String,String>> generalJournalEntryRecords = new Map<Integer, Map<String, String>>();
 	    	

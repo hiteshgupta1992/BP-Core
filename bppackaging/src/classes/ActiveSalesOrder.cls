@@ -68,45 +68,6 @@ global with sharing class ActiveSalesOrder {
         	}
         }
     }
-    // Constructor by Ankit
-    public ActiveSalesOrder(CO_Line_Item__c coLineItemObj,CO_Header__c ActiveSalesOrder) { 
-        this.Id	= ActiveSalesOrder.Id;
-        this.CONumber =ActiveSalesOrder.Name;
-        if(coLineItemObj.Closed_CO_Invoice_link__c != null) {
-        	this.Status = 'Invoiced'; 
-        } else {
-			if(coLineItemObj.Qty__c == coLineItemObj.Qty_Committed__c ) {
-	  		  this.Status = 'In Stock';   
-	        } else if(coLineItemObj.Qty__c > coLineItemObj.Qty_Committed__c ){
-	            if(!coLineItemObj.Special_Order__c) {
-	                this.Status = 'Required';
-	            } else {
-	                this.Status = 'Ordered';
-	            }
-	        } else if(coLineItemObj.Qty__c < 0) {
-	        	this.Status = 'RETURN';
-	        }
-        }
-        this.TotalOrderValue = ActiveSalesOrder.Total_Order_Value__c;
-        this.TotalDepositValue = ActiveSalesOrder.Total_Deposit__c;
-        this.TotalPaymentValue = ActiveSalesOrder.Total_Payment__c;
-        this.CustomerId = ActiveSalesOrder.Customer__c;
-        this.Qty = 0;
-        this.TotalSalesOrder = 0;
-        this.CommittedQty = 0;
-        this.OutstandingQty = 0;
-       	this.TotalSalesOrder += (coLineItemObj.Qty__c * coLineItemObj.Price__c);
-        if(coLineItemObj.Qty_Committed__c != null) {
-        	this.CommittedQty += coLineItemObj.Qty_Committed__c;
-        }
-        if(coLineItemObj.Qty_To_Order__c != null) {
-        	this.OutstandingQty += coLineItemObj.Qty_To_Order__c;
-        }
-        if(coLineItemObj.Qty__c != null) {
-        	this.Qty += coLineItemObj.Qty__c;
-    	}
-        
-    }
     
     /**
      * Name: parse
@@ -132,7 +93,7 @@ global with sharing class ActiveSalesOrder {
 				                                                   	'Total_Deposit__c',
 			                                                        'Total_Order_Value__c',
 			                                                        'Total_Payment__c',
-				                                                   	'(Select Id, Name, Qty__c, Qty_Committed__c,Closed_CO_Invoice_link__c ,Special_Order__c, Qty_To_Order__c, Price__c from CO_Line_Items__r WHERE Part__c =: partId)'
+				                                                   	'(Select Id, Name, Qty__c, Qty_Committed__c, Qty_To_Order__c, Price__c from CO_Line_Items__r WHERE Part__c =: partId)'
 				                                               	};
         return activeSalesOrderfieldsList;
     }
@@ -180,16 +141,9 @@ global with sharing class ActiveSalesOrder {
 																					pageSortAttrs.activeSalesOrdersCurrentPage, 
 					    															pageSortAttrs.activeSalesOrdersPageSize 
 																				);
-		/** 
 		for(CO_Header__c ActiveSalesOrder : activeSalesOrdersList) {
             activeSalesOrders.add(new ActiveSalesOrder(ActiveSalesOrder));
         }
-        **/
-        for(CO_Header__c ActiveSalesOrder : activeSalesOrdersList) {
-			for(CO_Line_Item__c coLi : ActiveSalesOrder.CO_Line_Items__r){
-				activeSalesOrders.add(new ActiveSalesOrder(coLi,ActiveSalesOrder));	
-			}
-		}
         
 		return activeSalesOrders;
     }

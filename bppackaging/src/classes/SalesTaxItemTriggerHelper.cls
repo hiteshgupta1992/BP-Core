@@ -36,39 +36,7 @@ public with sharing class SalesTaxItemTriggerHelper {
      * @return: 
     **/
 	public static void afterUpdateOperation() {
-		insertApplicableTaxes();
-		List<Sales_Tax_Item__c> validSalesTaxItemList = checkForPartExemptionsList();
-		if(validSalesTaxItemList.size() > 0) {
-			deleteRelatedTaxExemptoins(validSalesTaxItemList);
-		}
-	}
-	
-	private static List<Sales_Tax_Item__c> checkForPartExemptionsList() {
-		List<Sales_Tax_Item__c> validSalesTaxItemList = new List<Sales_Tax_Item__c>();
-		for(Sales_Tax_Item__c salesTaxItemRec : newList) {
-			if(oldMap.get(salesTaxItemRec.Id).Active__c && !newMap.get(salesTaxItemRec.Id).Active__c) {
-				validSalesTaxItemList.add(salesTaxItemRec);
-			}
-		}
-		return validSalesTaxItemList;
-	}
-	
-	private static void deleteRelatedTaxExemptoins(List<Sales_Tax_Item__c> validSalesTaxItemList) {
-		List<Id> salesTaxItemIdList = new List<Id>();
-		for(Sales_Tax_Item__c salesTaxItemRec : validSalesTaxItemList) {
-			salesTaxItemIdList.add(salesTaxItemRec.Id);
-		}
-		if(AccessControl.ifObjectFieldIsAccessible('Tax_Exemption__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		List<Tax_Exemption__c> taxExemptionList = [select Id from Tax_Exemption__c where Sales_Tax_Item__c IN: salesTaxItemIdList];
-		
-		if(taxExemptionList.size() > 0) {
-			if(AccessControl.ifObjectIsDeletable('Tax_Exemption__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-			delete taxExemptionList;
-		}
-	}
-	
-	private static void insertApplicableTaxes() {
-     
+		if(AccessControl.ifObjectFieldIsCreateable('Applicable_Taxes__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 		if(AccessControl.ifObjectFieldIsAccessible('Applicable_Taxes__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		List<Applicable_Taxes__c> listOfAssociatedTaxes = [Select ID, Sales_Tax__c from Applicable_Taxes__c where Sales_Tax_Item__c IN :oldMap.keyset()];
 		
@@ -108,7 +76,7 @@ public with sharing class SalesTaxItemTriggerHelper {
 		}
 		
 		if(appTaxToBeInsert.size() > 0) {
-			if(AccessControl.ifObjectFieldIsCreateable('Applicable_Taxes__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
+			
 			insert appTaxToBeInsert;
 		}
 	}

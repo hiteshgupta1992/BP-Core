@@ -92,7 +92,6 @@
 					 *
 					 */
 					scope.validateInputValue = function () {
-
 						var validateType = scope.validationModal[scope.validationModalKey].Type;
 						var fieldValue = scope.inputValue;
 						var minValue = scope.validationModal[scope.validationModalKey].Value;
@@ -120,8 +119,7 @@
 							}
 						}
 						
-						if (validateType.indexOf('MinValue') > -1) {
-						
+						if (scope.validationModal[scope.validationModalKey].isError == false && validateType.indexOf('MinValue') > -1) {
 							if (fieldValue <= minValue) {
 								scope.validationModal[scope.validationModalKey].isError = true;
 								scope.validationModal[scope.validationModalKey].ErrorMessage = '{!JSENCODE($Label.Value_must_be_greater_than)} ' + minValue;
@@ -131,7 +129,7 @@
 							}
 						}
 						
-						if (validateType.indexOf('MaxValue') > -1) {
+						if (scope.validationModal[scope.validationModalKey].isError == false && validateType.indexOf('MaxValue') > -1) {
 							if (fieldValue > minValue) {
 								scope.validationModal[scope.validationModalKey].isError = true;
 								scope.validationModal[scope.validationModalKey].ErrorMessage = '{!JSENCODE($Label.Value_must_be_lesser_than)} ' + minValue;
@@ -154,7 +152,7 @@
 							if (value) {
 								scope.inputValue = formatPrecision(value);
 								scope.inputValue;
-							}  
+							}
 						}
 						if (value != 0 && value == "") {
 							scope.inputValue = null;
@@ -166,7 +164,7 @@
 						
 						if (scope.blurCallback != undefined) {
 							scope.blurCallback();
-						}  
+						}
 					}
 				}
 			};

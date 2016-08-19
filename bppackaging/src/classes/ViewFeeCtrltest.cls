@@ -10,6 +10,9 @@ private class ViewFeeCtrltest {
     @testSetup
 	private static void setupTestData() {
 		TestUtil.createNameSpaceInGeneralConfig();
+		
+		List<General_Configurations__c> config = [SELECT Id FROM General_Configurations__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
+		System.assertNotEquals(0, config.size());
 	}
     
     static testMethod void getFeeDetailsTest() {
@@ -166,7 +169,7 @@ private class ViewFeeCtrltest {
         System.assertEquals(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Name, 'Service Order 1');
         
         String lineitems = CustomerOrderCtrl.addLineItems(BPUtility.getEncodedString(fee1.Id), BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id), BPUtility.getEncodedString(coHeader.Id),BPUtility.getEncodedString(customer.Id));
-        list<service_order_line_item__c> soh = [select id, fee__C from service_order_line_item__c];
+        list<service_order_line_item__c> soh = [select id, fee__C from service_order_line_item__c limit 100];
     	String SOHeaderDetails1 = CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null));
         SOHeaderWrapper soHeaderDetailsObj1 = (SOHeaderWrapper) System.JSON.deserialize(BPUtility.getDecodedString(SOHeaderDetails1), SOHeaderWrapper.class);
        	String feeDetails = ViewFeeCtrl.getFeeDetails(BPUtility.getEncodedString(fee1.Id), BPUtility.getEncodedString('activeorder'), BPUtility.getEncodedString(System.JSON.serialize(pageSort)));
@@ -229,7 +232,7 @@ private class ViewFeeCtrltest {
         System.assertEquals(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Name, 'Service Order 1');
         
         String lineitems = CustomerOrderCtrl.insertFeeInMerchGrid(BPUtility.getEncodedString(fee1.Id), BPUtility.getEncodedString(coHeader.Id));
-        list<service_order_line_item__c> soh = [select id, fee__C from service_order_line_item__c];
+        list<service_order_line_item__c> soh = [select id, fee__C from service_order_line_item__c limit 100];
     	String SOHeaderDetails1 = CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null));
         SOHeaderWrapper soHeaderDetailsObj1 = (SOHeaderWrapper) System.JSON.deserialize(BPUtility.getDecodedString(SOHeaderDetails1), SOHeaderWrapper.class);
        	String feeDetails = ViewFeeCtrl.getFeeDetails(BPUtility.getEncodedString(fee1.Id), BPUtility.getEncodedString('activeorder'), BPUtility.getEncodedString(System.JSON.serialize(pageSort)));

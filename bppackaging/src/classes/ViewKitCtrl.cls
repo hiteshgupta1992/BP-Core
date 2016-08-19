@@ -94,7 +94,6 @@ global with sharing class ViewKitCtrl {
      **/
     @remoteAction
     global static String saveKitHeader(String jsonString, String activeOrderPageSortAttrsJSON) {
-    	String errMsg = '';
     	try{
     		jsonString = BPUtility.getDecodedString(jsonString);
     		activeOrderPageSortAttrsJSON = BPUtility.getDecodedString(activeOrderPageSortAttrsJSON);
@@ -106,13 +105,7 @@ global with sharing class ViewKitCtrl {
 	       	Savepoint sp = Database.setSavepoint();
 	       	if(AccessControl.ifObjectIsUpdateable('Kit_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
 	       	if(AccessControl.ifObjectFieldIsCreateable('Kit_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
-	        try{
-	        	upsert kitHeaderToUpsert;
-	        }catch(exception e){ 
-        		if(e.getMessage().contains('duplicate value found: Code__c duplicates value')){
-        			throw new BlackPurlException('This Code already exists, please enter unique code');
-        		}
-	        }
+	        upsert kitHeaderToUpsert;
 	
 	        // Query all Kit_Transaction_Type_Junction__c
 	        if(AccessControl.ifObjectIsAccessible('Kit_Transaction_Type_Junction__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
@@ -282,7 +275,7 @@ global with sharing class ViewKitCtrl {
 	        kitHeaderRec.Fixed_Price_Flag__c = kitHeaderObj.IsFixedPrice;
 	        Errorhandler error = validateKitHeader(kitHeaderObj);
 	        if (kitHeaderRec.Id != null && error.ResponseCode == '200') {
-	        	//if(AccessControl.ifObjectIsAccessible('Kit_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
+	        	if(AccessControl.ifObjectIsAccessible('Kit_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
 	        	if(AccessControl.ifObjectIsUpdateable('Kit_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
 	            update kitHeaderRec;
 	        }
@@ -307,16 +300,16 @@ global with sharing class ViewKitCtrl {
     	try{
     		kitHeaderId = BPUtility.getDecodedString(kitHeaderId);
     		parenObjId = BPUtility.getDecodedString(parenObjId);
+    		parenObjId = BPUtility.escapeSingleQuotes(parenObjId);
     		kitContentPageSortAttrsJSON = BPUtility.getDecodedString(kitContentPageSortAttrsJSON);
     		activeOrderPageSortAttrsJSON = BPUtility.getDecodedString(activeOrderPageSortAttrsJSON);
     		
 	        String objectName = '';
-	        if (parenObjId != null && parenObjId != 'Customer' && parenObjId != 'Vendor' && !parenObjId.contains('__c')) {
+	        if (parenObjId != null) {
 	            objectName = (Id.valueOf(parenObjId)).getSObjectType().getDescribe().getName();
-	        } else {
-	        	return BPUtility.getEncodedString('{}');
 	        }
 			
+			if(AccessControl.ifObjectIsAccessible(objectName) == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
 	        Kit_Header_Line_Item__c kitLineItemToInsert = new Kit_Header_Line_Item__c();
 	        kitLineItemToInsert.Kit_Header__c = kitHeaderId;
 	        if (objectName == Constants.NAMESPACE + 'Part__c') {
@@ -324,7 +317,6 @@ global with sharing class ViewKitCtrl {
 	        } else if (objectName == Constants.NAMESPACE + 'Labour_Code__c') {
 	            kitLineItemToInsert.Labour_Code__c = parenObjId;
 	            if(AccessControl.ifObjectIsAccessible('Labour_Code__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
-	            parenObjId = BPUtility.escapeSingleQuotes(parenObjId);
 	            List<Labour_Code__c> labourCodeList = [select Fixed_Rate__c from Labour_Code__c where Id =: parenObjId AND Fixed_Rate__c = true];
 	            if(labourCodeList.size() > 0) {
 	            	kitLineItemToInsert.Fixed_Price__c = true;
@@ -333,10 +325,9 @@ global with sharing class ViewKitCtrl {
 	        
 	        Errorhandler error = validateKitLineItemOnInsert(kitHeaderId, kitLineItemToInsert);
 	        if (kitLineItemToInsert.Kit_Header__c != null && error.ResponseCode == '200') {
-	        	//if(AccessControl.ifObjectIsAccessible('Kit_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
-	        	//if(AccessControl.ifObjectIsCreateable('Kit_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
-	        	if(AccessControl.ifObjectIsCreateable('Kit_Header_Line_Item__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
-	        	
+	        	if(AccessControl.ifObjectIsAccessible('Kit_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
+	        	if(AccessControl.ifObjectIsCreateable('Kit_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
+	            if(AccessControl.ifObjectIsCreateable('Kit_Header_Line_Item__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
 	            insert kitLineItemToInsert;
 	        }
 	
@@ -361,9 +352,8 @@ global with sharing class ViewKitCtrl {
     		kitHeaderId = BPUtility.getDecodedString(kitHeaderId);
     		kitContentPageSortAttrsJSON = BPUtility.getDecodedString(kitContentPageSortAttrsJSON);
     		activeOrderPageSortAttrsJSON = BPUtility.getDecodedString(activeOrderPageSortAttrsJSON);
-    		
-    		if(AccessControl.ifObjectIsAccessible('Kit_Header_Line_Item__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
     		kitLineItemId = BPUtility.escapeSingleQuotes(kitLineItemId);
+    		if(AccessControl.ifObjectIsAccessible('Kit_Header_Line_Item__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
     		List < Kit_Header_Line_Item__c > kitLineItemList = [select Id from Kit_Header_Line_Item__c where Id =  : kitLineItemId];
 	        if (kitLineItemList.size() > 0) {
 	        	if(AccessControl.ifObjectIsDeletable('Kit_Header_Line_Item__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE);}

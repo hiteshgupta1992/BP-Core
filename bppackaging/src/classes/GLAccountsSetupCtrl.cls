@@ -31,7 +31,7 @@ public with sharing class GLAccountsSetupCtrl {
 			glAcc = new GL_Account__c();
 		} else {
 			try{
-				glAccountId = BPUtility.escapeSingleQuotes(glAccountId);
+				glAccountId= BPUtility.escapeSingleQuotes( glAccountId);
 				glAcc = [Select Id, MYOB_Account_Name__c, MYOB_Account_Number__c, Type__c from GL_Account__c where Id =: glAccountId];
 			} catch(QueryException e) {
 				glAcc = new GL_Account__c();
@@ -71,7 +71,7 @@ public with sharing class GLAccountsSetupCtrl {
     **/
 	public void editSelectedGLAccount() {
 		if(AccessControl.ifObjectFieldIsAccessible('GL_Account__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		glAccountId = BPUtility.escapeSingleQuotes(glAccountId);
+		glAccountId= BPUtility.escapeSingleQuotes( glAccountId);
 		glAcc = [Select Id, MYOB_Account_Name__c, MYOB_Account_Number__c, Type__c from GL_Account__c where Id =: glAccountId];
 	}
 	

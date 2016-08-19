@@ -162,7 +162,7 @@ private class ViewPartRelatedListCtrlTest {
         
        	List<AlternatePart.AlternatePartWrapper> alternatePartsList = (List<AlternatePart.AlternatePartWrapper> ) System.JSON.deserialize(alternatePartsAdded, List<AlternatePart.AlternatePartWrapper> .class);
        	//system.assert(false,  alternatePartsList);
-       	system.assertequals(alternatePartsList[0].AlternatePartRecord.AlternatePartNumber, 'partA');
+       	system.assertequals(alternatePartsList[0].TotalAlternateParts, 1);
        
     }
     
@@ -269,19 +269,17 @@ private class ViewPartRelatedListCtrlTest {
         Part__c partA = TestUtil.createPart(true, 'partA', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
         Part__c partB = TestUtil.createPart(true, 'partB', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
         //Part__c partC = TestUtil.createPart(true, 'partC', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
-       	//Part_Alternates__c partsAlternate = TestUtil.createPartAlternates(true, partB.Id, partA.Id, 'Alternate');
-       	//Part_Alternates__c partsAlternate1 = TestUtil.createPartAlternates(true, partA.Id, partB.Id, 'Alternate');
+       	Part_Alternates__c partsAlternate = TestUtil.createPartAlternates(true, partB.Id, partA.Id, 'Alternate');
+       	Part_Alternates__c partsAlternate1 = TestUtil.createPartAlternates(true, partA.Id, partB.Id, 'Alternate');
       	
         
         AlternatePart.RelatedListPaginationSorting pageSort = new AlternatePart.RelatedListPaginationSorting();
         pageSort.alternatePartsCurrentPage = 1;
         pageSort.alternatePartsPageSize = 10;
-        String alternatePartsAdded = BPUtility.getDecodedString(ViewPartRelatedListCtrl.addAlternatePartToPart(BPUtility.getEncodedString('[{"AlternatePartId":"'+partA.Id+'","Relation":"Alternate","PartId":"'+partB.Id+'"}]')));
-        String alternatePartRelation = BPUtility.getDecodedString(ViewPartRelatedListCtrl.updateAlternatePartRelation(BPUtility.getEncodedString(partA.Id), BPUtility.getEncodedString(partB.Id), BPUtility.getEncodedString('Replaces' )));
-       	//ViewPartRelatedListCtrl.AllAlternatePartsWrapper alternatePartsList = (ViewPartRelatedListCtrl.AllAlternatePartsWrapper) System.JSON.deserialize(alternatePartRelation, ViewPartRelatedListCtrl.AllAlternatePartsWrapper.class);
+        String alternatePartRelation = BPUtility.getDecodedString(ViewPartRelatedListCtrl.updateAlternatePartRelation(BPUtility.getEncodedString(partA.Id), BPUtility.getEncodedString(partsAlternate.Id), BPUtility.getEncodedString('Replaces') ));
        	//system.assert(false, alternatePartRelation );
-       	//system.assertEquals(alternatePartsList.TotalAlternateParts, null);
-       	system.assertEquals(true, true);
+       	system.assertEquals(alternatePartRelation.contains('Part cannot be updated'), true );
+       
     }
     
     	  /**
@@ -308,7 +306,7 @@ private class ViewPartRelatedListCtrlTest {
         pageSort.alternatePartsPageSize = 10;
         String alternatePartRelation = BPUtility.getDecodedString(ViewPartRelatedListCtrl.updateAlternatePartRelation(BPUtility.getEncodedString(partB.Id), BPUtility.getEncodedString(partsAlternate.Id), BPUtility.getEncodedString('Replaces' )));
        	//system.assert(false, alternatePartRelation );
-       	system.assertEquals(alternatePartRelation, '{}' );
+       	system.assertEquals(alternatePartRelation, '2' );
        
     }
     
@@ -387,7 +385,7 @@ private class ViewPartRelatedListCtrlTest {
         Integer taxExemptions =ViewPartRelatedListCtrl.getTotalTaxExemptionsForPart(BPUtility.getEncodedString(part.Id));
         //ViewPartRelatedListCtrl.AllTaxExemptionsWrapper taxExemptionList = (ViewPartRelatedListCtrl.AllTaxExemptionsWrapper) System.JSON.deserialize(taxExemptions, ViewPartRelatedListCtrl.AllTaxExemptionsWrapper.class);
         //system.assert(false, taxExemptionList);
-        system.assertEquals(taxExemptions, 500 );
+        system.assertEquals(taxExemptions, 1 );
     }
     
 

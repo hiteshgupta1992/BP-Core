@@ -119,12 +119,13 @@ global with sharing class HomeSearchCtrl {
 	 *			(2) pageAndSortFiltersJSON - String - 
 	 * @Return:	
 	 * 
-	**/ 
+	**/
 	@RemoteAction
 	@readOnly
     global static String getFilteredRecords(String filterJSON, String pageAndSortFiltersJSON) {
     	filterJSON = BPUtility.getDecodedString(filterJSON);
     	pageAndSortFiltersJSON = BPUtility.getDecodedString(pageAndSortFiltersJSON);
+    	
     	
     	HomeSearchFilterWrapper filterWrapperObj = (HomeSearchFilterWrapper) System.JSON.deserialize(filterJSON, HomeSearchFilterWrapper.class);
 		Map<String, List<HomeSearchFilterInterface.FieldFilter>> objectFiltersMap = HomeSearchFilterInterface.getFilterList(filterWrapperObj);
@@ -144,7 +145,6 @@ global with sharing class HomeSearchCtrl {
 		}
 		
 		List<HomeSearchFilterInterface.FilterLabel> filterLabelList = HomeSearchFilterInterface.getFilterLabelList(filterWrapperObj);
-		//system.assert(false, filterWrapperObj + '  ' + filterLabelList);
 		PaginationSorting pageAndSortMapping = (PaginationSorting) System.JSON.deserialize(pageAndSortFiltersJSON, PaginationSorting.class);
 
 		Integer totalRecordsFound;
@@ -409,7 +409,7 @@ global with sharing class HomeSearchCtrl {
 	@RemoteAction
 	global static String getFilterFields(String filterId){
 		filterId = BPUtility.getDecodedString(filterId);
-    	filterId = BPUtility.escapeSingleQuotes(filterId);
+    	filterId= BPUtility.escapeSingleQuotes(filterId );
 		if(AccessControl.ifObjectFieldIsAccessible('Filter__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		String filterQuery = 'SELECT Id';
 		for(String fieldStr : filterObjFieldsList) {
@@ -505,7 +505,7 @@ global with sharing class HomeSearchCtrl {
 	global static String renameCopyFilterRecord(String filterId, String filterName, Boolean Iscopy) {
 		filterId = BPUtility.getDecodedString(filterId);
     	filterName = BPUtility.getDecodedString(filterName);
-    	filterId = BPUtility.escapeSingleQuotes(filterId);
+    	filterId= BPUtility.escapeSingleQuotes(filterId );
 		if(AccessControl.ifObjectFieldIsCreateable('Filter__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }									
 		if(AccessControl.ifObjectFieldIsUpdateable('Filter__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		if(filterId != null){
@@ -585,7 +585,7 @@ global with sharing class HomeSearchCtrl {
 	**/
 	public static String getSavedFilterList( String  filterId){
 		if(AccessControl.ifObjectFieldIsAccessible('Filter__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		filterId = BPUtility.escapeSingleQuotes(filterId);
+		filterId= BPUtility.escapeSingleQuotes(filterId );
 		String filterQuery = 'SELECT Id';
 		for(String fieldStr : filterObjFieldsList) {
 			filterQuery += ', ' + fieldStr;

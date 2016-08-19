@@ -71,11 +71,11 @@ public with sharing class COTriggerHelper {
 	
 	// Search Tag Format - Customer Name, 
 	private static void populateSearchTag() {
-		if(AccessControl.ifObjectFieldIsAccessible('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		List<String> objNames = new List<String>{'CO_Header__c', 'Account', 'CO_Invoice_Header__c'};
+    	if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	
 		if(AccessControl.ifObjectFieldIsUpdateable('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		
-		if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		List<CO_Header__c> coHeaderList = [select Customer__r.Name, Search_Tag__c, 
 												(select Search_Tag__c from CO_Invoice_Headers__r) from CO_Header__c 
 												where Id IN: COHeaderNewList AND Customer__c != null];
@@ -110,8 +110,9 @@ public with sharing class COTriggerHelper {
      * @return: 
     **/
 	public static void setPriceLevelForRelatedCOLIs() {
-		if(AccessControl.ifObjectFieldIsAccessible('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		List<String> objNames = new List<String>{'CO_Header__c', 'Part__c'};
+    	if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	
 		if(AccessControl.ifObjectFieldIsUpdateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		
 		List<CO_Header__c> coHeaderList = [select Customer__c, Discount_Markup_From_Prive_Level__c, Part_Price_Base_From_Price_Level__c,
@@ -125,9 +126,8 @@ public with sharing class COTriggerHelper {
 	            }
     			partIdList.add(coLineItemRec.part__c);
     		}
-    	}
-    				
-    	if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	}			
+    	
     	Map<Id, Part__c> partIdToPartRecordMap = new Map<Id, Part__c>([select Id, Average_Cost__c, Last_Cost__c, MSRP__c, Retail_Price__c from Part__c where Id IN : partIdList]);
     	List<CO_Line_Item__c> coLineItemListToUpdate = new List<CO_Line_Item__c>();
     	
@@ -148,7 +148,8 @@ public with sharing class COTriggerHelper {
      * @return: 
     **/
 	private static void populatePriceLevelRelatedField() {
-		if(AccessControl.ifObjectFieldIsAccessible('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		List<String> objNames = new List<String>{'Account', 'Price_Level__c'};
+    	if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		
 		List<Id> customerIdList = new List<Id>();
 		for(CO_Header__c coHeaderRec : COHeaderNewList) {
@@ -159,22 +160,19 @@ public with sharing class COTriggerHelper {
 		
 		Map<Id, Account> customerMap = new Map<Id, Account>();
 		if(customerIdList.size() > 0) {
-			customerMap = new Map<Id, Account>([select Price_Level__c, Price_Level__r.Discount_Markup__c, Price_Level__r.Part_Price_Base__c, 
-													Price_Level__r.Labour_Rate__c from Account where Id IN : customerIdList]);
+			customerMap = new Map<Id, Account>([select Price_Level__c, Price_Level__r.Discount_Markup__c, Price_Level__r.Part_Price_Base__c from Account where Id IN : customerIdList]);
 		}
 		
 		for(CO_Header__c coHeaderRec : COHeaderNewList) {
 			if(coHeaderRec.Customer__c != null && customerMap.containsKey(coHeaderRec.Customer__c) && customerMap.get(coHeaderRec.Customer__c).Price_Level__c != null) {
 				coHeaderRec.Discount_Markup_From_Prive_Level__c = customerMap.get(coHeaderRec.Customer__c).Price_Level__r.Discount_Markup__c;
 				coHeaderRec.Part_Price_Base_From_Price_Level__c = customerMap.get(coHeaderRec.Customer__c).Price_Level__r.Part_Price_Base__c;
-				coHeaderRec.Labour_Rate_From_Price_Level__c = customerMap.get(coHeaderRec.Customer__c).Price_Level__r.Labour_Rate__c;
 			} else {
 				if(defaultPriceLevel == null) {
 					defaultPriceLevel = getDefaultPriceLevel();
 				} 
 				coHeaderRec.Discount_Markup_From_Prive_Level__c = (defaultPriceLevel.size() > 0) ? defaultPriceLevel[0].Discount_Markup__c : 0;
 				coHeaderRec.Part_Price_Base_From_Price_Level__c = (defaultPriceLevel.size() > 0) ? defaultPriceLevel[0].Part_Price_Base__c : null;
-				coHeaderRec.Labour_Rate_From_Price_Level__c = (defaultPriceLevel.size() > 0) ? defaultPriceLevel[0].Labour_Rate__c : 0;
 			}
 		}
 	}
@@ -186,7 +184,9 @@ public with sharing class COTriggerHelper {
      * @return: 
     **/
 	private static void populateSalesTaxRelatedFieldOnSOHeader() {
-		if(AccessControl.ifObjectFieldIsAccessible('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		List<String> objNames = new List<String>{'Account', 'Service_Order_Header__c', 'CO_Header__c'};
+    	if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	
 		if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		
 		List<Id> customerIdList = new List<Id>();
@@ -201,8 +201,6 @@ public with sharing class COTriggerHelper {
 			customerMap = new Map<Id, Account>([select Sales_Tax__c, Sales_Tax__r.Labour_Tax__c	from Account where Id IN : customerIdList]);
 		}
 		
-		if(AccessControl.ifObjectFieldIsAccessible('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		Map<Id, CO_Header__c> coHeaderMap = new Map<Id, CO_Header__c>([select Id, (select Labour_Tax__c from Service_Order_Headers__r) from CO_Header__c where Id IN: COHeaderNewList]);
 		List<Service_Order_Header__c> soHeaderListToUpdate = new List<Service_Order_Header__c>();
 		
@@ -235,10 +233,8 @@ public with sharing class COTriggerHelper {
      * @return: 
     **/
     public static void afterUpdateCalculation() {
-    	if(AccessControl.ifObjectFieldIsAccessible('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	if(AccessControl.ifObjectFieldIsAccessible('Part_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	List<String> objNames = new List<String>{'Account', 'CO_Line_Item__c', 'CO_Header__c', 'Part__c', 'Part_Tax__c'};
+    	if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	
     	if(isTriggerExecute) {
     		return;
@@ -330,7 +326,7 @@ public with sharing class COTriggerHelper {
     **/
     private static List<Price_Level__c> getDefaultPriceLevel() {
     	if(AccessControl.ifObjectFieldIsAccessible('Price_Level__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	defaultPriceLevel = [select Part_Price_Base__c, Discount_Markup__c, Labour_Rate__c from Price_Level__c where Default__c = true];
+    	defaultPriceLevel = [select Part_Price_Base__c, Discount_Markup__c from Price_Level__c where Default__c = true];
     	return defaultPriceLevel;
     }
     
@@ -346,7 +342,7 @@ public with sharing class COTriggerHelper {
     }
     
     
-    /**
+    /** 
      * Name: updateAccountFields
      * Desc: Method to update account fields when CO header is updated.
      * @param: 
@@ -378,7 +374,6 @@ public with sharing class COTriggerHelper {
     	}
     	
     	if(AccessControl.ifObjectFieldIsAccessible('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	if(AccessControl.ifObjectFieldIsAccessible('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	List<Account> customerList = [select Name, Orders_Lifetime__c, Open_Orders__c, Average_Spend_per_Order__c, (select Id, Order_status__c, Total_Order_Value__c, Total_Order_Tax__c from CO_Headers__r) from Account Where Id IN : customersIdList];
     	for(Account customerRec : customerList) {
     		customerRec.Orders_Lifetime__c =  customerRec.CO_Headers__r.size();

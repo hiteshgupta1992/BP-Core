@@ -1210,7 +1210,7 @@ static testMethod void commitRecevingActionTest() {
         String commitLineItems = VendorOrderReceivingCtrl.commitRecevingAction(BPUtility.getEncodedString(vorId));
         VendorOrderReceivingCtrl.VendorOrderReceiving voLineReceiveItems = (VendorOrderReceivingCtrl.VendorOrderReceiving)System.JSON.deserialize(BPUtility.getDecodedString(allLineItems), VendorOrderReceivingCtrl.VendorOrderReceiving.class);
         Test.StopTest();
-        List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
+        List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c limit 100];
         //system.assert(false, partList);
         system.assertEquals(partList[0].Qty_In_Stock__c, 320.00);
         system.assertEquals(partList[0].Qty_Committed__c, 100.00);
@@ -1271,7 +1271,7 @@ static testMethod void commitRecevingActionTest() {
 		//String commitLineItems = VendorOrderReceivingCtrl.commitRecevingAction(vorId);
 		Test.StopTest();
         
-        List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
+        List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c limit 100];
         //system.assert(false, partList);
         system.assertEquals(partList[0].Qty_In_Stock__c, 100.00);
         //system.assertEquals(partList[0].Qty_In_Stock__c, 386.00);
@@ -1329,13 +1329,13 @@ static testMethod void commitRecevingActionTest() {
         String commitLineItems = VendorOrderReceivingCtrl.commitRecevingAction(BPUtility.getEncodedString(vorId));
         VendorOrderReceivingCtrl.VendorOrderReceiving voLineReceiveItems = (VendorOrderReceivingCtrl.VendorOrderReceiving)System.JSON.deserialize(BPUtility.getDecodedString(allLineItems), VendorOrderReceivingCtrl.VendorOrderReceiving.class);
         
-        List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
+        List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c limit 100];
        	
         system.assertEquals(partList[0].Qty_In_Stock__c, 166.00);
         system.assertEquals(partList[0].Qty_Committed__c, 150.00);
         system.assertEquals(partList[0].Qty_On_Order__c, 0);
         
-         List<CO_Line_Item__c> colineitems = [select  Qty_Committed__c, Qty__c from CO_Line_Item__c];
+         List<CO_Line_Item__c> colineitems = [select  Qty_Committed__c, Qty__c from CO_Line_Item__c limit 100];
          system.assertEquals(colineitems[0].Qty_Committed__c, 150.00);
     }
 }

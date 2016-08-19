@@ -169,7 +169,7 @@
         }
         
         function debug(logString){
-            console.log(logString);
+            //console.log(logString);
         }
         
     </script>

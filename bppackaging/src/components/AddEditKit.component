@@ -26,7 +26,7 @@
         
         .kit_popup_container .popupright .tabconainer form .controls1{
             top: -45px;
-        }  
+        }
         
         .kit_popup_container .popupright .tabconainer form .form-group .txtbox:focus{
             border: none;
@@ -36,20 +36,8 @@
             margin-left: 0;
         }
         
-        .popupright .tabconainer .option_field .form_fields .WP	{
-         	width: 82%;	
-        }
-        
-        .popupright .tabconainer .option_field .controls .MTP	{
-        	margin-top: 12px;
-        }
-        
-        .popupright .tabconainer form .MTP30 {
-        	margin-top: 30px !important;
-        }
     </style>
     <script type="text/javascript">
-		
         var addEditKitModule = angular.module("addEditKitModule",['ui-notification']);
 		
 		addEditKitModule.directive('ngEnter', function() {
@@ -74,7 +62,7 @@
             }
             $scope.KitCompModal.KitModal = {};
             $scope.KitCompModal.SimilarKits = [];
-            $scope.KitCompModal.tabIndexValue = 2000;
+            
             $scope.KitCompModal.setDefaultValidationModel = function() {
                 $scope.KitCompModal.KitFormValidationModal = {
                     Code : {
@@ -104,7 +92,7 @@
             
             /****** Add/Edit Labour events ******/
             $scope.$on('AddKitEvent', function () {   
-                //debug('In Component'); 
+                debug('In Component'); 
                 $scope.KitCompModal.openAddKitPopup();
 
             });
@@ -320,18 +308,6 @@
                 
             }
             
-            $scope.KitCompModal.adjustTabIndex = function(e){
-	            if(!$scope.KitCompModal.isEditMode()){
-		            if(e.which == 9){
-		           		$('#feeCodeInput').focus();
-	            		e.preventDefault();
-	            	}
-	           	}else{
-	           		angular.element('#txtdescription').focus();
-	           	}
-            	
-            }
-            
             $scope.KitCompModal.clearFields = function(key, type){
                 if(type == 'value'){
                     $scope.KitCompModal.KitModal[key] = '';
@@ -465,9 +441,9 @@
                     // If parent page has save callback method, then perform the method and close popup
                     if($scope.$parent.kitRecordSaveCallback != undefined && $scope.KitCompModal.isEditMode){
                         $scope.$parent.kitRecordSaveCallback(kitRec.KitHeaderRec);
-                        Notification.success('Kit Saved Successfully');
+                        Notification.success('Kit Saved SucessFully');
                     }else{
-                    	Notification.success('Kit Saved Successfully');
+                    	Notification.success('Kit Saved SucessFully');
                     	var child = window.open("{!$Page.viewKit}?id="+kitRec.KitHeaderRec.Id);
                     	if(child == undefined ){
                     		Notification.warning('Allow pop-ups from browser settings');
@@ -478,7 +454,7 @@
                     }
                     $scope.KitCompModal.closePopup();  
                 }, function(errorSearchResult) {
-                    Notification.error(errorSearchResult);
+                    Notification.error('Some error occurred. Please try again.');
                 });
             }
             
@@ -646,15 +622,15 @@
                                     style="float: left; font-weight: bold; color: #B7BEC6; margin-top: 20px; margin-bottom: 10px; font-size: 20px;"></i>
                                 <div ng-class="{'min_overflow': KitCompModal.KitModal.IsServiceKit != true , 'max_overflow': KitCompModal.KitModal.IsServiceKit == true}">
                                     <div class="goldbox col-lg-12 col-md-12" ng-repeat="kit in KitCompModal.SimilarKits">
-                                        <!-- <div class="leftgoldbox">
+                                        <div class="leftgoldbox">
                                             <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
                                             <div class="star_container">
                                                 <i class="fa fa-star" style="float: left; color: #B7BEC6; margin-top: 5px; font-size: 15px;"></i>
                                                 <i class="fa fa-star" style="float: left; color: #B7BEC6; margin-top: 5px; font-size: 15px;"></i>
                                             </div>
-                                        </div> -->
+                                        </div>
 
-                                        <div class="rightgoldbox rightgoldboxML" id="CustomerSugesstionDiv" style="margin-left: 0px;">
+                                        <div class="rightgoldbox" id="CustomerSugesstionDiv">
 
                                             <div>
                                                 <p class="cust_name">{{kit.Code}}</p>
@@ -691,7 +667,6 @@
                                         ng-attr-tabindex="{{KitCompModal.tabIndexValue + 17}}" 
                                         ng-click="KitCompModal.closePopup()"> Cancel </button>
                                     <button type="button" class="btn btn-default greenBtn" 
-                                    	ng-keydown = "KitCompModal.adjustTabIndex($event);"
                                         ng-attr-tabindex="{{KitCompModal.tabIndexValue + 18}}" 
                                         ng-click="KitCompModal.SaveKitForm()"> Save </button>
                                 </div>
@@ -706,7 +681,7 @@
                                             <p class="req-label">Code</p>
                                         </div>
                                         <div class="form_fields">
-                                            <div class="form-group MB WP">
+                                            <div class="form-group large MB">
                                                 <input type="text" class="form-control" id="feeCodeInput" ng-model="KitCompModal.KitModal.Code" 
                                                         placeholder="Code" rel="kitCode" ng-disabled="KitCompModal.isEditMode"
                                                         maxlength="255" ng-blur="KitCompModal.validateFieldWithKey('Code'); KitCompModal.getSimilarKits('Code');" 
@@ -714,40 +689,32 @@
                                                         data-toggle="tooltip" title="{{KitCompModal.KitFormValidationModal['Code']['ErrorMessage']}}"
                                                         ng-attr-tabindex="{{KitCompModal.tabIndexValue + 1}}"/>
                                             </div>
-                                            
-                                        </div>
-                                        <div class="controls1 controls" id="kitCode">
-                                                <i class="fa fa-question-circle MTP" data-toggle="tooltip" title="{{KitCompModal.helpText['Code']}}"></i> 
+                                            <div class="controls1 controls" id="kitCode">
+                                                <i class="fa fa-question-circle" data-toggle="tooltip" title="{{KitCompModal.helpText['Code']}}"></i> 
                                                 <i class="fa fa-times" 
                                                     ng-click="KitCompModal.clearFields('Code','value');"></i>
+                                            </div>
                                         </div>
                                     </div>
-                                    
-                                   
-                                    
-                                    
-                                    
                                     <div class="clearfix"></div>
                                     
                                     <div class="option_field">
                                         <div class="lable_fields">
-                                            <!-- <span class="form_lable_icons text"> 100 </span> -->
-                                            <span class="form_lable_icons text" style="background: none;"></span>
+                                            <span class="form_lable_icons text"> 100 </span>
                                             <p class="req-label"> Description </p>
                                         </div>
                                         <div class="form_fields">
-                                            <div class="form-group MB WP">
-                                                <input type="text" class="form-control" id="txtdescription" ng-model="KitCompModal.KitModal.Description" placeholder="Description" rel="kitDescription" 
+                                            <div class="form-group large MB">
+                                                <input type="text" class="form-control" id="txtdescription" ng-model="KitCompModal.KitModal.Description" placeholder="Description" rel="description" 
                                                         ng-blur="KitCompModal.validateFieldWithKey('Description'); KitCompModal.getSimilarKits('Description');" ng-class="{'redborder' : KitCompModal.KitFormValidationModal['Description']['isError'] == true}"
                                                         data-toggle="tooltip" title="{{KitCompModal.KitFormValidationModal['Description']['ErrorMessage']}}"
                                                         ng-attr-tabindex="{{KitCompModal.tabIndexValue + 2}}"/>
                                             </div>
-                                            
-                                        </div>
-                                        <div class="controls1 controls" id="kitDescription">
-                                                <i class="fa fa-question-circle MTP" data-toggle="tooltip" title="{{KitCompModal.helpText['Description']}}"></i> 
+                                            <div class="controls1 controls" id="description">
+                                                <i class="fa fa-question-circle" data-toggle="tooltip" title="{{KitCompModal.helpText['Description']}}"></i> 
                                                 <i class="fa fa-times"
                                                     ng-click="KitCompModal.clearFields('Description','value');"></i>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="clearfix"></div>
@@ -763,7 +730,7 @@
                                                     <span class="chk_tick" ng-class="{'chked': KitCompModal.KitModal.CanItSplit == true}"
                                                     	ng-attr-tabindex="{{KitCompModal.tabIndexValue + 3}}"
                                                     	ng-enter="KitCompModal.KitModal.CanItSplit = !KitCompModal.KitModal.CanItSplit" 
-                                                    	ng-click="KitCompModal.KitModal.CanItSplit = !KitCompModal.KitModal.CanItSplit"> 
+                                                    	ng-click="debug(KitCompModal.KitModal.CanItSplit); KitCompModal.KitModal.CanItSplit = !KitCompModal.KitModal.CanItSplit"> 
                                                         <i class="fa fa-check-square chksqure"></i>
 
                                                     </span>
@@ -821,97 +788,11 @@
                             <div class="tabconainer BTPT" ng-show="KitCompModal.KitModal.IsServiceKit">
                                 <form>
                                     <div class="clearfix"></div>
-                                    
-                                     <!-- Start: updated by pooja -->
-                                   <div class="option_field">
-                                         <div class="lable_fields" style="margin-top: 25px;">
+                                    <div class="option_field">
+                                        <div class="lable_fields" style="margin-top: 25px;">
                                             <span class="form_lable_icons text hiddenfield"> </span>
                                             <p> Service Need </p>
-                                        </div> 
-                                        <div class="form_fields MT">
-                                            <div class="form-group large MB">
-                                                <p> Concern </p>
-                                                <div class="multiselect">
-                                                    <div ng-repeat="value in KitCompModal.KitModal.Concern track by $index">
-                                                        <span> 
-
-                                                            {{value}} 
-                                                            <i class="fa fa-times" ng-click="KitCompModal.removeFromMultiSelect($event, $index, 'Concern')"></i>
-                                                        </span>
-                                                    </div>
-                                                    <input type="text" class="txtbox form-control" id="txtconcern" ng-model="KitCompModal.NewConcern" 
-                                                        ng-attr-tabindex="{{KitCompModal.tabIndexValue + 6}}" 
-                                                        placeholder="Add Item" rel="Concern" ng-keydown="KitCompModal.addAndRemoveFromMultiSelect($event, 'Concern');" />
-                                                </div>
-                                            </div>
-                                            
                                         </div>
-                                        <div class="controls MTP30" id="Concern">
-                                            <i class="fa fa-question-circle" data-toggle="tooltip" title="{{KitCompModal.helpText['Concern']}}"></i>
-                                            <i class="fa fa-times"
-                                                ng-click="KitCompModal.clearFields('Concern','array');"></i>
-                                        </div>
-                                    </div>
-									<div class="option_field">
-                                        <div class="form_fields MT">
-                                            <div class="form-group large MB">
-                                                <p> Cause </p>
-                                                <div class="multiselect">
-                                                    <div ng-repeat="value in KitCompModal.KitModal.Cause track by $index">
-                                                        <span> 
-
-                                                            {{value}} 
-                                                            <i class="fa fa-times" ng-click="KitCompModal.removeFromMultiSelect($event, $index, 'Cause')"></i>
-                                                        </span>
-                                                    </div>
-                                                    <input type="text" class="txtbox form-control" id="txtcause" ng-model="KitCompModal.NewCause" 
-                                                        ng-attr-tabindex="{{KitCompModal.tabIndexValue + 7}}" 
-                                                        placeholder="Add Item" rel="Cause" ng-keydown="KitCompModal.addAndRemoveFromMultiSelect($event, 'Cause');" />
-                                                </div>
-                                            </div>
-
-                                            
-                                        </div>
-                                        <div class="controls MTP30" id="Cause">
-                                            <i class="fa fa-question-circle" data-toggle="tooltip" title="{{KitCompModal.helpText['Cause']}}"></i>
-                                            <i class="fa fa-times"
-                                                ng-click="KitCompModal.clearFields('Cause','array');"></i>
-                                        </div>
-                                     </div>
-                                     <div class="option_field">
-
-                                        <div class="form_fields MT">
-                                            <div class="form-group large MB">
-                                                <p> Correction </p>
-                                                <div class="multiselect">
-                                                    <div ng-repeat="value in KitCompModal.KitModal.Correction track by $index">
-                                                        <span> 
-
-                                                            {{value}} 
-                                                            <i class="fa fa-times" ng-click="KitCompModal.removeFromMultiSelect($event, $index, 'Correction')"></i>
-                                                        </span>
-                                                    </div>
-                                                    <input type="text" class="txtbox form-control" id="txtcorrection" ng-model="KitCompModal.NewCorrection"
-                                                        ng-attr-tabindex="{{KitCompModal.tabIndexValue + 8}}"  
-                                                        placeholder="Add Item" rel="Correction" ng-keydown="KitCompModal.addAndRemoveFromMultiSelect($event, 'Correction');" />
-                                                </div>
-                                            </div>
-                                            
-                                            
-                                        </div>
-                                        <div class="controls MTP30" id="Correction">
-                                            <i class="fa fa-question-circle" data-toggle="tooltip" title="{{KitCompModal.helpText['Correction']}}"></i>
-                                            <i class="fa fa-times"
-                                                ng-click="KitCompModal.clearFields('Correction','array');"></i>
-                                        </div>
-                                    </div>  
-                                    
-                                     <!-- Start: Commented by pooja -->
-                                 <!-- <div class="option_field">
-                                         <div class="lable_fields" style="margin-top: 25px;">
-                                            <span class="form_lable_icons text hiddenfield"> </span>
-                                            <p> Service Need </p>
-                                        </div> 
                                         <div class="form_fields MT">
                                             <div class="form-group large MB">
                                                 <p> Concern </p>
@@ -982,10 +863,7 @@
                                                     ng-click="KitCompModal.clearFields('Correction','array');"></i>
                                             </div>
                                         </div>
-                                    </div>  -->
-                                     <!-- End: Commented by pooja -->
-                                     <!-- End: updated by pooja -->
-                                    
+                                    </div>
                                     <div class="clearfix"></div>
                                     
                                     
@@ -1011,70 +889,7 @@
                                     </div>
                                     <div class="clearfix"></div>
                                     
-                                     <!-- Start: updated by pooja -->
-                                     <div class="option_field MT20">
-                                        <div class="lable_fields" style="margin-top: 25px;">
-                                            <!-- <span class="form_lable_icons text">100 </span> -->
-                                             <span class="form_lable_icons text" style="background: none;"></span>
-                                            <p>Applies To</p>
-                                        </div>
-                                        <div class="form_fields MT">
-                                            <div class="form-group haff MB ">
-                                                <p>Make</p>
-                                                <select class="form-control" id="make" ng-model="KitCompModal.SelectedMake" 
-                                                    ng-attr-tabindex="{{KitCompModal.tabIndexValue + 12}}" rel="kitAppliesToMake"  
-                                                    ng-change="KitCompModal.setModelOptions();"
-                                                    ng-options="make as make.UnitMakeName for make in KitCompModal.UnitMakeList track by make.Id">
-                                                </select>
-                                            </div>
-                                            
-                                            
-                                        </div>
-                                        <div class="controls MTP30"  id="kitAppliesToMake">
-                                            <i class="fa fa-question-circle" data-toggle="tooltip" title="{{KitCompModal.helpText['Make']}}"></i>
-                                            <i class="fa fa-times"
-                                                ng-click="KitCompModal.clearFields('SelectedMake','dropdown');"></i>
-                                        </div>
-                                    </div>
-									<div class="option_field">
-									
-                                        <div class="form_fields MT">
-                                            <div class="form-group haff MB">
-                                                <p> Model </p>
-                                                <select class="form-control" id="model" ng-model="KitCompModal.SelectedModel" 
-                                                    ng-attr-tabindex="{{KitCompModal.tabIndexValue + 13}}" rel="kitAppliesToModel"  
-                                                    ng-options="model as model.UnitModelName for model in KitCompModal.UnitModelList track by model.Id">
-                                                </select>
-                                            </div>
-                                            
-                                        </div>
-                                        <div class="controls MTP30"  id="kitAppliesToModel">
-                                            <i class="fa fa-question-circle" data-toggle="tooltip" title="{{KitCompModal.helpText['Model']}}"></i>
-                                            <i class="fa fa-times"
-                                                ng-click="KitCompModal.clearFields('SelectedModel','dropdown');"></i>
-                                        </div>
-                                            
-                                        
-									</div>
-									<div class="option_field">
-                                        <div class="form_fields MT" style="margin-bottom: 20px;">
-                                            <div class="form-group haff MB ">
-                                                <p> Sub Model </p>
-                                                <select class="form-control" id="submodel" ng-model="KitCompModal.SelectedSubModel" 
-                                                    ng-attr-tabindex="{{KitCompModal.tabIndexValue + 14}}" rel="kitAppliesToSubModel"  
-                                                    ng-options="submodel as submodel.SubModelName for submodel in KitCompModal.UnitSubModelList track by submodel.Id">
-                                                </select>
-                                            </div>
-                                            
-                                        </div>
-                                        <div class="controls MTP30"  id="kitAppliesToSubModel">
-                                            <i class="fa fa-question-circle" data-toggle="tooltip" title="{{KitCompModal.helpText['SubModel']}}"></i>
-                                            <i class="fa fa-times"
-                                                ng-click="KitCompModal.clearFields('SelectedSubModel','dropdown');"></i>
-                                        </div>
-                                    </div> 
-                                    <!-- Start: Commented by pooja -->
-                                    <!-- <div class="option_field MT20">
+                                    <div class="option_field MT20">
                                         <div class="lable_fields" style="margin-top: 25px;">
                                             <span class="form_lable_icons text">100 </span>
                                             <p>Applies To</p>
@@ -1126,9 +941,7 @@
                                                     ng-click="KitCompModal.clearFields('SelectedSubModel','dropdown');"></i>
                                             </div>
                                         </div>
-                                    </div> -->
-                                    <!-- End: Commented by pooja -->
-                                     <!-- End: updated by pooja -->
+                                    </div>
                                 </form>
                             </div>
                                     
@@ -1160,10 +973,9 @@
     
         $('.controls').hide();  
         $(".form-control").focus(function(){
-            //debug('form-control focus');
-            $('.controls').hide(); 
-            debug($(this).attr('rel')) ;
-            $('#'+ $(this).attr('rel')).css('display','block'); 
+            debug('form-control focus');
+            $('.controls').hide();  
+            $('#'+ $(this).attr('rel')).css('display','block');
 
             if($( this ).hasClass( "txtbox" )){
                 $(".multiselect").css("border","1px solid #ccc");
@@ -1184,7 +996,6 @@
 
             });
              $(document).on("mouseleave", ".multiselect span", function() {
-             console.log("display none")
                 $(this).find("i").css("display","none");
 
             });

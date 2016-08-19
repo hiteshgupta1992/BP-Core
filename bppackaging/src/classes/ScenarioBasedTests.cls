@@ -12,6 +12,9 @@ private class ScenarioBasedTests {
     @testSetup
 	private static void setupTestData() {
 		TestUtil.createNameSpaceInGeneralConfig();
+		
+		List<General_Configurations__c> config = [SELECT Id FROM General_Configurations__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
+		System.assertNotEquals(0, config.size());
 	}
     
  
@@ -402,9 +405,11 @@ private class ScenarioBasedTests {
      * @param:  (1) JSONString - String - JSON String 
      * @return: RelatedListPaginationSorting - Class Object
     **/
+    /*
     public static VendorPaginationSorting parsePageAttrs(String json) {
         return (VendorPaginationSorting) System.JSON.deserialize(json, VendorPaginationSorting.class);
     }
+    */
     
     // Wrapper class for related list pagination and sorting combination
     public class VendorPaginationSorting {
@@ -496,7 +501,7 @@ private class ScenarioBasedTests {
         COTriggerHelper.isTriggerExecute = false;
         String commitLineItems = BPUtility.getDecodedString(VendorOrderReceivingCtrl.commitRecevingAction(BPUtility.getEncodedString(vorId)));
         
-        List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
+        List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c Limit 100];
         Test.stopTest();
         
         //system.assert(false, partList);
@@ -504,10 +509,10 @@ private class ScenarioBasedTests {
         system.assertEquals(partList[0].Qty_Committed__c, 150.00);
         system.assertEquals(partList[0].Qty_On_Order__c, 0);
         
-        List<CO_Line_Item__c> colineitem12 = [select Part__c, Qty_Committed__c, Qty__c, Status__c from CO_Line_Item__c];
+        List<CO_Line_Item__c> colineitem12 = [select Part__c, Qty_Committed__c, Qty__c, Status__c from CO_Line_Item__c Limit 100];
         system.assertEquals(colineitem12[0].Qty_Committed__c, 150.00);
         
-        List<Vendor_Order_Header__c> voHeader12 = [select Status__c,    Vendor__c from Vendor_Order_Header__c];
+        List<Vendor_Order_Header__c> voHeader12 = [select Status__c,    Vendor__c from Vendor_Order_Header__c Limit 100];
         //system.assert(false, voHeader12);
     }
   
@@ -571,10 +576,10 @@ static testMethod void commitRecevingActionTestforStock() {
         COTriggerHelper.isTriggerExecute = false;
         String commitLineItems = BPUtility.getDecodedString(VendorOrderReceivingCtrl.commitRecevingAction(BPUtility.getEncodedString(vorId)));
         
-         List<Vendor_Order_Line_Item__c> voliList = [select Qty_Needed__c, Received__c from Vendor_Order_Line_Item__c];
+         List<Vendor_Order_Line_Item__c> voliList = [select Qty_Needed__c, Received__c from Vendor_Order_Line_Item__c Limit 100];
         //system.assert(false, voliList);
         
-        List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
+        List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c Limit 100];
         Test.stopTest();
         
         //system.assert(false, partList);
@@ -582,10 +587,10 @@ static testMethod void commitRecevingActionTestforStock() {
         system.assertEquals(partList[0].Qty_Committed__c, 100.00);
         system.assertEquals(partList[0].Qty_On_Order__c, 22);
         
-        List<CO_Line_Item__c> colineitem12 = [select Part__c, Qty_Committed__c, Qty__c, Status__c from CO_Line_Item__c];
+        List<CO_Line_Item__c> colineitem12 = [select Part__c, Qty_Committed__c, Qty__c, Status__c from CO_Line_Item__c Limit 100];
         system.assertEquals(colineitem12[0].Qty_Committed__c, 100.00);
         
-        List<Vendor_Order_Header__c> voHeader12 = [select Status__c,    Vendor__c from Vendor_Order_Header__c];
+        List<Vendor_Order_Header__c> voHeader12 = [select Status__c,    Vendor__c from Vendor_Order_Header__c Limit 100];
         //system.assert(false, voHeader12);
     }
     
@@ -635,10 +640,10 @@ static testMethod void commitRecevingActionTestforStock() {
         
         Test.stopTest();
         
-        List<Vendor_Order_Header__c> voHeaderList = [select Status__c from Vendor_Order_Header__c];
+        List<Vendor_Order_Header__c> voHeaderList = [select Status__c from Vendor_Order_Header__c Limit 100];
         //system.assert(false, voHeaderList);
         
-        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
+        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c Limit 100];
         //system.assert(false, partList1);
         system.assertEquals(partList1[0].Qty_In_Stock__c, 166.00);
         system.assertEquals(partList1[0].Qty_Committed__c, 150.00);
@@ -694,7 +699,7 @@ static testMethod void commitRecevingActionTestforStockPartialReceive() {
         
 
         
-        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
+        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c Limit 100];
         //system.assert(false, partList1);
         system.assertEquals(partList1[0].Qty_In_Stock__c, 320.00);
         system.assertEquals(partList1[0].Qty_Committed__c, 100.00);
@@ -749,7 +754,7 @@ static testMethod void commitRecevingActionTestforBothCustomerAndStockPartialRec
         
 
         
-        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
+        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c Limit 100];
         //system.assert(false, partList1);
         system.assertEquals(partList1[0].Qty_In_Stock__c, 386.00);
         system.assertEquals(partList1[0].Qty_Committed__c, 150.00);
@@ -807,7 +812,7 @@ static testMethod void commitRecevingActionTestforBothCustomerAndStockPartialRec
         
 
         
-        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
+        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c Limit 100];
         //system.assert(false, partList1);
         system.assertEquals(partList1[0].Qty_In_Stock__c, 474.00);
         system.assertEquals(partList1[0].Qty_Committed__c, 250.00);
@@ -863,7 +868,7 @@ static testMethod void commitRecevingActionTestforBothCustomerAndStockPartialRec
         
         Test.stopTest();
         
-        List<Vendor_Order_Header__c> voHeaderList = [select Status__c from Vendor_Order_Header__c];
+        List<Vendor_Order_Header__c> voHeaderList = [select Status__c from Vendor_Order_Header__c Limit 100];
         system.assertEquals(voHeaderList[0].Status__c, 'Partially Received');
         
         /*List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
@@ -938,13 +943,13 @@ static testMethod void commitRecevingActionTestforBothCustomerAndStockPartialRec
         
         Test.stopTest();
         
-        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
+        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c Limit 100];
         //system.assert(false, partList1);
         system.assertEquals(partList1[0].Qty_In_Stock__c, 386.00);
         system.assertEquals(partList1[0].Qty_Committed__c, 150.00);
         system.assertEquals(partList1[0].Qty_On_Order__c, 0);
         
-        List<Vendor_Order_Line_Item_Group__c> volig = [select Need__c, Received_Qty__c, Part__c from Vendor_Order_Line_Item_Group__c];
+        List<Vendor_Order_Line_Item_Group__c> volig = [select Need__c, Received_Qty__c, Part__c from Vendor_Order_Line_Item_Group__c Limit 100];
         system.assertEquals(volig[0].Need__c, 286);
         system.assertEquals(volig[0].Received_Qty__c, 286);
 
@@ -1416,6 +1421,8 @@ static testMethod void commitRecevingActionTestforBothCustomerAndStockPartialRec
         Test.StopTest();
         String details1 = BPUtility.getDecodedString(CustomerOrderCtrl.getCOHeaderDetails(BPUtility.getEncodedString(coHeader.Id)));
         COHeaderWrapper coHeaderDetails1 = (COHeaderWrapper) System.JSON.deserialize(details1, COHeaderWrapper.class);
+        List<Contact> accList = [select Id, Name from Contact limit 100];
+       	system.assertEquals(accList.size(), 0);
         //system.assert(false, coHeaderDetails1);
         /*system.assertEquals(coHeaderDetails1.COInvoiceHistoryRecs[0].NumberOfItems, 1);
         system.assertEquals(coHeaderDetails1.COInvoiceHistoryRecs[0].Total, 27500.000);
@@ -2201,7 +2208,7 @@ static testMethod void ScenarioForMerchAndSOsectionHavingSameKit() {
         //System.assert(false, soHeaderDetailsObj1 );
         System.assertEquals(soHeaderDetailsObj1.SOList[0].SOHeaderInfo.Total, 600);
         
-        list<Service_Order_Line_Item__c> solis = [select  Qty_Needed__c, Kit_Price__c,  Retail_Price__c, qty_committed__c, 	Total__c from Service_Order_Line_Item__c];
+        list<Service_Order_Line_Item__c> solis = [select  Qty_Needed__c, Kit_Price__c,  Retail_Price__c, qty_committed__c, 	Total__c from Service_Order_Line_Item__c Limit 100];
         
         system.assertEquals(solis[0].Total__c, 600);
         

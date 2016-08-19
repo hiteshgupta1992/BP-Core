@@ -58,6 +58,9 @@ private class CountryTriggerHelperTest {
         } catch (Exception e) {
             system.assertEquals(e != null, true);
         }
+        
+        List<Account> accList = [select Id, Name from Account limit 100];
+        system.assertEquals(accList.size(), 0);
         Test.stopTest();
     }
     
@@ -78,6 +81,8 @@ private class CountryTriggerHelperTest {
         } catch (Exception e) {
             system.assertEquals(e != null, true);
         }
+        List<Account> accList = [select Id, Name from Account limit 100];
+        system.assertEquals(accList.size(), 0);
         Test.stopTest();
     }
     
@@ -97,6 +102,8 @@ private class CountryTriggerHelperTest {
         } catch (Exception e) {
             system.assertEquals(e != null, true);
         }
+        List<Account> accList = [select Id, Name from Account limit 100];
+        system.assertEquals(accList.size(), 0);
         Test.stopTest();
     }
     
@@ -116,6 +123,8 @@ private class CountryTriggerHelperTest {
         } catch (Exception e) {
             system.assertEquals(e != null, true);
         }
+        List<Account> accList = [select Id, Name from Account limit 100];
+        system.assertEquals(accList.size(), 0);
         Test.stopTest();
     }
     
@@ -151,6 +160,8 @@ private class CountryTriggerHelperTest {
         } catch (Exception e) {
             system.assertEquals(e != null, true);
         }
+        List<Account> accList = [select Id, Name from Account limit 100];
+        system.assertEquals(accList.size(), 0);
         Test.stopTest();
     }
     

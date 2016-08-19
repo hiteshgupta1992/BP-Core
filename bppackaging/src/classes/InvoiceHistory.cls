@@ -31,13 +31,12 @@ public with sharing class InvoiceHistory {
 	
 	// Constructor
     public InvoiceHistory(CO_Invoice_Header__c  coInvoiceHeaderRec) {
-    	this.InvoiceNumber = coInvoiceHeaderRec !=null ? coInvoiceHeaderRec.Invoice_Number__c : '';	
+    	this.InvoiceNumber = coInvoiceHeaderRec.Name;
     	this.ClosedInvoiceDate = String.valueOf(Date.valueOf(coInvoiceHeaderRec.Invoice_Date__c).format());
     	
     	Decimal noOfItems = 0;
     	Decimal totalPrice = 0;
     	Decimal totalTax = 0;
-    	Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
      	
      	// Calculation on CO Invoice Items
      	for(CO_Invoice_Item__c coInvoiceItemRec : coInvoiceHeaderRec.CO_Invoice_Items__r) {
@@ -64,16 +63,9 @@ public with sharing class InvoiceHistory {
     	} 
     	
     	this.NumberOfItems = noOfItems;
-    	
-    	if(!isTaxIncludingPricing) {
-	    	this.SubTotal = totalPrice.setScale(2);
-	    	this.Tax = totalTax.setScale(2);
-	    	this.Total = this.SubTotal + this.Tax; 
-    	} else {
-    		this.Tax = totalTax.setScale(2);
-    		this.SubTotal = totalPrice.setScale(2) + this.Tax;
-    		this.Total = this.SubTotal;
-    	}
+    	this.SubTotal = totalPrice;
+    	this.Tax = totalTax;
+    	this.Total = this.SubTotal + this.Tax; 
     	this.COInvoiceHeaderId = coInvoiceHeaderRec.Id;
     	this.CheckoutType = coInvoiceHeaderRec.Checkout_Type__c;
     } 
@@ -90,8 +82,7 @@ public with sharing class InvoiceHistory {
                                                         	'CO_Header__c',
                                                         	'Invoice_Date__c',
                                                         	'Invoice_Status__c',
-                                                        	'Checkout_Type__c',
-                                                        	'Invoice_Number__c'
+                                                        	'Checkout_Type__c'
                                                			 };
         return COInvoiceHeaderFields;
     }

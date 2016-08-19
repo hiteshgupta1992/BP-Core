@@ -4,19 +4,12 @@ public with sharing class SOInfoPrintPreviewPDFCtrl {
 	public SOInfoPrintPreviewPDFCtrl(){
 			String soHeaderId = ApexPages.currentPage().getParameters().get('id');
 			soHeaderId = String.escapeSingleQuotes(soHeaderId);
-			 
+			
 			List<CO_Header__c> coHeaderRecs = new List<CO_Header__c>();
 			List<Customer_Owned_Unit__c> couRecords = new List<Customer_Owned_Unit__c>();
 			List<Account> customerList = new List<Account>();
 			List<Service_Order_Kit_Header__c> soKitHeaderList = new List<Service_Order_Kit_Header__c>();
 			List<Service_Order_Header__c> soHeaderRecList = SOQLUtil.getSODetailsByFieldName(new Map<String, String>{'Id' => string.escapesinglequotes(soHeaderId)});
-			
-			if(AccessControl.ifObjectFieldIsAccessible('Individual_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-			List<Individual_Tax__c> individualTaxList = [select Sales_Tax_Item_Name__c, Tax_Rate__c, Service_Order_Line_Item__c, 		
-    														Service_Order_Line_Item__r.Total__c, Service_Order_Line_Item__r.Tax_Percent__c	 		
-    														from Individual_Tax__c		
-    														where Service_Order_Line_Item__r.Service_Order_Header__c =: soHeaderId];
-			
 			if(soHeaderRecList.size() != 0) {
 				soKitHeaderList = SOQLUtil.getSOKitHeaderByFieldName(new Map<String, String>{'Service_Order_Header__c' => string.escapesinglequotes(soHeaderId)});
 				Service_Order_Header__c soHeaderRec = soHeaderRecList[0];
@@ -25,7 +18,7 @@ public with sharing class SOInfoPrintPreviewPDFCtrl {
 	    			couRecords = (soHeaderRec.Customer_Owned_Unit__c != null) ? SOQLUtil.getCOUListByFieldName('Id', soHeaderRec.Customer_Owned_Unit__c) : new List<Customer_Owned_Unit__c>();
 	   				customerList = SOQLUtil.getCustomer(coHeaderRecs[0].Customer__c, null);
 				}
-	        	printingInfoObj = new PrintingInfo(customerList, couRecords, coHeaderRecs, soHeaderRec, soKitHeaderList, individualTaxList);
+	        	printingInfoObj = new PrintingInfo(customerList, couRecords, coHeaderRecs, soHeaderRec, soKitHeaderList);
 			}
 	}
 	
@@ -43,9 +36,8 @@ public with sharing class SOInfoPrintPreviewPDFCtrl {
 		public Decimal Total_Sublet{Set;get;}
 		public Decimal Total_Other{Set;get;}
 		public Decimal Total{Set;get;}
-		public Decimal SalesTax{set;get;}
-		public List<IndividualTax> SalesTaxList{set;get;}
-		public Boolean IsTaxIncludingPricing{set;get;}
+			
+			
 			
 		 /**
 		 * Name: PrintingInfo
@@ -58,7 +50,7 @@ public with sharing class SOInfoPrintPreviewPDFCtrl {
 		 * @Return:	
 		 **/
 		public PrintingInfo(List<Account> customerList, List<Customer_Owned_Unit__c> couList, List<CO_Header__c> coHeaderList, Service_Order_Header__c soHeaderRec, 
-								List<Service_Order_Kit_Header__c> soKitHeaderList, List<Individual_Tax__c> individualTaxList) {
+								List<Service_Order_Kit_Header__c> soKitHeaderList) {
 			this.SOGridItems = new List<SOGrid>();
 			
 			this.CustomerInfo = (customerList.size() > 0) ? new Customer(customerList[0]) : new Customer(new Account());
@@ -72,104 +64,38 @@ public with sharing class SOInfoPrintPreviewPDFCtrl {
 			this.Total_Sublet = 0;
 			this.Total_Other = 0;
 			this.Total = 0;
-			this.SalesTax = 0;
-			this.SalesTaxList = new List<IndividualTax>();		
-			this.IsTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
 			
 			Set<Id> soliIdSet = new Set<Id>();
 			for(Service_Order_Kit_Header__c soKHRec : soKitHeaderList) {
 				this.SOGridItems.add(new SOGrid(soKHRec, soKHRec.Service_Order_Line_Items__r, true));
             	for(Service_Order_Line_Item__c soliRec : sokhRec.Service_Order_Line_Items__r) {
-            		if(soliRec.Tax_Percent__c == null) {
-            			soliRec.Tax_Percent__c = 0;
-            		}
             		soliIdSet.add(soliRec.Id);
             		if(soliRec.Labour_Code__c != null && soliRec.Part__c == null) {
             			this.Total_Laobur += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
-            			if(isTaxIncludingPricing) {
-                        	this.Total_Laobur += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
-                        } else {
-                        	this.SalesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
-                        }
             		} else if(soliRec.Labour_Code__c == null && soliRec.Part__c != null) {
             			this.Total_Part += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
-            			if(isTaxIncludingPricing) {
-	                    	this.Total_Part += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
-	                    } else {
-	                    	this.SalesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
-	                    }
             		} else if(soliRec.Fee__c != null) {
             			this.Total_Other += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
-            			if(isTaxIncludingPricing) {
-                        	this.Total_Other += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
-                        } else {
-                        	this.SalesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
-                        }
             		}
             	} 
 			}
 			
 			for(Service_Order_Line_Item__c soliRec : soHeaderRec.Service_Order_Line_Items__r) {
-				if(soliRec.Tax_Percent__c == null) {
-        			soliRec.Tax_Percent__c = 0;
-        		}
         		if(!soliIdSet.contains(soliRec.Id)) {
     				this.SOGridItems.add(new SOGrid(new Service_Order_Kit_Header__c(), new List<Service_Order_Line_Item__c>{soliRec}, false));
     				if(soliRec.Labour_Code__c != null && soliRec.Part__c == null) {
             			this.Total_Laobur += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
-            			if(isTaxIncludingPricing) {
-                        	this.Total_Laobur += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
-                        } else {
-                        	this.SalesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
-                        }
             		} else if(soliRec.Labour_Code__c == null && soliRec.Part__c != null) {
             			this.Total_Part += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
-            			if(isTaxIncludingPricing) {
-	                    	this.Total_Part += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
-	                    } else {
-	                    	this.SalesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
-	                    }
             		} else if(soliRec.Fee__c != null) {
             			this.Total_Other += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
-            			if(isTaxIncludingPricing) {
-                        	this.Total_Other += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
-                        } else {
-                        	this.SalesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
-                        }
             		}
         		}
         	}
         	this.Total = this.Total_Part + this.Total_Laobur + this.Total_Sublet + this.Total_Other;
-        	Map<String, Decimal> salesTaxItemNameToTaxValueMap = new Map<String, Decimal>();
-        	for(Individual_Tax__c individualTaxRec : individualTaxList) {
-        		if(!salesTaxItemNameToTaxValueMap.containsKey(individualTaxRec.Sales_Tax_Item_Name__c)) {
-        			salesTaxItemNameToTaxValueMap.put(individualTaxRec.Sales_Tax_Item_Name__c, 0);
-        		}
-        		if(individualTaxRec.Service_Order_Line_Item__r.Total__c != null) {
-        			if(individualTaxRec.Tax_Rate__c == null) {
-        				individualTaxRec.Tax_Rate__c = 0;
-        			}
-        			Decimal oldTaxValue = salesTaxItemNameToTaxValueMap.get(individualTaxRec.Sales_Tax_Item_Name__c) + 
-        						((individualTaxRec.Tax_Rate__c * individualTaxRec.Service_Order_Line_Item__r.Total__c) / 100);
-        			salesTaxItemNameToTaxValueMap.put(individualTaxRec.Sales_Tax_Item_Name__c, oldTaxValue);
-        		}
-        	}
-        	for(String salesTaxName : salesTaxItemNameToTaxValueMap.keySet()) {
-        		this.SalesTaxList.add(new IndividualTax(salesTaxName, salesTaxItemNameToTaxValueMap.get(salesTaxName)));
-        	}
-        	//system.assert(false, SalesTaxList);
 		}	
 	}
-	
-	public class IndividualTax {		
-    	public String TaxName{set;get;}		
-    	public Decimal TaxValue{set;get;}		
-    			
-    	public IndividualTax(String taxName, Decimal taxValue) {		
-    		this.TaxName = taxName;		
-    		this.TaxValue = (taxValue != null) ? taxValue.setScale(2) : 0;		
-    	}		
-    }		
+		
 	
 	/**
 	* Name: Customer
@@ -400,9 +326,9 @@ public with sharing class SOInfoPrintPreviewPDFCtrl {
 			}
 			
 			this.WorkStatus = soHeaderRec.Work_Status__c;
-			if(this.WorkStatus != null && Constants.workStatusToAvailableStatusMap.containsKey(this.WorkStatus)) {
+			if(this.WorkStatus != null && CustomerOrderCtrl.workStatusToAvailableStatusMap.containsKey(this.WorkStatus)) {
 				this.AvailableWorkStatusList = new List<AvailableStatus>();
-				for(String status : Constants.workStatusToAvailableStatusMap.get(this.WorkStatus)) {
+				for(String status : CustomerOrderCtrl.workStatusToAvailableStatusMap.get(this.WorkStatus)) {
             		this.AvailableWorkStatusList.add(new AvailableStatus(status));
             	}
 			} else {
@@ -410,9 +336,9 @@ public with sharing class SOInfoPrintPreviewPDFCtrl {
 			}
 			
 			this.ClaimStatus = soHeaderRec.Claim_Status__c;
-			if(this.ClaimStatus != null && Constants.claimStatusToAvailableStatusMap.containsKey(this.ClaimStatus)) {
+			if(this.ClaimStatus != null && CustomerOrderCtrl.claimStatusToAvailableStatusMap.containsKey(this.ClaimStatus)) {
 				this.AvailableClaimStatusList = new List<AvailableStatus>();
-	            for(String status : Constants.claimStatusToAvailableStatusMap.get(this.ClaimStatus)) {
+	            for(String status : CustomerOrderCtrl.claimStatusToAvailableStatusMap.get(this.ClaimStatus)) {
 	            	this.AvailableClaimStatusList.add(new AvailableStatus(status));
 	            }
 			} else {
@@ -449,26 +375,15 @@ public with sharing class SOInfoPrintPreviewPDFCtrl {
     	* @return: 
    		**/
 		public SOKitHeader(Service_Order_Kit_Header__c soKitHeaderRec, List<Service_Order_Line_Item__c> soliList, Boolean hasChildren) {
-			Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
 			this.SOLIList = new List<SOLineItem>();
+			
 			this.ItemDescription = soKitHeaderRec.Kit_Unique_Name__c;
 			this.CanItSplit = soKitHeaderRec.Can_Split__c;
 			this.IsServiceKit = soKitHeaderRec.Service_Kit__c;
 			this.Code = soKitHeaderRec.Code__c;
 			this.Id = soKitHeaderRec.Id;
 			this.isFixedKitHeaderSO = soKitHeaderRec.Is_Fixed_Kit_Header_SO__c;
-			if (!isTaxIncludingPricing) {
-				this.FixedPrice = (soKitHeaderRec.Fixed_Price__c != null) ? soKitHeaderRec.Fixed_Price__c.SetScale(2) : soKitHeaderRec.Fixed_Price__c;
-			} else {
-				if (soKitHeaderRec.Fixed_Price__c == null) {
-					soKitHeaderRec.Fixed_Price__c = 0;
-				}
-				if (soKitHeaderRec.Tax_Amount__c == null) {
-					soKitHeaderRec.Tax_Amount__c = 0;
-				}
-				//system.assert(false,soKitHeaderRec);
-				this.FixedPrice = (soKitHeaderRec.Fixed_Price__c + soKitHeaderRec.Tax_Amount__c).setscale(2);
-			}
+			this.FixedPrice = (soKitHeaderRec.Fixed_Price__c != null) ? soKitHeaderRec.Fixed_Price__c.SetScale(3) : soKitHeaderRec.Fixed_Price__c;
 			this.IsFixedPrice = soKitHeaderRec.Fixed_Price_Flag__c;
 			for(Service_Order_Line_Item__c soliRec : soliList) {
 				this.SOLIList.add(new SOLineItem(soliRec));
@@ -493,14 +408,12 @@ public with sharing class SOInfoPrintPreviewPDFCtrl {
 		public Decimal AvailablePart;
 		public String PartId;
 		
-		public Boolean IsPart {set;get;}
-		public Boolean IsLabour{set;get;}
-		public Boolean IsFee{set;get;}
+		public Boolean IsPart;
+		public Boolean IsLabour{Set;get;}
+		public Boolean IsFee;
 		public String Id;
 		public String SOKitHeaderId;
 		public Decimal KitPrice{Set;get;}
-		public Decimal Tax{get; set;
-		}
 		public String VendorId;
 		public String CoLineItem;
 		public Boolean isFixedKitHeaderLineItemSO;
@@ -542,20 +455,7 @@ public with sharing class SOInfoPrintPreviewPDFCtrl {
 				this.StockCommited = null;
 			}
 			
-			Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
-            this.Tax = soLineItemRec.Tax_Percent__c;
-            if(isTaxIncludingPricing) {
-                if(this.Tax == null) {
-                    this.Tax = 0;
-                }
-                if(soLineItemRec.Kit_Price__c == null) {
-                    soLineItemRec.Kit_Price__c = 0;
-                }
-                this.KitPrice = (soLineItemRec.Kit_Price__c * (1 + (this.Tax / 100))).setScale(2);
-            } else {
-                this.KitPrice = (soLineItemRec.Kit_Price__c != null) ? soLineItemRec.Kit_Price__c.SetScale(2) : soLineItemRec.Kit_Price__c;
-            }
-			
+			this.KitPrice= (soLineItemRec.Kit_Price__c != null) ? soLineItemRec.Kit_Price__c.SetScale(3) : soLineItemRec.Kit_Price__c;
 			this.ReatilPrice = (soLineItemRec.Retail_Price__c != null) ? soLineItemRec.Retail_Price__c.SetScale(3) : soLineItemRec.Retail_Price__c;
 			this.IsFixedPrice = soLineItemRec.Fixed_Price__c;
 			this.PartId = soLineItemRec.Part__c;

@@ -4,7 +4,7 @@
  * Name: ServiceOrderLineItemTrigger
  * Description: Trigger executes on after update event of SO Line Item object
 **/
-trigger ServiceOrderLineItemTrigger on Service_Order_Line_Item__c (before insert, after insert, before update, after update, before delete, after delete) {
+trigger ServiceOrderLineItemTrigger on Service_Order_Line_Item__c (after insert, before update, after update, before delete, after delete) {
     
     ServiceOrderLineItemTriggerHelper.soliNewList = Trigger.new;
     ServiceOrderLineItemTriggerHelper.soliOldList = Trigger.old;
@@ -13,10 +13,6 @@ trigger ServiceOrderLineItemTrigger on Service_Order_Line_Item__c (before insert
     
     if(Trigger.isAfter && Trigger.isUpdate) {
         ServiceOrderLineItemTriggerHelper.afterUpdateCalculation();
-    }
-    
-    if(Trigger.isBefore && Trigger.isInsert) {
-        ServiceOrderLineItemTriggerHelper.beforeInsertCalculation();
     }
     
     if(ServiceOrderLineItemTriggerHelper.isTriggerExecuted) {

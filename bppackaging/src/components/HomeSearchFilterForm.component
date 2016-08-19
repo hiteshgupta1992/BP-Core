@@ -320,7 +320,7 @@ $(document).ready(function(){
 	 			</div>
 	 			
 	 			<div class="col-md-2 controlBtn homePagecontrols" id="homePageName">
-                     <i class="fa fa-question-circle" data-toggle="tooltip" title="Add a Name"></i> 
+                     <i class="fa fa-question-circle" data-toggle="tooltip" title="Add a personal email address"></i> 
                      <i class="fa fa-times" ng-click="HomeSearchGrid.removeAdditionalField('People_Name', 'text');"></i>
                 </div>
 	 		</div>
@@ -562,10 +562,10 @@ $(document).ready(function(){
 	 	
 	 	
 	 	
-	 	<!-- Qty Available  Div Start  -->
+	 	<!-- Oty Available  Div Start  -->
 		<div class="row P10" ng-show="HomeSearchGrid.showField('Product_QtyAvailable');">
 	 		<div class="col-md-5">
-	 			<label class="T3 labelWidth pull-left">Qty Available</label>
+	 			<label class="T3 labelWidth pull-left">Oty Available</label>
 	 			<select class="col-md-8 homeSearchFilterDropdown homeform-control" rel="homePageProductQtyAvailable" ng-model="HomeSearchGrid.filterFormJson.Product_QtyAvailable.SelectedOption"
 	 				id="Product_QtyAvailable">
 	 				<option ng-repeat="item in HomeSearchGrid.formMaterData.rangeFilterOptions" value="{{item.optionValue}}">{{item.label}}</option>
@@ -1275,55 +1275,7 @@ $(document).ready(function(){
  	
  	<!-- Customer Invoice Additional HTML End Here -->
  	
- 	<!-- Customer Payment Additional HTML Start Here -->
  	
- 		<!-- Customer Order Div Start  -->
-	 	<div class="row P10" ng-show="HomeSearchGrid.showField('CO_Payment_Payment_Method');">
-	 		<div class="col-md-11">
-	 			<div class="col-md-9 P0">
-		 			<label class="T3 labelWidth pull-left">Payment Method</label>
-		 			<select class="col-md-8 homeSearchFilterDropdown homeform-control" rel="homePagePaymentMethod" 
-		 				ng-model="HomeSearchGrid.filterFormJson.CO_Payment_Payment_Method.SelectedOption"
-		 				id="CO_Payment_Payment_Method">
-		 				<option value="0">Any</option>
-		 				<option value="1">Cash</option>
-		 				<option value="2">Debit</option>
-		 				<option value="3">Cheque</option>
-		 				<option value="4">Visa</option>
-		 				<option value="5">Mastercard</option>
-		 				<option value="6">Amex</option>
-		 				<option value="7">Gift Card</option>
-		 				<option value="8">Charge Account</option>
-		 				<option value="9">Use Deposit</option> 
-		 			</select>
-	 			</div>
-	 			<div class="col-md-2 controlBtn homePagecontrols " id="homePagePaymentMethod">
-                     <i class="fa fa-question-circle" data-toggle="tooltip" title="COInvoice Payment Method"></i> 
-                     <i class="fa fa-times" ng-click="HomeSearchGrid.removeAdditionalField('CO_Payment_Payment_Method');"></i>
-           	  	</div>
-	 		</div>
-	 	</div>
-	 	
-	 	
-	 	<div class="row P10" ng-show="HomeSearchGrid.showField('CO_Payment_Customer_Order');">
-	 		<div class="col-md-11">
-	 			<div class="col-md-9 P0">
-		 			<label class="T3 labelWidth pull-left">Customer Order</label>
-		 			<input type="text" placeholder="Anything" class="col-md-8  homeSearchFilterTextbox homeform-control" 
-		 				id="CO_Payment_Customer_Order" 
-		 				ng-model="HomeSearchGrid.filterFormJson.CO_Payment_Customer_Order" 
-		 				rel="homePagePaymentCustomerOrder"/>
-	 			</div>
-		 		<div class="col-md-2 controlBtn homePagecontrols " id="homePagePaymentCustomerOrder">
-		            <i class="fa fa-question-circle" data-toggle="tooltip" title="COInvoice Header Customer Order"></i> 
-		            <i class="fa fa-times" ng-click="HomeSearchGrid.removeAdditionalField('CO_Payment_Customer_Order');"></i>
-	        	</div>
-		 	</div>
-	 	</div>
-	 	<!-- Customer Order Div End  -->
- 	
- 	
- 	<!-- Customer Payment Additional HTML End Here -->
  	
  	<!-- Vendor Ordering  HTML End Here -->
  	
@@ -1396,7 +1348,7 @@ $(document).ready(function(){
  	<!-- Purchase Order Div Start  -->
 		<div class="row P10" ng-show="HomeSearchGrid.showField('Vendor_Order_Purchase_Order');">
 	 		<div class="col-md-5">
-	 			<label class="T3 labelWidth pull-left">Purchase Order Type</label>
+	 			<label class="T3 labelWidth pull-left">Purchase Order</label>
 	 			<select class="col-md-8 homeSearchFilterDropdown homeform-control" rel="homePageVendorOrderPurchaseOrder" ng-model="HomeSearchGrid.filterFormJson.Vendor_Order_Purchase_Order"
 	 				id="Vendor_Order_Purchase_Order">
 	 				<option value="0">Any</option>

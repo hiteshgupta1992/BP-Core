@@ -374,7 +374,7 @@
             max-width: 100px;
         }
         .popupright .tabconainer form .form-group .chkbox_custom.disabled .leftchked.checked{
-          background:url("{!URLFOR($Resource.Images, 'chkpngleft_trimmed_disabled.png')}")  no-repeat;
+          background:  url("{!URLFOR($Resource.Images, 'chkpngleft_trimmed_disabled.png')}")  no-repeat;
           color: #FFFFFF;
           background-size: 100% 100%;
           font-size: 12px;
@@ -454,7 +454,7 @@
           padding-right: 5px;
         }
         .popupright .tabconainer form .form-group .chkbox_custom .rightchked.checked{
-          background:url("{!URLFOR($Resource.Images, 'chkpngright_trimmed.png')}")   no-repeat;
+          background: url("{!URLFOR($Resource.Images, 'chkpngright_trimmed.png')}")   no-repeat;
           color: #FFFFFF;
           background-size: 100% 100%;
           font-size: 12px;
@@ -774,6 +774,7 @@
                     PartCategory : {isPrimary: false, label: 'Part Category', fieldId:'partCategoryDropDown'},
                     PriceMethod : {isPrimary: false, label: 'Price Method', fieldId:'priceMethodId'},
                     PurchaseTaxLevel  : {isPrimary: false, label: 'Purchase Tax Level', fieldId:'purchaseTaxLevel'},
+                    SalesTaxLevel : {isPrimary: false, label: 'Sales Tax Level', fieldId:'salesTaxLevel'},
                     SalesPriceLevel : {isPrimary: false, label: 'Sales Price Level', fieldId:'salesPriceLevel'},
                     ForeignCurrency : {isPrimary: false, label: 'Foreign Currency', fieldId:'foreignCurrency'},
                     Active : {isPrimary: false, label:'Acive', fieldId:'activeId'}
@@ -880,7 +881,7 @@
                             $scope.VendorModal.SelectedSalesTaxLevel = $scope.VendorModal.SalesTaxLevel[i];
                         }
                     }
-					//$scope.VendorModal.AdditionalFieldsInfo['SalesTaxLevel'].isPrimary = true;
+                    $scope.VendorModal.AdditionalFieldsInfo['SalesTaxLevel'].isPrimary = true;
                 }
                 
                 
@@ -1365,13 +1366,11 @@
                             $scope.VendorModal.VendorInfo.SalesPriceLevelId = null;
                         }
                         
-                        
-                        /*if($scope.VendorModal.AdditionalFieldsInfo['SalesTaxLevel'].isPrimary == true) {
+                        if($scope.VendorModal.AdditionalFieldsInfo['SalesTaxLevel'].isPrimary == true) {
                             $scope.VendorModal.VendorInfo.SalesTaxLevelId = $scope.VendorModal.SelectedSalesTaxLevel.Id;
                         } else { 
                             $scope.VendorModal.VendorInfo.SalesTaxLevelId = null;
-                        }*/
-                        
+                        }
                         
                         if($scope.VendorModal.AdditionalFieldsInfo['PurchaseTaxLevel'].isPrimary == true) {
                             $scope.VendorModal.VendorInfo.PurchaseTaxLevelId = $scope.VendorModal.SelectedPurchaseTaxLevel.Id;
@@ -1389,7 +1388,7 @@
                             
                             if($scope.$parent.vendorRecordSaveCallback != undefined){
                                 $scope.$parent.vendorRecordSaveCallback();
-                                Notification.success('Vendor Saved Successfully');
+                                Notification.success('Vendor Saved SucessFully');
                             }
                             $scope.VendorModal.closePopup();    
                         },
@@ -1910,8 +1909,8 @@
                                             </div>
                                             
                                             <div class="form-group half">
-                                                <label for="exampleInputEmail1">Postal/Zip Code</label>
-                                                <input type="text" class="form-control" id="exampleInputEmail1"  ng-model="VendorModal.VendorInfo.BillingPostalCode" placeholder="Postal/Zip Code" rel="CountryPostal" ng-attr-tabindex="{{VendorModal.tabIndexValue + 15}}"/>
+                                                <label for="exampleInputEmail1">Postal/Zip</label>
+                                                <input type="text" class="form-control" id="exampleInputEmail1"  ng-model="VendorModal.VendorInfo.BillingPostalCode" placeholder="Postal/Zip" rel="CountryPostal" ng-attr-tabindex="{{VendorModal.tabIndexValue + 15}}"/>
                                             </div>
                                             <div class="controls1 controls" id="CountryPostal">
                                                 <i class="fa fa-question-circle"  data-toggle="tooltip" title="Add Country and Postal Code"></i>
@@ -1986,8 +1985,8 @@
                                                 </select>
                                             </div>
                                             <div class="form-group half">
-                                                <label for="exampleInputEmail1">Postal/Zip Code</label>
-                                                <input type="text" class="form-control"  ng-model="VendorModal.VendorInfo.ShippingPostalCode" id="exampleInputEmail1" placeholder="Postal/Zip Code" rel="CountryStateShipping" ng-attr-tabindex="{{VendorModal.tabIndexValue + 21}}"/>
+                                                <label for="exampleInputEmail1">Postal/Zip</label>
+                                                <input type="text" class="form-control"  ng-model="VendorModal.VendorInfo.ShippingPostalCode" id="exampleInputEmail1" placeholder="Postal/Zip" rel="CountryStateShipping" ng-attr-tabindex="{{VendorModal.tabIndexValue + 21}}"/>
                                             </div>
                                             <div class="controls1 controls" id="CountryStateShipping">
                                                  <i class="fa fa-question-circle" data-toggle="tooltip" title="Add Country and Postal Code"></i>
@@ -2224,8 +2223,10 @@
                                         </div>
                                     </div>
                                     
-	                               	<!-- 
-                                    <div class="clearfix"></div>                                                                        
+                                    
+                                    <div class="clearfix"></div>
+                                    
+                                    
                                     <div class="option_field"  ng-show="VendorModal.AdditionalFieldsInfo.SalesTaxLevel.isPrimary">
                                         <div class="lable_fields">
                                             <p>Sales Tax Level</p>
@@ -2243,9 +2244,11 @@
                                             </div>
                                         </div>
                                     </div>
-	                               	 -->
-                                                                        
-                                    <div class="clearfix"></div>                                                                        
+                                    
+                                    
+                                    <div class="clearfix"></div>
+                                    
+                                    
                                     <div class="option_field"  ng-show="VendorModal.AdditionalFieldsInfo.SalesPriceLevel.isPrimary">
                                         <div class="lable_fields">
                                             <p>Sales Price Level</p>

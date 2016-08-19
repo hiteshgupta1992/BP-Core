@@ -28,7 +28,8 @@
 				</div>
 				<div id="center-pane">
 					<div class="pane-content">
-						<apex:include pageName="CustomersMgmtContent" />
+						<h2>Page is deprecated.</h2>
+<!-- 						<apex:include pageName="CustomersMgmtContent" /> -->
 					</div>
 				</div>
 			</div>

@@ -72,8 +72,6 @@ public with sharing class COLineItem {
     
     // Constructor
     public COLineItem(CO_Line_Item__c coLineItemObj) { 
-    	//from trial3 
-    	Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
     	
         // Combination of Part Name + Part Id
     	if(coLineItemObj.Part__c != null) {
@@ -106,30 +104,20 @@ public with sharing class COLineItem {
 	        	this.Status = 'RETURN';
 	        }
         }
-        //from trial3
-        if(coLineItemObj.Tax__c == null) {
-        	coLineItemObj.Tax__c = 0;
-        }
- 
-
+        
         if(coLineItemObj.Price__c == null) {
             this.Price = 0;
-        } else { 
-        	//from trial3
-            if(!isTaxIncludingPricing) {
-            this.Price = coLineItemObj.Price__c.setScale(2);
-            } else {
-            	this.Price = (coLineItemObj.Price__c * (1 + coLineItemObj.Tax__c /100)).setScale(2);
-            }
+        } else {
+            this.Price = coLineItemObj.Price__c;
         }
         
-                this.SubTotal = (this.Qty * this.price).setScale(2);
+        this.SubTotal = this.Qty * this.price;
         
         if(coLineItemObj.Closed_CO_Invoice_link__c != null) {
         	this.Invoice = coLineItemObj.Closed_CO_Invoice_link__c;
         } else {
         	this.Invoice = '';
-        } 
+        }
         
         this.FulfillDate = String.valueOf(system.today());
         if(coLineItemObj.Id != null) {
@@ -138,7 +126,7 @@ public with sharing class COLineItem {
         this.partId = coLineItemObj.Part__c;
         this.isSpecialOrder = coLineItemObj.Special_Order__c;
         this.Tax = coLineItemObj.Tax__c;
-        this.Retail = (coLineItemObj.Retail__c != null) ? coLineItemObj.Retail__c.setScale(2) : 0.00;
+        this.Retail = coLineItemObj.Retail__c;
         this.AvaliablePartsQty = coLineItemObj.Part__r.AvailableParts__c;
         
         this.VOStatus = coLineItemObj.VO_Status__c;
@@ -156,7 +144,7 @@ public with sharing class COLineItem {
         if(coLineItemObj.Part__c != null && coLineItemObj.Part__r.Vendor__c != null) {
         	this.VendorId = coLineItemObj.Part__r.Vendor__c;	
         }
-        this.ActualKitPrice = (coLineItemObj.Actual_Kit_Price__c != null) ? coLineItemObj.Actual_Kit_Price__c.setScale(2) : 0.00;
+        this.ActualKitPrice = coLineItemObj.Actual_Kit_Price__c;
         this.IsFixedPriceForCO = coLineItemObj.CO_Fixed_KitLineItem__c;
         this.QtyOrder = (this.Qty != null && this.QtyCommitted != null) ? (this.Qty < 0 ? null :(this.Qty - this.QtyCommitted)) : 0;
         if(this.QtyOrder == null) {
@@ -213,14 +201,13 @@ public with sharing class COLineItem {
 	                                                        'CO_Fixed_KitLineItem__c',
 	                                                        'Actual_Kit_Price__c',
 	                                                        'Kit_Price_With_Price_Level__c',
-	                                                        'CO_Kit_Header__r.Id',
-	                                                        'Sub_Total_With_Tax__c'
+	                                                        'CO_Kit_Header__r.Id'
 	                                                };
         return COLineItemFields;
     }
     
     
-    public class VOHeader{ 
+    public class VOHeader{
     	
     	public String VOHeaderId;
     	public String VOHeaderName;

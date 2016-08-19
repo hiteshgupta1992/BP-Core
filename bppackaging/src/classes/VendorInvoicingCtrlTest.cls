@@ -296,7 +296,7 @@ static testMethod void finalizeInvoiceActionTest() {
         system.assertEquals(vendorInvoice.VIGroupList[1].ReceivingQty, 40.000);
         system.assertEquals(vendorInvoice.VIHeaderRec[0].Status, 'Invoiced');
         */
-        List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c,Last_Cost__c, Qty_On_Order__c from Part__c];
+        List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c,Last_Cost__c, Qty_On_Order__c from Part__c limit 100];
     	system.assertEquals(partList[0].Last_Cost__c, 20.000);
     }
     
@@ -570,7 +570,7 @@ static testMethod void updateVIGroupTest() {
         VendorInvoicingCtrl.VRInPopUp popupDetails1 = (VendorInvoicingCtrl.VRInPopUp) System.JSON.deserialize(popupDetails, VendorInvoicingCtrl.VRInPopUp.class);
         system.assertEquals(popupDetails1.status , 'In Progress');
         String videtails = BPUtility.getDecodedString(VendorInvoicingCtrl.deleteVendorOrderInvoicing(BPUtility.getEncodedString(viHeader.id)));
-        List<Vendor_Invoicing_Header__c> VIHDetails = [select Id from Vendor_Invoicing_Header__c];
+        List<Vendor_Invoicing_Header__c> VIHDetails = [select Id from Vendor_Invoicing_Header__c limit 100];
         system.assertEquals(VIHDetails.size(), 0);
         
     }

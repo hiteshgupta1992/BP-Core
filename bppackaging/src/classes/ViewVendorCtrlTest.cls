@@ -103,6 +103,8 @@ private class ViewVendorCtrlTest {
         
         List<VendorSuggestion> vendorSuggestionList1 = (List<VendorSuggestion>) System.JSON.deserialize(similarvendors1, List<VendorSuggestion>.class);
         //system.assertEquals(vendorSuggestionList1.size(), 2);
+        List<Contact> accList = [select Id, Name from Contact limit 100];
+		system.assertEquals(accList.size(), 0);
     }
     
     /**
@@ -133,6 +135,8 @@ private class ViewVendorCtrlTest {
         
         List<VendorSuggestion> vendorSuggestionList = (List<VendorSuggestion>) System.JSON.deserialize(similarvendors, List<VendorSuggestion>.class);
         //system.assertEquals(vendorSuggestionList.size(), 7);
+        List<Contact> accList = [select Id, Name from Contact limit 100];
+		system.assertEquals(accList.size(), 0);
        
     }
      

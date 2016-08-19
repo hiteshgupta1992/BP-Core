@@ -11,6 +11,8 @@ private class VendorOrderHeaderTest {
 	   	Test.startTest();
 	   	vendororderHeaderList.sort();
 	    Test.stopTest();
+	    List<Contact> accList = [select Id, Name from Contact limit 100];
+		system.assertEquals(accList.size(), 0);
     }
     
     static testMethod void VendorOrderHeaderTestSortDescending() {
@@ -23,6 +25,8 @@ private class VendorOrderHeaderTest {
 	   	Test.startTest();
 	   	vendororderHeaderList.sort();
 	    Test.stopTest();
+	    List<Contact> accList = [select Id, Name from Contact limit 100];
+		system.assertEquals(accList.size(), 0);
     }
     
     static testMethod void VendorOrderHeaderTestSort(){
@@ -36,5 +40,7 @@ private class VendorOrderHeaderTest {
 	   	Test.startTest();
 	   	vendororderHeaderList.sort();
 	    Test.stopTest();
+	    List<Contact> accList = [select Id, Name from Contact limit 100];
+		system.assertEquals(accList.size(), 0);
     }
 }

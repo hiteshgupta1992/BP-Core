@@ -36,8 +36,6 @@ public with sharing class SearchSuggestionJSON {
     	
     	// Field value by which records need to be filtered
     	public String Value {get; set;}
-    	// field Value for Object To filter
-    	public String FilterObject{get;set;}
     }
     
     /**

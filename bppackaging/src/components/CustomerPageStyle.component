@@ -917,20 +917,20 @@
             color:#f79424;
         }
         .tabnav .tablinks:nth-child(1){
-            background-image: url('{!URLFOR($Resource.Images, 'nonactive1.png')}') no-repeat;
+            background:url("/resource/Images/nonactive1.png") no-repeat;
             
         }
         .tabnav .tablinks:nth-child(2){
-            background-image: url('{!URLFOR($Resource.Images, 'nonactive.png')}') no-repeat;
+            background: url("/resource/Images/nonactive.png")  no-repeat;
             
         }
         .tabnav .tablinks:nth-child(1).active{
-            background-image: url('{!URLFOR($Resource.Images, 'active.png')}') no-repeat;
+            background: url("/resource/Images/active.png")  no-repeat;
             color:#fff;
             
         }
         .tabnav .tablinks:nth-child(2).active{
-            background-image: url('{!URLFOR($Resource.Images, 'active1.png')}') no-repeat;
+            background:  url("/resource/Images/active1.png") no-repeat;
             color:#fff;
             
         }

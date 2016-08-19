@@ -260,7 +260,7 @@ private class VendorOrderCtrlTest {
         String LineItemFromAddToSearch1 = BPUtility.getDecodedString(VendorOrderCtrl.addVOLineItemFromSearchToAdd(BPUtility.getEncodedString(part.Id), BPUtility.getEncodedString(vendor.Id), BPUtility.getEncodedString(voHeader.Id), 60, BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(voLineItems.VendorOrderLineItemGroupList[0].VendorOrderLineItemList[0].Id), false));
        	VendorOrderLineItemWrapper voLineItems21 = (VendorOrderLineItemWrapper) System.JSON.deserialize(LineItemFromAddToSearch1, VendorOrderLineItemWrapper.class);
        	
-       	List<Vendor_Order_Line_Item__c> voliList = [select Qty_Needed__c, Received__c from Vendor_Order_Line_Item__c];
+       	List<Vendor_Order_Line_Item__c> voliList = [select Qty_Needed__c, Received__c from Vendor_Order_Line_Item__c limit 100];
        	
        	system.assertEquals(voliList[0].Qty_Needed__c, 60 );
        	system.assertEquals(voliList[1].Qty_Needed__c, 6 );
@@ -552,7 +552,7 @@ private class VendorOrderCtrlTest {
         String similarlineitem = BPUtility.getDecodedString(VendorOrderCtrl.groupAllSimilarVOLineItem(BPUtility.getEncodedString(vendor.Id), BPUtility.getEncodedString(part.Id), BPUtility.getEncodedString(voHeader.Id), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort))));
         VendorOrderLineItemWrapper voLineItems = (VendorOrderLineItemWrapper) System.JSON.deserialize(similarlineitem, VendorOrderLineItemWrapper.class);
         
-        List<CO_Line_Item__c> coli123 = [select Status__c, VO_Number__c, VO_Status__c, Expected_Delivery_Date__c from CO_Line_Item__c];
+        List<CO_Line_Item__c> coli123 = [select Status__c, VO_Number__c, VO_Status__c, Expected_Delivery_Date__c from CO_Line_Item__c limit 100];
         system.assertEquals(coli123[0].VO_Status__c, 'On Order');
         system.assertEquals(coli123[0].Status__c, 'Ordered');
         
@@ -574,7 +574,7 @@ private class VendorOrderCtrlTest {
         Test.stopTest();
         
         
-        List<CO_Line_Item__c> coli1234 = [select Status__c, VO_Number__c, VO_Status__c, Expected_Delivery_Date__c from CO_Line_Item__c];
+        List<CO_Line_Item__c> coli1234 = [select Status__c, VO_Number__c, VO_Status__c, Expected_Delivery_Date__c from CO_Line_Item__c limit 100];
         system.assertEquals(coli1234[0].VO_Status__c, null);
         system.assertEquals(coli1234[0].Status__c, 'Required');
         
@@ -787,7 +787,7 @@ private class VendorOrderCtrlTest {
         //system.assert(false, voLineItems);
         system.assertEquals(voLineItems.VendorOrderLineItemGroupList[0].Need, 176);
         
-        List<CO_Line_Item__c> coli123 = [select Status__c, VO_Number__c, VO_Status__c, Expected_Delivery_Date__c from CO_Line_Item__c];
+        List<CO_Line_Item__c> coli123 = [select Status__c, VO_Number__c, VO_Status__c, Expected_Delivery_Date__c from CO_Line_Item__c limit 100];
         system.assertEquals(coli123[0].VO_Status__c, 'On Order');
         system.assertEquals(coli123[0].Status__c, 'Ordered');
         
@@ -807,7 +807,7 @@ private class VendorOrderCtrlTest {
       	//system.assert(false, voLineItems2);
       	Test.StopTest();
         system.assertEquals(voLineItems2.TotalLineItemGroups, 0);
-        List<CO_Line_Item__c> coli1234 = [select Status__c, VO_Number__c, VO_Status__c, Expected_Delivery_Date__c from CO_Line_Item__c];
+        List<CO_Line_Item__c> coli1234 = [select Status__c, VO_Number__c, VO_Status__c, Expected_Delivery_Date__c from CO_Line_Item__c limit 100];
         system.assertEquals(coli1234[0].VO_Status__c, null);
         system.assertEquals(coli1234[0].Status__c, 'Required');
         
@@ -915,7 +915,7 @@ private class VendorOrderCtrlTest {
         //system.assert(false, voLineItems);
         system.assertEquals(voLineItems.VendorOrderLineItemGroupList[0].Need, 176);
         
-        List<CO_Line_Item__c> coli123 = [select Status__c, VO_Number__c, VO_Status__c, Expected_Delivery_Date__c from CO_Line_Item__c];
+        List<CO_Line_Item__c> coli123 = [select Status__c, VO_Number__c, VO_Status__c, Expected_Delivery_Date__c from CO_Line_Item__c limit 100];
         system.assertEquals(coli123[0].VO_Status__c, 'On Order');
         system.assertEquals(coli123[0].Status__c, 'Ordered');
         
@@ -937,7 +937,7 @@ private class VendorOrderCtrlTest {
        	
        	
        	
-       	List<Vendor_Order_Line_Item__c> voliList = [select Qty_Needed__c, Received__c from Vendor_Order_Line_Item__c];
+       	List<Vendor_Order_Line_Item__c> voliList = [select Qty_Needed__c, Received__c from Vendor_Order_Line_Item__c limit 100];
        	//system.assert(false, voliList);
        	system.assertEquals(voliList.size(), 4 );
        	
@@ -1026,7 +1026,7 @@ private class VendorOrderCtrlTest {
        	List<Part__c> partList123 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c limit 100];
        	system.assertEquals(partList123[0].Qty_On_Order__c, 126);
         
-       	List<Vendor_Order_Line_Item__c> voliList1 = [select Qty_Needed__c, Received__c from Vendor_Order_Line_Item__c];
+       	List<Vendor_Order_Line_Item__c> voliList1 = [select Qty_Needed__c, Received__c from Vendor_Order_Line_Item__c limit 100];
        	system.assertEquals(voliList1.size(), 3 );
        	
        	VendorOrderLineItemWrapper voLineItems3 = (VendorOrderLineItemWrapper) System.JSON.deserialize(LineItemFromAddToSearch, VendorOrderLineItemWrapper.class);	
@@ -1128,7 +1128,7 @@ private class VendorOrderCtrlTest {
        	
        	
        	
-       	List<Vendor_Order_Line_Item__c> voliList1 = [select Qty_Needed__c, Received__c from Vendor_Order_Line_Item__c];
+       	List<Vendor_Order_Line_Item__c> voliList1 = [select Qty_Needed__c, Received__c from Vendor_Order_Line_Item__c limit 100];
        	//system.assert(false, voliList);
        	system.assertEquals(voliList1.size(), 4 );
        	
@@ -1409,9 +1409,11 @@ private class VendorOrderCtrlTest {
      * @param:  (1) JSONString - String - JSON String 
      * @return: RelatedListPaginationSorting - Class Object
     **/
+    /*
     public static VendorPaginationSorting parsePageAttrs(String json) {
         return (VendorPaginationSorting) System.JSON.deserialize(json, VendorPaginationSorting.class);
     }
+    */
     
     // Wrapper class for related list pagination and sorting combination
     public class VendorPaginationSorting {

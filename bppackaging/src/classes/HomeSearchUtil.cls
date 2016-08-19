@@ -73,7 +73,6 @@ public with sharing class HomeSearchUtil {
 	// Map of object name to owner field API Name
 	public static Map<String, String> objectToOwnerObjectFieldName = new Map<String,String>{'Part__c'	=>	'Vendor__r',
 																							'CO_Invoice_Header__c'	=>	'CO_Header__r.Owner__c',
-                                                                                            'CO_Invoice_Payment__c' =>  'CO_Invoice_Header__r.CO_Header__r.Owner__c',
 																							'Product__c'	=>	'Vendor__r'
 																						};
     
@@ -137,23 +136,14 @@ public with sharing class HomeSearchUtil {
 																																},
     																						
     																						CONSTANTS.NAMESPACE+'CO_Invoice_Header__c' => new Map<String, String>{ 'Id'	=>	'Id',
-																																 'Key'		=>	'Invoice_Number__c',
+																																 'Key'		=>	'Name',
 																																 'LastModifiedDate'	=>	'LastModifiedDate',
 																																 'Created'	=>	'CreatedDate',
 																																 'Owner'	=>	'CO_Header__r.Owner__r.Name',
 																																 'Status'	=>	'Status__c',
-																																 'Name'		=>	'Invoice_Number__c'
+																																 'Name'		=>	'Name'
 																																},
-                                                                                                                                
-                                                                                            CONSTANTS.NAMESPACE+'CO_Invoice_Payment__c' => new Map<String, String>{ 'Id'    =>  'Id',
-                                                                                                                                 'Key'      =>  'Name',
-                                                                                                                                 'LastModifiedDate' =>  'LastModifiedDate',
-                                                                                                                                 'Created'  =>  'CreatedDate',
-                                                                                                                                 'Owner'    =>  'CO_Invoice_Header__r.CO_Header__r.Owner__r.Name',
-                                                                                                                                 'Name'     =>  'Name'
-                                                                                                                                },
-                                                                                                                                                                    
-                                                                                            CONSTANTS.NAMESPACE+'Vendor_Order_Header__c' => new Map<String, String>{ 'Id'   =>  'Id',
+    																						CONSTANTS.NAMESPACE+'Vendor_Order_Header__c' => new Map<String, String>{ 'Id'	=>	'Id',
 																																 'Key'		=>	'Name',
 																																 'LastModifiedDate'	=>	'LastModifiedDate',
 																																 'Created'	=>	'CreatedDate',
@@ -207,7 +197,7 @@ public with sharing class HomeSearchUtil {
 																																 'LastModifiedDate'	=>	'LastModifiedDate',
 																																 'Created'	=>	'CreatedDate',
 																																 'Owner'	=>	'Vendor__r.Owner.Name',
-																																 'Status'	=>	'Status__c',
+																																// 'Status'	=>	'Status__c',
 																																 'Name'		=>	'Name'
 																																}
 																																
@@ -220,8 +210,7 @@ public with sharing class HomeSearchUtil {
 		'Kit_Header__c'				=> 'Name',
 		'Fee__c'					=> 'Name',
 		'CO_Header__c'				=> 'Name',
-		'CO_Invoice_Header__c'		=> 'Invoice_Number__c',
-        'CO_Invoice_Payment__c'     => 'Name', 
+		'CO_Invoice_Header__c'		=> 'Name',
 		'Vendor_Order_Header__c'	=> 'Name',
 		'Vendor_Receiving_Header__c'=> 'Name',
 		'Vendor_Invoicing_Header__c'=> 'Name',
@@ -249,7 +238,6 @@ public with sharing class HomeSearchUtil {
             									'BillingCountry', 
             									'Sales_Tax__r.Name__c', 
             									'Price_Level__r.Name__c', 
-            									'Preferred_Email__c',
             									'Preferred_Phone__c',
             									'Vendor_Code__c',
             									'Owner.Name', 
@@ -353,8 +341,7 @@ public with sharing class HomeSearchUtil {
             									'Owner.Name',
             									'OwnerId',
             									'Status__c',
-            									'Code__c',
-            									'Hours__c'
+            									'Code__c'
             								},
             
             'Kit_Header__c'	=> new Set<String>{	'Id', 
@@ -369,8 +356,7 @@ public with sharing class HomeSearchUtil {
             									'CreatedDate', 
             									'Code__c',
             									'Kit_Unique_Name__c',
-            									'Status__c',
-            									'Service_Kit__c'
+            									'Status__c'
             								},
             								
             'Fee__c'		=> new Set<String>{	'Id', 
@@ -408,7 +394,6 @@ public with sharing class HomeSearchUtil {
            
 	        'CO_Invoice_Header__c'=> new Set<String>{'Id', 
 	            									'Name', 
-                                                    'Invoice_Number__c',   
 	            									'CO_Header__r.Customer__c',
 	            									'CO_Header__r.Customer__r.Name',
 	            									'Invoice_Status__c', 
@@ -426,23 +411,6 @@ public with sharing class HomeSearchUtil {
 		            									
             								},
             
-            'CO_Invoice_Payment__c'=> new Set<String>{'Id', 
-                                                    'Name', 
-                                                    'CO_Invoice_Header__r.CO_Header__c',
-                                                    'CO_Invoice_Header__r.CO_Header__r.Name',
-                                                    'CO_Invoice_Header__r.CO_Header__r.Customer__c',
-                                                    'CO_Invoice_Header__r.CO_Header__r.Customer__r.Name',
-                                                    'Amount__c',
-                                                    'CO_Invoice_Header__r.CO_Header__r.Owner__r.Name',
-                                                    'CO_Invoice_Header__r.CO_Header__r.Owner__c',
-                                                    'CO_Invoice_Header__r.Status__c',
-                                                    'LastModifiedDate', 
-                                                    'CreatedDate',
-                                                    'Payment_Method__c',
-                                                    'Reverse_Payment_From__c',
-                                                    'Reverse_Payment_From__r.Name'
-                                            },                              
-            
             'Vendor_Order_Header__c'=> new Set<String>{	'Id', 
 		            									'Name', 
 		            									'Vendor__c',
@@ -456,7 +424,8 @@ public with sharing class HomeSearchUtil {
 		            									'Total_Recieved__c',
 		            									'Status__c',
 		            									'Purchase_Order_Type__c',
-		            									'Purchase_Order_Type__r.Code__c'		            									
+		            									'Purchase_Order_Type__r.Code__c'
+		            									
             								},	
             								
             'Vendor_Receiving_Header__c'=> new Set<String>{	'Id', 
@@ -494,8 +463,7 @@ public with sharing class HomeSearchUtil {
             									'OwnerId',
             									'LastModifiedDate', 
             									'CreatedDate',
-            									'Unique_Category__c',
-            									'Type__c'
+            									'Unique_Category__c'
 								},
 			'Price_Level__c'=> new Set<String>{	'Id', 
             									'Name__c', 
@@ -505,8 +473,7 @@ public with sharing class HomeSearchUtil {
             									'OwnerId',
             									'LastModifiedDate', 
             									'CreatedDate',
-            									'Name',
-            									'Discount_Markup__c'
+            									'Name'
 								},
 			'Sales_Tax__c'=> new Set<String>{	'Id', 
             									'Name__c', 
@@ -516,8 +483,7 @@ public with sharing class HomeSearchUtil {
             									'OwnerId',
             									'LastModifiedDate', 
             									'CreatedDate',
-            									'Name',
-            									'Rate__c'
+            									'Name'
 								},
 								
 			'Product__c' => new Set<String>{	'Id',
@@ -531,7 +497,6 @@ public with sharing class HomeSearchUtil {
 												'Cost__c',
 												'Code__c',
 												'Vendor__r.Owner.Name',
-												'Vendor__r.Name',
 												'CreatedDate'
 								},
 								
@@ -542,8 +507,7 @@ public with sharing class HomeSearchUtil {
 												'LastModifiedDate',
 												'CreatedDate',
 												'CreatedBy.Name',
-												'IsActive',
-												'Phone'
+												'IsActive'
 								}
             								 
           };
@@ -551,7 +515,7 @@ public with sharing class HomeSearchUtil {
 	// A map to define group with object names
 	public static Map<String, List<String>> groupNameToGroupObjectsMap = new Map<String, List<String>>{	'People' 			=> new List<String>{'Customers', 'Vendors'},
 																										'Products' 			=> new List<String>{'Parts', 'Kits', 'Fees', 'Labor Codes', 'Sublets'},
-																										'Customer Sales'	=> new List<String>{'Customer Orders', 'Customer Invoices', 'Customer Payments'},
+																										'Customer Sales'	=> new List<String>{'Customer Orders', 'Customer Invoices'},
 																										'Vendor Ordering' 	=> new List<String>{'Vendor Orders', 'Vendor Receivings', 'Vendor Invoices'},
 																										'Setting' 			=> new List<String>{'Item Categories', 'Sales Taxes', 'Price Levels'}
 																									};
@@ -568,7 +532,6 @@ public with sharing class HomeSearchUtil {
 																									'Users'				=> 'User',
 																									'Customer Orders'	=> 'CO_Header__c',
 																									'Customer Invoices'	=> 'CO_Invoice_Header__c',
-                                                                                                    'Customer Payments' => 'CO_Invoice_Payment__c',
 																									'Vendor Orders'		=> 'Vendor_Order_Header__c',
 																									'Vendor Receivings'	=> 'Vendor_Receiving_Header__c',
 																									'Vendor Invoices' 	=> 'Vendor_Invoicing_Header__c',
@@ -593,10 +556,8 @@ public with sharing class HomeSearchUtil {
 																								'Item Categories'	=> 13,
 																								'Price Levels'		=> 14,
 																								'Sales Taxes'		=> 15,
-																								'Sublets' 			=> 16,
-                                                                                                'Customer Payments' => 17
-																							};
-                                                                                            
+																								'Sublets' 			=> 16
+																							};																							
 	public static Map<String, Integer> filterGroupToOrderMap = new Map<String, Integer>{'Customer Sales'	=> 1,
 																						'Vendor Orders'		=> 2,
 																						'Product'			=> 3,
@@ -753,14 +714,6 @@ public with sharing class HomeSearchUtil {
 															'Status' 		=> 'CO_Invoice_Header_Status'
 													},
 													
-            'Customer_Payments' => new Map<String, String> {'Id'            => 'Customer_Sales_Id',
-                                                            'Customer'      => 'Customer_Sales_Customer',
-                                                            'Total'         => 'Customer_Sales_Total',
-                                                            'Customer Order'=> 'CO_Payment_Customer_Order',
-                                                            'Payment Method'=> 'CO_Payment_Payment_Method'
-                                                    },
-            
-                                                    
 			'Vendor_Ordering' => new Map<String, String>{	'Id' 			=> 'Vendor_Ordering_Id',
 															'Vendor' 		=> 'Vendor_Ordering_Vendor',
 															'Total' 		=> 'Vendor_Ordering_Total'
@@ -814,7 +767,6 @@ public with sharing class HomeSearchUtil {
 														'Vendors'			=> 	new List<String>(),
 														'Customer Orders'	=> 	new List<String>{'Total_Order_Value__c', 'Total_Balance_Due__c', 'Total_Payment__c', 'Total_Deposit__c'},
 														'Customer Invoices'	=> 	new List<String>{'Total_Payment__c', 'CO_Header__r.Total_Balance_Due__c'},
-                                                        'Customer Payments' =>  new List<String>(),
 														'Vendor Orders'		=> 	new List<String>{'Total__c'},
 														'Vendor Receivings'	=> 	new List<String>{'Receiving_Total__c'},
 														'Vendor Invoices' 	=> 	new List<String>(),
@@ -835,7 +787,6 @@ public with sharing class HomeSearchUtil {
 														'Vendors'			=> 	new List<String>(),
 														'Customer Orders'	=> 	new List<String>{'Total', 'Balance_Due', 'Payments', 'Deposit'},
 														'Customer Invoices'	=> 	new List<String>{'Total', 'Balance_Due'},
-                                                        'Customer Payments' =>  new List<String>(),
 														'Vendor Orders'		=> 	new List<String>{'Total'},
 														'Vendor Receivings'	=> 	new List<String>{'Total'},
 														'Vendor Invoices' 	=> 	new List<String>(),
@@ -856,7 +807,6 @@ public with sharing class HomeSearchUtil {
 														'Vendors'			=> 	new List<String>(),
 														'Customer Orders'	=> 	new List<String>{HomeSearchReportUtil.NUMERIC_TYPE_2, HomeSearchReportUtil.NUMERIC_TYPE_2, HomeSearchReportUtil.NUMERIC_TYPE_2, HomeSearchReportUtil.NUMERIC_TYPE_2},
 														'Customer Invoices'	=> 	new List<String>{HomeSearchReportUtil.NUMERIC_TYPE_2, HomeSearchReportUtil.NUMERIC_TYPE_2},
-                                                        'Customer Payments' =>  new List<String>(),
 														'Vendor Orders'		=> 	new List<String>{HomeSearchReportUtil.NUMERIC_TYPE_2},
 														'Vendor Receivings'	=> 	new List<String>{HomeSearchReportUtil.NUMERIC_TYPE_2},
 														'Vendor Invoices' 	=> 	new List<String>()

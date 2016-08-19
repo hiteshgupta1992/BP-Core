@@ -38,6 +38,9 @@ private class CategoryTriggerHelperTest {
         	e.setMessage(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         	//system.assertEquals('Validation Error : You can\'t make inactive category as default', e.getMessage() );
         }
+        
+        List<Account> accList = [select Id, Name from Account limit 100];
+        system.assertEquals(accList.size(), 0);
         Test.stopTest();
     }
     
@@ -57,6 +60,8 @@ private class CategoryTriggerHelperTest {
         	e.setMessage(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         	//system.assertEquals('Validation Error : You can\'t deselect of a default category', e.getMessage() );
         }
+        List<Account> accList = [select Id, Name from Account limit 100];
+        system.assertEquals(accList.size(), 0);
         Test.stopTest();
     }
     
@@ -76,6 +81,8 @@ private class CategoryTriggerHelperTest {
         	e.setMessage(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         	//system.assertEquals('Validation Error : You Cannot change the category type of a default record.', e.getMessage());
         }
+        List<Account> accList = [select Id, Name from Account limit 100];
+        system.assertEquals(accList.size(), 0);
         Test.stopTest();
     }
     
@@ -118,7 +125,8 @@ private class CategoryTriggerHelperTest {
     		e.setMessage(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
     		//system.assertEquals('Validation Error : You Can\'t delete category marked as default.', e.getMessage() );
     	}
-    	
+    	List<Account> accList = [select Id, Name from Account limit 100];
+        system.assertEquals(accList.size(), 0);
         Test.stopTest();
     }
     
@@ -138,7 +146,7 @@ private class CategoryTriggerHelperTest {
         	
         }
         
-        List<Category__c> testCategory = [select Default__c from Category__c ];
+        List<Category__c> testCategory = [select Default__c from Category__c limit 100];
     	system.assertEquals(testCategory[0].Default__c, true);
     	
     	Test.stopTest();

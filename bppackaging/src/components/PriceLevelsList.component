@@ -3,7 +3,7 @@
     <apex:attribute name="uniqueId" required="true" type="String" description="unique Id for components here."/>
     
     <body>
-    	<span id="{!uniqueId}Notification"></span>
+        <span id="{!uniqueId}Notification"></span>
         <div id="{!uniqueId}grid" style="width:100%"></div>
         <div class="{!uniqueId}waitingSearchDiv"   > 
             <img class="waitingImage" src="{!URLFOR($Resource.Images, '/loading.gif')}" title="Please Wait..." />
@@ -12,33 +12,33 @@
     <style>
         .bpGridAddButton {
             float:left;
-         	position:relative;
+            position:relative;
         }
         .bpGridRowSelected {
-        	text-align:left;
+            text-align:left;
         }
         .ob-center {
-        	text-align:center;
+            text-align:center;
         }
         .ob-right {
-        	text-align:center;
+            text-align:center;
         }
     </style>
     <script>
-    	var {!uniqueId}popupNotification;
+        var {!uniqueId}popupNotification;
         $(document).ready(function () {
-        	// Notification Popup
+            // Notification Popup
             {!uniqueId}popupNotification = $("#{!uniqueId}Notification").kendoNotification({
-				// hide automatically after 2 seconds
-				autoHideAfter: 5000,
-				// prevent accidental hiding for 100 mili-second
-				allowHideAfter: 100,
-				// prevent to show a hide button
-				button: false,
-				// allow hiding by clicking on the notification content
-				hideOnClick: true,
-				// Set animation to false
-				animation: false
+                // hide automatically after 2 seconds
+                autoHideAfter: 5000,
+                // prevent accidental hiding for 100 mili-second
+                allowHideAfter: 100,
+                // prevent to show a hide button
+                button: false,
+                // allow hiding by clicking on the notification content
+                hideOnClick: true,
+                // Set animation to false
+                animation: false
             }).data("kendoNotification");
               
             // Load grid here
@@ -61,12 +61,12 @@
 
             // Load document click bindings
             $(document).on('click', function (event) {
-            	if($(event.target).attr('class').indexOf("overlay") == -1){
-	                {!uniqueId}PL_DocOnClikcBindings(event);
-	                if( {!uniqueId}priceLevelGrid.editable != null && ({!uniqueId}priceLevelGrid.editable.validatable.validate())){
-	                    {!uniqueId}togglePLToolbarButtons(false);
-	                }
-				}
+                if($(event.target).attr('class').indexOf("overlay") == -1){
+                    {!uniqueId}PL_DocOnClikcBindings(event);
+                    if( {!uniqueId}priceLevelGrid.editable != null && ({!uniqueId}priceLevelGrid.editable.validatable.validate())){
+                        {!uniqueId}togglePLToolbarButtons(false);
+                    }
+                }
             });
             
             
@@ -141,7 +141,7 @@
         
         // Method: Load the grid
         function {!uniqueId}loadPriceLevelGrid(){
-            console.log('Loading Price level');
+            
             // Grid Data Source
             var priceLevelGridDataSource = new kendo.data.DataSource({
                 transport: {
@@ -160,12 +160,13 @@
                                     priceLevel = JSON.parse(priceLevel);
                                     if(priceLevel.length==0)
                                     {
-                                   	 {!uniqueId}showPopupNotification('No records found ','info');
+                                     {!uniqueId}showPopupNotification('No records found ','info');
                                     }
+                                    
                                     options.success(priceLevel);
             
-            
-            						
+                                    
+                                    
             
             
                                 }
@@ -253,34 +254,34 @@
                                     PLRateValueValidation : function (input, params) {
                                         var errMsg = "Cannot be less than zero";
                                         if(input.is("[name='PL_Discount_Markup']")){
-	                                       	if ($(input).val().trim().length == 0) {
-	                                       		$(input).val(0.00);
-	                                       		$(input).parent().find("input:first-child").val(0.00);
-	                                       		return true;
-	                                       	}else {
-	                                       		var selectedPartPrieBase = $(input).closest("tr").find("span[class='k-widget k-dropdown k-header']>input").val();
-	                                       		var rateApplied = $(input).val();
-	                                       		
-	                                       		if(selectedPartPrieBase == 'Average Cost' || selectedPartPrieBase == 'Cost'){
-	                                       			if(rateApplied < 0){
-	                                       				input.attr("data-PLRateValueValidation-msg", errMsg);
-	                                       				return false;
-	                                       			}
-	                                       		}
-	                                       		
-	                                       		if(rateApplied >= 10000){
-	                                       			errMsg = "Cannot exceed 9999.99%";
-	                                       			input.attr("data-PLRateValueValidation-msg", errMsg);
-	                                       			return false;
-	                                       		}else if(rateApplied < -100){
-	                                       			errMsg = "Cannot be less than -100%";
-	                                       			input.attr("data-PLRateValueValidation-msg", errMsg);
-	                                       			return false;
-	                                       		}
-	                                       	}
-                                    	}
-                                    	
-                                    	return true;
+                                            if ($(input).val().trim().length == 0) {
+                                                $(input).val(0.00);
+                                                $(input).parent().find("input:first-child").val(0.00);
+                                                return true;
+                                            }else {
+                                                var selectedPartPrieBase = $(input).closest("tr").find("span[class='k-widget k-dropdown k-header']>input").val();
+                                                var rateApplied = $(input).val();
+                                                
+                                                if(selectedPartPrieBase == 'Average Cost' || selectedPartPrieBase == 'Cost'){
+                                                    if(rateApplied < 0){
+                                                        input.attr("data-PLRateValueValidation-msg", errMsg);
+                                                        return false;
+                                                    }
+                                                }
+                                                
+                                                if(rateApplied >= 10000){
+                                                    errMsg = "Cannot exceed 9999.99%";
+                                                    input.attr("data-PLRateValueValidation-msg", errMsg);
+                                                    return false;
+                                                }else if(rateApplied < -100){
+                                                    errMsg = "Cannot be less than -100%";
+                                                    input.attr("data-PLRateValueValidation-msg", errMsg);
+                                                    return false;
+                                                }
+                                            }
+                                        }
+                                        
+                                        return true;
                                     }
                                 }                   
                             },
@@ -289,32 +290,32 @@
                                 defaultValue: 0.00,
                                 validation: { 
                                     PLLabourRateValueValidation : function (input, params) {
-                                    	var errMsg = "Cannot be less than zero";
+                                        var errMsg = "Cannot be less than zero";
                                         if(input.is("[name='PL_Labour_Rate']")){
-	                                       	if ($(input).val().trim().length == 0) {
-	                                       		var win = $(input).closest("tr");
-												var uid = win.data("uid");
-												// Assign value (anything works)
-												$(input).val("0");
-												var model = $("#{!uniqueId}grid").data("kendoGrid").dataSource.getByUid(uid);
-												model.set('PL_Labour_Rate','0');
-												
-												$(input).val(0.00);
-	                                       		$(input).parent().find("input:first-child").val(0.00);
-	                                       		return true;
-	                                       	}else {
-	                                       		if(input.val() < 0) {
+                                            if ($(input).val().trim().length == 0) {
+                                                var win = $(input).closest("tr");
+                                                var uid = win.data("uid");
+                                                // Assign value (anything works)
+                                                $(input).val("0");
+                                                var model = $("#{!uniqueId}grid").data("kendoGrid").dataSource.getByUid(uid);
+                                                model.set('PL_Labour_Rate','0');
+                                                
+                                                $(input).val(0.00);
+                                                $(input).parent().find("input:first-child").val(0.00);
+                                                return true;
+                                            }else {
+                                                if(input.val() < 0) {
                                                     input.attr("data-PLLabourRateValueValidation-msg", "Cannot be less than zero");
                                                     return false;
-                                          		}
-                                          		
-                                          		if(input.val().length > 16) {
-		                                            input.attr("data-PLLabourRateValueValidation-msg", "Enter a smaller value");
-		                                            return false;
-		                                         }
-	                                       	}
-                                    	}
-                                    	return true;
+                                                }
+                                                
+                                                if(input.val().length > 16) {
+                                                    input.attr("data-PLLabourRateValueValidation-msg", "Enter a smaller value");
+                                                    return false;
+                                                 }
+                                            }
+                                        }
+                                        return true;
                                     }
                                 }
                             },
@@ -435,9 +436,10 @@
         
         function getPPBaseName(ppBase) {
             if(ppBase == null || ppBase == '') return '';
+            
             for (var idx = 0, length = PL_PPBaseDatasource.length; idx < length; idx++) {
-                if (PL_PPBaseDatasource[idx].Value === ppBase) {
-                    return PL_PPBaseDatasource[idx].Name;
+                if (PL_PPBaseDatasource[idx].Value === ppBase) {   
+                    return escapeHTML(PL_PPBaseDatasource[idx].Name);
                 }
             }
         }
@@ -478,19 +480,19 @@
                     // Unique DEFAULT bind
                     $( "#{!uniqueId}grid input[name='PL_Default']").on("change", function (event) {
                         checkExistingDefault_Global(this, 
-                        							'PL_Name', 'PL_Default', 'PL_Active', 
-                        							'{!uniqueId}grid', 'Price Level', {!uniqueId}currentRowIndex,
-                        							{!uniqueId}showPopupNotification
-                        							);
+                                                    'PL_Name', 'PL_Default', 'PL_Active', 
+                                                    '{!uniqueId}grid', 'Price Level', {!uniqueId}currentRowIndex,
+                                                    {!uniqueId}showPopupNotification
+                                                    );
                     });
                     
                     // Unique ACTIVE bind
                     $( "#{!uniqueId}grid input[name='PL_Active']").on("change", function (event) {
                         checkExistingDefaultActive_Global(this, 
-	                        							  'PL_Name', 'PL_Default', 'PL_Active', 
-	                        							  '{!uniqueId}grid', 'Price Level', {!uniqueId}currentRowIndex,
-	                        							  {!uniqueId}showPopupNotification
-	                        							 );
+                                                          'PL_Name', 'PL_Default', 'PL_Active', 
+                                                          '{!uniqueId}grid', 'Price Level', {!uniqueId}currentRowIndex,
+                                                          {!uniqueId}showPopupNotification
+                                                         );
                     });
                 }else{
                     if({!uniqueId}priceLevelGrid.tbody.children().hasClass("k-grid-edit-row")) {
@@ -553,19 +555,19 @@
             // Unique DEFAULT bind
             $( "#{!uniqueId}grid input[name='PL_Default']").on("change", function (event) {
                 checkExistingDefault_Global(this, 
-                							'PL_Name', 'PL_Default', 'PL_Active', 
-                							'{!uniqueId}grid', 'Sales Tax', {!uniqueId}currentRowIndex,
-                							{!uniqueId}showPopupNotification
-                							);
+                                            'PL_Name', 'PL_Default', 'PL_Active', 
+                                            '{!uniqueId}grid', 'Sales Tax', {!uniqueId}currentRowIndex,
+                                            {!uniqueId}showPopupNotification
+                                            );
             });
             
             // Unique ACTIVE bind
             $( "#{!uniqueId}grid input[name='PL_Active']").on("change", function (event) {
                 checkExistingDefaultActive_Global(this, 
-                 							  'PL_Name', 'PL_Default', 'PL_Active', 
-                 							  '{!uniqueId}grid', 'Sales Tax', {!uniqueId}currentRowIndex,
-                 							  {!uniqueId}showPopupNotification
-                 							 );
+                                              'PL_Name', 'PL_Default', 'PL_Active', 
+                                              '{!uniqueId}grid', 'Sales Tax', {!uniqueId}currentRowIndex,
+                                              {!uniqueId}showPopupNotification
+                                             );
             });
             
             {!uniqueId}toggleSelectedRowClass(newRowToAdd);
@@ -605,11 +607,11 @@
             }
         
         var confirmDeletePriceLevelRecord = function(isConfirmed){
-        	if(!isConfirmed){
-        		return;
-        	}
-        	var rowData = {!uniqueId}getSelectedRowData(true);
-        	
+            if(!isConfirmed){
+                return;
+            }
+            var rowData = {!uniqueId}getSelectedRowData(true);
+            
             var priceLevelRecId = rowData.PL_Id;
             
             if(priceLevelRecId == null || priceLevelRecId == ''){
@@ -640,19 +642,19 @@
                 return;
             }
             if(rowData.PL_Id != null && rowData.PL_Id.length > 0 && rowData.PL_Default == true){
-				{!uniqueId}showPopupNotification('Cannot delete a default Price Level record.', 'error');
+                {!uniqueId}showPopupNotification('Cannot delete a default Price Level record.', 'error');
                 return;
             }
             
-            var delConfirmMsg = "Are you sure that you want to delete record for " + rowData.PL_Name + "?";
+            var delConfirmMsg = "Are you sure that you want to delete record for " + escapeHTML(rowData.PL_Name) + "?";
             confirmAction("Confirm Delete", delConfirmMsg, confirmDeletePriceLevelRecord);
         }
         
         function {!uniqueId}getSelectedRowData(isToDelInCase){
             var rowIndex = {!uniqueId}priceLevelGrid.select().closest("tr");
             if(rowIndex.length == 0){
-            	if(isToDelInCase){
-                	{!uniqueId}deleteNewEditingRowInPLGrid();
+                if(isToDelInCase){
+                    {!uniqueId}deleteNewEditingRowInPLGrid();
                 }
                 return null;
             }else{
@@ -660,8 +662,8 @@
                 if(rowData.PL_Id != ""){
                     return rowData;
                 }else if( ({!uniqueId}priceLevelGrid.editable.validatable.validate()) == false ){
-                	if(isToDelInCase){
-                    	{!uniqueId}deleteNewEditingRowInPLGrid();
+                    if(isToDelInCase){
+                        {!uniqueId}deleteNewEditingRowInPLGrid();
                     }
                     return null;
                 }
@@ -704,6 +706,7 @@
         }
         
         function {!uniqueId}savePriceLevel(){
+            //console.log('hit 1');
             if({!uniqueId}priceLevelGrid.tbody.children().hasClass("k-grid-edit-row")) {
                 if(({!uniqueId}priceLevelGrid.editable.validatable.validate())) {
                     var rowIndex = {!uniqueId}priceLevelGrid.tbody.find(".k-grid-edit-row");
@@ -716,8 +719,9 @@
                                                                         encodeString(rowData),
                                                                         function(result, event){
                                                                             if (event.status) {
-                                                                            	{!uniqueId}showPopupNotification("Saved", "success");
+                                                                                {!uniqueId}showPopupNotification("Saved", "success");
                                                                                 rowData.PL_Order=1; 
+                                                                                //console.log('hit 2');
                                                                                 {!uniqueId}refreshGrid();
                                                                             }else if (event.type === 'exception') {
                                                                                 {!uniqueId}showPopupNotification(event.message, "error");
@@ -733,6 +737,7 @@
         
         // Refresh the grid:
         function {!uniqueId}refreshGrid(){
+            //console.log('hit 3');
             {!uniqueId}priceLevelGrid.dataSource.read();
             {!uniqueId}priceLevelGrid.refresh();
         }
@@ -767,10 +772,10 @@
         }
             
         function {!uniqueId}togglePLToolbarButtons(makeActive){
-        	var tempMakeActive = makeActive;
-              	if(makeActive == "TF"){
-           		makeActive = true;
-           	}
+            var tempMakeActive = makeActive;
+                if(makeActive == "TF"){
+                makeActive = true;
+            }
             var cloneButton = $("#{!uniqueId}PL_Clone_Button");
             var deleteButton = $("#{!uniqueId}PL_Delete_Button");
             
@@ -783,12 +788,12 @@
                 deleteButton.addClass("my-delete-active");
                 
                 cloneButton.prop('title', 'Clone');
-            	deleteButton.prop('title', 'Delete');
+                deleteButton.prop('title', 'Delete');
             }else{
                 deleteButton.addClass("my-delete-default");
                 deleteButton.removeClass("my-delete-active");
                 
-            	deleteButton.removeAttr('title');
+                deleteButton.removeAttr('title');
             }
             
             if(!makeActive || tempMakeActive == "TF"){
@@ -816,8 +821,8 @@
         
         // Display popup notiications:
         function {!uniqueId}showPopupNotification(message, msgType){
-        	{!uniqueId}popupNotification.hide();
-        	{!uniqueId}popupNotification.show(kendo.toString(message), msgType);
+            {!uniqueId}popupNotification.hide();
+            {!uniqueId}popupNotification.show(kendo.toString(message), msgType);
         }
         var asd;
     </script>

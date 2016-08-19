@@ -42,6 +42,7 @@ public with sharing class SOPaymentRoleTriggerHelper {
     		coInvoiceItemListToInsert.add(coInvoiceItemRec);
     	}
     	if(coInvoiceItemListToInsert.size() > 0) {
+    		
     		insert coInvoiceItemListToInsert;
     	}
     }

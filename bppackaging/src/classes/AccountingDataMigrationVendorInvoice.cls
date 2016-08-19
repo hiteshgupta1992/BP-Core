@@ -90,6 +90,8 @@ global with sharing class AccountingDataMigrationVendorInvoice implements Databa
 		List<Vendor_Invoicing_Group__c> voInvoiceList = (List<Vendor_Invoicing_Group__c>) scope;
 		
 		if(voInvoiceList.size() > 0){
+			if(AccessControl.ifObjectFieldIsAccessible('GL_Account__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+			
 	    	// Map of MiscellaneousPurchases records for all applicable saleforce VO Invoice records (a map of VO Invoice sf fields to equivalent values)
 	    	Map<Integer, Map<String,String>> voInvoiceRecords = new Map<Integer, Map<String, String>>();
 	    	
@@ -186,6 +188,7 @@ global with sharing class AccountingDataMigrationVendorInvoice implements Databa
     	
     	if(exportAllData){
     		if(AccessControl.ifSingleEmailSendAllowed() == false) { throw new BlackPurlException(Constants.EMAIL_SEND_NOT_PERMIT); }
+    		if(AccessControl.ifObjectFieldIsAccessible('EmailTemplate') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     		
 	    	// Send the acknowledge mail to user
 	  		Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();

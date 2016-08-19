@@ -14,9 +14,32 @@ global with sharing class CustomerOrderCtrl {
     public boolean Load_New_UI {get{return GeneralConfiguration.isLoadNewUI();} private set;}
     public boolean Load_New_View_Customer {get{return GeneralConfiguration.isLoadNewViewCustomer();} private set;}
     public Decimal Sales_Tax_Rate {get{return GeneralConfiguration.getAustralianMarketSalesTaxRate();} private set;}
-
-    private static final String USE_DEPOSIT =  'Use Deposit';
-
+    
+    public static Map<String, Integer> SOStatusToPriorityMap = new Map<String, Integer> {'New' => 1,
+                                                                                         'Ready' => 2,
+                                                                                         'In Progress' => 3,
+                                                                                         'Complete' => 4,
+                                                                                         'Reviewed' => 5};
+                                                                                         
+                                                                                         
+     public static Map<String, List<String>> workStatusToAvailableStatusMap = 
+                                new Map<String , List<String>> {'New'           =>  new List<String>{'Sign In', 'Force To Ready'},
+                                                                'Ready'         =>  new List<String>{'Start Progress', 'Get Customer Approval', 'Put On Hold'},
+                                                                'In Progress'   =>  new List<String>{'Log Service Work', 'Set As Complete', 'Get Customer Approval', 'Put On Hold'},
+                                                                'On Hold'       =>  new List<String>{'Start Progress', 'Get Customer Approval', 'Log Service Work'},
+                                                                'Complete'      =>  new List<String>{'Review Service', 'Re-Open For Work', 'Force To Reviewed'},
+                                                                'Reviewed'      =>  new List<String>{'Service Sign Out', 'Re-Open For Work', 'Force To Sign Out'},
+                                                                'Signed Out'    =>  new List<String>{'Go To CheckOut'},
+                                                                'Invoiced'      =>  new List<String>{}
+                                                            };
+     // ClaimStatus Map To Available Status                                                         
+    public static Map<String, List<String>> claimStatusToAvailableStatusMap = 
+                                new Map<String , List<String>> {'Unsubmitted'       =>  new List<String>{'Force Claim Submission'},
+                                                                'Ready to Submit'   =>  new List<String>{'Claim Submission'},
+                                                                'Submitted'         =>  new List<String>{'View Submitted Claim', 'Claim Response'},
+                                                                'Approved'          =>  new List<String>{'View Claim Response'}
+                                                               };
+    
     /**
      * Name: getSearchResults
      * Desc: Method which gives records according to the search critaria
@@ -33,8 +56,6 @@ global with sharing class CustomerOrderCtrl {
             searchJSONString = SearchSuggestionUtil.getSearchSuggestionJSON(searchQueryJSON);
         }catch(Exception e){
             return BPUtility.getEncodedString('');
-
-
         }
         return BPUtility.getEncodedString(searchJSONString);
     }
@@ -65,8 +86,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
 
     /**
@@ -82,8 +101,6 @@ global with sharing class CustomerOrderCtrl {
             List<Part__c> partRecords = SOQLUtil.getPartRecord(new List<Id>{partId});
             if(partRecords.size() == 0){
                 return BPUtility.getEncodedString('');
-
-
             }
             Part partDetail = new Part(partRecords[0]);
             return BPUtility.getEncodedString(System.JSON.serialize(partDetail));
@@ -91,8 +108,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
 
     /**
@@ -106,7 +121,7 @@ global with sharing class CustomerOrderCtrl {
     	coHeaderId = BPUtility.getDecodedString(coHeaderId);
         try{
         	if(AccessControl.ifObjectFieldIsUpdateable('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-
+        	
             List<CO_Header__c> coHeaderRec = SOQLUtil.getCOHeaderDetails(coHeaderId) ;
             List<CO_Line_Item__c> coLineItems = SOQLUtil.getCOLineItemByCOHeaderId(coHeaderId);
             List<CO_Kit_Header__c> coKitHeaders = SOQLUtil.getCOKHByCOHeaderId(coHeaderId);
@@ -156,7 +171,10 @@ global with sharing class CustomerOrderCtrl {
                 voHeadersList.add(voHeaderRec);
                 vendorIdToVOHeadesListMap.put(voHeaderRec.Vendor__c, voHeadersList);
             }
-
+            
+            
+           
+            
             COHeaderWrapper coHeaderWrapperObj;
             if(coHeaderRec.size() > 0) {
                 coHeaderWrapperObj = new COHeaderWrapper(coHeaderRec[0], coLineItems, coKitHeaders, currentUser[0].LocaleSidKey, coDeposits, coInvoiceHeaders, 
@@ -190,6 +208,7 @@ global with sharing class CustomerOrderCtrl {
             List<CO_Header__c> coHeaderRec = new List<CO_Header__c>();
             List<CO_Line_Item__c> coLineItems = new List<CO_Line_Item__c>();
             List<CO_Kit_Header__c> coKitHeaders = new List<CO_Kit_Header__c>();
+            
             List<Vendor_Order_Line_Item__c> specialOrders = new List<Vendor_Order_Line_Item__c>();
             List<User> currentUser = new List<User>();
             List<CO_Deposit__c> coDeposits = new List<CO_Deposit__c>();
@@ -198,6 +217,8 @@ global with sharing class CustomerOrderCtrl {
             List<CO_Invoice_Item__c> coInvoiceItems = new List<CO_Invoice_Item__c>();
             List<CO_Invoice_Header__c> closedCOInvoiceHeaders = new List<CO_Invoice_Header__c>();
             List<Customer_Owned_Unit__c> couRecords = new List<Customer_Owned_Unit__c>();
+            
+            
             if(gridName == null || gridName.contains('coHeader')) {
                 coHeaderRec = SOQLUtil.getCOHeaderDetails(coHeaderId) ;
             }
@@ -269,11 +290,8 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
-
     /**
     * Name: getSOHeaderDetails
     * Desc: Method to get json string related to Service Header Order
@@ -345,8 +363,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
          
     }
       /*
@@ -373,8 +389,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString(''); 
-
-
      } 
      
     
@@ -406,8 +420,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -424,7 +436,6 @@ global with sharing class CustomerOrderCtrl {
         try{
         	if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         	
-
             //System.assert(false, 'abc');
             SOHeaderWrapper.SOHeader soHeaderObj = (SOHeaderWrapper.SOHeader) System.JSON.deserialize(jSONString, SOHeaderWrapper.SOHeader.class);
             Service_Order_Header__c soHeaderRec = new Service_Order_Header__c();
@@ -500,8 +511,6 @@ global with sharing class CustomerOrderCtrl {
             List<Service_Order_Header__c> soHeaderRecList = SOQLUtil.getSODetailsByFieldName(new Map<String, String>{'Id' => soHeaderId});
             if(soHeaderRecList.size() == 0) {
                 return BPUtility.getEncodedString('{}');
-
-
             }
             
             return BPUtility.getEncodedString(System.JSON.serialize(new SOHeaderWrapper.SOHeader(soHeaderRecList[0])));
@@ -509,8 +518,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
         
         // return JSON
         //return getSOHeaderDetails(coHeaderId, null);
@@ -530,7 +537,6 @@ global with sharing class CustomerOrderCtrl {
     	jSONString = BPUtility.getDecodedString(jSONString);
         try{
         	if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-            if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             SOHeaderWrapper.SOSignIn soSignInObj = (SOHeaderWrapper.SOSignIn) System.JSON.deserialize(jSONString, SOHeaderWrapper.SOSignIn.class);
             
             String soHeaderId = soSignInObj.Id;
@@ -539,20 +545,16 @@ global with sharing class CustomerOrderCtrl {
             if(soHeaderList.size() > 0) {
                 Service_Order_Header__c soHeaderRec = soHeaderList[0];
                 soHeaderRec.Odometer_on_Arrival__c = soSignInObj.Odometer;
-                if(Constants.SOStatusToPriorityMap.get(soHeaderRec.Status__c) < 2) {
+                if(SOStatusToPriorityMap.get(soHeaderRec.Status__c) < 2) {
                     soHeaderRec.Status__c = 'Ready';
                 }
                 update soHeaderRec;
             }
-
-
             return getSOHeaderDetails(BPUtility.getEncodedString(coHeaderId), BPUtility.getEncodedString(null));
         }catch(Exception e){
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -568,11 +570,10 @@ global with sharing class CustomerOrderCtrl {
     	jSONString = BPUtility.getDecodedString(jSONString);
         try{
         	if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-        	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-
+        	
             SOHeaderWrapper.SOReview soReviewObj = (SOHeaderWrapper.SOReview) System.JSON.deserialize(jSONString, SOHeaderWrapper.SOReview.class);
             String soHeaderId = soReviewObj.Id;
-            soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId);
+            
             List<Service_Order_Header__c> soHeaderList = [select Status__c, Odometer_on_Departure__c, Odometer_on_Arrival__c, Notes_For_Customer__c from Service_Order_Header__c where Id =: soHeaderId]; 
             
             if(soHeaderList.size() > 0) {
@@ -609,7 +610,7 @@ global with sharing class CustomerOrderCtrl {
                 }
                 
                 
-                if(soHeaderRec.Notes__c != null && soHeaderRec.Odometer_on_Departure__c != null && Constants.SOStatusToPriorityMap.get(soHeaderRec.Status__c) < 5) {
+                if(soHeaderRec.Notes__c != null && soHeaderRec.Odometer_on_Departure__c != null && SOStatusToPriorityMap.get(soHeaderRec.Status__c) < 5) {
                     soHeaderRec.Status__c = 'Reviewed';
                 }
                 
@@ -620,8 +621,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -640,7 +639,6 @@ global with sharing class CustomerOrderCtrl {
         try{
         	if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         	
-
             Service_Order_Header__c soHeaderRec = new Service_Order_Header__c();
             soHeaderRec.Id = soId;
             soHeaderRec.Name__c = soName;
@@ -649,14 +647,10 @@ global with sharing class CustomerOrderCtrl {
                 update soHeaderRec;
             }
             return BPUtility.getEncodedString('Saved');
-
-
         }catch(Exception e){
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -674,6 +668,7 @@ global with sharing class CustomerOrderCtrl {
     	customerId = BPUtility.getDecodedString(customerId);
         try{
             if(String.isBlank(COHeaderId)) {
+            	
                 COHeaderId = BPUtility.getDecodedString(BPGlobalHeaderCtrl.createCustomerOrder());  
             }
             COHeaderId = BPUtility.escapeSingleQuotes(COHeaderId);
@@ -698,8 +693,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
 
     /**
@@ -722,8 +715,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
 
     /**
@@ -737,14 +728,10 @@ global with sharing class CustomerOrderCtrl {
     global static String saveCOLineItem(String coHeaderId, String jSONString) {
     	coHeaderId = BPUtility.getDecodedString(coHeaderId);
     	jSONString = BPUtility.getDecodedString(jSONString);
-    	Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
         try{
-
         	if(AccessControl.ifObjectFieldIsCreateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 			if(AccessControl.ifObjectFieldIsUpdateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 			
-
-
             //system.assert(false, jSONString);
             if(String.isBlank(COHeaderId)) {
                 COHeaderId = BPUtility.getDecodedString(BPGlobalHeaderCtrl.createCustomerOrder());  
@@ -756,14 +743,7 @@ global with sharing class CustomerOrderCtrl {
             for(COLineItem coLineItemObj : coLineItemObjList) {
                 CO_Line_Item__c coLineItemRec = new CO_Line_Item__c();
                 coLineItemRec.Qty__c = coLineItemObj.Qty ;
-				if(isTaxIncludingPricing) {
-                    if(coLineItemObj.Tax == null) {
-                        coLineItemObj.Tax = 0;
-                    }   
-                    coLineItemRec.Price__c = (coLineItemObj.Price / (1 + (coLineItemObj.Tax / 100)));
-                } else {
-                    coLineItemRec.Price__c = coLineItemObj.Price;
-                }
+                coLineItemRec.Price__c = coLineItemObj.Price;
                 coLineItemRec.CO_Header__c = coHeaderId;
                 coLineItemRec.Part__c = (coLineItemObj.PartId != '') ? coLineItemObj.PartId : null;
                 coLineItemRec.Fee__c = (coLineItemObj.FeeId != '') ? coLineItemObj.FeeId : null;
@@ -814,13 +794,9 @@ global with sharing class CustomerOrderCtrl {
             return System.JSON.serialize(coHeaderWrapperObj);*/
             //return getCOHeaderDetails(coHeaderId);
         }catch(Exception e){
-
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
-
     }
 
     /**
@@ -836,8 +812,7 @@ global with sharing class CustomerOrderCtrl {
     	coHeaderId = BPUtility.getDecodedString(coHeaderId);
         try{
         	if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        	
-			coLineItemId = BPUtility.escapeSingleQuotes(coLineItemId);
+        	coLineItemId = BPUtility.escapeSingleQuotes(coLineItemId);
             List<CO_Line_Item__c> coLineItemToDelete = [select Id from CO_Line_Item__c where Id = :coLineItemId];
             if(coLineItemToDelete.size() > 0) {
             	if(AccessControl.ifObjectIsDeletable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
@@ -848,8 +823,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
 
     /**
@@ -872,8 +845,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
 
     /**
@@ -903,7 +874,6 @@ global with sharing class CustomerOrderCtrl {
             	if(AccessControl.ifObjectFieldIsCreateable('CO_Deposit__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 				if(AccessControl.ifObjectFieldIsUpdateable('CO_Deposit__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 				
-
                 upsert coDepositListToUpdate;
             }
             String coHeaderId;
@@ -917,8 +887,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -941,8 +909,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -976,7 +942,6 @@ global with sharing class CustomerOrderCtrl {
             	if(AccessControl.ifObjectFieldIsCreateable('CO_Invoice_Payment__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 				if(AccessControl.ifObjectFieldIsUpdateable('CO_Invoice_Payment__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 				
-
                 upsert coInvoicePaymentListToUpdate;
             }
             if(reversePaymentIds.size() > 0) {
@@ -984,7 +949,6 @@ global with sharing class CustomerOrderCtrl {
                 List<CO_Invoice_Payment__c> COInvoicePaymentsToBeReversed = [select Id, Reverse_Link__c from CO_Invoice_Payment__c where Id IN :reversePaymentIds];
                 for(CO_Invoice_Payment__c coInvoicePaymentRec : COInvoicePaymentsToBeReversed) {
                     coInvoicePaymentRec.Reverse_Link__c = coInvoicePaymentListToUpdate[0].Id;
-					coInvoicePaymentRec.Reverse_Payment_From__c = coInvoicePaymentListToUpdate[0].Id;
                 }
                 if(COInvoicePaymentsToBeReversed.size() > 0) {
 					if(AccessControl.ifObjectFieldIsUpdateable('CO_Invoice_Payment__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
@@ -1003,8 +967,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -1027,8 +989,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -1078,16 +1038,13 @@ global with sharing class CustomerOrderCtrl {
             List<COInvoiceItem> coInvoiceItemObjList = (List<COInvoiceItem>) System.JSON.deserialize(jsonString, List<COInvoiceItem>.class);
             List<CO_Invoice_Item__c> coInvoiceItemListToUpdate = new List<CO_Invoice_Item__c>();
                 
-
             for(COInvoiceItem coIIObj : coInvoiceItemObjList) {
                 CO_Invoice_Item__c coInvoiceItemRec = new CO_Invoice_Item__c(Id = coIIObj.COInvoiceItemId);
                 if(coIIObj.IsActive != null) {
                     coInvoiceItemRec.IsActive__c = coIIObj.IsActive;
                 } else {
-
                     coInvoiceItemRec.IsActive__c = false;
                 }
-
                 coInvoiceItemListToUpdate.add(coInvoiceItemRec);
             }
             
@@ -1123,8 +1080,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -1135,15 +1090,14 @@ global with sharing class CustomerOrderCtrl {
     global static String closedOrderAction(String coInvoiceItemsJsonString, String coHeaderId, String currentCheckoutType){
     	
     if(AccessControl.ifObjectFieldIsUpdateable('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-    if(AccessControl.ifObjectFieldIsUpdateable('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+    if(AccessControl.ifObjectFieldIsUpdateable('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
     
-    	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    List<String> objNames = new List<String>{'CO_Invoice_Item__c', 'CO_Invoice_Header__c', 'CO_Line_Item__c', 'CO_Invoice_Payment__c', 'CO_Header__c'};
+    if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	
       coInvoiceItemsJsonString = BPUtility.getDecodedString(coInvoiceItemsJsonString);
       coHeaderId = BPUtility.getDecodedString(coHeaderId);
       currentCheckoutType = BPUtility.getDecodedString(currentCheckoutType);
-
-
        Savepoint sp = Database.setSavepoint();
         try{
             List<COInvoiceItem> coInvoiceItemObjList = (List<COInvoiceItem>) System.JSON.deserialize(coInvoiceItemsJsonString, List<COInvoiceItem>.class);
@@ -1151,18 +1105,17 @@ global with sharing class CustomerOrderCtrl {
             for(COInvoiceItem coInvoiceItemObj : coInvoiceItemObjList) {
                coLineItemIdSet.add(coInvoiceItemObj.COLineItemId);
             }
-
+            
             String activeCOInvoiceHeaderId = coInvoiceItemObjList[0].COInvoiceHeaderId;
-            activeCOInvoiceHeaderId = BPUtility.escapeSingleQuotes(activeCOInvoiceHeaderId);
+            
             if(activeCOInvoiceHeaderId == null ||  activeCOInvoiceHeaderId == ''){
                  return getCOHeaderDetails(BPUtility.getEncodedString(coHeaderId));
             }
-				if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
                 Map<String,List<CO_Invoice_Item__c>> coInvoiceTypeToLineItemMap =  new Map<String,List<CO_Invoice_Item__c>>();
+                activeCOInvoiceHeaderId = BPUtility.escapeSingleQuotes(activeCOInvoiceHeaderId);
                 List<CO_Invoice_Item__c> closedCOInvoicItemList = [select   CO_Invoice_Header__c,SO_Payment_Role__c, CO_Kit_Header__c,Service_Order_Header__c,CO_Line_Item__c,CO_Line_Item__r.Closed_CO_Invoice_link__c, CO_Invoice_Header__r.Name from CO_Invoice_Item__c where CO_Invoice_Header__c = :activeCOInvoiceHeaderId];
                 List<CO_Line_Item__c> coLineItemsToUpdated = new List<CO_Line_Item__c>();
                 
-
                 Map<Id,CO_Invoice_Item__c> invoicedServiceOrderHeaderMap =new  Map<Id,CO_Invoice_Item__c>();
                 Map<Id, CO_Invoice_Item__c > invoicedCoLineItemMap = new Map<Id, CO_Invoice_Item__c >();
                 Map<Id, CO_Invoice_Item__c > invoicedCOKHMap = new Map<Id, CO_Invoice_Item__c >();
@@ -1172,65 +1125,46 @@ global with sharing class CustomerOrderCtrl {
                         if(coInoiceItemRec.CO_Line_Item__c != null) {
                             if(!coInvoiceTypeToLineItemMap.ContainsKey('ColiInvoice'))
                             {
-
                                 coInvoiceTypeToLineItemMap.Put('ColiInvoice',new List<CO_Invoice_Item__c>{ coInoiceItemRec});
                             }
-
                             coInvoiceTypeToLineItemMap.get('ColiInvoice').add(coInoiceItemRec);
                             invoicedCoLineItemMap.Put(coInoiceItemRec.CO_Line_Item__c,coInoiceItemRec );
                         }
-
                         else if( coInoiceItemRec.CO_Kit_Header__c !=null){
                             if(!coInvoiceTypeToLineItemMap.ContainsKey('CoKitInvoice'))
                             {
-
                                 coInvoiceTypeToLineItemMap.Put('CoKitInvoice',new List<CO_Invoice_Item__c>{ coInoiceItemRec});
                             }
-
                             coInvoiceTypeToLineItemMap.get('CoKitInvoice').add(coInoiceItemRec);
                             invoicedCOKHMap.Put(coInoiceItemRec.CO_Kit_Header__c,coInoiceItemRec );
                         
                         }
-
-
                         else if( coInoiceItemRec.Service_Order_Header__c !=null && coInoiceItemRec.SO_Payment_Role__c ==null){
                             
-
                             if(!coInvoiceTypeToLineItemMap.ContainsKey('SoKitInvoice'))
                             {
-
                                 coInvoiceTypeToLineItemMap.Put('SoKitInvoice',new List<CO_Invoice_Item__c>{ coInoiceItemRec});
                             }
-
                             coInvoiceTypeToLineItemMap.get('SoKitInvoice').add(coInoiceItemRec);
                             invoicedServiceOrderHeaderMap.Put(coInoiceItemRec.Service_Order_Header__c,coInoiceItemRec );
                        }
-
                        else if( coInoiceItemRec.SO_Payment_Role__c !=null){
                             if(!coInvoiceTypeToLineItemMap.ContainsKey('SoPayment'))
                             {
-
                                 coInvoiceTypeToLineItemMap.Put('SoPayment',new List<CO_Invoice_Item__c>{ coInoiceItemRec});
                             }
-
                             coInvoiceTypeToLineItemMap.get('SoPayment').add(coInoiceItemRec);
                             invoicedSoPaymentMap.Put(coInoiceItemRec.SO_Payment_Role__c , coInoiceItemRec );
                         }
                 }
                 
                 
-
-
-
-
                 // for Service order records 
                 
-
                 if( coInvoiceTypeToLineItemMap.containsKey('SoKitInvoice') ){
-                	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-                	if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-                	if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-
+                	objNames = new List<String>{'Service_Order_Line_Item__c', 'Part__c', 'Service_Order_Header__c'};
+				    if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+				    
                     List<Service_Order_Line_Item__c> serviceOrderLineItemFromInvoiceList  = new List<Service_Order_Line_Item__c>([Select Service_Order_Header__c,(Select Qty__c, Qty_Committed__c, Status__c, Price__c, part__c,part__r.Qty_In_Stock__c,
                                                                                                                                 part__r.Qty_Committed__c,part__r.Last_Cost__c, Closed_CO_Invoice_link__c,Oversold_Qty__c From CO_Line_Items__r),CO_Line_Item__c
                                                                                                                                  From Service_Order_Line_Item__c  where  Service_Order_Header__c  =: invoicedServiceOrderHeaderMap.KeySet()]);
@@ -1238,7 +1172,6 @@ global with sharing class CustomerOrderCtrl {
                             if(invoicedServiceOrderHeaderMap.containsKey(serviceOrderLineItemFromInvoiceRec.Service_Order_Header__c)){
                             CO_Invoice_Item__c   closedCOInvoiceItem =  invoicedServiceOrderHeaderMap.get(serviceOrderLineItemFromInvoiceRec.Service_Order_Header__c);
                             
-
                                 List<CO_Line_Item__c> coliUpdateFromServiceOrderInvoiceList = new   List<CO_Line_Item__c>(serviceOrderLineItemFromInvoiceRec.CO_Line_Items__r);
                                     for(CO_Line_Item__c colirec : coliUpdateFromServiceOrderInvoiceList ){
                                         colirec.Closed_CO_Invoice_link__c = closedCOInvoiceItem.CO_Invoice_Header__r.Name;
@@ -1248,16 +1181,10 @@ global with sharing class CustomerOrderCtrl {
                     }
                 }
                     
-
-
-
-
-
                 if(coInvoiceTypeToLineItemMap.containsKey('ColiInvoice')){
                 	if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
                 	if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
                 	
-
                     List<CO_Line_Item__c> ColiFromInvoiceList = new   List<CO_Line_Item__c>([Select Qty__c, Qty_Committed__c, Price__c, Status__c,part__c,part__r.Qty_In_Stock__c,
                                                                                         part__r.Qty_Committed__c,part__r.Last_Cost__c,closed_CO_Invoice_link__c,Oversold_Qty__c From CO_Line_Item__c where  Id =: invoicedCoLineItemMap.KeySet()]);
                     for(CO_Line_Item__c colirec : ColiFromInvoiceList ){
@@ -1266,19 +1193,14 @@ global with sharing class CustomerOrderCtrl {
                             coLineItemsToUpdated.add(colirec);
                     }
                 }   
-
-
                  if(coInvoiceTypeToLineItemMap.containsKey('CoKitInvoice')){
-                 	if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
                  	if(AccessControl.ifObjectFieldIsAccessible('CO_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
                 	if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
                 	
-
                     List<CO_Kit_Header__c> ColiFromInvoiceList = new   List<CO_Kit_Header__c>([Select Id,(Select Qty__c, Qty_Committed__c, Price__c, Status__c,part__c,part__r.Qty_In_Stock__c,
                                                                                             part__r.Qty_Committed__c,part__r.Last_Cost__c, Closed_CO_Invoice_link__c,Oversold_Qty__c From CO_Line_Items__r)
                                                                                             From CO_Kit_Header__c where  Id =: invoicedCOKHMap.KeySet()]);
                                                                                             
-
                         for( CO_Kit_Header__c coKitHeaderFromInvoiceRec : ColiFromInvoiceList ){
                             if(invoicedCOKHMap.containsKey(coKitHeaderFromInvoiceRec.Id)){
                             CO_Invoice_Item__c   closedCOInvoiceItem =  invoicedCOKHMap.get(coKitHeaderFromInvoiceRec.Id);
@@ -1291,28 +1213,19 @@ global with sharing class CustomerOrderCtrl {
                     }
                     
                 }   
-
-
-
-
-
                 Map<Id,Part__c> updateStockedMap = new Map<Id,Part__c>();
                 Map<Id,Part__c> updateStockBucketMap = new Map<Id,Part__c>();
                 set<Service_Order_Header__c> ServiceOrderInvoiceStatusSet = new   set<Service_Order_Header__c>();
                 List<So_Payment_Role__c> SoPaymentRoleList  = new List<So_Payment_Role__c>();
                 if(coInvoiceTypeToLineItemMap.containsKey('SoPayment')){  
-                	if(AccessControl.ifObjectFieldIsAccessible('So_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-                	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-                	if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-                	if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-                	if(AccessControl.ifObjectFieldIsAccessible('Claim_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-
+                	objNames = new List<String>{'So_Payment_Role__c', 'Service_Order_Line_Item__c', 'Part__c', 'CO_Line_Item__c'};
+				    if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+                	
                 	SoPaymentRoleList  = new List<So_Payment_Role__c>([Select Id,RecordType.DeveloperName,(select Id,Is_Variance__c,Approved_Qty__c,
                                                                                                 Variance_Qty__c,Service_Order_Line_Item__c,Approved_Price__c, Service_Order_Line_Item__r.part__c,Service_Order_Line_Item__r.part__r.Qty_In_Stock__c,
-                                                                                                Service_Order_Line_Item__r.part__r.Qty_Committed__c ,Service_Order_Line_Item__r.CO_Line_Item__r.Oversold_Qty__c,Service_Order_Line_Item__r.part__r.Last_Cost__c   From Claim_Line_Items__r)
+                                                                                                Service_Order_Line_Item__r.part__r.Qty_Committed__c ,Service_Order_Line_Item__r.CO_Line_Item__r.Oversold_Qty__c  From Claim_Line_Items__r)
                                                                                                 From So_Payment_Role__c  where  Id  IN : invoicedSoPaymentMap.KeySet()]);
                          
-
                         for(So_Payment_Role__c SoPaymentRec: SoPaymentRoleList){
                                 if(SoPaymentRec.RecordType.DeveloperName == 'Third_Party' ){
                                     for(Claim_Line_Item__c ClaimLineItemrec : SoPaymentRec.Claim_Line_Items__r ){
@@ -1324,24 +1237,18 @@ global with sharing class CustomerOrderCtrl {
                                             Decimal qtyNeed = ClaimLineItemrec.Approved_Qty__c;
                                             Decimal quantityComitted = ClaimLineItemrec.Approved_Qty__c;
                                             Decimal qtyOverSold = 0;
-                                            Decimal ReturnCost = ClaimLineItemrec.Service_Order_Line_Item__r.part__r.last_cost__c !=null ?  ClaimLineItemrec.Service_Order_Line_Item__r.part__r.last_cost__c : 0 ; 
-
-
-
-
-
-
+                                            if(ClaimLineItemrec.Service_Order_Line_Item__r.CO_Line_Item__r.Oversold_Qty__c >= ClaimLineItemrec.Approved_Qty__c ){
+                                                  qtyOverSold =  ClaimLineItemrec.Approved_Qty__c;
+                                            }
+                                            else{
+                                                qtyOverSold = ClaimLineItemrec.Service_Order_Line_Item__r.CO_Line_Item__r.Oversold_Qty__c;
+                                            }
                                            
-
-
-                                            AddPartToPartMap(updateStockedMap,updateStockBucketMap,qtyNeed,quantityComitted,partRec, PartForPartReturnBuckets, ReturnCost,qtyOverSold );
+                                            AddPartToPartMap(updateStockedMap,updateStockBucketMap,qtyNeed,quantityComitted,partRec, PartForPartReturnBuckets, ClaimLineItemrec.Approved_Price__c,qtyOverSold );
                                         }
                                     }
-
-
                                     SoPaymentRec.Status__c = 'Invoiced';    
                                 }       
-
                                 else if(SoPaymentRec.RecordType.DeveloperName == 'Customer' ){
                                     for(Claim_Line_Item__c ClaimLineItemrec : SoPaymentRec.Claim_Line_Items__r ){
                                         if(ClaimLineItemrec.Service_Order_Line_Item__r.part__c!=null){
@@ -1352,12 +1259,15 @@ global with sharing class CustomerOrderCtrl {
                                             Decimal qtyNeed = ClaimLineItemrec.Variance_Qty__c;
                                             Decimal quantityComitted = ClaimLineItemrec.Variance_Qty__c;
                                             Decimal qtyOverSold = 0;
-                                            Decimal ReturnCost = ClaimLineItemrec.Service_Order_Line_Item__r.part__r.last_cost__c !=null ?  ClaimLineItemrec.Service_Order_Line_Item__r.part__r.last_cost__c : 0 ; 
-
-                                            AddPartToPartMap(updateStockedMap,updateStockBucketMap,qtyNeed,quantityComitted,partRec, PartForPartReturnBuckets, ReturnCost,qtyOverSold );
+                                            if(ClaimLineItemrec.Service_Order_Line_Item__r.CO_Line_Item__r.Oversold_Qty__c >= ClaimLineItemrec.Approved_Qty__c ){
+                                                  qtyOverSold = ClaimLineItemrec.Service_Order_Line_Item__r.CO_Line_Item__r.Oversold_Qty__c - ClaimLineItemrec.Approved_Qty__c;
+                                            }
+                                            else{
+                                                qtyOverSold = 0;
+                                            }
+                                            AddPartToPartMap(updateStockedMap,updateStockBucketMap,qtyNeed,quantityComitted,partRec, PartForPartReturnBuckets, ClaimLineItemrec.Approved_Price__c,qtyOverSold );
                                         }
                                     }
-
                                     SoPaymentRec.Status__c = 'Invoiced';    
                                 }else if(SoPaymentRec.RecordType.DeveloperName == 'Internal'){
                                     for(Claim_Line_Item__c ClaimLineItemrec : SoPaymentRec.Claim_Line_Items__r ){
@@ -1369,15 +1279,18 @@ global with sharing class CustomerOrderCtrl {
                                             Decimal qtyNeed = ClaimLineItemrec.Variance_Qty__c;
                                             Decimal quantityComitted = ClaimLineItemrec.Variance_Qty__c;
                                             Decimal qtyOverSold = 0;
-                                            Decimal ReturnCost = ClaimLineItemrec.Service_Order_Line_Item__r.part__r.last_cost__c !=null ?  ClaimLineItemrec.Service_Order_Line_Item__r.part__r.last_cost__c : 0 ; 
-
+                                            if(ClaimLineItemrec.Service_Order_Line_Item__r.CO_Line_Item__r.Oversold_Qty__c >= ClaimLineItemrec.Approved_Qty__c ){
+                                                  qtyOverSold = ClaimLineItemrec.Service_Order_Line_Item__r.CO_Line_Item__r.Oversold_Qty__c - ClaimLineItemrec.Approved_Qty__c;
+                                            }
+                                            else{
+                                                qtyOverSold = 0;
+                                            }
+                                            
                                             AddPartToPartMap(updateStockedMap,updateStockBucketMap,qtyNeed,quantityComitted,partRec, PartForPartReturnBuckets, ClaimLineItemrec.Approved_Price__c,qtyOverSold );
                                         }
                                     }
-
                                     SoPaymentRec.Status__c = 'Invoiced'; 
                                 }
-
                                 else if(SoPaymentRec.RecordType.DeveloperName == 'deductible'){
                                         SoPaymentRec.Deductible_Status__c = 'Paid';
                                         SoPaymentRec.Status__c = 'Invoiced'; 
@@ -1385,10 +1298,6 @@ global with sharing class CustomerOrderCtrl {
                         }                                                                                                    
                     }
                 
-
-
-
-
                 //Map<Id,Part__c> updateStockedMap = new Map<Id,Part__c>();
                
                   for(CO_Line_Item__c coLineItemsToUpdatedRec : coLineItemsToUpdated){
@@ -1397,9 +1306,8 @@ global with sharing class CustomerOrderCtrl {
                                 Decimal qtyNeed = coLineItemsToUpdatedRec.Qty__c  ==null ? 0 :coLineItemsToUpdatedRec.Qty__c;
                                 Decimal qtyOverSold = coLineItemsToUpdatedRec.Oversold_Qty__c;
                                 Part__c  ObjPart = coLineItemsToUpdatedRec.part__r;
-								Decimal ReturnCost = coLineItemsToUpdatedRec.part__r.last_cost__c !=null ?  coLineItemsToUpdatedRec.part__r.last_cost__c : 0 ;
                                 AddPartToPartMap(updateStockedMap,  updateStockBucketMap,qtyNeed,quantityComitted,ObjPart,
-                                         PartForPartReturnBuckets,ReturnCost,qtyOverSold);
+                                         PartForPartReturnBuckets,coLineItemsToUpdatedRec.Price__c,qtyOverSold);
                             }
                    }    
                 
@@ -1407,45 +1315,35 @@ global with sharing class CustomerOrderCtrl {
                         FIFOTransaction.createFIFOBucketForCustomerReturn(PartForPartReturnBuckets, activeCOInvoiceHeaderId);
                    } 
                   
-
-
                   List<Part_FIFO_Bucket__c>  PartFifoList=  SOQLUtil.getPartFIFOBucketByPartList(updateStockedMap.keySet());
                   Map<Id,List<Part_FIFO_Bucket__c>> PartToFIFOBucketMap   = new Map<Id,List<Part_FIFO_Bucket__c>>();
                   for(Part_FIFO_Bucket__c partFifoRec : PartFifoList){
                     if(PartToFIFOBucketMap.containsKey(partFifoRec.part__c)){
                             PartToFIFOBucketMap.get(partFifoRec.part__c).add(partFifoRec);
                     }else{ 
-
                             List<Part_FIFO_Bucket__c> listpartFifo  = new List<Part_FIFO_Bucket__c>();
                             listpartFifo.add(partFifoRec);
                             PartToFIFOBucketMap.put(partFifoRec.part__c, listpartFifo);
                     } 
                   } 
               
-
-
                 List<Part__c> partFifoBucketValueToUpdate = new List<Part__c>(); 
                 if(updateStockBucketMap.size()> 0){
                     String Result =  FIFOTransaction.CreateFiFoBucketActivityForInvoice(PartToFIFOBucketMap, activeCOInvoiceHeaderId,updateStockBucketMap.values(),updateStockedMap);
                 }
                                
-
-
                 if(coLineItemsToUpdated.size() > 0) {
                 	if(AccessControl.ifObjectFieldIsUpdateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
                     update coLineItemsToUpdated; 
                    // update updateStockedMap.values();
                 } 
-
                 if(SoPaymentRoleList.Size()>0){
                 	if(AccessControl.ifObjectFieldIsUpdateable('So_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
                     update SoPaymentRoleList;
                 }
-
             List<CO_Invoice_Payment__c> coInvoicePayments = new List<CO_Invoice_Payment__c>();
             activeCOInvoiceHeaderId = BPUtility.escapeSingleQuotes(activeCOInvoiceHeaderId);
-            if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Payment__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            coInvoicePayments = [select Id, Payment_Method__c, Amount__c, CO_Invoice_Header__c, CO_Invoice_Header__r.CO_Header__c from CO_Invoice_Payment__c where Payment_Method__c =: USE_DEPOSIT AND CO_Invoice_Header__c =:activeCOInvoiceHeaderId];
+            coInvoicePayments = [select Id, Payment_Method__c, Amount__c, CO_Invoice_Header__c, CO_Invoice_Header__r.CO_Header__c from CO_Invoice_Payment__c where Payment_Method__c = 'Deposit' AND CO_Invoice_Header__c =:activeCOInvoiceHeaderId];
             
             List<CO_Deposit__c> coDepositsListToInsert = new List<CO_Deposit__c>();
             for(CO_Invoice_Payment__c coInvoicePaymentRec : coInvoicePayments) {
@@ -1456,41 +1354,24 @@ global with sharing class CustomerOrderCtrl {
                 coDepositRec.Amount__c = -1 * coInvoicePaymentRec.Amount__c;
                 coDepositsListToInsert.add(coDepositRec);
             }
-
             if(coDepositsListToInsert.size() > 0) {
             	if(AccessControl.ifObjectFieldIsCreateable('CO_Deposit__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
                 insert coDepositsListToInsert;
             }
-            coHeaderId = BPUtility.escapeSingleQuotes(coHeaderId);
-            activeCOInvoiceHeaderId = BPUtility.escapeSingleQuotes(activeCOInvoiceHeaderId);
-            if(AccessControl.ifObjectFieldIsAccessible('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+            coHeaderId = BPUtility.escapeSingleQuotes(coHeaderId);   
             CO_Header__c coHeaderRec =[select Id,Order_status__c  from CO_Header__c  where Id = :coHeaderId ];
+            activeCOInvoiceHeaderId = BPUtility.escapeSingleQuotes(activeCOInvoiceHeaderId);
             CO_Invoice_Header__c coInvoiceHeaderRec = [select Invoice_Status__c from CO_Invoice_Header__c where Id = :activeCOInvoiceHeaderId];
-
             if(coInvoiceHeaderRec !=null &&  coHeaderRec != null ){
             	if(AccessControl.ifObjectFieldIsCreateable('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
             	if(AccessControl.ifObjectFieldIsCreateable('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
             	
-
                 coInvoiceHeaderRec.Invoice_Status__c = 'Closed';
                 coInvoiceHeaderRec.Checkout_Type__c = currentCheckoutType;
                 coHeaderRec.Order_status__c='Closed';
-				if(AccessControl.ifObjectIsCreateable('AutoNumberHolder__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
-				AutoNumberHolder__c AutonumberRec = new AutoNumberHolder__c();
-	            insert AutonumberRec;
-	            if(AutonumberRec.Id !=null){
-	            	coInvoiceHeaderRec.AutoNumberHolder__c = AutonumberRec.Id;
-	            	if(AccessControl.ifObjectFieldIsUpdateable('coHeaderRec') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-	            	update coInvoiceHeaderRec;
-	            	update coHeaderRec;  
-
-	            }
-	            else{
-	          		  throw new BlackPurlException('Unable to generate Invoice');
-	            }
+                update coInvoiceHeaderRec;
+                update coHeaderRec;
             }
-
             return getCOHeaderDetails(BPUtility.getEncodedString(coHeaderId));
         }catch(Exception e){
             Database.rollback(sp);
@@ -1512,14 +1393,11 @@ global with sharing class CustomerOrderCtrl {
   		coHeaderId = BPUtility.getDecodedString(coHeaderId);
   		currentCheckoutType = BPUtility.getDecodedString(currentCheckoutType);
     	if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	if(AccessControl.ifObjectFieldIsUpdateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
     	if(AccessControl.ifObjectFieldIsCreateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	if(AccessControl.ifObjectFieldIsUpdateable('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
     	if(AccessControl.ifObjectFieldIsCreateable('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	
-
-
         Savepoint sp = Database.setSavepoint();
         try{
             List<COInvoiceItem> coInvoiceItemObjList = (List<COInvoiceItem>) System.JSON.deserialize(coInvoiceItemsJsonString, List<COInvoiceItem>.class);
@@ -1532,6 +1410,7 @@ global with sharing class CustomerOrderCtrl {
                     
                 }
             }
+            
             List<CO_Line_Item__c> coLineItemRecList = [select Qty__c, Qty_Committed__c, Part__c, CO_Header__c, Price__c, Tax__c from CO_Line_Item__c where Id IN : coLineItemIdSet ];
             List<CO_Line_Item__c> coLineItemRecToUpdated = new List<CO_Line_Item__c>();
             List<CO_Line_Item__c> coLineItemRecToInserted = new List<CO_Line_Item__c>();
@@ -1572,12 +1451,12 @@ global with sharing class CustomerOrderCtrl {
             String closedCOInvoiceHeaderId = '';
             if(coInvoiceItemObjList.size() == 0) {
                 return BPUtility.getEncodedString('');
-
-
             }
             activeCOInvoiceHeaderId = coInvoiceItemObjList[0].COInvoiceHeaderId;
             List<CO_Invoice_Header__c> coInvoiceHeaderRecToUpdate = new List<CO_Invoice_Header__c>();
             activeCOInvoiceHeaderId = BPUtility.escapeSingleQuotes(activeCOInvoiceHeaderId);
+            
+            if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             CO_Invoice_Header__c coInvoiceHeaderRec = [select Invoice_Status__c from CO_Invoice_Header__c where Id = :activeCOInvoiceHeaderId];
             coInvoiceHeaderRec.Invoice_Status__c = 'Closed';
             coInvoiceHeaderRec.Checkout_Type__c = currentCheckoutType;
@@ -1590,23 +1469,6 @@ global with sharing class CustomerOrderCtrl {
             coInvoiceHeaderRecToUpdate.add(coInvoiceHeaderRecToInsert);
             
             if(coInvoiceHeaderRecToUpdate.size() > 0) {
-				map<Id,AutoNumberHolder__c>  InvoiceToAutoNumbermap =new  map<Id,AutoNumberHolder__c>();
-            	for(CO_Invoice_Header__c coInvoiceHeaderRecNew :   coInvoiceHeaderRecToUpdate){
-            		if(coInvoiceHeaderRecNew.Invoice_Status__c == 'Closed'){
-            			AutoNumberHolder__c objnewAutonumber = new AutoNumberHolder__c();
-            			InvoiceToAutoNumbermap.put(coInvoiceHeaderRecNew.Id,objnewAutonumber);
-            		} 
-            	}
-            	if(InvoiceToAutoNumbermap.size() > 0){
-            		if(AccessControl.ifObjectFieldIsCreateable('AutoNumberHolder__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
-            		insert InvoiceToAutoNumbermap.values();
-            		for(CO_Invoice_Header__c coInvoiceHeaderRecNew :   coInvoiceHeaderRecToUpdate){
-            			if(coInvoiceHeaderRecNew.Invoice_Status__c == 'Closed'){
-            				AutoNumberHolder__c objnewAutonumber =InvoiceToAutoNumbermap.get(coInvoiceHeaderRecNew.Id);
-            				coInvoiceHeaderRecNew.AutoNumberHolder__c = objnewAutonumber.Id;
-            			}
-            		}   
-            	}
                 upsert coInvoiceHeaderRecToUpdate;
             } 
             
@@ -1616,9 +1478,10 @@ global with sharing class CustomerOrderCtrl {
                     activeInvoiceHeaderId = coInvoiceHeader.Id;
                 }
             }
-            closedCOInvoiceHeaderId = BPUtility.escapeSingleQuotes(closedCOInvoiceHeaderId);
+            
             if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+            closedCOInvoiceHeaderId = BPUtility.escapeSingleQuotes(closedCOInvoiceHeaderId);
             List<CO_Invoice_Item__c> coInvoiceItems = [select isActive__c, CO_Invoice_Header__c, CO_Kit_Header__c,Service_Order_Header__c,CO_Line_Item__c,CO_Line_Item__r.Closed_CO_Invoice_link__c, CO_Invoice_Header__r.Name from CO_Invoice_Item__c 
                                                             where (CO_Invoice_Header__c = :closedCOInvoiceHeaderId AND isActive__c = false) 
                                                                         OR CO_Line_Item__c IN : coLineItemIdSet];
@@ -1643,6 +1506,9 @@ global with sharing class CustomerOrderCtrl {
             
             Map<String,List<CO_Invoice_Item__c>> coInvoiceTypeToLineItemMap =  new Map<String,List<CO_Invoice_Item__c>>();
             closedCOInvoiceHeaderId = BPUtility.escapeSingleQuotes(closedCOInvoiceHeaderId);
+            
+            if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+            if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             List<CO_Invoice_Item__c> closedCOInvoicItemList = [select   CO_Invoice_Header__c,SO_Payment_Role__c, CO_Kit_Header__c,Service_Order_Header__c,CO_Line_Item__c,CO_Line_Item__r.Closed_CO_Invoice_link__c, CO_Invoice_Header__r.Name from CO_Invoice_Item__c where CO_Invoice_Header__c = :closedCOInvoiceHeaderId];
             List<CO_Line_Item__c> coLineItemsToUpdated = new List<CO_Line_Item__c>();
             
@@ -1692,10 +1558,9 @@ global with sharing class CustomerOrderCtrl {
             // for Service order records 
             
             if( coInvoiceTypeToLineItemMap.containsKey('SoKitInvoice') ){
-            	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            	if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            	if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-
+            	List<String> objNames = new List<String>{'Service_Order_Line_Item__c', 'Part__c', 'CO_Line_Item__c', 'Service_Order_Line_Item__c'};
+			    if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+			    
                 List<Service_Order_Line_Item__c> serviceOrderLineItemFromInvoiceList  = new List<Service_Order_Line_Item__c>([Select Service_Order_Header__c,(Select Qty__c, Qty_Committed__c, Status__c, Price__c, part__c,part__r.Qty_In_Stock__c,
                                                                                                                             part__r.Qty_Committed__c,part__r.Last_Cost__c, Closed_CO_Invoice_link__c,Oversold_Qty__c From CO_Line_Items__r),CO_Line_Item__c
                                                                                                                              From Service_Order_Line_Item__c  where  Service_Order_Header__c  =: invoicedServiceOrderHeaderMap.KeySet()]);
@@ -1716,7 +1581,6 @@ global with sharing class CustomerOrderCtrl {
             	if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             	if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             	
-
                 List<CO_Line_Item__c> ColiFromInvoiceList = new   List<CO_Line_Item__c>([Select Qty__c, Qty_Committed__c, Price__c, Status__c,part__c,part__r.Qty_In_Stock__c,
                                                                                     part__r.Qty_Committed__c,part__r.Last_Cost__c,closed_CO_Invoice_link__c,Oversold_Qty__c From CO_Line_Item__c where  Id =: invoicedCoLineItemMap.KeySet()]);
                 for(CO_Line_Item__c colirec : ColiFromInvoiceList ){
@@ -1728,13 +1592,11 @@ global with sharing class CustomerOrderCtrl {
              if(coInvoiceTypeToLineItemMap.containsKey('CoKitInvoice')){
              	if(AccessControl.ifObjectFieldIsAccessible('CO_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             	if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            	if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-
+            	
                 List<CO_Kit_Header__c> ColiFromInvoiceList = new   List<CO_Kit_Header__c>([Select Id,(Select Qty__c, Qty_Committed__c, Price__c, Status__c,part__c,part__r.Qty_In_Stock__c,
                                                                                         part__r.Qty_Committed__c,part__r.Last_Cost__c, Closed_CO_Invoice_link__c,Oversold_Qty__c From CO_Line_Items__r)
                                                                                         From CO_Kit_Header__c where  Id =: invoicedCOKHMap.KeySet()]);
                                                                                         
-
                     for( CO_Kit_Header__c coKitHeaderFromInvoiceRec : ColiFromInvoiceList ){
                         if(invoicedCOKHMap.containsKey(coKitHeaderFromInvoiceRec.Id)){
                         CO_Invoice_Item__c   closedCOInvoiceItem =  invoicedCOKHMap.get(coKitHeaderFromInvoiceRec.Id);
@@ -1747,26 +1609,18 @@ global with sharing class CustomerOrderCtrl {
                 }
                 
             }   
-
-
-
-
-
             Map<Id,Part__c> updateStockedMap = new Map<Id,Part__c>();
             Map<Id,Part__c> updateStockBucketMap = new Map<Id,Part__c>();
             set<Service_Order_Header__c> ServiceOrderInvoiceStatusSet = new   set<Service_Order_Header__c>();
             List<So_Payment_Role__c> SoPaymentRoleList  = new List<So_Payment_Role__c>();
             if(coInvoiceTypeToLineItemMap.containsKey('SoPayment')){  
             	
-
-            	if(AccessControl.ifObjectFieldIsAccessible('So_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            	if(AccessControl.ifObjectFieldIsAccessible('Claim_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            	
-
+            List<String> objNames = new List<String>{'So_Payment_Role__c', 'Claim_Line_Item__c', 'CO_Line_Item__c', 'Service_Order_Line_Item__c', 'Claim_Line_Item__c'};
+    		if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+            
             SoPaymentRoleList  = new List<So_Payment_Role__c>([Select Id,RecordType.DeveloperName,(select Id,Is_Variance__c,Approved_Qty__c,
                                                                                             Variance_Qty__c,Service_Order_Line_Item__c,Approved_Price__c, Service_Order_Line_Item__r.part__c,Service_Order_Line_Item__r.part__r.Qty_In_Stock__c,
-																							Service_Order_Line_Item__r.part__r.last_cost__c,Service_Order_Line_Item__r.part__r.Qty_Committed__c ,
-	            																			Service_Order_Line_Item__r.CO_Line_Item__r.Oversold_Qty__c  From Claim_Line_Items__r)
+                                                                                            Service_Order_Line_Item__r.part__r.Qty_Committed__c ,Service_Order_Line_Item__r.CO_Line_Item__r.Oversold_Qty__c  From Claim_Line_Items__r)
                                                                                             From So_Payment_Role__c  where  Id  IN : invoicedSoPaymentMap.KeySet()]);
                      
                     for(So_Payment_Role__c SoPaymentRec: SoPaymentRoleList){
@@ -1780,16 +1634,11 @@ global with sharing class CustomerOrderCtrl {
                                         Decimal qtyNeed = ClaimLineItemrec.Approved_Qty__c;
                                         Decimal quantityComitted = ClaimLineItemrec.Approved_Qty__c;
                                         Decimal qtyOverSold = 0;
-										Decimal ReturnCost = ClaimLineItemrec.Service_Order_Line_Item__r.part__r.last_cost__c !=null ?  ClaimLineItemrec.Service_Order_Line_Item__r.part__r.last_cost__c : 0 ; 
-
-                                        AddPartToPartMap(updateStockedMap,updateStockBucketMap,qtyNeed,quantityComitted,partRec, PartForPartReturnBuckets, ReturnCost,qtyOverSold );
+                                        AddPartToPartMap(updateStockedMap,updateStockBucketMap,qtyNeed,quantityComitted,partRec, PartForPartReturnBuckets, ClaimLineItemrec.Approved_Price__c,qtyOverSold );
                                     }
                                 }
-
-
                                 SoPaymentRec.Status__c = 'Invoiced';    
                             }       
-
                             else if(SoPaymentRec.RecordType.DeveloperName == 'Customer' ){
                                 for(Claim_Line_Item__c ClaimLineItemrec : SoPaymentRec.Claim_Line_Items__r ){
                                     if(ClaimLineItemrec.Service_Order_Line_Item__r.part__c!=null){
@@ -1800,13 +1649,9 @@ global with sharing class CustomerOrderCtrl {
                                         Decimal qtyNeed = ClaimLineItemrec.Variance_Qty__c;
                                         Decimal quantityComitted = ClaimLineItemrec.Variance_Qty__c;
                                         Decimal qtyOverSold = 0;
-										Decimal ReturnCost = ClaimLineItemrec.Service_Order_Line_Item__r.part__r.last_cost__c !=null ?  ClaimLineItemrec.Service_Order_Line_Item__r.part__r.last_cost__c : 0 ;
-
                                         AddPartToPartMap(updateStockedMap,updateStockBucketMap,qtyNeed,quantityComitted,partRec, PartForPartReturnBuckets, ClaimLineItemrec.Approved_Price__c,qtyOverSold );
                                     }
                                 }
-
-
                                 SoPaymentRec.Status__c = 'Invoiced';    
                             }else if(SoPaymentRec.RecordType.DeveloperName == 'Internal'){
                                 for(Claim_Line_Item__c ClaimLineItemrec : SoPaymentRec.Claim_Line_Items__r ){
@@ -1818,23 +1663,16 @@ global with sharing class CustomerOrderCtrl {
                                         Decimal qtyNeed = ClaimLineItemrec.Variance_Qty__c;
                                         Decimal quantityComitted = ClaimLineItemrec.Variance_Qty__c;
                                         Decimal qtyOverSold = 0;
-										Decimal ReturnCost = ClaimLineItemrec.Service_Order_Line_Item__r.part__r.last_cost__c !=null ?  ClaimLineItemrec.Service_Order_Line_Item__r.part__r.last_cost__c : 0 ;
-
-                                        AddPartToPartMap(updateStockedMap,updateStockBucketMap,qtyNeed,quantityComitted,partRec, PartForPartReturnBuckets,ReturnCost,qtyOverSold );
+                                        AddPartToPartMap(updateStockedMap,updateStockBucketMap,qtyNeed,quantityComitted,partRec, PartForPartReturnBuckets, ClaimLineItemrec.Approved_Price__c,qtyOverSold );
                                     }
                                 }
-
-
                                 SoPaymentRec.Status__c = 'Invoiced'; 
                             }
-
                             else if(SoPaymentRec.RecordType.DeveloperName == 'deductible'){
                                     SoPaymentRec.Deductible_Status__c = 'Paid';
                                     SoPaymentRec.Status__c = 'Invoiced'; 
                             } 
                     }                                                                                                    
-
-
                 }
              
             //Map<Id,Part__c> updateStockedMap = new Map<Id,Part__c>();
@@ -1844,18 +1682,14 @@ global with sharing class CustomerOrderCtrl {
                             Decimal quantityComitted = coLineItemsToUpdatedRec.Qty_Committed__c  ==null ? 0 :coLineItemsToUpdatedRec.Qty_Committed__c;
                             Decimal qtyNeed = coLineItemsToUpdatedRec.Qty__c  ==null ? 0 :coLineItemsToUpdatedRec.Qty__c;
                             Decimal qtyOverSold = coLineItemsToUpdatedRec.Oversold_Qty__c;
-							Decimal ReturnCost = coLineItemsToUpdatedRec.part__r.last_cost__c !=null ?  coLineItemsToUpdatedRec.part__r.last_cost__c : 0 ;
                             AddPartToPartMap(updateStockedMap,  updateStockBucketMap,qtyNeed,quantityComitted,coLineItemsToUpdatedRec.part__r,
-                                     PartForPartReturnBuckets,ReturnCost,qtyOverSold);
+                                     PartForPartReturnBuckets,coLineItemsToUpdatedRec.Price__c,qtyOverSold);
                         }
                }    
-
-
               
                if(PartForPartReturnBuckets.size() > 0){
                     FIFOTransaction.createFIFOBucketForCustomerReturn(PartForPartReturnBuckets, closedCOInvoiceHeaderId);
                } 
-
               
               List<Part_FIFO_Bucket__c>  PartFifoList=  SOQLUtil.getPartFIFOBucketByPartList(updateStockedMap.keySet());
               Map<Id,List<Part_FIFO_Bucket__c>> PartToFIFOBucketMap   = new Map<Id,List<Part_FIFO_Bucket__c>>();
@@ -1863,29 +1697,21 @@ global with sharing class CustomerOrderCtrl {
                 if(PartToFIFOBucketMap.containsKey(partFifoRec.part__c)){
                         PartToFIFOBucketMap.get(partFifoRec.part__c).add(partFifoRec);
                 }else{ 
-
                         List<Part_FIFO_Bucket__c> listpartFifo  = new List<Part_FIFO_Bucket__c>();
                         listpartFifo.add(partFifoRec);
                         PartToFIFOBucketMap.put(partFifoRec.part__c, listpartFifo);
                 } 
               } 
             
-
-
-
             List<Part__c> partFifoBucketValueToUpdate = new List<Part__c>(); 
             if(updateStockBucketMap.size()> 0){
                 String Result = FIFOTransaction.CreateFiFoBucketActivityForInvoice(PartToFIFOBucketMap, closedCOInvoiceHeaderId,updateStockBucketMap.values(),updateStockedMap);
             }
                         
             
-
-
-
             if(coLineItemsToUpdated.size() > 0) {
             	if(AccessControl.ifObjectFieldIsUpdateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
             	
-
                 update coLineItemsToUpdated; 
                 //update updateStockedMap.values();
             }  
@@ -1894,15 +1720,14 @@ global with sharing class CustomerOrderCtrl {
                 update SoPaymentRoleList;
             }
              
-
-
              // Reverse Entry of Payment in Deposit if Payment is done from deposits.
              
-            if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Payment__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-
+            List<String> objNames = new List<String>{'CO_Invoice_Payment__c', 'CO_Invoice_Header__c'};
+		    if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		    
             List<CO_Invoice_Payment__c> coInvoicePayments = new List<CO_Invoice_Payment__c>();
             closedCOInvoiceHeaderId = BPUtility.escapeSingleQuotes(closedCOInvoiceHeaderId);
-            coInvoicePayments = [select Id, Payment_Method__c, Amount__c, CO_Invoice_Header__c, CO_Invoice_Header__r.CO_Header__c from CO_Invoice_Payment__c where Payment_Method__c =: USE_DEPOSIT  AND CO_Invoice_Header__c =:closedCOInvoiceHeaderId];
+            coInvoicePayments = [select Id, Payment_Method__c, Amount__c, CO_Invoice_Header__c, CO_Invoice_Header__r.CO_Header__c from CO_Invoice_Payment__c where Payment_Method__c = 'Deposit' AND CO_Invoice_Header__c =:closedCOInvoiceHeaderId];
             
             List<CO_Deposit__c> coDepositsListToInsert = new List<CO_Deposit__c>();
             for(CO_Invoice_Payment__c coInvoicePaymentRec : coInvoicePayments) {
@@ -1929,8 +1754,6 @@ global with sharing class CustomerOrderCtrl {
         }
         
         return BPUtility.getEncodedString('');
-
-
     }
     
     /*
@@ -1950,7 +1773,6 @@ global with sharing class CustomerOrderCtrl {
                          //part__c partRecForBucket  = new part__c( Id = PartRecord.Id,Qty_In_Stock__c =  - qtyOverSold, Last_Cost__c =  PartReturnPrice,Description__c ='OverSold');
                          //PartForPartReturnBuckets.add(partRecForBucket);
                         
-
                         
                     }
                     else {
@@ -1959,8 +1781,6 @@ global with sharing class CustomerOrderCtrl {
                             PartForPartReturnBuckets.add(partRecForBucket);  
                  }          
               }else{
-
-
                     updateStockedMap.put(PartRecordObj.Id,PartRecordObj);
                     if(QuantityNeed > 0 ) {
                                 quantityComitted = quantityComitted;
@@ -1972,23 +1792,17 @@ global with sharing class CustomerOrderCtrl {
                                     updateStockBucketMap.get(PartRecord.Id).Qty_In_Stock__c = CommitedOverSold;
                                     updateStockBucketMap.get(PartRecord.Id).Qty_Committed__c = CommitedOverSold;
                                 }   
-
                                  if(qtyOverSold !=null && qtyOverSold > 0){
                                      part__c partRecForBucket  = new part__c( Id = PartRecord.Id,Qty_In_Stock__c =  - qtyOverSold, Last_Cost__c =  PartReturnPrice , Description__c ='OverSold');
                                      PartForPartReturnBuckets.add(partRecForBucket);
                                 }
                     } else {
-
-
                                 updateStockedMap.get(PartRecordObj.Id).Qty_In_Stock__c = updateStockedMap.get(PartRecordObj.Id).Qty_In_Stock__c - QuantityNeed;
                                 part__c partRecForBucket  = new part__c( Id = PartRecord.Id,Qty_In_Stock__c =  - (QuantityNeed!=null ? QuantityNeed : 0), Last_Cost__c =  PartReturnPrice,Description__c ='Customer Return');
                                 PartForPartReturnBuckets.add(partRecForBucket);
                     }   
               }
           
-
-
-
     }*/
     
       public static void AddPartToPartMap( Map<Id,Part__c> updateStockedMap, Map<Id,Part__c> updateStockBucketMap ,decimal QuantityNeed,decimal quantityComitted ,Part__c PartRecordObj , List<Part__c> PartForPartReturnBuckets  ,decimal PartReturnPrice,decimal qtyOverSold){
@@ -2003,18 +1817,14 @@ global with sharing class CustomerOrderCtrl {
                          updateStockBucketMap.get(PartRecord.Id).Qty_In_Stock__c = updateStockBucketMap.get(PartRecord.Id).Qty_In_Stock__c + quantityComitted;
                          updateStockBucketMap.get(PartRecord.Id).Qty_Committed__c = updateStockBucketMap.get(PartRecord.Id).Qty_Committed__c + quantityComitted;
                     }else{
-
                         updateStockedMap.get(PartRecordObj.Id).Qty_In_Stock__c = updateStockedMap.get(PartRecordObj.Id).Qty_In_Stock__c - QuantityNeed;
                         part__c partRecForBucket  = new part__c( Id = PartRecord.Id,Qty_In_Stock__c =  - (QuantityNeed!=null ? QuantityNeed : 0), Last_Cost__c =  PartReturnPrice , Description__c ='Part Return');
                         PartForPartReturnBuckets.add(partRecForBucket);  
                     
                     }
-
-
         }
         else{
                 
-
                 updateStockedMap.put(PartRecordObj.Id,PartRecordObj);
                 if(QuantityNeed > 0 ) {
                     updateStockedMap.get(PartRecordObj.Id).Qty_Committed__c = updateStockedMap.get(PartRecordObj.Id).Qty_Committed__c - quantityComitted;
@@ -2022,14 +1832,11 @@ global with sharing class CustomerOrderCtrl {
                     updateStockBucketMap.get(PartRecord.Id).Qty_In_Stock__c = quantityComitted;
                     updateStockBucketMap.get(PartRecord.Id).Qty_Committed__c = quantityComitted;
                 }else{
-
                          updateStockedMap.get(PartRecordObj.Id).Qty_In_Stock__c = updateStockedMap.get(PartRecordObj.Id).Qty_In_Stock__c - QuantityNeed;
                          part__c partRecForBucket  = new part__c( Id = PartRecord.Id,Qty_In_Stock__c =  - (QuantityNeed!=null ? QuantityNeed : 0), Last_Cost__c =  PartReturnPrice,Description__c ='Customer Return');
                          PartForPartReturnBuckets.add(partRecForBucket);
                 
                 }   
-
-
         }
       }
     /**
@@ -2052,8 +1859,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -2154,8 +1959,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -2180,8 +1983,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -2206,8 +2007,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -2226,9 +2025,7 @@ global with sharing class CustomerOrderCtrl {
         	if(AccessControl.ifObjectFieldIsUpdateable('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         	if(AccessControl.ifObjectFieldIsCreateable('Customer_Owned_Unit__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
         	
-
             Customer customerObj = Customer.parse(customerJSONString);
-            System.debug(couJSONString);
             List<CustomerOwnedUnit> couObjList = CustomerOwnedUnit.parse(couJSONString);
             Account customerToInsert = new Account();
             customerToInsert = (Account) setCustomerfields(customerObj, customerObj.Type);
@@ -2262,14 +2059,10 @@ global with sharing class CustomerOrderCtrl {
              gen.writeStringField('CustomerName', customerToInsert.Name);
              gen.writeEndObject();
              return BPUtility.getEncodedString(gen.getAsString());
-
-
         }catch(Exception e){
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -2285,7 +2078,7 @@ global with sharing class CustomerOrderCtrl {
             
             if(typeOfCustomer == 'Individual') {
                 customerToInsert.put('FirstName__c', custObj.FirstName);
-                customerToInsert.put('LastName__c', BPUtility.escapeSingleQuotes(custObj.LastName));
+                customerToInsert.put('LastName__c', custObj.LastName);
                 if(custObj.FirstName != null && custObj.LastName != null) {
                     customerToInsert.put('Name', custObj.FirstName + ' ' + custObj.LastName);
                 }
@@ -2385,25 +2178,10 @@ global with sharing class CustomerOrderCtrl {
                 customerToInsert.put('ShippingState', custObj.BillingState);
                 customerToInsert.put('ShippingPostalCode', custObj.BillingPostalCode);
             }
-
             customerToInsert.put('Price_Level__c', custObj.PriceLevelId);
             customerToInsert.put('Sales_Tax__c', custObj.SalesTaxId);
             customerToInsert.put('Purchase_Tax__c', custObj.PurchaseTaxId);
-             if(custObj.PriceLevelId == null && String.isBlank(custObj.Id)) {
-             	if(AccessControl.ifObjectFieldIsAccessible('Price_Level__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            	List<Price_Level__c> defaultPriceLevel = [select Id from Price_Level__c where Default__c = true];
-            	if(defaultPriceLevel.size() > 0) {
-            		customerToInsert.put('Price_Level__c', defaultPriceLevel[0].Id);
-            	}
-            }
             
-            if(custObj.SalesTaxId == null && String.isBlank(custObj.Id)) {
-            	if(AccessControl.ifObjectFieldIsAccessible('Sales_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            	List<Sales_Tax__c> defaultSalesTax = [select Id from Sales_Tax__c where Default__c = true];
-            	if(defaultSalesTax.size() > 0) {
-            		customerToInsert.put('Sales_Tax__c', defaultSalesTax[0].Id);
-            	}
-            }
             if(custObj.Id != null && custObj.Id != '') {
                 customerToInsert.put('Id', custObj.Id);
             }   
@@ -2436,12 +2214,10 @@ global with sharing class CustomerOrderCtrl {
         customersPageSortAttrsJSON = BPUtility.getDecodedString(customersPageSortAttrsJSON);
         stocksPageSortAttrsJSON = BPUtility.getDecodedString(stocksPageSortAttrsJSON);
          try{
-
           if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
           if(AccessControl.ifObjectFieldIsUpdateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
           
-
-			voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
+          	voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
             Vendor_Order_Header__c voh = [Select Id, Name, Status__c, Vendor__c from Vendor_Order_Header__c where Id =: voHeaderId];
             CO_Line_Item__c coli = new CO_Line_Item__c(Id = coliId);
             coli.VO_Number__c = voh.Name;
@@ -2453,12 +2229,9 @@ global with sharing class CustomerOrderCtrl {
             return getCOHeaderDetailsByGridName(BPUtility.getEncodedString(coHeaderId), BPUtility.getEncodedString('coLineItem,user,coInvoiceHeader,specialOrder'));
         }
         catch(Exception e){
-
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
 
@@ -2488,8 +2261,7 @@ global with sharing class CustomerOrderCtrl {
         try{
         	if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         	if(AccessControl.ifObjectFieldIsUpdateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-        	
-			voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
+        	voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
             Vendor_Order_Header__c voh = [Select Id, Name, Status__c, Vendor__c from Vendor_Order_Header__c where Id =: voHeaderId];
             CO_Line_Item__c coli = new CO_Line_Item__c(Id = coliId);
             coli.VO_Number__c = voh.Name;  
@@ -2502,8 +2274,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
         
     }
     
@@ -2521,8 +2291,8 @@ global with sharing class CustomerOrderCtrl {
         	if(AccessControl.ifObjectFieldIsAccessible('AggregateResult') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         	if(AccessControl.ifObjectFieldIsAccessible('Category__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         	if(AccessControl.ifObjectFieldIsCreateable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
-        	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-			coHeaderId = BPUtility.escapeSingleQuotes(coHeaderId);
+        	
+        	coHeaderId = BPUtility.escapeSingleQuotes(coHeaderId);
             List<AggregateResult> soHeaderList = [select count(Id) from Service_Order_Header__c where CO_Header__c = :coHeaderId];
             Integer totalSO = Integer.valueOf(soHeaderList[0].get('expr0'));
             
@@ -2546,8 +2316,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -2564,7 +2332,6 @@ global with sharing class CustomerOrderCtrl {
         try{
         	if(AccessControl.ifObjectFieldIsCreateable('Customer_Owned_Unit__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
         	
-
             List<CustomerOwnedUnit> couObjList = CustomerOwnedUnit.parse(couJSONString);
             List<Customer_Owned_Unit__c> couListToInsert = new List<Customer_Owned_Unit__c>();
             for(CustomerOwnedUnit couObj : couObjList) {
@@ -2591,8 +2358,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -2607,7 +2372,6 @@ global with sharing class CustomerOrderCtrl {
         try{
         	if(AccessControl.ifObjectFieldIsUpdateable('User') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         	
-
             SOHeaderWrapper soHeaderObj = (SOHeaderWrapper) System.JSON.deserialize(pinItemsJSONStr, SOHeaderWrapper.class);
             User currentUser = new User();
             currentUser.Id = UserInfo.getUserId();
@@ -2625,14 +2389,10 @@ global with sharing class CustomerOrderCtrl {
             update currentUser;
             
             return BPUtility.getEncodedString('Saved');
-
-
         }catch(Exception e){
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -2652,6 +2412,8 @@ global with sharing class CustomerOrderCtrl {
     	customerId = BPUtility.getDecodedString(customerId);
         try{
         	if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+        	if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+        	
             String objectName = (Id.valueOf(lineItemId)).getSObjectType().getDescribe().getName();
             if(objectName == Constants.NAMESPACE + 'Kit_Header__c') {
                 Id soKHId = insertKitHeaderInGrid(lineItemId, soHeaderId);
@@ -2665,11 +2427,9 @@ global with sharing class CustomerOrderCtrl {
             }
             
             soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId);
-            if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             List<Service_Order_Header__c> soHeaderList = [select Status__c, (select Id,Kit_Price__c,Actual_Kit_Price__c,Qty_Needed__c from Service_Order_Line_Items__r) from Service_Order_Header__c where Id =: soHeaderId];
             if(soHeaderList.size() > 0 && soHeaderList[0].Service_Order_Line_Items__r != null && soHeaderList[0].Service_Order_Line_Items__r.size() > 0) {
-                if(Constants.SOStatusToPriorityMap.get(soHeaderList[0].Status__c) < 3) {
+                if(SOStatusToPriorityMap.get(soHeaderList[0].Status__c) < 3) {
                     soHeaderList[0].Status__c = 'In Progress';
                 }
                 update soHeaderList[0];
@@ -2680,8 +2440,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     
@@ -2699,10 +2457,9 @@ global with sharing class CustomerOrderCtrl {
         try{
         	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         	if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-        	
-			soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId);
+        	soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId);
             List<Service_Order_Header__c> soHeaderList = [select Status__c from Service_Order_Header__c where Id =: soHeaderId];
-            if(soHeaderList.size() > 0 && Constants.SOStatusToPriorityMap.get(soHeaderList[0].Status__c) < 4) {
+            if(soHeaderList.size() > 0 && SOStatusToPriorityMap.get(soHeaderList[0].Status__c) < 4) {
                 soHeaderList[0].Status__c = 'Complete';
                 update soHeaderList[0];
             }
@@ -2712,8 +2469,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     
@@ -2728,18 +2483,15 @@ global with sharing class CustomerOrderCtrl {
     global static String updateSOLineItems(String lineItemJSON, String coHeaderId) {
     	lineItemJSON = BPUtility.getDecodedString(lineItemJSON);
     	coHeaderId = BPUtility.getDecodedString(coHeaderId);
-    	Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
         try{
         	if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         	
-
             SOHeaderWrapper.SOLineItem soHeaderObj = (SOHeaderWrapper.SOLineItem) System.JSON.deserialize(lineItemJSON, SOHeaderWrapper.SOLineItem.class);
             //System.assert(false,soHeaderObj);
             if(soHeaderObj.Id == null) {
                 return getSOHeaderDetails(BPUtility.getEncodedString(coHeaderId), BPUtility.getEncodedString('soHeader,soItemGrid,checkOut,specialOrder'));
-            } 
+            }
             
-
             error = SO_KLI_Recalculation.updateSOKitLineItem(soHeaderObj);
             system.debug('!!!!!!!!!!!!!!!!' + error);
             if(error == null || error.ResponseCode == '200') {
@@ -2752,17 +2504,8 @@ global with sharing class CustomerOrderCtrl {
                 } else {  
                     soliToUpdate.Qty_Committed__c = soHeaderObj.StockCommited;
                 }
-				if(isTaxIncludingPricing) {
-                    if(soHeaderObj.Tax == -100) { // To Prevent Divide by zero error
-                        soHeaderObj.Tax = 0;
-                    }
-                    soliToUpdate.kit_Price__c = (soHeaderObj.KitPrice / (1 + soHeaderObj.Tax / 100 ));
-
-                } else {
-                    soliToUpdate.kit_Price__c = soHeaderObj.KitPrice;
-                }
+                soliToUpdate.kit_Price__c = soHeaderObj.KitPrice;
                 update soliToUpdate;
-
             }
             
             return getSOHeaderDetails(BPUtility.getEncodedString(coHeaderId), BPUtility.getEncodedString('soHeader,soItemGrid,checkOut,specialOrder'));
@@ -2770,8 +2513,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -2803,13 +2544,8 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
-
-
-
     /**
     * Name: removeLineItems
     * Desc: Method to remove Line Items in Items Grid.
@@ -2825,11 +2561,11 @@ global with sharing class CustomerOrderCtrl {
     	coHeaderId = BPUtility.getDecodedString(coHeaderId);
     	soHeaderId = BPUtility.getDecodedString(soHeaderId);
         try{
-        	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        	List<String> objNames = new List<String>{'Service_Order_Header__c', 'Service_Order_Line_Item__c'};
+    		if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        	
         	if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         	
-
             String objectName = (Id.valueOf(lineItemId)).getSObjectType().getDescribe().getName();
             if(objectName == CONSTANTS.NAMESPACE + 'Service_Order_Line_Item__c') {
                 removeSOLineItem(lineItemId);
@@ -2838,7 +2574,7 @@ global with sharing class CustomerOrderCtrl {
             }
             soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId);
             List<Service_Order_Header__c> soHeaderList = [select Status__c, (select Id from Service_Order_Line_Items__r) from Service_Order_Header__c where Id =: soHeaderId];
-            if(soHeaderList.size() > 0 && soHeaderList[0].Service_Order_Line_Items__r != null && soHeaderList[0].Service_Order_Line_Items__r.size() == 0 && Constants.SOStatusToPriorityMap.get(soHeaderList[0].Status__c) < 2) {
+            if(soHeaderList.size() > 0 && soHeaderList[0].Service_Order_Line_Items__r != null && soHeaderList[0].Service_Order_Line_Items__r.size() == 0 && SOStatusToPriorityMap.get(soHeaderList[0].Status__c) < 2) {
                 soHeaderList[0].Status__c = 'Ready';
                 update soHeaderList[0];
             }
@@ -2848,8 +2584,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -2864,13 +2598,13 @@ global with sharing class CustomerOrderCtrl {
     	lineItemId = BPUtility.getDecodedString(lineItemId);
     	coHeaderId = BPUtility.getDecodedString(coHeaderId);
         try{
-        	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        	List<String> objNames = new List<String>{'Service_Order_Kit_Header__c', 'Service_Order_Line_Item__c'};
+    		if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    		
         	if(AccessControl.ifObjectIsDeletable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
         	if(AccessControl.ifObjectIsDeletable('Service_Order_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
         	if(AccessControl.ifObjectFieldIsCreateable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
-
-			lineItemId = BPUtility.escapeSingleQuotes(lineItemId);
+        	lineItemId = BPUtility.escapeSingleQuotes(lineItemId);
             List<Service_Order_Kit_Header__c> sokhList = [select Id,
                                                              (select Actual_Kit_Price__c, Kit_Price__c, Labour_Code__c, Fee__c, Part__c, Qty_Needed__c, Service_Order_Header__c from Service_Order_Line_Items__r)
                                                              from Service_Order_Kit_Header__c where Id =: lineItemId];
@@ -2914,8 +2648,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -2925,11 +2657,10 @@ global with sharing class CustomerOrderCtrl {
     * @return: void
     **/
     private static void removeSOLineItem(String lineItemId) {
+    	if(AccessControl.ifObjectIsDeletable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
     	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	lineItemId = BPUtility.escapeSingleQuotes(lineItemId);
-
         List<Service_Order_Line_Item__c> soliList = [select Id from Service_Order_Line_Item__c where Id =: lineItemId];
-        if(AccessControl.ifObjectIsDeletable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
         if(soliList.size() > 0) {
             delete soliList;
         }
@@ -2946,9 +2677,7 @@ global with sharing class CustomerOrderCtrl {
     	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	if(AccessControl.ifObjectIsDeletable('Service_Order_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
     	if(AccessControl.ifObjectIsDeletable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-    	
     	lineItemId = BPUtility.escapeSingleQuotes(lineItemId);
-
         List<Service_Order_Kit_Header__c> sokhList = [select Id, (Select Id from Service_Order_Line_Items__r) from Service_Order_Kit_Header__c where Id =: lineItemId];
         
         List<Service_Order_Line_Item__c> soliListToDelete = new List<Service_Order_Line_Item__c>();
@@ -2976,7 +2705,6 @@ global with sharing class CustomerOrderCtrl {
     private static Id insertKitHeaderInGrid(String lineItemId, String soHeaderId) {
     	if(AccessControl.ifObjectFieldIsCreateable('Service_Order_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	
-
         List<Kit_Header__c> kitHeaderList = SOQLUtil.getKitHeaderRec(new Map<String, String>{ 'Id' => lineItemId });
         if(kitHeaderList.size() == 0) {
             return null;
@@ -3010,7 +2738,6 @@ global with sharing class CustomerOrderCtrl {
     private static void insertAllKitLineItems(String lineItemId, String soHeaderId, String sokhRecId) {
     	if(AccessControl.ifObjectFieldIsCreateable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	
-
         List<Kit_Header_Line_Item__c> khLineItemList = SOQLUtil.getKHLineItemRec(new Map<String, String>{ 'Kit_Header__c' => lineItemId });
         if(khLineItemList.size() == 0) {
             return;
@@ -3039,8 +2766,6 @@ global with sharing class CustomerOrderCtrl {
         if(soliListToInsert.size() > 0) {
             insert soliListToInsert;
         }
-
-
     }
     
     /**
@@ -3054,7 +2779,6 @@ global with sharing class CustomerOrderCtrl {
     	if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	if(AccessControl.ifObjectFieldIsCreateable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	
-
         List<Part__c> partList = SOQLUtil.getPartDetailRecordsByFieldName('Id', lineItemId);
         if(partList.size() == 0) {
             return;
@@ -3081,7 +2805,6 @@ global with sharing class CustomerOrderCtrl {
     private static void insertLabourInGrid(String lineItemId, String soHeaderId) {
     	if(AccessControl.ifObjectFieldIsCreateable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	
-
         List<Labour_Code__c> labourList = SOQLUtil.getLabourRecords(new Set<Id>{lineItemId}, null);
         if(labourList.size() == 0) {
             return;
@@ -3107,7 +2830,6 @@ global with sharing class CustomerOrderCtrl {
     private static void insertFeeInGrid(String lineItemId, String soHeaderId) {
     	if(AccessControl.ifObjectFieldIsCreateable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	
-
         List<Fee__c> feeList = SOQLUtil.getFeeByFieldName(new Map<String, String>{'Id' => lineItemId});
         if(feeList.size() == 0) {
             return;
@@ -3139,7 +2861,6 @@ global with sharing class CustomerOrderCtrl {
         	if(AccessControl.ifObjectFieldIsUpdateable('Hours_Logged__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         	if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         	
-
             SOHeaderWrapper.HoursLogged hoursLoggedObj = (SOHeaderWrapper.HoursLogged) System.JSON.deserialize(hoursLoggedJSONString, SOHeaderWrapper.HoursLogged.class);
             Hours_Logged__c hours = new Hours_Logged__c();
             if(hoursLoggedObj.Id != null) {
@@ -3177,12 +2898,10 @@ global with sharing class CustomerOrderCtrl {
             List<Service_Order_Header__c> soHeaderRecList = SOQLUtil.getSODetailsByFieldName(new Map<String, String>{'Id' => soHeaderId});
             if(soHeaderRecList.size() == 0) {
                 return BPUtility.getEncodedString('[]');
-
-
             }
             
             Service_Order_Header__c soHeaderRec = soHeaderRecList[0];
-            if(Constants.SOStatusToPriorityMap.get(soHeaderRec.Status__c) < 3) {
+            if(SOStatusToPriorityMap.get(soHeaderRec.Status__c) < 3) {
                 soHeaderRec.Status__c = 'In Progress';
                 update soHeaderRec;
             }
@@ -3198,8 +2917,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     
@@ -3218,14 +2935,9 @@ global with sharing class CustomerOrderCtrl {
         try{
         	if(AccessControl.ifObjectFieldIsCreateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
         	
-
             List<Fee__c> feeList = SOQLUtil.getFeeByFieldName(new Map<String, String>{'Id' => lineItemId});
             if(feeList.size() == 0) {
-                return getCOHeaderDetailsByGridName(coHeaderId, 'coHeader,coLineItem,user,coInvoiceHeader,checkOut,specialOrder');
-            }
-            
-            if(String.isBlank(coHeaderId)) {
-                coHeaderId = BPUtility.getDecodedString(BPGlobalHeaderCtrl.createCustomerOrder());  
+                return getCOHeaderDetailsByGridName(coHeaderId, 'coLineItem,user,coInvoiceHeader,checkOut,specialOrder');
             }
             
             CO_Line_Item__c coliRec = new CO_Line_Item__c();
@@ -3237,13 +2949,11 @@ global with sharing class CustomerOrderCtrl {
             coliRec.Retail__c = coliRec.Price__c;
             insert coliRec;
             
-            return getCOHeaderDetailsByGridName(BPUtility.getEncodedString(coHeaderId), BPUtility.getEncodedString('coHeader,coLineItem,user,coInvoiceHeader,checkOut,specialOrder'));
+            return getCOHeaderDetailsByGridName(BPUtility.getEncodedString(coHeaderId), BPUtility.getEncodedString('coLineItem,user,coInvoiceHeader,checkOut,specialOrder'));
         }catch(Exception e){
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     
@@ -3264,10 +2974,6 @@ global with sharing class CustomerOrderCtrl {
         	if(AccessControl.ifObjectFieldIsCreateable('CO_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
         	if(AccessControl.ifObjectFieldIsUpdateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         	
-        	if(String.isBlank(coHeaderId)) {
-                coHeaderId = BPUtility.getDecodedString(BPGlobalHeaderCtrl.createCustomerOrder());  
-            }
-
             List<Kit_Header__c> kitHeaderList = SOQLUtil.getKitHeaderRec(new Map<String, String>{ 'Id' => lineItemId });
             if(kitHeaderList.size() == 0 || kitHeaderList[0].Service_Kit__c) {
                 return getCOHeaderDetailsByGridName(BPUtility.getEncodedString(coHeaderId), BPUtility.getEncodedString('coLineItem,user,coInvoiceHeader,checkOut,specialOrder'));
@@ -3286,8 +2992,8 @@ global with sharing class CustomerOrderCtrl {
             insertAllKitLineItemsInMerchGrid(lineItemId, coHeaderId, cokhRec.Id);
             
             COKH_Recalcualtion.CoKitInsert(cokhRec.Id, coHeaderId) ;
-            
             coHeaderId = BPUtility.escapeSingleQuotes(coHeaderId);
+            
             List<CO_Kit_Header__c> coKitHeaderList = [SELECT Price__c, (Select Id, Price__c From CO_Line_Items__r) From CO_Kit_Header__c Where 
                                                                  CO_Header__c = : coHeaderId and Id =: cokhRec.Id];
             List<CO_Line_Item__c> coliList =  [SELECT Id, Price__c  From CO_Line_Item__c Where  CO_Header__c = : coHeaderId and CO_Kit_Header__c = null];
@@ -3315,8 +3021,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -3330,7 +3034,6 @@ global with sharing class CustomerOrderCtrl {
     private static void insertAllKitLineItemsInMerchGrid(String lineItemId, String coHeaderId, String cokhRecId) {
     	if(AccessControl.ifObjectFieldIsCreateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	
-
         List<Kit_Header_Line_Item__c> khLineItemList = SOQLUtil.getKHLineItemRec(new Map<String, String>{ 'Kit_Header__c' => lineItemId });
         if(khLineItemList.size() == 0) {
             return;
@@ -3385,8 +3088,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     
@@ -3413,7 +3114,7 @@ global with sharing class CustomerOrderCtrl {
                         if(Result != 'Success'){
                                 error =new SO_KLI_Recalculation.Errorhandler('300',Result);
                         }else{
-                            error =new SO_KLI_Recalculation.Errorhandler('200','Saved Successfully');
+                            error =new SO_KLI_Recalculation.Errorhandler('200','Saved Sucessfully');
                         
                             }
                             
@@ -3425,7 +3126,7 @@ global with sharing class CustomerOrderCtrl {
                                     if(Result != 'Success'){
                                         error =new SO_KLI_Recalculation.Errorhandler('300',Result);
                                     }else{
-                                        error =new SO_KLI_Recalculation.Errorhandler('200','Saved Successfully');
+                                        error =new SO_KLI_Recalculation.Errorhandler('200','Saved Sucessfully');
                                     
                                     }
                         }  
@@ -3442,8 +3143,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     
@@ -3470,8 +3169,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
    /**
@@ -3485,10 +3182,8 @@ global with sharing class CustomerOrderCtrl {
     	if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	if(AccessControl.ifObjectIsDeletable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
     	if(AccessControl.ifObjectIsDeletable('CO_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-    	
-		lineItemId = BPUtility.escapeSingleQuotes(lineItemId);
+    	lineItemId = BPUtility.escapeSingleQuotes(lineItemId);
         List<CO_Kit_Header__c> cokhList = [select Id, (Select Id from CO_Line_Items__r) from CO_Kit_Header__c where Id =: lineItemId];
-
         List<CO_Line_Item__c> coliListToDelete = new List<CO_Line_Item__c>();
         for(CO_Kit_Header__c cokhRec : cokhList) {
             if(cokhRec.CO_Line_Items__r != null && cokhRec.CO_Line_Items__r.size() > 0) {
@@ -3521,8 +3216,7 @@ global with sharing class CustomerOrderCtrl {
         	if(AccessControl.ifObjectFieldIsCreateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
         	if(AccessControl.ifObjectIsDeletable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
         	if(AccessControl.ifObjectIsDeletable('CO_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-        	
-			lineItemId = BPUtility.escapeSingleQuotes(lineItemId);
+        	lineItemId = BPUtility.escapeSingleQuotes(lineItemId);
             List<CO_Kit_Header__c> cokhList = [select Id,
                                                 (select CO_Header__c, Qty__c, Part__c, Fee__c from CO_Line_items__r)     
                                                 from CO_Kit_Header__c where Id =: lineItemId];
@@ -3560,8 +3254,6 @@ global with sharing class CustomerOrderCtrl {
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString('');
-
-
     }
     
     /**
@@ -3587,15 +3279,9 @@ global with sharing class CustomerOrderCtrl {
             Decimal total_Laobur = 0;
             Decimal total_Sublet = 0;
             Decimal total_Fee = 0;
- 
-            
-            Map<String, Decimal> salesTaxNameToTaxValue = new Map<String, Decimal>();
-            Map<String, Decimal> salesTaxNameToTaxRateValue = new Map<String, Decimal>();            
-            //Decimal australianMarketTaxRate = (Australian_Market__c.getInstance().get(Constants.NAMESPACE + 'Sales_Tax_Rate__c') != null) ? 
-                                                //Decimal.valueOf(String.valueOf(Australian_Market__c.getInstance().get(Constants.NAMESPACE + 'Sales_Tax_Rate__c'))) : 0;
-            Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
-            Boolean isCalcTax_Invoice = GeneralConfiguration.getCalcTax_Invoice();
-            Boolean isCalcTax_LineItem = GeneralConfiguration.getCalcTax_LineItem();
+                
+            Decimal australianMarketTaxRate = (Australian_Market__c.getInstance().get(Constants.NAMESPACE + 'Sales_Tax_Rate__c') != null) ? 
+                                                Decimal.valueOf(String.valueOf(Australian_Market__c.getInstance().get(Constants.NAMESPACE + 'Sales_Tax_Rate__c'))) : 0;
             
             if(gridId == null && gridName == 'merchandise') {
                 List<CO_Line_Item__c> coLineItems = SOQLUtil.getCOLineItemByCOHeaderId(coHeaderId); 
@@ -3605,120 +3291,44 @@ global with sharing class CustomerOrderCtrl {
                     coLineItemRec.Retail__c = (coLineItemRec.Retail__c == null) ? 0 : coLineItemRec.Retail__c;
                     coLineItemRec.Tax__c = (coLineItemRec.Tax__c == null) ? 0 : coLineItemRec.Tax__c;
                     
-
-                    for(Individual_Tax__c individualTaxRec : coLineItemRec.Individual_Taxes__r) {
-                        Decimal taxValue;
-                        if(salesTaxNameToTaxValue.containsKey(individualTaxRec.Sales_Tax_Item_Name__c)) {
-                            taxValue = salesTaxNameToTaxValue.get(individualTaxRec.Sales_Tax_Item_Name__c);
-                        } else {
-                            taxValue = 0;
-                        }
-                        if(!isTaxIncludingPricing && isCalcTax_Invoice) {
-                        	taxValue += (coLineItemRec.Qty__c * coLineItemRec.Price__c);
-
-                        	if(!salesTaxNameToTaxRateValue.containsKey(individualTaxRec.Sales_Tax_Item_Name__c)) {
-                        		salesTaxNameToTaxRateValue.put(individualTaxRec.Sales_Tax_Item_Name__c, individualTaxRec.Tax_Rate__c);
-                        	}
-                        } else {
-	                        taxValue += ((individualTaxRec.Tax_Rate__c * coLineItemRec.Qty__c * coLineItemRec.Price__c) / 100).setScale(2);
-                        }
-                        salesTaxNameToTaxValue.put(individualTaxRec.Sales_Tax_Item_Name__c, taxValue);
-                    }
-                    
-                    if(!isTaxIncludingPricing && isCalcTax_Invoice) {
-                    	for(String stName : salesTaxNameToTaxRateValue.keyset()) {
-                    		Decimal rate = salesTaxNameToTaxRateValue.get(stName);
-                    		if(salesTaxNameToTaxValue.containsKey(stName)) {
-                    			Decimal taxValue = ((salesTaxNameToTaxValue.get(stName) * rate) / 100).setScale(2);
-                    			salesTaxNameToTaxValue.put(stName, taxValue);
-                    		}
-                    	}
-                    }
-                    
-                    if(coLineItemRec.Kit_Price_With_Price_Level__c == null  ){
-                        coLineItemRec.Kit_Price_With_Price_Level__c = coLineItemRec.Price__c;
-                    }
-                    if(coLineItemRec.CO_Kit_Header__c != null ){
+                    if(isAustralianMarket) {
+                        total += coLineItemRec.Qty__c * coLineItemRec.Price__c;
+                        salesTax += coLineItemRec.Qty__c * (coLineItemRec.Price__c - (coLineItemRec.Price__c / (1 + australianMarketTaxRate)));
                         priceOverrides += coLineItemRec.Qty__c * (coLineItemRec.Price__c - coLineItemRec.Kit_Price_With_Price_Level__c);
-
-                    }else If(coLineItemRec.CO_Kit_Header__c == null ){
-                        priceOverrides += coLineItemRec.Qty__c * (coLineItemRec.Price__c - coLineItemRec.Actual_Kit_Price__c);
-                    }
-                    
-                    if(!isTaxIncludingPricing) {
-                        if(coLineItemRec.Part__c != null) {
-                            total_Part += coLineItemRec.Qty__c * coLineItemRec.Price__c;
-                        }
-                        if(coLineItemRec.Fee__c != null) {
-                            total_Fee += coLineItemRec.Qty__c * coLineItemRec.Price__c;
-                        }
+                    } else {
                         total += coLineItemRec.Qty__c * coLineItemRec.Price__c;
                         salesTax += (coLineItemRec.Qty__c * coLineItemRec.Price__c * coLineItemRec.Tax__c) / 100;
-
-
-                    } else {
-                        if(coLineItemRec.Part__c != null) {
-                            total_Part += coLineItemRec.Sub_Total_With_Tax__c;
+                        if(coLineItemRec.Kit_Price_With_Price_Level__c == null  ){
+                            coLineItemRec.Kit_Price_With_Price_Level__c = coLineItemRec.Price__c;
                         }
-                        if(coLineItemRec.Fee__c != null) {
-
-
-
-                            total_Fee += coLineItemRec.Sub_Total_With_Tax__c;
+                        if(coLineItemRec.CO_Kit_Header__c != null ){
+                            priceOverrides += coLineItemRec.Qty__c * (coLineItemRec.Price__c - coLineItemRec.Kit_Price_With_Price_Level__c);
+                        }else If(coLineItemRec.CO_Kit_Header__c == null ){
+                            priceOverrides += coLineItemRec.Qty__c * (coLineItemRec.Price__c - coLineItemRec.Actual_Kit_Price__c);
                         }
-
-
-
-
-
-
-                        total += coLineItemRec.Sub_Total_With_Tax__c;
+                    }
+                    if(coLineItemRec.Part__c != null) {
+                        total_Part += coLineItemRec.Qty__c * coLineItemRec.Price__c;
+                    }
+                    if(coLineItemRec.Fee__c != null) {
+                        total_Fee += coLineItemRec.Qty__c * coLineItemRec.Price__c;
                     }
                 }
                 
             } else if(gridId != null) {
-
-
-
-                List<Service_Order_Line_Item__c> soLineItemList = SOQLUtil.getServiceOrderLineItemBySOHeader(gridId);
-                if(soLineItemList.size() > 0) {
-                    for(Service_Order_Line_Item__c soliRec : soLineItemList) {
-
-                        if(soliRec.Tax_Percent__c == null) {
-                            soliRec.Tax_Percent__c = 0;
-                        }
-                        if(soliRec.Labour_Code__c != null ) {
+                List<Service_Order_Header__c> soHeaderRecList = SOQLUtil.getSODetailsByFieldName(new Map<String, String>{'Id' => gridId});
+                ///system.assert(false,soHeaderRecList +' '+  soHeaderRecList[0].Service_Order_Line_Items__r);
+                if(soHeaderRecList.size() > 0) {
+                    for(Service_Order_Line_Item__c soliRec : soHeaderRecList[0].Service_Order_Line_Items__r) {
+                        if(soliRec.Labour_Code__c != null && soliRec.Part__c == null) {
                             total_Laobur += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
-                            salesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
-
-                            if(isTaxIncludingPricing) {
-                                total_Laobur += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
-                            }
-                        } else if(soliRec.Part__c != null) {
-                            salesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
+                            salesTax += soliRec.Labour_Tax_Amount__c;
+                        } else if(soliRec.Labour_Code__c == null && soliRec.Part__c != null) {
                             total_Part += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
-                            if(isTaxIncludingPricing) {
-                                total_Part += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
-                            }
+                            salesTax += (soliRec.Total__c * soliRec.Tax__c) / 100;
                         } else if(soliRec.Fee__c != null) {
                             total_Fee += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
-                            salesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
-                            if(isTaxIncludingPricing) {
-                                total_Fee += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
-                            }
                         }
-                        
-                        for(Individual_Tax__c individualTaxRec : soliRec.Individual_Taxes__r) {
-                            Decimal taxValue;
-                            if(salesTaxNameToTaxValue.containsKey(individualTaxRec.Sales_Tax_Item_Name__c)) {
-                                taxValue = salesTaxNameToTaxValue.get(individualTaxRec.Sales_Tax_Item_Name__c);
-                            } else {
-                                taxValue = 0;
-                            }
-                            taxValue += (individualTaxRec.Tax_Rate__c * soliRec.Qty_Needed__c * soliRec.Kit_Price__c) / 100;
-                            salesTaxNameToTaxValue.put(individualTaxRec.Sales_Tax_Item_Name__c, taxValue);
-                        }
-                    
                         if(soliRec.Service_Order_Kit_Header__c == null){
                             //system.assert(false,soliRec.Service_Order_Kit_Header__c);
                             priceOverrides += soliRec.Qty_Needed__c * (soliRec.Kit_Price__c - soliRec.Actual_Kit_Price__c );
@@ -3734,22 +3344,16 @@ global with sharing class CustomerOrderCtrl {
                         priceOverrides += (sokhRec.Fixed_Price__c - sokhRec.Actual_Kit_Price__c);
                     }*/
                 }   
-                if(isTaxIncludingPricing) {
-                    salesTax = 0;
-                }
                 total = total_Part + total_Laobur + total_Sublet + total_Fee;
-                //salesTaxNameToTaxValue = new Map<String, Decimal>{'' => 0}; 
-            }
+            } 
             
             
-            COHeaderWrapper.GridTotal gridTotal = new COHeaderWrapper.GridTotal(total, salesTax, priceOverrides, total_Part, total_Laobur, total_Sublet, total_Fee, salesTaxNameToTaxValue);
+            COHeaderWrapper.GridTotal gridTotal = new COHeaderWrapper.GridTotal(total, salesTax, priceOverrides, total_Part, total_Laobur, total_Sublet, total_Fee);
             return BPUtility.getEncodedString(System.JSON.serialize(gridTotal)); 
         }catch(Exception e){
             throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
         }
         return BPUtility.getEncodedString(''); 
-
-
     }
     
     
@@ -3757,15 +3361,12 @@ global with sharing class CustomerOrderCtrl {
 		if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-		
 		ServiceOrderHeaderId = BPUtility.escapeSingleQuotes(ServiceOrderHeaderId);
-
 		list <Service_Order_Header__c> serviceOrderKitHeaderListToMove = new list <Service_Order_Header__c> ([select Id, Total__c, Tax_Amount__c,
 																												(select Id, Total__c, Tax_Amount__c from Service_Order_Line_Items__r)
 																												from Service_Order_Header__c
 																												where Id =  : ServiceOrderHeaderId]
 																											);
-
 		for (Service_Order_Header__c serviceOrderHeaderRec : serviceOrderKitHeaderListToMove) {
 			decimal total = 0;
 			decimal taxAmount = 0;
@@ -3773,53 +3374,33 @@ global with sharing class CustomerOrderCtrl {
 				total += serviceItemRec.Total__c;
 				taxAmount += serviceItemRec.Tax_Amount__c;
 			}
-
-
 			serviceOrderHeaderRec.Total__c = total;
 			serviceOrderHeaderRec.Tax_Amount__c = taxAmount;
 		}
 	
-
-
 		if (serviceOrderKitHeaderListToMove.size() > 0) {
 			update serviceOrderKitHeaderListToMove;
 		}
 	
 	}
-
-
-
     
-
-
-
-
-
-
     public static String MoveFromSokhCOKH(String kitIdToMove,String sectionToMove,String CoheaderId){
         Savepoint sp = Database.setSavepoint();
         
-        if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		List<String> objNames = new List<String>{'Service_Order_Kit_Header__c', 'Service_Order_Line_Item__c', 'Service_Order_Header__c', 'CO_Invoice_Item__c', 'CO_Invoice_Header__c', 'CO_Invoice_Header__c', 'CO_Line_Item__c'};
+	    if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+	    
 		
-
 		if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		if(AccessControl.ifObjectFieldIsUpdateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		
-
 		if(AccessControl.ifObjectFieldIsCreateable('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 		if(AccessControl.ifObjectFieldIsCreateable('CO_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 		
-
 		if(AccessControl.ifObjectIsDeletable('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
 		if(AccessControl.ifObjectIsDeletable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
 		if(AccessControl.ifObjectIsDeletable('Service_Order_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-		
 		kitIdToMove = BPUtility.escapeSingleQuotes(kitIdToMove);
         list<Service_Order_Kit_Header__c> serviceOrderKitHeaderListToMove = new list<Service_Order_Kit_Header__c>([select Id,Actual_Kit_Price__c,Can_Split__c,Code__c,Description__c,Fixed_Price__c,
                                                                                                                 Fixed_Price_Flag__c,Is_Fixed_Kit_Header_SO__c,Kit_Header__c,Service_Kit__c,
@@ -3949,6 +3530,7 @@ global with sharing class CustomerOrderCtrl {
                             if(serviceOrderLineItemListToMove.Size() > 0){
                                 delete serviceOrderLineItemListToMove;  
                                 list <CO_Invoice_Item__c> invoiceItemToDelete= new  list <CO_Invoice_Item__c>();
+                                
                                 serviceOrderHeaderId = BPUtility.escapeSingleQuotes(serviceOrderHeaderId);
                                 list<Service_Order_Header__c> ServiceOrderHeaderRecList =  new list<Service_Order_Header__c>([Select Id,CO_Header__c,(Select Id, CO_Invoice_Header__c, isActive__c From CO_Invoice_Items__r),
                                                                                              (Select Id,Qty_To_Order__c From Service_Order_Line_Items__r)  
@@ -3978,23 +3560,18 @@ global with sharing class CustomerOrderCtrl {
     // function to move kit item
     public static String MoveFromCokhSokh(String kitIdToMove,String sectionToMove){
             Savepoint sp = Database.setSavepoint();
-            if(AccessControl.ifObjectFieldIsAccessible('CO_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-			if(AccessControl.ifObjectFieldIsAccessible('Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-			if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-			if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-			if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-
+			List<String> objNames = new List<String>{'CO_Kit_Header__c', 'Kit_Header__c', 'CO_Invoice_Item__c', 'Service_Order_Header__c', 'CO_Invoice_Header__c'};
+    		if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 			if(AccessControl.ifObjectFieldIsCreateable('Service_Order_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 			if(AccessControl.ifObjectFieldIsCreateable('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 			
-
 			if(AccessControl.ifObjectIsDeletable('CO_Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
             
-            kitIdToMove = BPUtility.escapeSingleQuotes(kitIdToMove);
+             kitIdToMove = BPUtility.escapeSingleQuotes(kitIdToMove );
             list<CO_Kit_Header__c> coKitHeaderToMovelist =new  list<CO_Kit_Header__c>([select Id,Actual_Kit_Price__c,Can_Split__c,CO_Fixed_KitHeader__c,Kit_Header__r.Code__c,
                                                                                       Kit_Header__r.Description__c,CO_Header__c,Fixed_Price_Flag__c,Kit_Header__c,Price__c,Service_Kit__c,
                                                                                       (select Id,Actual_Kit_Price__c,Fixed_Price__c,CO_Fixed_KitLineItem__c,Price__c,
-                                                                                        Qty_Committed__c,Qty__c,Qty_To_Order__c,Part__c, Tax__c from CO_Line_Items__r ) ,
+                                                                                        Qty_Committed__c,Qty__c,Qty_To_Order__c,Part__c from CO_Line_Items__r ) ,
                                                                                       (Select Id, CO_Invoice_Header__c, isActive__c From CO_Invoice_Items__r)                       
                                                                                       from CO_Kit_Header__c where Id =: kitIdToMove]);
             
@@ -4041,7 +3618,7 @@ global with sharing class CustomerOrderCtrl {
             if(coKitHeaderToMovelist.size()>0 ){
                 delete coKitHeaderToMovelist;
             }
-            ServiceOrderId = BPUtility.escapeSingleQuotes(ServiceOrderId);
+             ServiceOrderId = BPUtility.escapeSingleQuotes(ServiceOrderId );
             list<Service_Order_Header__c> serviceOrderList =[select Id,(Select Id, CO_Invoice_Header__c, isActive__c From CO_Invoice_Items__r),CO_Header__c
                                                                          from  Service_Order_Header__c where Id =:ServiceOrderId ];
             Service_Order_Header__c ServiceOrderHeaderRec=  serviceOrderList[0];                                                  
@@ -4075,21 +3652,16 @@ global with sharing class CustomerOrderCtrl {
      //Fucntion to soli to coli
      public static String  MoveFromSoliToColi(String soliToMove,String sectionToMove) {
         Savepoint sp = Database.setSavepoint();
-        if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-
+		List<String> objNames = new List<String>{'Service_Order_Line_Item__c', 'Service_Order_Header__c', 'CO_Invoice_Header__c', 'CO_Invoice_Item__c', 'CO_Line_Item__c'};
+	    if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+	    
 		if(AccessControl.ifObjectFieldIsCreateable('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 		
-
 		if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		
-
 		if(AccessControl.ifObjectIsDeletable('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
 		if(AccessControl.ifObjectIsDeletable('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-        soliToMove = BPUtility.escapeSingleQuotes(soliToMove);
+        soliToMove = BPUtility.escapeSingleQuotes(soliToMove );
         List<Service_Order_Line_Item__c>  soliItemToMovelist = new List<Service_Order_Line_Item__c>([select Id,Actual_Kit_Price__c,Service_Order_Header__c,CO_Line_Item__c,Service_Order_Header__r.CO_Header__c
                                                                                                     from Service_Order_Line_Item__c where Id =:soliToMove]);
         
@@ -4108,7 +3680,8 @@ global with sharing class CustomerOrderCtrl {
                 
                 update soliItemToMovelist;
             }
-            sectionToMove = BPUtility.escapeSingleQuotes(sectionToMove);
+            
+            sectionToMove = BPUtility.escapeSingleQuotes(sectionToMove );
             list<Service_Order_Header__c> serviceOrderList =[select Id,(Select Id, CO_Invoice_Header__c, isActive__c From CO_Invoice_Items__r),CO_Header__c
                                                              from  Service_Order_Header__c where Id =:sectionToMove ];
             Id customerOrderHeader =  soliItemToMovelist[0].Service_Order_Header__r.CO_Header__c;                                                
@@ -4245,7 +3818,6 @@ global with sharing class CustomerOrderCtrl {
                 solirec.Part__c = coliRecToMove.Part__c;
                 solirec.Qty_Committed__c = coliRecToMove.Qty_Committed__c;
                 solirec.Qty_Needed__c =  coliRecToMove.Qty__c;
-				solirec.Tax_Percent__c =  coliRecToMove.Tax__c;
                 solirec.Service_Order_Header__c = Id.valueOf(ServiceOrderId);
                 solirec.Service_Order_Kit_Header__c = soKitheader;
                 soliListToInsert.add(solirec);
@@ -4274,17 +3846,16 @@ global with sharing class CustomerOrderCtrl {
      //Function to move coli to soli  
      public static String  MoveFromColiToSoli(String coliToMove,String ServiceOrderId) {
             Savepoint sp = Database.setSavepoint();
-            if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+            List<String> objNames = new List<String>{'CO_Line_Item__c', 'CO_Invoice_Item__c', 'Service_Order_Header__c', 'Service_Order_Line_Item__c'};
+    		if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             if(AccessControl.ifObjectFieldIsCreateable('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
             if(AccessControl.ifObjectIsDeletable('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-            coliToMove = BPUtility.escapeSingleQuotes(coliToMove);
-            ServiceOrderId = BPUtility.escapeSingleQuotes(ServiceOrderId);
+            if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+            
+            coliToMove = BPUtility.escapeSingleQuotes(coliToMove );
+            ServiceOrderId = BPUtility.escapeSingleQuotes(ServiceOrderId );
             List<CO_Line_Item__c>  coliListToMove = new List<CO_Line_Item__c>([select Id,Actual_Kit_Price__c,Fixed_Price__c,CO_Fixed_KitLineItem__c,Price__c,
-                                                                                Qty_Committed__c,Qty__c,Qty_To_Order__c,Part__c, Tax__c,
+                                                                                Qty_Committed__c,Qty__c,Qty_To_Order__c,Part__c,
                                                                                 (Select Id, CO_Invoice_Header__c, isActive__c From CO_Invoice_Items__r) 
                                                                                 from CO_Line_Item__c where Id =:coliToMove]);
                                                                     
@@ -4382,10 +3953,10 @@ global with sharing class CustomerOrderCtrl {
     	soHeaderId = BPUtility.getDecodedString(soHeaderId);
         try{
         	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        	if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         	if(AccessControl.ifObjectIsDeletable('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
         	if(AccessControl.ifObjectIsDeletable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
         	
-
             List<Service_Order_Header__c> soHeaderRecList = new List<Service_Order_Header__c>();
             soHeaderRecList = SOQLUtil.getSODetailsByFieldName(new Map<String, String>{'Id' => soHeaderId});
             
@@ -4394,11 +3965,9 @@ global with sharing class CustomerOrderCtrl {
                  soHeaderRecList[0].Service_Order_Line_Items__r.size() == 0)
             {
                 List<CO_Header__c> coHeader = SOQLUtil.getCOHeaderDetails(coHeaderId);
-                 
+                 soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId );
                 if(coHeader[0].Status__c == 'Open')
                 {
-                	soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId);
-                	if(AccessControl.ifObjectFieldIsAccessible('CO_Invoice_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
                     List<CO_Invoice_Item__c> coInvoiceItems = [Select Id From CO_Invoice_Item__c where Service_Order_Header__c =:soHeaderId];
                                                                         
                     if(coInvoiceItems.size() > 0 ){
@@ -4442,12 +4011,12 @@ global with sharing class CustomerOrderCtrl {
     	statusType = BPUtility.getDecodedString(statusType);
     	if(AccessControl.ifObjectFieldIsCreateable('App_Log__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         //system.assert(false,jSONString);
         SOWizard.AppLog appLogObj = (SOWizard.AppLog)System.JSON.deserialize(jSONString, SOWizard.AppLog.class);
         
         boolean errorMsg = false;
-        if((appLogObj.NewStatus).equalsIgnoreCase('Set As Complete') || (appLogObj.NewStatus).equalsIgnoreCase('Complete') || (appLogObj.NewStatus).equalsIgnoreCase('Signed Out')){
+        if((appLogObj.NewStatus).equalsIgnoreCase('Set As Complete') || (appLogObj.NewStatus).equalsIgnoreCase('Complete')){
             List<Service_Order_Header__c> SOHeaderList =  [SELECT Id, (SELECT Id, Qty_Needed__c, Part__c, Qty_Committed__c From Service_Order_Line_Items__r) From Service_Order_Header__c where Id = :appLogObj.SOHeaderId];
             for(Service_Order_Line_Item__c SOLineItemRec : SOHeaderList[0].Service_Order_Line_Items__r){
                 if(SOLineItemRec.Qty_Needed__c > SOLineItemRec.Qty_Committed__c && SOLineItemRec.Part__c != null){
@@ -4455,18 +4024,10 @@ global with sharing class CustomerOrderCtrl {
                     break;
                 }
             }
-
-            if(errorMsg && (appLogObj.NewStatus).equalsIgnoreCase('Complete')){
-
-
-
-
-        		return Label.SetAsCompleteErrorMessage;
-        	} else if(errorMsg && (appLogObj.NewStatus).equalsIgnoreCase('Signed Out')){
-        		return Label.SignedOutErrorMessage;
-        	}
-
-
+            if(errorMsg){
+                return BPUtility.getEncodedString(Label.SetAsCompleteErrorMessage);
+            }
+            
         }
         
         //system.assert(false,appLogObj);
@@ -4481,8 +4042,6 @@ global with sharing class CustomerOrderCtrl {
         
         changeStatus(BPUtility.getEncodedString(appLogObj.SOHeaderId),  BPUtility.getEncodedString(appLogRec.New_Value__c), BPUtility.getEncodedString(statusType));
         return BPUtility.getEncodedString('');   
-
-
     }
     
     
@@ -4498,11 +4057,11 @@ global with sharing class CustomerOrderCtrl {
     	claimStatus = BPUtility.getDecodedString(claimStatus);
         List<String> availableWorkStatusList = new List<String>();
         List<String> availableClaimStatusList = new List<String>();
-        if(Constants.workStatusToAvailableStatusMap.containsKey(workStatus)){
-            availableWorkStatusList = Constants.workStatusToAvailableStatusMap.get(workStatus);
+        if(workStatusToAvailableStatusMap.containsKey(workStatus)){
+            availableWorkStatusList = workStatusToAvailableStatusMap.get(workStatus);
         }
-        if(Constants.claimStatusToAvailableStatusMap.containsKey(claimStatus)){
-            availableClaimStatusList = Constants.claimStatusToAvailableStatusMap.get(claimStatus);
+        if(claimStatusToAvailableStatusMap.containsKey(claimStatus)){
+            availableClaimStatusList = claimStatusToAvailableStatusMap.get(claimStatus);
         }
         //system.assert(false, new SOInfoWrapper(workStatus, claimStatus, availableWorkStatusList, availableClaimStatusList));
         return BPUtility.getEncodedString(JSON.serialize(new SOWizard.SOInfoWrapper(workStatus, claimStatus, availableWorkStatusList, availableClaimStatusList)));
@@ -4536,8 +4095,6 @@ global with sharing class CustomerOrderCtrl {
             List<Service_Order_Header__c> soHeaderList = SOQLUtil.getSOHeaderById(soHeaderId, wizardName);
             if(soHeaderList.size() == 0) {
                 return BPUtility.getEncodedString('{}');
-
-
             }
             Service_Order_Header__c soHeaderRec = soHeaderList[0];
             return BPUtility.getEncodedString(System.JSON.serialize(new SOWizard(soHeaderRec, wizardName)));
@@ -4560,10 +4117,11 @@ global with sharing class CustomerOrderCtrl {
         List<CustomerApproval> approvalList = SOSignInWizardSOInfoObj.Approval_Method;
         
         if(wizardKey == 'Sign_In'){
+            
             // Save Approval Type List
             saveCustomerApprovalInfo(soHeaderId, wizardKey, approvalList, 'Ready');
-        } else if(wizardKey == 'Service_Sign_Out') {
             
+        } else if(wizardKey == 'Service_Sign_Out') {
             saveCustomerApprovalInfo(soHeaderId, wizardKey, approvalList, 'Signed Out');
         
         } else if(wizardKey == 'Claim_Submission') {
@@ -4573,15 +4131,12 @@ global with sharing class CustomerOrderCtrl {
     }
     
      
-
-
     private static void saveCustomerApprovalInfo(String soHeaderId, String wizardKey, List<CustomerApproval> approvalList, String newWorkStatus) {
     	if(AccessControl.ifObjectFieldIsAccessible('CustomerApproval__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	if(AccessControl.ifObjectFieldIsCreateable('CustomerApproval__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	if(AccessControl.ifObjectFieldIsUpdateable('CustomerApproval__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
     	if(AccessControl.ifObjectIsDeletable('CustomerApproval__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-    	
-		soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId);
+    	soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId );
         List<CustomerApproval__c> existingApprovalList = [select Id, Section_key__c, ApprovalType__c 
                                                                                             from CustomerApproval__c where Service_Order_Header__c =: soHeaderId
                                                                                             and Section_key__c =: wizardKey]; 
@@ -4623,12 +4178,8 @@ global with sharing class CustomerOrderCtrl {
         if(isStatusToBeChanged) {
             if(wizardKey == 'Claim_Submission') {
                 changeStatus(BPUtility.getEncodedString(soHeaderId), BPUtility.getEncodedString(newWorkStatus), BPUtility.getEncodedString('claim'));
-
-
             } else {
                 changeStatus(BPUtility.getEncodedString(soHeaderId), BPUtility.getEncodedString(newWorkStatus), BPUtility.getEncodedString('work'));
-
-
             }
         }
     }
@@ -4642,7 +4193,6 @@ global with sharing class CustomerOrderCtrl {
     	customerName = BPUtility.getDecodedString(customerName);
     	if(AccessControl.ifObjectFieldIsAccessible('Organization') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	
-
         List<SOWizard.CustInfo> custJSONList = (List<SOWizard.CustInfo>) System.JSON.deserialize(custJsonStr, List<SOWizard.CustInfo>.class);
         List<String> emailStrList = new List<String>();
         
@@ -4667,17 +4217,11 @@ global with sharing class CustomerOrderCtrl {
             SendEmail.send(emailStrList, subject, body, soHeaderId);
             if(emailStrList.size() > 0) {
                 return BPUtility.getEncodedString('Sent');
-
             }
-
-
         } catch(Exception e) {
             
-
         }
         return BPUtility.getEncodedString('Not Sent');
-
-
     }
     
     
@@ -4689,7 +4233,6 @@ global with sharing class CustomerOrderCtrl {
         if(String.isNotBlank(soHeaderId)) {
         	if(AccessControl.ifObjectFieldIsUpdateable('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         	
-
             Service_Order_Header__c soHeader = new Service_Order_Header__c(Id = soHeaderId);
             if(statusType.equalsIgnoreCase('work')) {
                 soHeader.Work_Status__c = newStatus;
@@ -4698,8 +4241,6 @@ global with sharing class CustomerOrderCtrl {
             }
             update soHeader;
         } 
-
-
     }
     
     @RemoteAction
@@ -4709,7 +4250,6 @@ global with sharing class CustomerOrderCtrl {
     	if(AccessControl.ifObjectFieldIsCreateable('SO_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	if(AccessControl.ifObjectFieldIsUpdateable('SO_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
     	
-
         SOHeaderWrapper.Deductible soPaymentWrapperObj = (SOHeaderWrapper.Deductible)System.JSON.deserialize(deductibleJson, SOHeaderWrapper.Deductible.class);
         List<RecordType> deductibleRecordTypeIdList =  SOQLUtil.getRecordTypeId(Constants.NAMESPACE + 'SO_Payment_Role__c', 'Deductible');
         String RecordTypeDeductible = deductibleRecordTypeIdList[0].Id;
@@ -4771,13 +4311,10 @@ global with sharing class CustomerOrderCtrl {
     @remoteAction
     global static String getAttachmentListByParentId(String parentId) {
     	parentId = BPUtility.getDecodedString(parentId);
-    	parentId = BPUtility.escapeSingleQuotes(parentId);
-    	if(AccessControl.ifObjectFieldIsAccessible('Attachment') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	parentId = BPUtility.escapeSingleQuotes(parentId );
         List<Attachment> attList = [select Description, Name, CreatedDate from Attachment where ParentId = : parentId];
         if(attList.size() == 0) {
             return BPUtility.getEncodedString('{}');
-
-
         }
         
         List<SOHeaderWrapper.Attachments> attachList = new List<SOHeaderWrapper.Attachments>();
@@ -4791,9 +4328,8 @@ global with sharing class CustomerOrderCtrl {
     global static String removeAttachment(String attachmentId, String soHeaderId) {
     	attachmentId = BPUtility.getDecodedString(attachmentId);
     	soHeaderId = BPUtility.getDecodedString(soHeaderId);
+    	attachmentId = BPUtility.escapeSingleQuotes(attachmentId );
     	if(AccessControl.ifObjectIsDeletable('Attachment') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-    	if(AccessControl.ifObjectFieldIsAccessible('Attachment') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	attachmentId = BPUtility.escapeSingleQuotes(attachmentId);
         List<Attachment> attList = [select Id from Attachment where Id = : attachmentId];
         if(attList.size() > 0) {
             delete attList;
@@ -4809,7 +4345,6 @@ global with sharing class CustomerOrderCtrl {
     	description = BPUtility.getDecodedString(description);
     	if(AccessControl.ifObjectFieldIsCreateable('Attachment') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	
-
         String user = UserInfo.getUserID();
         if(fileData == null) {
             return BPUtility.getEncodedString(String.valueOf('Invalid file data.'));
@@ -4835,8 +4370,6 @@ global with sharing class CustomerOrderCtrl {
         List<Claim__c> claimRecList = SOQLUtil.getClaimDetailsBySOHeaderId(soHeaderId); 
         if(claimRecList.size() == 0) {
             return BPUtility.getEncodedString('{}');
-
-
         }
         List<SO_Payment_Role__c> soPaymentRoles = SOQLUtil.getSOPaymentWrapperById(soHeaderId, null);
         List<Category__c> internalCategoryList = SOQLUtil.getCategoryById('Internal Expense');
@@ -4854,15 +4387,14 @@ global with sharing class CustomerOrderCtrl {
     @RemoteAction
     global static String getCustomerApprovalInfo(String soHeaderId, String sectionKey, Decimal approvalCount){
     	if(AccessControl.ifObjectFieldIsAccessible('CustomerApproval__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	
     	soHeaderId = BPUtility.getDecodedString(soHeaderId);
     	sectionKey = BPUtility.getDecodedString(sectionKey);
     	if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId);
-
+    	
         List<CustomerApproval> custApprovalList = new List<CustomerApproval>();
         List<CustomerApproval__c> customerApprovalList = new List<CustomerApproval__c>();
-        
+        soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId );
+        sectionKey = BPUtility.escapeSingleQuotes(sectionKey );
         if(sectionKey == 'Get_Approval' && approvalCount != null) {
             customerApprovalList = [select Approval_Count__c, ApprovalDetailJson__c, ApprovalType__c, Notes__c, Section_key__c, Name, LastModifiedDate,
                                                 Section_Name__c, Service_Order_Header__c, Status__c from CustomerApproval__c 
@@ -4889,7 +4421,6 @@ global with sharing class CustomerOrderCtrl {
 		if(AccessControl.ifObjectFieldIsCreateable('CustomerApproval__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 		if(AccessControl.ifObjectFieldIsUpdateable('CustomerApproval__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
     	if(AccessControl.ifObjectIsDeletable('CustomerApproval__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-    	soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId);
         List<CustomerApproval> custApprovalObjList = (List<CustomerApproval>)System.JSON.deserialize(JSONString, List<CustomerApproval>.class);
         List<CustomerApproval__c> custApprovalList = new List<CustomerApproval__c>();
         Decimal approvalCount;
@@ -4900,16 +4431,15 @@ global with sharing class CustomerOrderCtrl {
             }   
         }
         List<CustomerApproval__c> existingApprovalList;
+        soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId );
         if(approvalCount == null) {
-        	
             existingApprovalList = [select Id, Approval_Count__c from CustomerApproval__c where Service_Order_Header__c =: soHeaderId 
                                                                         AND Section_key__c = 'Get_Approval'
-
                                                                         Order By Approval_Count__c DESC nulls last];
             approvalCount = (existingApprovalList.size() == 0) ? 1 : (existingApprovalList[0].Approval_Count__c + 1);                                                      
         }
         
-        
+        soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId );
         existingApprovalList = [select Id, Section_key__c, ApprovalType__c, Approval_Count__c
                                         from CustomerApproval__c where Service_Order_Header__c =: soHeaderId
                                         and Approval_Count__c =: approvalCount]; 
@@ -4966,29 +4496,26 @@ global with sharing class CustomerOrderCtrl {
     
     @RemoteAction
     global static void createClaim(Service_Order_Header__c soHeaderRec){
+    	if(AccessControl.ifObjectFieldIsCreateable('Claim__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
         Claim__c claimRec = new Claim__c(Service_Order_Header__c = soHeaderRec.Id);
-        if(AccessControl.ifObjectFieldIsCreateable('Claim__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
         insert claimRec;
     }
     
     
     @RemoteAction
     global static String submitClaimRecords(String soHeaderId) {
-    	soHeaderId = BPUtility.getDecodedString(soHeaderId);
     	if(AccessControl.ifObjectFieldIsAccessible('Claim__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	soHeaderId = BPUtility.getDecodedString(soHeaderId);
     	if(AccessControl.ifObjectFieldIsCreateable('Claim__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	if(AccessControl.ifObjectFieldIsCreateable('SO_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	if(AccessControl.ifObjectFieldIsCreateable('Claim_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
     	if(AccessControl.ifObjectFieldIsUpdateable('SO_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-    	
-		soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId);
-        List<Service_Order_Line_Item__c> soLineItemList = SOQlUtil.getServiceOrderLineItemBySoHeader(soHeaderId);
+    	soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId );
+        List<Service_Order_Line_Item__c> soLineItemList = SOQlUtil.getServiceOrderLineItemBySoHeadeder(soHeaderId);
         List<Claim__c> claimRecords = [select Id from Claim__c where Service_Order_Header__c =: soHeaderId];
         if(claimRecords.size() > 0 || soLineItemList.size() == 0) {
             return BPUtility.getEncodedString('{}');
-
-
-        }  
+        }
         
         Claim__c claimRec = new Claim__c();
         claimRec.Service_Order_Header__c = soHeaderId;
@@ -5032,10 +4559,6 @@ global with sharing class CustomerOrderCtrl {
         }
         changeStatus(BPUtility.getEncodedString(soHeaderId), BPUtility.getEncodedString('Submitted'), BPUtility.getEncodedString('claim'));
         return BPUtility.getEncodedString('{}');
-
-
-
-
     }
     
       @RemoteAction
@@ -5046,7 +4569,6 @@ global with sharing class CustomerOrderCtrl {
         if(StepNumber == '1'){
         	if(AccessControl.ifObjectFieldIsUpdateable('Claim__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         	
-
              ClaimWizard claimWizardObj = (ClaimWizard)System.JSON.deserialize(ClaimWizardJson, ClaimWizard.class);
              
              if(claimWizardObj.ClaimId != null ){
@@ -5066,31 +4588,22 @@ global with sharing class CustomerOrderCtrl {
         else if(StepNumber == '3'){
              updateVariance(soHeaderId,ClaimWizardJson);
              changeStatus(BPUtility.getEncodedString(soHeaderId), BPUtility.getEncodedString('Approved'), BPUtility.getEncodedString('claim'));
-
-
         }
         return getWizardInfo(BPUtility.getEncodedString(soHeaderId), BPUtility.getEncodedString('Claim_Response'));
     }
     
     // Update Bill to information for Variable
      public Static String updateVariance(String soHeaderId,String ClaimWizardJson){
-		if(AccessControl.ifObjectFieldIsAccessible('Claim_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('SO_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('RecordType') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('Claim_Line_item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		List<String> objNames = new List<String>{'Claim_Line_Item__c', 'SO_Payment_Role__c', 'RecordType', 'Claim_Line_item__c'};
+    	if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		
-
 		if(AccessControl.ifObjectFieldIsCreateable('So_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 		
-
 		if(AccessControl.ifObjectFieldIsUpdateable('So_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		if(AccessControl.ifObjectFieldIsUpdateable('Claim_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		
-
 		if(AccessControl.ifObjectIsDeletable('SO_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-		
-		soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId);
-
+			soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId );
             ClaimWizard claimWizardObj = (ClaimWizard)System.JSON.deserialize(ClaimWizardJson, ClaimWizard.class);
             List<ClaimWizard.ClaimLineItem>  claimLineItemClassList = claimWizardObj.VarianceLineItemList;
             map<Id,SO_Payment_Role__c> CategoryToSoPaymentRoleMap = new   map<Id,SO_Payment_Role__c>();
@@ -5152,14 +4665,11 @@ global with sharing class CustomerOrderCtrl {
                                     ClaimLineItemIdToSopayment.put(ClaimRecordsTosave.Id ,soPaymentRec );
                                     IdToClaimLineItemMap.put(ClaimRecordsTosave.Id ,ClaimRecordsTosave );
                                 }
-
                                 else if(ClaimLineItemVarianceRec.BillTo =='Internal'){
                                         if(CategoryToSoPaymentRoleMap.containsKey(ClaimRecordsTosave.Category__c)){
                                                 CategoryIdToClaimLineList.add(ClaimRecordsTosave);
                                         }
                                         else{
-
-
                                             SO_Payment_Role__c soPaymentRec = new SO_Payment_Role__c(Service_Order_Header__c = claimWizardObj.soHeaderId
                                             ,RecordTypeId = InternalRecordType,Status__c='Pending',Category__c = ClaimRecordsTosave.Category__c,
                                             Claim__c =ClaimRecordsTosave.Claim__c); 
@@ -5168,9 +4678,6 @@ global with sharing class CustomerOrderCtrl {
                                             }
                                         }
                                 }
-
-
-
                         }
                     }
                 
@@ -5181,13 +4688,11 @@ global with sharing class CustomerOrderCtrl {
                 if(CategoryToSoPaymentRoleMap.Size() > 0 ){
                     upsert CategoryToSoPaymentRoleMap.Values();  
                     
-
                     for(Claim_Line_Item__c claimLineItemRec :  CategoryIdToClaimLineList){
                             So_Payment_Role__C SopaymentRec = CategoryToSoPaymentRoleMap.get(claimLineItemRec.Category__c);
                             claimLineItemRec.SO_Payment_Role__c = SopaymentRec.Id;
                             ClaimLineItemListToUpdate.add(claimLineItemRec);
                      }
-
                     
                     update ClaimLineItemListToUpdate;
                 }
@@ -5207,16 +4712,13 @@ global with sharing class CustomerOrderCtrl {
                 List<SO_Payment_Role__c> SoPaymentAllList =[select Id,Total_Amount__c,Tax_Amount__c ,RecordType.DeveloperName,(select Id,Approved_Qty__c,Approved_Price__c,Tax__c,
                                                             Variance_Qty__c,Variance_Amount__c,
                                                             Total_Variance_Amount__c
-
                                                             from Claim_Line_items__r ) from SO_Payment_Role__c where 
                                                             Service_Order_Header__c =: soHeaderId  and RecordType.DeveloperName !='Deductible'];
 
             
-
                 List<SO_Payment_Role__c> SoPaymentListToDelete = new  List<SO_Payment_Role__c>();
                 List<SO_Payment_Role__c> SoPaymentListToUpdate = new  List<SO_Payment_Role__c>();
                 
-
                 for(SO_Payment_Role__c  SolPayemtRec : SoPaymentAllList){
                     if(SolPayemtRec.Claim_Line_Items__r.size()==0){
                         SoPaymentListToDelete.add(SolPayemtRec);
@@ -5238,16 +4740,14 @@ global with sharing class CustomerOrderCtrl {
      
      // create new Variance For SOLI's
      public Static String CreateNewVariance(String soHeaderId, String ClaimWizardJson){
-     	if(AccessControl.ifObjectFieldIsAccessible('Claim_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-     	if(AccessControl.ifObjectFieldIsAccessible('SO_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+     	List<String> objNames = new List<String>{'Claim_Line_Item__c', 'RecordType', 'SO_Payment_Role__c', 'Claim_Line_item__c'};
+    	if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
      	
-
      	if(AccessControl.ifObjectFieldIsCreateable('Claim_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 		if(AccessControl.ifObjectFieldIsUpdateable('Claim_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
      	if(AccessControl.ifObjectFieldIsUpdateable('Claim__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
      	if(AccessControl.ifObjectIsDeletable('Claim_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
      	
-
         ClaimWizard claimWizardObj = (ClaimWizard)System.JSON.deserialize(ClaimWizardJson, ClaimWizard.class);
         Claim__c claimRec =  new  Claim__c();
         claimRec.Id = claimWizardObj.ClaimId;
@@ -5277,7 +4777,6 @@ global with sharing class CustomerOrderCtrl {
                     if(claimLineItemRec.SO_Payment_Role__c !=null ){
                         SoPaymentRoleToUpdateSet.add(claimLineItemRec.SO_Payment_Role__c);
                     }
-
                     SoliToClaimLineItemMap.put(claimLineItemRec.Service_Order_Line_Item__c,claimLineItemRec );
                 }
         } 
@@ -5305,7 +4804,6 @@ global with sharing class CustomerOrderCtrl {
                 }
                 else{   
                             
-
                             claimLineItemRec.Id = claimLineItemobj.Id; 
                             claimLineItemRec.Approved_Price__c =  claimLineItemobj.ApprovedPrice;
                             claimLineItemRec.Approved_Qty__c   =  claimLineItemobj.ApprovedQty;  
@@ -5326,7 +4824,6 @@ global with sharing class CustomerOrderCtrl {
                                 claimLineItemVarRec.Tax__c   = claimLineItemobj.Tax;
                                 claimLineItemVarianceList.add(claimLineItemVarRec);
                                 
-
                             }
                             else{
                                  if(SoliToCaimVarinceLineItemMap.containsKey(claimLineItemobj.ServiceOrderLineItem)){
@@ -5340,7 +4837,6 @@ global with sharing class CustomerOrderCtrl {
         }
       
         
-
       
         if(claimLineItemList.size() > 0){
             upsert claimLineItemList;
@@ -5358,10 +4854,8 @@ global with sharing class CustomerOrderCtrl {
         List<SO_Payment_Role__c>  SoPaymentListToUpdate = ([select Id,Total_Amount__c,Tax_Amount__c ,RecordType.DeveloperName,(select Id,Approved_Qty__c,Approved_Price__c,Tax__c,
                                                             Variance_Qty__c,Variance_Amount__c,
                                                             Total_Variance_Amount__c
-
                                                             from Claim_Line_items__r)  From  SO_Payment_Role__c where Id IN:SoPaymentRoleToUpdateSet]);
             
-
        
        
         UpdateSoPaymentTotal(SoPaymentListToUpdate);
@@ -5372,13 +4866,10 @@ global with sharing class CustomerOrderCtrl {
     }
 
 
-
     public Static List<So_Payment_Role__c> UpdateSoPaymentTotal(List<So_Payment_Role__c> SoPaymentListToUpdate)
     {
     	if(AccessControl.ifObjectFieldIsUpdateable('SO_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
     	
-
-
         for(SO_Payment_Role__c SoRolePaymentRec :  SoPaymentListToUpdate){
             decimal Amount = 0.00;
             decimal Tax = 0.00; 
@@ -5388,24 +4879,18 @@ global with sharing class CustomerOrderCtrl {
                     Tax += (ClaimLineItemRec.Approved_Qty__c * ClaimLineItemRec.Approved_Price__c) *(ClaimLineItemRec.Tax__c/100);
                     
                 }
-
-
             }else if( SoRolePaymentRec.RecordType.DeveloperName == 'Customer'){
                 for(Claim_Line_item__c ClaimLineItemRec :  SoRolePaymentRec.Claim_Line_items__r){
                     Amount += ClaimLineItemRec.Total_Variance_Amount__c;
                     Tax += ClaimLineItemRec.Total_Variance_Amount__c *( ClaimLineItemRec.Tax__c/100);
                 }
             
-
-
             }else if(SoRolePaymentRec.RecordType.DeveloperName == 'Internal'){
                 for(Claim_Line_item__c ClaimLineItemRec :  SoRolePaymentRec.Claim_Line_items__r){
                     Amount += ClaimLineItemRec.Total_Variance_Amount__c;
                     Tax += ClaimLineItemRec.Total_Variance_Amount__c *(ClaimLineItemRec.Tax__c/100);
                 }
             }   
-
-
             SoRolePaymentRec.Total_Amount__c = Amount;
             SoRolePaymentRec.Tax_Amount__c = Tax;
         }
@@ -5416,5 +4901,4 @@ global with sharing class CustomerOrderCtrl {
         
         return SoPaymentListToUpdate;
     }
-
 }

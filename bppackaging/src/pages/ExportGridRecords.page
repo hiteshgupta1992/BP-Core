@@ -27,10 +27,10 @@
             }
             
             function debug(logString){
-                console.log(logString);
+                //console.log(logString);
             }
-			var PrevRecords = angular.module('prevRecords', ['ui-notification']);
-			PrevRecords.filter('tel', function () {
+            var PrevRecords = angular.module('prevRecords', ['ui-notification']);
+            PrevRecords.filter('tel', function () {
                 return function (tel) {
                     if (!tel) { return ''; }
             
@@ -48,27 +48,27 @@
                             city = value.slice(0, 3);
                             number = value.slice(3);
                             break;
-                            
+            
                         case 11: // +CPPP####### -> CCC (PP) ###-####
                             country = value[0];
                             city = value.slice(1, 4);
                             number = value.slice(4);
                             break;
-                            
+            
                         case 12: // +CCCPP####### -> CCC (PP) ###-####
                             country = value.slice(0, 3);
                             city = value.slice(3, 5);
                             number = value.slice(5);
                             break;
-                            
+            
                         default:  
                             return tel;
                     }
-                    
+            
                     if (country == 1) {
                         country = "";
                     }
-                    
+            
                     number = number.slice(0, 3) + '-' + number.slice(3);
             
                     return (country + " (" + city + ") " + number).trim();
@@ -120,7 +120,7 @@
                 // Get the filter JSON data
                 $scope.PreviewPage.getFilterJSONData = function() {
                     PreviewRecordsService.getFilterJSONData($scope.PreviewPage.filterId).then(function(successfulSearchResult) {
-                        console.log(successfulSearchResult);
+                        //console.log(successfulSearchResult);
                         if(successfulSearchResult != null) {
                             $scope.PreviewPage.filterFormJson = JSON.parse(successfulSearchResult.FieldFilterJson);
                             $scope.PreviewPage.objectsList = successfulSearchResult.ObjectList;
@@ -177,10 +177,10 @@
                                 // Sort records
                                 $scope.PreviewPage.sortGroupedRecords();
                                 
-                                console.log($scope.PreviewPage.gridGroupAggregateResult);
-                                console.log($scope.PreviewPage.gridGroupFieldValues);
-                                console.log($scope.PreviewPage.gridGroupedResult);
-                                console.log($scope.PreviewPage.columns.DisplayedColumns);
+                                //console.log($scope.PreviewPage.gridGroupAggregateResult);
+                                //console.log($scope.PreviewPage.gridGroupFieldValues);
+                                //console.log($scope.PreviewPage.gridGroupedResult);
+                                //console.log($scope.PreviewPage.columns.DisplayedColumns);
                                 
                                 $scope.PreviewPage.cleanExportModel();
                                 alasql('SELECT * INTO CSV("GridExport.csv") FROM ?',[$scope.PreviewPage.exportData]);

@@ -6,7 +6,7 @@
 **/
 public with sharing class BPUtility {
     
-    public static String getDecodedString(String str) {
+    public static String getDecodedString(String str) { 
     	if(String.isBlank(str)) {
 			return str;
 		}

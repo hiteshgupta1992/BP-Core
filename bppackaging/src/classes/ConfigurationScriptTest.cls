@@ -5,22 +5,22 @@ private class ConfigurationScriptTest {
         
         ConfigurationScript.runAll();
         
-        List<SearchConfigurations__c> searchConfigurations = [Select id From SearchConfigurations__c];
+        List<SearchConfigurations__c> searchConfigurations = [Select id From SearchConfigurations__c limit 100];
         System.assertEquals(9, searchConfigurations.size());
         
-        List<General_Configurations__c> generalConfigurations = [Select id, Related_List_Page_Size__c From General_Configurations__c];
+        List<General_Configurations__c> generalConfigurations = [Select id, Related_List_Page_Size__c From General_Configurations__c limit 100];
         System.assertEquals(25, generalConfigurations[0].Related_List_Page_Size__c);
         
-        List<Widget__c> widgets = [Select id From Widget__c];
+        List<Widget__c> widgets = [Select id From Widget__c limit 100];
         System.assertEquals(8, widgets .size());
         
-        List<Transaction_Type__c> transactionTypes = [Select id From Transaction_Type__c];
+        List<Transaction_Type__c> transactionTypes = [Select id From Transaction_Type__c limit 100];
         System.assertEquals(3, transactionTypes.size());
         
-        List<GL_Account__c> GL_Accounts = [Select id From GL_Account__c];
+        List<GL_Account__c> GL_Accounts = [Select id From GL_Account__c limit 100];
         System.assertEquals(4, GL_Accounts.size());
         
-        List<Accounting_Data_Migration__c> accountingDataMigrationList = [Select id From Accounting_Data_Migration__c];
+        List<Accounting_Data_Migration__c> accountingDataMigrationList = [Select id From Accounting_Data_Migration__c limit 100];
         System.assertEquals(7, accountingDataMigrationList.size());
     }
 }

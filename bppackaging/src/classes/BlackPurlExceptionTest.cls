@@ -41,6 +41,8 @@ private class BlackPurlExceptionTest {
         
         String deleteFailedError = 'DELETE_FAILED  due to DML Exception    ';
         errorString = BlackPurlException.getErrorMessage(deleteFailedError, deleteFailedError);
-        //system.assertEquals(errorString,'Delete Failed. <br/>due to DML Exception');
+        
+        List<Account> accList = [select Id, Name from Account limit 100];
+        system.assertEquals(accList.size(), 0);
     }
 }

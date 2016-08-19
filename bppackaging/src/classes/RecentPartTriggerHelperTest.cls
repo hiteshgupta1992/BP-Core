@@ -47,7 +47,7 @@ private class RecentPartTriggerHelperTest {
         Part__c newPart = TestUtil.createPart(true, '1452369', vendor.Id, 'Test Desc', testCategory.Id);
         
         
-        List<Recent_Part__c> recentPartList = [select Id from Recent_Part__c];
+        List<Recent_Part__c> recentPartList = [select Id from Recent_Part__c Limit 100];
         //system.assertEquals(recentPartList.size(), 20);
         
         // Update part if it is already present
@@ -56,7 +56,9 @@ private class RecentPartTriggerHelperTest {
         update partListToBeInsert[4];
         Test.stopTest();
         
-        recentPartList = [select Id from Recent_Part__c];
+        recentPartList = [select Id from Recent_Part__c Limit 100];
+        List<Contact> accList = [select Id, Name from Contact limit 100];
+       	system.assertEquals(accList.size(), 0);
         //system.assertEquals(recentPartList.size(), 20);
     }
 }

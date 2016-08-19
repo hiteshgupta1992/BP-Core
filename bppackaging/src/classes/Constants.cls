@@ -1381,28 +1381,4 @@ public with sharing class Constants {
                                                                                                 'IsCustomer' => 'Is_Customer__c',
                                                                                                 'IsVendor' => 'Is_Vendor__c'
                                                                                             };
-     public static Map<String, Integer> SOStatusToPriorityMap = new Map<String, Integer> {'New' => 1,
-                                                                                         'Ready' => 2,
-                                                                                         'In Progress' => 3,
-                                                                                         'Complete' => 4,
-                                                                                         'Reviewed' => 5};
-                                                                                         
-                                                                                         
-     public static Map<String, List<String>> workStatusToAvailableStatusMap = 
-                                new Map<String , List<String>> {'New'           =>  new List<String>{'Sign In', 'Force To Ready', 'Force To Checkout'},
-                                                                'Ready'         =>  new List<String>{'Start Progress', 'Get Customer Approval', 'Put On Hold'},
-                                                                'In Progress'   =>  new List<String>{'Log Service Work', 'Set As Complete', 'Get Customer Approval', 'Put On Hold'},
-                                                                'On Hold'       =>  new List<String>{'Start Progress', 'Get Customer Approval', 'Log Service Work'},
-                                                                'Complete'      =>  new List<String>{'Review Service', 'Re-Open For Work', 'Force To Reviewed'},
-                                                                'Reviewed'      =>  new List<String>{'Service Sign Out', 'Re-Open For Work', 'Force To Sign Out'},
-                                                                'Signed Out'    =>  new List<String>{'Go To CheckOut'},
-                                                                'Invoiced'      =>  new List<String>{}
-                                                            };
-     // ClaimStatus Map To Available Status                                                         
-    public static Map<String, List<String>> claimStatusToAvailableStatusMap = 
-                                new Map<String , List<String>> {'Unsubmitted'       =>  new List<String>{'Force Claim Submission'},
-                                                                'Ready to Submit'   =>  new List<String>{'Claim Submission'},
-                                                                'Submitted'         =>  new List<String>{'View Submitted Claim', 'Claim Response'},
-                                                                'Approved'          =>  new List<String>{'View Claim Response'}
-                                                               };
 }

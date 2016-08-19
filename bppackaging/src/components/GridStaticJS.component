@@ -11,6 +11,7 @@
     <script>
         // Method to display confirm box
         function confirmAction(actionTitle, actionMsg, callBackMethod){
+        	//actionMsg = escapeHTML(actionMsg);
         	var kendoWindow = prepareConfirmDialog(actionTitle, actionMsg);
 		    openConfirmDialog(kendoWindow, callBackMethod);
         }
@@ -18,6 +19,7 @@
         // Method to display confirm box
         // Method has additional parameter: Yes and No button text
     	function confirmActionCustomized(actionTitle, actionMsg, callBackMethod, yesButtonText, noButtonText){
+    		//actionMsg = escapeHTML(actionMsg);
     		var kendoWindow = prepareConfirmDialog(actionTitle, actionMsg);
     		$(".confirm_Global").text(yesButtonText);
     		$(".cancel_Global").text(noButtonText);
@@ -25,6 +27,7 @@
     	}
     	
     	function prepareConfirmDialog(actionTitle, actionMsg){
+    		//actionMsg = escapeHTML(actionMsg);
     		if(actionTitle == null){
         		actionTitle = "";
         	}
@@ -75,6 +78,7 @@
 		
     <script>
         function popupAction(actionTitle, actionMsg){
+        	//actionMsg = escapeHTML(actionMsg);
         	if(actionTitle == null){
         		actionTitle = "";
         	}
@@ -173,7 +177,7 @@
 				if(prevDefaultUniqueName.length > 0){
 					var confirmMsg = gridRecordName;
 					if(currRowActive){
-						confirmMsg += 'default will be changed from "' + prevDefaultUniqueName + '" to "' + currRowUniqueName + '".' + '\n';
+						confirmMsg += 'default will be changed from "' + escapeHTML(prevDefaultUniqueName) + '" to "' + escapeHTML(currRowUniqueName) + '".' + '\n';
 					}else{
 						confirmMsg += '\n' + 'record will be marked as ACTIVE and set to DEFAULT.' + '\n';
 					}
@@ -184,7 +188,7 @@
 											  	);
 				}
 			}else{
-				showPopupNotification('Cannot deselect a default '+ gridRecordName +' record.', 'error');
+				showPopupNotification('Cannot deselect a default '+ escapeHTML(gridRecordName) +' record.', 'error');
 				currElem.checked = true;
 				
 				var gridDataSource = $("#" + gridId).data("kendoGrid").dataSource;
@@ -223,6 +227,8 @@
 					}
 				}
 			};
+			
+			//confirmMsg = escapeHTML(confirmMsg); 
 			confirmAction("Confirm Update", confirmMsg, confirmUpdateDefault);
 		}
 	</script>

@@ -743,6 +743,7 @@ public with sharing class TestUtil {
      * @return: inserted CO Header record
     **/
     public static User createUser(boolean isInsert, String email, String lastName, String localeSidKey, String userName, String alias, String timeZoneSidKey) {
+    	if(AccessControl.ifObjectFieldIsAccessible('Profile') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(!Test.isRunningTest() && AccessControl.ifObjectFieldIsCreateable('User') == false) {throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
         User testUser = new User();
         Profile p = [SELECT Id FROM Profile WHERE Name='System Administrator']; 
@@ -1560,49 +1561,5 @@ public with sharing class TestUtil {
    		General_Configurations__c genConfig = General_Configurations__c.getInstance();
    		genConfig.Namespace__c = getNamespace('TestUtil');
    		insert genConfig;
-    }
-      
-       /**
-     * Name: createtaxsettingInGeneralConfig
-     * Desc: Method to set tax setting
-     * @return: 
-    **/
-   	public static void createtaxsettingInGeneralConfig() {
-   		if(!Test.isRunningTest() && AccessControl.ifObjectFieldIsCreateable('Configurations__c') == false) {throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
-   		Configurations__c taxSetting = Configurations__c.getOrgDefaults();
-   		taxSetting.Tax_Included_Pricing__c = true;
-   		insert taxSetting;
-    }
-    
-           /**
-     * Name: createtaxsettingInGeneralConfigA
-     * Desc: Method to set tax setting
-     * @return: 
-    **/
-   	public static void createtaxsettingInGeneralConfigA() {
-   		if(!Test.isRunningTest() && AccessControl.ifObjectFieldIsCreateable('Configurations__c') == false) {throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
-   		Configurations__c taxSetting = Configurations__c.getOrgDefaults();
-   		taxSetting.Tax_Included_Pricing__c = false;
-   		insert taxSetting;
-    }
-    
-    /**
-     * Name: createTaxExemption
-     * Desc: Method to taxexemption
-     * @param:  boolean isInsert - if record is inserted
-     *          String customer - customer ID
-     *          String salesTaxItem - salestaxItemId
-     * @return: inserted CO Header record
-    **/
-    public static Tax_Exemption__c createTaxExemption(boolean isInsert, String custId, String salestaxItemId) {
-        if(!Test.isRunningTest() && AccessControl.ifObjectFieldIsCreateable('Tax_Exemption__c') == false) {throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
-        Tax_Exemption__c TaxExemption = new Tax_Exemption__c();
-        TaxExemption.Customer__c = custId;
-        TaxExemption.Sales_Tax_Item__c = salestaxItemId;
-         
-        if(isInsert) {
-            insert TaxExemption;
-        }
-        return TaxExemption;
     }
 }

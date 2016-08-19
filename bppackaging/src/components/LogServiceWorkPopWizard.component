@@ -275,8 +275,8 @@
            $scope.AddEditHourLog.clearAllData = function () {
                 $scope.AddEditHourLog.HourLogModel.WorkPerformedDate = $scope.AddEditHourLog.getCurrentDate();
                 
-                $scope.AddEditHourLog.HourLogModel.EmployeeName = "{!$User.FirstName} {!$User.LastName}";
-                $scope.AddEditHourLog.HourLogModel.EmployeeId = '{!$User.Id}';
+                $scope.AddEditHourLog.HourLogModel.EmployeeName = "{!JSENCODE($User.FirstName)} {!JSENCODE($User.LastName)}";
+                $scope.AddEditHourLog.HourLogModel.EmployeeId = '{!JSENCODE($User.Id)}';
                 $scope.AddEditHourLog.HourLogModel.Notes = '';
                 $scope.AddEditHourLog.HourLogModel.TimeSpent_D = 0;
                 $scope.AddEditHourLog.HourLogModel.TimeSpent_M = 0;

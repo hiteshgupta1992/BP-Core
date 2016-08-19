@@ -8,28 +8,28 @@
         </head>
         
         <script type="text/javascript">
-            var MAX_RECORDS = 10000;
+            var MAX_RECORDS = 100000;
             
             function encodeString(inputString){
-	            if(inputString == null) {
-	                return inputString;
-	            }
-	            var outputString = window.btoa(inputString);
-	            return outputString;
-	        }
-	        
-	        function decodeString(inputString){
-	            if(inputString == null) {
-	                return inputString;
-	            }
-	            var outputString = window.atob(inputString);
-	            return outputString;
-	        }
-	        
-	        function debug(logString){
-	            console.log(logString);
-	        }
-	        
+                if(inputString == null) {
+                    return inputString;
+                }
+                var outputString = window.btoa(inputString);
+                return outputString;
+            }
+            
+            function decodeString(inputString){
+                if(inputString == null) {
+                    return inputString;
+                }
+                var outputString = window.atob(inputString);
+                return outputString;
+            }
+            
+            function debug(logString){
+                //console.log(logString);
+            }
+            
             var PrevRecords = angular.module('prevRecords', ['ui-notification']);
             PrevRecords.filter('tel', function () {
                 return function (tel) {
@@ -440,9 +440,9 @@
                 // Get the report data based on filters
                 this.getReportData = function(filterJSON, selectedObjName, uniqueValueFieldLastValue)
                 {   
-                	filterJSON = encodeString(filterJSON);
-                	selectedObjName = encodeString(selectedObjName);
-                	uniqueValueFieldLastValue = encodeString(uniqueValueFieldLastValue);
+                    filterJSON = encodeString(filterJSON);
+                    selectedObjName = encodeString(selectedObjName);
+                    uniqueValueFieldLastValue = encodeString(uniqueValueFieldLastValue);
                     var deferred = $q.defer();
                     Visualforce.remoting.Manager.invokeAction(
                         '{!$RemoteAction.PreviewGridRecordsCtrl.getReportData}', filterJSON, selectedObjName, uniqueValueFieldLastValue,
@@ -464,7 +464,7 @@
                 
                 // Get the filter data for preview records display
                 this.getFilterJSONData = function (filterId) {
-                	filterId = encodeString(filterId);
+                    filterId = encodeString(filterId);
                     var deferred = $q.defer();
                     // make AJAX request to the remote service
                     Visualforce.remoting.Manager.invokeAction(
@@ -487,7 +487,7 @@
                 
                 // Get the filter data for preview records display
                 this.deleteRawFilterData = function (filterId) {
-                	filterId = encodeString(filterId);
+                    filterId = encodeString(filterId);
                     var deferred = $q.defer();
                     // make AJAX request to the remote service
                     Visualforce.remoting.Manager.invokeAction(

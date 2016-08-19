@@ -3,4 +3,9 @@
     <apiVersion>30.0</apiVersion>
     <description>Component populates list grid for Sales Taxes and related Sales Tax Items together in hierarchy form.</description>
     <label>SalesTaxesList</label>
+    <packageVersions>
+        <majorNumber>1</majorNumber>
+        <minorNumber>7</minorNumber>
+        <namespace>sf_com_apps</namespace>
+    </packageVersions>
 </ApexComponent>

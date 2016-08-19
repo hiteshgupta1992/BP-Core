@@ -3,6 +3,9 @@ private class PartFifoBucketTest {
     @testSetup
     private static void setupTestData() {
         TestUtil.createNameSpaceInGeneralConfig();
+        
+		List<General_Configurations__c> config = [SELECT Id FROM General_Configurations__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
+		System.assertNotEquals(0, config.size());
     }
     static testMethod void PartFIFOBucketTest() {
         Account customer = TestUtil.createCustomer(true, 'testcustomer', 'customer@gmail.com', 'Jaipur', '8058704475');
@@ -30,5 +33,7 @@ private class PartFifoBucketTest {
         partActivityLineitem.Part_FIFO_Bucket__c = partObject1.id;
         partActivityLineitem.Qty_Out__c = 20;
         */
+        List<Contact> accList = [select Id, Name from Contact limit 100];
+	    system.assertEquals(accList.size(), 0);
     }
 }

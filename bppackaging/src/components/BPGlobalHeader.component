@@ -1,16 +1,16 @@
 <apex:component controller="BPGlobalHeaderCtrl">
     <!-- Parts Component -->
     <c:NewAddEditparts />
-    <!-- <c:AddEditVendor /> -->
-    <c:NewAddEditVendor />
-    <c:AddEditLabour />  
+    <c:AddEditVendor />
+    <c:AddEditLabour />
     <c:AddEditFee />
     <c:AddEditKit />
     <c:AutoCompleteSuggestion />
-    <c:NewAddEditCustomer />
+    <c:AddEditCustomer rendered="{!If($Setup.General_Configurations__c.Load_New_UI__c, false, !$Setup.General_Configurations__c.Load_New_View_Customer__c)}"/>
+    <c:NewAddEditCustomer rendered="{!If($Setup.General_Configurations__c.Load_New_UI__c, true, $Setup.General_Configurations__c.Load_New_View_Customer__c)}"/>
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-animate.min.js"></script>
-       
-    <style> 
+	
+    <style>
         .headerRow{
             margin-left: 0px;
             margin-right: 0px;
@@ -79,8 +79,8 @@
         .dropdown_div .createBtn,
         .dropdown_div .createBtn:focus,
         .dropdown_div .createBtn:active{
-            background: #00AEEF  !important;
-            color: #FFF !important;
+            background: #959FAB !important;
+            color: #353A3E !important;
             border-radius: 2px;
             padding: 3px 12px;
             margin: 0 15px;
@@ -186,14 +186,6 @@
 		.modal {
 			z-index : 1100;		
 		}
-    	#SearchText_ConfirmBox  .custom_modal{
-            box-shadow: none;
-        }
-    
-		#SearchText_ConfirmBox .modal-content{
-			width: 500px;
-    		left: 20%;
-		}
 		/* 
 		.animate-hide {
 		 -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
@@ -282,69 +274,27 @@
 			color: #00AEEF;
 		}
 		
-		.setting_but{
-			float: left;
-		    margin-top: 14px;
-		    font-size: 20px;
-		    color: #939CA9;
-		    cursor: pointer;
-		}
-		.upgrate_but{
-			float: left;
-		    padding: 3px 12px;
-		    margin-top: 11px;
-		}
-		
-		/* Added by pooja */
-		.dropdown_div1	{
-			padding: 8px 0;
-		}
 		/* side bar CSS*/
       </style>
       
       <script>
-      
-      	/* commented by pooja */
-         $(document).ready(function(){
-        	
+        $(document).ready(function(){
             $('#searchIconOnly').click(function(){
                 $(this).hide();
                 $('#searchInputDiv').animate({width:'toggle'},350);
-                $('#HeaderSearchInput').focus();
             });
             $('#HeaderSearchIcon').click(function(){
                 angular.element('#searchInputDiv').animate({width:'toggle'},350 , function(){
                     angular.element('#searchIconOnly').show();
                 });
-            }); 
-        }); 
+            });
+        });
         
-        var BPGlobalHeader = angular.module('BPGlobalHeader', ['addEditPartModule', 'addEditLabourModule','addEditFeeModule', 'autocomplete','addEditVendorModule', 'addEditCustomerModule', 'addEditKitModule', 'ngAnimate']);/*, 'globalSearchModule' *//* Added by pooja */
+        var BPGlobalHeader = angular.module('BPGlobalHeader', ['addEditPartModule', 'addEditLabourModule','addEditFeeModule', 'autocomplete','addEditVendorModule', 'addEditCustomerModule', 'addEditKitModule', 'ngAnimate']);
         
-        BPGlobalHeader.controller('BPGlobalHeader', function ($scope,$rootScope, $q, NavigationService,$timeout, $document) {
-        
-        	/* Start: Added by pooja */
-        	/* $document.ready(function(){
-        	
-	            $('#searchIconOnly').click(function(){
-	            	$scope.$broadcast('searchIconClickEvent', "open search InputDiv");
-	                $(this).hide();
-	                $('#searchInputDiv').animate({width:'toggle'},350);
-	                /* $('#HeaderSearchInput').focus(); */
-	               /*  $('#globalSearchStrInput').focus();
-	                
-	            });
-	            $('#HeaderSearchIcon').click(function(){
-	                angular.element('#searchInputDiv').animate({width:'toggle'},350 , function(){
-	                    angular.element('#searchIconOnly').show();
-	                });
-	            }); 
-	        }); */
-        	/* End: Added by pooja */
-        
+        BPGlobalHeader.controller('BPGlobalHeader', function ($scope,$rootScope, $q, NavigationService,$timeout) {
             $scope.BPGlobalHeader = {};
             $scope.CustomerModal = {};
-           	$scope.BPGlobalHeader.IsTrialOrg = {!IsTrialOrg}; 
             $scope.BPGlobalHeader.showNotificationSidePanel = false;
             $scope.BPGlobalHeader.initialize =function(){
                 var currentdate = new Date(); 
@@ -358,15 +308,15 @@
             
             // Navigation Methods
             $scope.BPGlobalHeader.createCOHeader = function(){
+                var isNewCOHeader = {!Load_New_UI} ? true : false; 
                 $scope.BPGlobalHeader.closeCreateDropDown();
              	window.open("{!$Page.NewCustomerOrder}", "_blank");
             }
             
             
-            
             $scope.BPGlobalHeader.createVOHeader = function(){
             	$scope.BPGlobalHeader.closeCreateDropDown();
-                window.open("{!$Page.NewVendorOrder}","_blank");
+            	window.open("{!$Page.VendorOrder}","_blank");
                 /*NavigationService.createVOHeader().then(
                     function(successResult){
                     },
@@ -376,38 +326,24 @@
             
             $scope.BPGlobalHeader.createVOReceiving = function(){
             	$scope.BPGlobalHeader.closeCreateDropDown();
-                window.open("{!$Page.NewVendorOrderReceiving}", "_blank");
+            	window.open("{!$Page.VendorOrderReceiving}", "_blank");
                 /*NavigationService.createVOReceivingHeader().then(
                     function(successResult){
                 		window.open("{!$Page.VendorOrderReceiving}?id="+successResult,"_blank");        
                     },
                     function(errorResult){
                     });*/
-            } 
+            }
             
             $scope.BPGlobalHeader.createVOInvoicing = function(){
             	$scope.BPGlobalHeader.closeCreateDropDown();
-                window.open("{!$Page.NewVendorOrderInvoicing}", "_blank");
+            	window.open("{!$Page.VendorOrderInvoicing}", "_blank");
                 /*NavigationService.createVOInvoicing().then(
                     function(successResult){
                         window.open("{!$Page.VendorOrderInvoicing}?id="+successResult,"_blank");
                     },
                     function(errorResult){
                     });*/
-            }
-            
-            
-            $scope.BPGlobalHeader.upgradeNow = function(){
-            	var currentPageName = '{!$CurrentPage.Name}';
-            	var userSettingPageName = 'UserSettings';
-            	if(currentPageName.toUpperCase() === userSettingPageName.toUpperCase()){
-            		$rootScope.$broadcast('UpgradeAccount');
-            	}else{
-	            	var url = "{!$Page.UserSettings}#/Billing";
-	            	window.open(url, "_self");
-            	}
-            	
-            	
             }
             
             $scope.BPGlobalHeader.closeCreateDropDown = function(){
@@ -437,7 +373,7 @@
             // START: KIT POPUP ATTRS AND METHODS
             $scope.BPGlobalHeader.createKit = function() {
             	$scope.BPGlobalHeader.closeCreateDropDown();
-                
+                debug('HIiii');
                 $rootScope.$broadcast('AddKitEvent');
             }
             
@@ -459,11 +395,7 @@
                 ) {
                     var currentPageName = '{!$CurrentPage.Name}';
                     if(currentPageName.indexOf('HomeSearch') == -1){
-						if(currentPageName.toUpperCase() == 'newHomePage'.toUpperCase()){
-                    		$scope.BPGlobalHeader.ConfirmBox_Response(true);
-                    	}else{
-                        	$scope.BPGlobalHeader.ShowConfirmBox();
-                        }
+                        $scope.BPGlobalHeader.ShowConfirmBox();
                     } else {
                         $scope.BPGlobalHeader.textToSearch = $scope.BPGlobalHeader.TopLevelTextToSearch;
                         angular.element('#searchInputDiv').animate({width:'toggle'},350 , function(){
@@ -503,21 +435,14 @@
 		        }else if(linkId == 'My_Profile'){
 		        	window.open("/{!$user.Id}","_self");
 		        }else if(linkId == 'Setting'){
-		        	window.open("{!$Page.UserSettings}","_self");
+		        	window.open("{!$Page.BlackPurlHome}","_self");
 		        }
 	        
 	        }
             
             // Confimation box popup
             $scope.BPGlobalHeader.ShowConfirmBox = function() {
-                //angular.element('#SearchText_ConfirmBox').show();
-                angular.element('#SearchText_ConfirmBox').modal({
-					backdrop : 'static',
-					keyboard : false
-				});
-				setTimeout(function(){
-					angular.element('#SearchText_ConfirmBox .YesBtn').focus();
-				}, 1000);
+                angular.element('#SearchText_ConfirmBox').show();
             }
             
             $scope.BPGlobalHeader.toggleNotificationSidePanel = function(){
@@ -531,56 +456,18 @@
                     $scope.BPGlobalHeader.textToSearch = $scope.BPGlobalHeader.TopLevelTextToSearch;
                     angular.element('#searchInputDiv').animate({width:'toggle'},350 , function(){
                         angular.element('#searchIconOnly').show();
-						if($scope.BPGlobalHeader.TopLevelTextToSearch == undefined || $scope.BPGlobalHeader.TopLevelTextToSearch == ''){
-                        	window.open("{!$Page.HomeSearch}","_self");
-                        }else{ 
-                        	window.open("{!$Page.HomeSearch}?q="+$scope.BPGlobalHeader.textToSearch,"_self");
-                        }
+                        window.open("{!$Page.HomeSearch}?q="+$scope.BPGlobalHeader.textToSearch,"_self");
                     });
                 } else {
-                    /* commented by pooja */
-                     angular.element('#HeaderSearchInput').focus(); 
-                    /* Added by pooja */
-                    /* $('#globalSearchStrInput').focus(); */
+                    angular.element('#HeaderSearchInput').focus();
                 }
             
-                //angular.element('#SearchText_ConfirmBox').hide();
-                angular.element('#SearchText_ConfirmBox').modal('hide');
+                angular.element('#SearchText_ConfirmBox').hide();
             }
 
             var getKeyboardEventResult = function(keyEvent) {
                 return (window.event ? keyEvent.keyCode : keyEvent.which);
             };
-            
-            
-            /*Start: Added by pooja */
-            /* $scope.globalSearchModal = {};
-            angular.element('#searchIconOnly').click(function(){
-            	
-            	debug($scope.globalSearchModal.showDropdown+"--------------------------");
-            	debug($scope.globalSearchModal.results+"------------------------------");
-            	debug($scope.globalSearchModal.globalSearchStr+"------------------------------");
-            	//$scope.globalSearchModal.showDropdown = false;
-	            $scope.globalSearchModal.results = [];
-	            $scope.globalSearchModal.globalSearchStr = "";
-	            
-                angular.element(this).hide();
-                angular.element('#searchInputDiv').animate({width:'toggle'},350);
-                angular.element('#HeaderSearchInput').focus();
-                debug($scope.globalSearchModal.showDropdown+"--------------------------");
-            	debug($scope.globalSearchModal.results+"------------------------------");
-            	debug($scope.globalSearchModal.globalSearchStr+"------------------------------");
-            });
-            angular.element('#HeaderSearchIcon').click(function(){
-            	debug($scope.globalSearchModal.showDropdown+"--------------------------");
-            	debug($scope.globalSearchModal.results+"------------------------------");
-            	debug($scope.globalSearchModal.globalSearchStr+"------------------------------");
-                angular.element('#searchInputDiv').animate({width:'toggle'},350 , function(){
-                    angular.element('#searchIconOnly').show();
-                });
-            }); */
-            /*End: Added by pooja */
-            
         });
         
         BPGlobalHeader.service("NavigationService", function ($q) {
@@ -672,9 +559,8 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         </button>
-                        <a class="navbar-brand" href="{!URLFOR($Page.newHomePage)}" >
-                            <!-- <img src="https://c.na31.content.force.com/servlet/servlet.ImageServer?id=015370000000iWd&oid=00D37000000I3Xh&lastMod=1435654538000" /> -->
-                            <img src="{!URLFOR($Resource.Images, 'servlet.png')}" />
+                        <a class="navbar-brand" href="{!URLFOR($Page.HomePage)}" >
+                            <img src="https://c.na31.content.force.com/servlet/servlet.ImageServer?id=015370000000iWd&oid=00D37000000I3Xh&lastMod=1435654538000" />
                         </a>
                         
                             
@@ -682,43 +568,32 @@
                     </div>
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <div class="col-md-6 col-lg-7">
-                           <!--  <div class="dropdown_div">
+                            <div class="dropdown_div">
                                 <button type="button" class="btn btn-default dropdown-toggle" 	 ng-click="BPGlobalHeader.toggleNotificationSidePanel()">
                                 <i class="fa fa-bars"></i>
-                                </button> -->
+                                </button>
                               <!--   <ul class="header_dropdown dropdown-menu keep_open">
                                    <li><a href="{!URLFOR($Page.HomeSearch)}">Grid Search</a></li>
                                    <li><a href="#">System Settings</a></li>
                                 </ul> -->
-                            <!-- </div> -->
+                            </div>
                             <div class="dropdown_div">
                                 <i class="fa fa-search fa-flip-horizontal" id="searchIconOnly"></i>
                             </div>
-                            <div class="dropdown_div col-md-11 override_search dropdown_div1" id="searchInputDiv">
+                            <div class="dropdown_div col-md-11 override_search" id="searchInputDiv">
                                 <div class="inner-addon left-addon">
                                     <i class="fa fa-search fa-flip-horizontal" id="HeaderSearchIcon"></i>
-                                    
-                                     <!-- commented by pooja -->
-                                     <input id="HeaderSearchInput" class="header-search form-control" placeholder="Search BlackPurl" type="text" 
+                                    <input id="HeaderSearchInput" class="header-search form-control" placeholder="Search BlackPurl" type="text" 
                                         ng-model="BPGlobalHeader.TopLevelTextToSearch"
                                         ng-keyup="BPGlobalHeader.searchText($event);" />
-                                        
-                                    <!-- added by pooja -->    
-                                    <!-- <c:GlobalSearch /> -->
-                                    
                                 </div>
                             </div>
                         </div>
                        
                        
                         <div class="nav navbar-nav navbar-right">
-                        	  <button class="btn btn-default greenBtn upgrate_but"
-                        	  		ng-if="BPGlobalHeader.IsTrialOrg"
-                        	  		ng-click="BPGlobalHeader.upgradeNow()">
-                                             Upgrade Now
-                              </button>
                             <div class="dropdown_div">
-                                <button type="button" class="createBtn btn btn-default dropdown-toggle" data-toggle="dropdown">Create</button>
+                                <button type="button" class="createBtn btn btn-default dropdown-toggle" data-toggle="dropdown">CREATE</button>
                                 <div class="header_dropdown dropdown-menu keep_open" style="margin-left: -16px;">
                                    <div class="panel list-group">
                                      <a class="list-group-item" ng-click="BPGlobalHeader.createCOHeader()">Customer Order</a>
@@ -766,7 +641,6 @@
                                     </div>
                                     
                                 </div>
-                            
                             </div>
                             
                             <!-- 
@@ -793,10 +667,6 @@
                                 </ul>
                             </div>
                              -->
-                            <i class="fa fa-cog setting_but" ng-click = "BPGlobalHeader.navigateTo('Setting')" 
-                            	data-toggle="tooltip"
-									title="Settings"
-                            ></i>
                             <div class="dropdown_div">
                                 <button type="button" data-toggle="dropdown" class="btn btn-default dropdown-toggle" style="padding: 0 12px;">
                                     <img src="{!CurrentUserImageURL}" style="height:26px;" />
@@ -809,7 +679,7 @@
             
             
             <!-- Side panel start -->
-           <!--   <div class="pull-left col-md-2 P0 showmainSidepanel"   ng-show = "BPGlobalHeader.showNotificationSidePanel">
+             <div class="pull-left col-md-2 P0 showmainSidepanel"   ng-show = "BPGlobalHeader.showNotificationSidePanel">
                <div class="pull-left P0 slideSidepanel "  >  
                    <div class="P0 col-md-12 MB2 navbar-default" >
                             <div class="homeSearchFilterListwrapper P0 col-md-12 filterWrapper"   >
@@ -959,15 +829,15 @@
                     </div>
                </div>
                     
-               </div> 
-             -->
+               </div>
+            
             <!-- Side panel End -->
             <div class="mymodal modal-fullscreen fade backdropsNotificationSidePanel" ng-show = "BPGlobalHeader.showNotificationSidePanel" 
             	ng-click="BPGlobalHeader.toggleNotificationSidePanel()"></div>
             
             <!-- START: Vendor Order Stock excess confirmation   block -->
-            <div class="modal fade" id="SearchText_ConfirmBox">
-                <div class="modal-dialog custom_modal">
+            <div class="ConfirmBox-overlay" id="SearchText_ConfirmBox" style="position:fixed;top:200px;">
+                <div>
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" aria-label="Close"
@@ -981,7 +851,7 @@
                             <br /> Are you sure, you want to continue?
                         </div>
                         <div class="modal-footer">   
-                            <button type="button" class="btn btn-primary YesBtn"
+                            <button type="button" class="btn btn-primary"
                                 ng-click="BPGlobalHeader.ConfirmBox_Response(true)">Yes</button>
                             <button type="button" class="btn btn-default"
                                 ng-click="BPGlobalHeader.ConfirmBox_Response(false)">No</button>

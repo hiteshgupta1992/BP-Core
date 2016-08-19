@@ -3,4 +3,9 @@
     <apiVersion>15.0</apiVersion>
     <description>AddEditFee</description>
     <label>AddEditFee</label>
+    <packageVersions>
+        <majorNumber>1</majorNumber>
+        <minorNumber>7</minorNumber>
+        <namespace>sf_com_apps</namespace>
+    </packageVersions>
 </ApexComponent>

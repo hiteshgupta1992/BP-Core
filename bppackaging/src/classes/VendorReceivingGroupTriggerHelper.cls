@@ -51,7 +51,9 @@ public with sharing class VendorReceivingGroupTriggerHelper {
     	List<Vendor_Receiving_Group__c> recsList = (Trigger.isDelete) ? oldList : newList;
     	Map<Id, Vendor_Receiving_Group__c> recsMap = (Trigger.isDelete) ? oldMap : newMap;
     	
-    	if(AccessControl.ifObjectIsAccessible('Vendor_Order_Line_Item__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
+    	List<String> objNames = new List<String>{'Vendor_Order_Line_Item__c', 'Vendor_Receiving_Group__c', 'Vendor_Order_Line_Item_Group__c', 'Vendor_Receiving_Stock_Excess__c'};
+    	if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	
     	List<Vendor_Order_Line_Item__c> volis = [Select Id, 
     													Vendor_Order_Line_Item_Group__c,
     													Vendor_Order_Line_Item_Group__r.Vendor_Order_Header__c,
@@ -72,7 +74,6 @@ public with sharing class VendorReceivingGroupTriggerHelper {
     													order by Vendor_Order_Line_Item_Group__r.Vendor_Order_Header__r.Name
     											];
     	
-    	if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Stock_Excess__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
     	List<Vendor_Receiving_Stock_Excess__c> stockExcesses = [Select  Id, 
     																	Vendor_Order_Line_Item_Group__c,
     																	Vendor_Receiving_Group__c,
@@ -144,7 +145,7 @@ public with sharing class VendorReceivingGroupTriggerHelper {
     			volisToUpdate.addAll(receivingVolis);
     		} else {
     			Id vogId = (receivingVolis != null && receivingVolis.size() > 0) ? receivingVolis[0].Vendor_Order_Line_Item_Group__c : null;
-    			decimal differenceQty = vrg.Recieved__c - (receivingGroupIdToTotalNeedMap.get(vrg.Id) == null ? 0 :  receivingGroupIdToTotalNeedMap.get(vrg.Id));
+    			decimal differenceQty = vrg.Recieved__c - receivingGroupIdToTotalNeedMap.get(vrg.Id);
     			String mapKey = vrg.Id + '-' + vogId;
     			
     			// There are 2 cases need to handled here:
@@ -257,7 +258,9 @@ public with sharing class VendorReceivingGroupTriggerHelper {
    	}
     
     private static void updateVRTotalByVRLIG(List<Vendor_Receiving_Group__c> vrgList) {
-    	if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Group__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
+    	List<String> objNames = new List<String>{'Vendor_Receiving_Group__c', 'Vendor_Receiving_Header__c'};
+    	if(AccessControl.ifObjectFieldIsAccessible(objNames) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	
     	List<Vendor_Receiving_Group__c> vrgRecList = [Select Vendor_Receiving_Header__c From Vendor_Receiving_Group__c where Id IN: vrgList];
     	Set<Id> vrHeaderIdSet = new Set<Id>();
     	Set<Id> deletedVRGSet = new Set<Id>();
@@ -269,7 +272,6 @@ public with sharing class VendorReceivingGroupTriggerHelper {
     		}
     	}
     	
-    	if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
     	List<Vendor_Receiving_Header__c> vrHeaderList = [Select Receiving_Total__c, (Select Cost__c, Recieved__c, Total__c From Vendor_Receiving_Groups__r) From Vendor_Receiving_Header__c
     																WHERE Id IN : vrHeaderIdSet];
     																
@@ -287,7 +289,7 @@ public with sharing class VendorReceivingGroupTriggerHelper {
     		}
     		
     		vrHeaderRec.Receiving_Total__c = total;
-    	}												 		
+    	}														
     	
     	if(vrHeaderList.size() > 0) {
     		if(AccessControl.ifObjectIsUpdateable('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}

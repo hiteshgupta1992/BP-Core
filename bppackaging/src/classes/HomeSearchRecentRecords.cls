@@ -63,11 +63,12 @@ public with sharing class HomeSearchRecentRecords {
 	}
 	
 	private static List<RecentlyViewed> getRecentViewedRecords(PaginationSorting pageAndSortMapping, String objectTypeSortDirection){
+    	 objectTypeSortDirection = BPUtility.escapeSingleQuotes(objectTypeSortDirection );
     	Set<String> objectSet = HomeSearchUtil.searchableObjectToFieldsMap.keySet();
     	List<RecentlyViewed> recentlyViwedRecords = new List<RecentlyViewed>();
     	 if(AccessControl.ifObjectFieldIsAccessible('RecentlyViewed') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		String query = 'SELECT Id FROM RecentlyViewed WHERE Type IN : objectSet';
-		objectTypeSortDirection = BPUtility.escapeSingleQuotes(objectTypeSortDirection);
+		
 		String orderByClause = ' ORDER BY';
 		if( objectTypeSortDirection != null ){
 			orderByClause += ' Type ' + objectTypeSortDirection;

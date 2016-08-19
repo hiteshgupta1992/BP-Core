@@ -1,6 +1,6 @@
 <apex:component controller="PartOverviewCtrl">
     <!-- Include Styles for component here -->
-    <c:AddEditPartsStyles UID="AddNewPart"/>
+    <c:AddEditParts_Styles UID="AddNewPart"/>
     
     <!-- Include required directives -->
     <!-- Directive for price fields -->
@@ -666,7 +666,7 @@
                             Notification.error('{!JSENCODE($Label.Part_Already_Exits)}');
                             return
                     }
-                    // If parent page has part save callback method, then perform the method and close popup 
+                    // If parent page has part save callback method, then perform the method and close popup
                     if($scope.$parent.partRecordSaveCallback != undefined){
                         $scope.$parent.partRecordSaveCallback();
                        
@@ -680,7 +680,7 @@
 			           	}
                     	
                     }
-                     Notification.success('{!JSENCODE($Label.Part_Saved_Successfully)}');
+                     Notification.success('{!JSENCODE($Label.Part_Saved_SucessFully)}');
                     $scope.PartCompModal.closePopup();
                 }, function(errorSearchResult) {
                     //$scope.ViewCustomer.CustomerInfo = errorSearchResult;

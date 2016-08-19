@@ -133,11 +133,10 @@
             white-space: nowrap !important;
         }
         
-        .k-grid table thead th.k-header, k-header{
+        .k-grid th.k-header, k-header{
             overflow: visible !important;
             white-space: normal !important;
             text-overflow: none !important;
-            background-color: #00AEEF!important;
         }
         
         .k-grid {
@@ -496,24 +495,5 @@
         #vendorDetails .k-textbox{
             width: 160px;
         }
-         .k-list-container > ul >li,.k-state-default,.k-tabstrip-items .k-state-default .k-link{
-        	color:#00AEEF !important;
-        }
-        #headerButton .k-button,  .k-state-hover,.k-dropdown-wrap>.k-input,.k-select, .k-state-hover:hover, .k-splitbar-vertical-hover:hover, .k-state-selected,.k-list > .k-state-selected,.k-splitbar-horizontal-hover:hover,.k-primary, .k-overflow-container .k-primary,.k-button,.k-dropdown-wrap.k-state-focused,.k-tabstrip-items .k-state-active{
-        	background-color:#00AEEF !important;
-        }
-        #headerButton .k-button:hover,.k-splitbar-vertical-hover:hover,.k-group,.k-state-active,.k-state-default,.k-tabstrip .k-state-active,.k-widget, .k-dropdown-wrap>.k-input,.k-select, #headerButton .k-button.k-state-hover,.k-state-selected,.k-list > .k-state-selected,.k-splitbar-horizontal-hover:hover,.k-splitbar,.k-primary, .k-overflow-container .k-primary,.k-state-hover, .k-state-hover:hover,.k-list > .k-state-hover,.k-dropdown-wrap.k-state-focused,.k-tabstrip-items .k-state-active{
-        	border-color: #00AEEF !important;
-        }
-        #headerButton .k-button.k-state-hover,.k-state-default,.k-tabstrip-items .k-state-active  .k-link, .k-list-container > ul >li:hover,.k-state-selected, .k-list > .k-state-selected, .k-tabstrip-items .k-state-hover .k-link,.k-state-active{
-        	color: #FFF !important;
-        }
-        .k-grid,.k-textbox:hover, .k-tiles li.k-state-hover, .k-state-default > .k-select,.k-grid td{
-        	border-color: #00AEEF !important;
-        }
-       
-        /* .k-block, .k-widget, .k-input, .k-textbox, .k-group, .k-content, .k-header, .k-filter-row > th, .k-editable-area, .k-separator, .k-colorpicker .k-i-arrow-s, .k-textbox > input, .k-autocomplete, .k-dropdown-wrap, .k-toolbar, .k-group-footer td, .k-grid-footer, .k-footer-template td, .k-state-default, .k-state-default .k-select, .k-state-disabled, .k-grid-header, .k-grid-header-wrap, .k-grid-header-locked, .k-grid-footer-locked, .k-grid-content-locked, .k-grid td, .k-grid td.k-state-selected, .k-grid-footer-wrap, .k-pager-wrap, .k-pager-wrap .k-link, .k-pager-refresh, .k-grouping-header, .k-grouping-header .k-group-indicator, .k-panelbar > .k-item > .k-link, .k-panel > .k-item > .k-link, .k-panelbar .k-panel, .k-panelbar .k-content, .k-treemap-tile, .k-calendar th, .k-slider-track, .k-splitbar, .k-dropzone-active, .k-tiles, .k-toolbar, .k-tooltip, .k-button-group .k-tool, .k-upload-files{
-        	background-color:#00AEEF !important;
-        } */
     </style>
 </apex:component>

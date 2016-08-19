@@ -11,6 +11,9 @@ private class CustomerOrderCtrlTest {
     @testSetup
     private static void setupTestData() {
         TestUtil.createNameSpaceInGeneralConfig();
+        
+		List<General_Configurations__c> config = [SELECT Id FROM General_Configurations__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
+		System.assertNotEquals(0, config.size());
     }
     
     /**
@@ -107,7 +110,7 @@ private class CustomerOrderCtrlTest {
         String coLineItems = BPUtility.getDecodedString(CustomerOrderCtrl.addCustomer(BPUtility.getEncodedString(coHeader1.Id), BPUtility.getEncodedString(testCustomer.Id)));
         Test.stopTest();
         
-        coHeader1 = [select Customer__c from CO_Header__c where Id = :coHeader1.id];
+        coHeader1 = [select Customer__c from CO_Header__c where Id = :coHeader1.id Limit : 100];
         system.assertEquals(coHeader1.Customer__c, testCustomer.Id);
     }
     
@@ -191,7 +194,7 @@ private class CustomerOrderCtrlTest {
         Test.stopTest();
         //system.assert(false, coLineItemJSON);
         List<CO_Line_Item__c> coLineItemRecsList = new List<CO_Line_Item__c>();
-        coLineItemRecsList = [select Id from CO_Line_Item__c];
+        coLineItemRecsList = [select Id from CO_Line_Item__c Limit : 100];
         
         system.assertEquals(coLineItemRecsList.size(), 0);
     }
@@ -304,7 +307,7 @@ private class CustomerOrderCtrlTest {
         List<COInvoicePayment> COInvoicePayment2 = (List<COInvoicePayment>) System.JSON.deserialize(COInvoicePaymentJSON, List<COInvoicePayment>.class);
         system.assertEquals(coinvoicepayment2.size(), 1);
          List<CO_Invoice_Payment__c> coInvoicepaymentRecsList = new List<CO_Invoice_Payment__c>();
-        coInvoicepaymentRecsList = [select Id from CO_Invoice_Payment__c];
+        coInvoicepaymentRecsList = [select Id from CO_Invoice_Payment__c Limit : 100];
         
         system.assertEquals(coInvoicepaymentRecsList.size(), 1);
      
@@ -415,7 +418,7 @@ private class CustomerOrderCtrlTest {
         
         //List<CO_Invoice_Item__c> COInvoiceItems = [select Category__c, CO_Line_Item__c, isActive__c, Item_Category_Code__c, Item_ID__c, Item_Type__c, Price__c, Qty__c from CO_Invoice_Item__c];
         //system.assertEquals(COInvoiceItems.size(), 2);
-        List<CO_Invoice_Header__c> COInvoiceHeaders = [select Invoice_Status__c from CO_Invoice_Header__c];
+        List<CO_Invoice_Header__c> COInvoiceHeaders = [select Invoice_Status__c from CO_Invoice_Header__c LIMIT : 100];
         //system.assert(false,COInvoiceHeaders);
         system.assertEquals(COInvoiceHeaders[0].Invoice_Status__c, 'Active');
         system.assertEquals(COInvoiceHeaders[1].Invoice_Status__c, 'Closed');
@@ -621,6 +624,7 @@ private class CustomerOrderCtrlTest {
         Test.startTest();
         String searchresults = BPUtility.getDecodedString(CustomerOrderCtrl.getSearchResults(BPUtility.getEncodedString('{"ObjectLabel":"Merchandise","SearchText":"Test","PreferredObject":"Customer"}')));
         Test.stopTest();
+        //system.assert(false, searchresults );
         system.assertEquals(searchresults.contains('TestPart'), false );
     }
     
@@ -1160,7 +1164,7 @@ private class CustomerOrderCtrlTest {
         String SOHeaderDetails2 = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
         SOHeaderWrapper soHeaderDetailsObj2 = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails2, SOHeaderWrapper.class);
         
-        system.assertEquals(soHeaderDetailsObj2.SOList[0].SOGridItems[0].SOKH.FixedPrice, 110.00);
+        system.assertEquals(soHeaderDetailsObj2.SOList[0].SOGridItems[0].SOKH.FixedPrice, 20.00);
     }
     
         /*
@@ -1610,8 +1614,8 @@ static testMethod void insertKitHeaderInMerchGridTest()
         COHeaderWrapper coHeaderDetails = (COHeaderWrapper) System.JSON.deserialize(movedLineItem, COHeaderWrapper.class);
         Test.stoptest();
         //system.assert(false, coHeaderDetails);
-        system.assertEquals(coHeaderDetails.COKHList[0].COLIList[0].AvaliablePartsQty, 98);
-        system.assertEquals(coHeaderDetails.COKHList[0].COLIList[0].SubTotal, 200);
+        system.assertEquals(coHeaderDetails.COKHList[0].COLIList[0].AvaliablePartsQty, 50);
+        system.assertEquals(coHeaderDetails.COKHList[0].COLIList[0].SubTotal, 5000);
         List<Service_Order_Line_Item__c> SOli1 = [select Id, Qty_Committed__c, Fixed_Price__c, Total__c from Service_Order_Line_Item__c limit 100];
         system.assertEquals(SOli1.size(), 0);
         }
@@ -1635,7 +1639,7 @@ static testMethod void insertKitHeaderInMerchGridTest()
         
         CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 40);
         
-        List<CO_Line_Item__c> colineitemList = [select Part__c, Qty_Committed__c, Qty__c, Status__c from CO_Line_Item__c];
+        List<CO_Line_Item__c> colineitemList = [select Part__c, Qty_Committed__c, Qty__c, Status__c from CO_Line_Item__c Limit : 100];
         //system.assert(false, colineitemList);
         
         String soHeader = BPUtility.getDecodedString(CustomerOrderCtrl.createSOHeader(BPUtility.getEncodedString(coHeader.Id)));
@@ -1725,7 +1729,7 @@ static testMethod void insertKitHeaderInMerchGridTest()
         CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
         
         CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, -2);
-        List<CO_Line_Item__c> colineitemList = [select Part__c, Qty_Committed__c, Qty__c, Status__c, Sub_Total_Without_Tax__c, Sub_Total_With_Tax__c from CO_Line_Item__c];
+        List<CO_Line_Item__c> colineitemList = [select Part__c, Qty_Committed__c, Qty__c, Status__c, Sub_Total_Without_Tax__c, Sub_Total_With_Tax__c from CO_Line_Item__c Limit : 100];
         //system.assert(false, colineitemList);
         
         String details = BPUtility.getDecodedString(CustomerOrderCtrl.getCOHeaderDetails(BPUtility.getEncodedString(coHeader.Id)));
@@ -1745,7 +1749,7 @@ static testMethod void insertKitHeaderInMerchGridTest()
         system.assertEquals(coHeaderDetails1.COInvoiceHistoryRecs[0].Tax, 0);
         system.assertEquals(coHeaderDetails1.COInvoiceItemRecs.size(), 0);
         
-       List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
+       List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c Limit : 100];
             // committed qty should be  500 as same is required for customer for SO.
         system.assertEquals(partList[0].Qty_In_Stock__c, 102.00);
         system.assertEquals(partList[0].Qty_Committed__c, 0.00);
@@ -1826,7 +1830,7 @@ static testMethod void partReturnFromSOSectionTest() {
         system.assertEquals(coHeaderDetails1.COInvoiceHistoryRecs[0].Tax, 0);
         system.assertEquals(coHeaderDetails1.COInvoiceItemRecs.size(), 0);
         
-       List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c];
+       List<Part__c> partList = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c from Part__c Limit :100];
             // committed qty should be  500 as same is required for customer for SO.
         system.assertEquals(partList[0].Qty_In_Stock__c, 150.00);
         system.assertEquals(partList[0].Qty_Committed__c, 0.00);
@@ -1842,7 +1846,7 @@ static testMethod void deleteSOFromCOSection() {
         
         Account customer = TestUtil.createCustomer(true, 'customerName', 'abc@abc.com', 'Agra', '1111111112', null, null, false, true,'Individual','firstname1', 'lastname', '9999999999', 'BillingStreet');
         String customerorder = BPGlobalHeaderCtrl.createCustomerOrder();
-        List<CO_Header__c> coHeader = [select Status__c, Customer__c, Order_status__c from CO_Header__c];
+        List<CO_Header__c> coHeader = [select Status__c, Customer__c, Order_status__c from CO_Header__c Limit : 100];
         //ListCO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
         //Labour_Code__c labourCode = TestUtil.createLabourCode(true, true, testCategory.Id, 'Code', coHeader.Id, 'Description', True, 10, 'LabourCodeName', 10, true);
         //Unit_Make__c unitmake = TestUtil.createUnitMake(true, 'unitMakeName', '12A', true);
@@ -1858,7 +1862,7 @@ static testMethod void deleteSOFromCOSection() {
         
         //CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 2);
         
-        List<CO_Header__c> coheaderdetail = [select Status__c, Customer__c, Order_status__c from CO_Header__c];
+        List<CO_Header__c> coheaderdetail = [select Status__c, Customer__c, Order_status__c from CO_Header__c Limit : 100];
         //system.assert(false, coheaderdetail);
         
         String deleteSO = BPUtility.getDecodedString(CustomerOrderCtrl.deleteServiceOrder(BPUtility.getEncodedString(coHeader[0].Id), BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id)));
@@ -2116,10 +2120,10 @@ static testMethod void closedorderActionTest() {
         CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
         CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 20);
         
-        list<CO_Invoice_Header__c> coInvoiceHeaderlist = [select  Status__c, Total_Payment__c from CO_Invoice_Header__c];
+        list<CO_Invoice_Header__c> coInvoiceHeaderlist = [select  Status__c, Total_Payment__c from CO_Invoice_Header__c Limit :100];
         //system.assert(false, coInvoiceHeaderlist );
        
-         List<CO_Invoice_Item__c> COInvoiceItems = [select Category__c, CO_Line_Item__c, isActive__c, Item_Category_Code__c, Item_ID__c, Item_Type__c, Price__c, Qty__c from CO_Invoice_Item__c];
+         List<CO_Invoice_Item__c> COInvoiceItems = [select Category__c, CO_Line_Item__c, isActive__c, Item_Category_Code__c, Item_ID__c, Item_Type__c, Price__c, Qty__c from CO_Invoice_Item__c Limit :100];
         //system.assert(false, COInvoiceItems );
         
         Test.startTest();
@@ -2182,10 +2186,10 @@ static testMethod void closedorderActionforMultipleInvoiceItemsTest() {
         COTriggerHelper.isTriggerExecute = false;
         String updatedSOLI = BPUtility.getDecodedString(CustomerOrderCtrl.updateSOLineItems(BPUtility.getEncodedString(System.JSON.serialize(soHeaderDetailsObj1.SOList[0].SOGridItems[0].SOKH.SOLIList[0])), BPUtility.getEncodedString(coHeader.Id)));
         
-        list<CO_Invoice_Header__c> coInvoiceHeaderlist = [select  Status__c, Total_Payment__c from CO_Invoice_Header__c];
+        list<CO_Invoice_Header__c> coInvoiceHeaderlist = [select  Status__c, Total_Payment__c from CO_Invoice_Header__c Limit : 100];
         //system.assert(false, coInvoiceHeaderlist );
        
-        List<CO_Invoice_Item__c> COInvoiceItems = [select Category__c, CO_Line_Item__c, isActive__c, Item_Category_Code__c, Item_ID__c, Item_Type__c, Price__c, Qty__c from CO_Invoice_Item__c];
+        List<CO_Invoice_Item__c> COInvoiceItems = [select Category__c, CO_Line_Item__c, isActive__c, Item_Category_Code__c, Item_ID__c, Item_Type__c, Price__c, Qty__c from CO_Invoice_Item__c Limit : 100];
         //system.assert(false, COInvoiceItems );
         
         
@@ -2234,7 +2238,7 @@ static testMethod void addVOHeaderToCOLITestA() {
         Vendor_Order_Header__c voHeader = TestUtil.createVendorOrderHeader(true, Vendor.Id);
         Vendor_Order_Header__c voHeader1 = TestUtil.createVendorOrderHeader(true, Vendor.Id);
         
-        List<CO_Line_Item__c> colineitem12 = [select Part__c, Qty_Committed__c, Qty__c, Status__c from CO_Line_Item__c];
+        List<CO_Line_Item__c> colineitem12 = [select Part__c, Qty_Committed__c, Qty__c, Status__c from CO_Line_Item__c Limit : 100];
         
         Test.startTest();
         String assignVOHeader = BPUtility.getDecodedString(CustomerOrderCtrl.addVOHeaderToCOLI(BPUtility.getEncodedString(part.Id), BPUtility.getEncodedString(colineitem12[0].Id), BPUtility.getEncodedString(voHeader1.Id), BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort))));
@@ -2292,7 +2296,7 @@ static testMethod void addVOHeaderToCOLIServiceOrderTest() {
         Vendor_Order_Header__c voHeader = TestUtil.createVendorOrderHeader(true, Vendor.Id);
         Vendor_Order_Header__c voHeader1 = TestUtil.createVendorOrderHeader(true, Vendor.Id);
         
-        List<CO_Line_Item__c> colineitem12 = [select Part__c, Qty_Committed__c, Qty__c, Status__c from CO_Line_Item__c];
+        List<CO_Line_Item__c> colineitem12 = [select Part__c, Qty_Committed__c, Qty__c, Status__c from CO_Line_Item__c Limit : 100];
         
         Test.startTest();
         String assignVOHeader = BPUtility.getDecodedString(CustomerOrderCtrl.addVOHeaderToCOLIServiceOrder(BPUtility.getEncodedString(part.Id), BPUtility.getEncodedString(colineitem12[0].Id), BPUtility.getEncodedString(voHeader1.Id), BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort))));
@@ -2902,7 +2906,7 @@ static testMethod void submitClaimTest() {
        //system.assertEquals(details12.SOList[0].DeductibleItem.DeductibleAmount, 10.000);
        String submittedClaim = BPUtility.getDecodedString(CustomerOrderCtrl.submitClaimRecords(BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id)));
        
-       List<Claim_Line_Item__c> claimLineItemList = [select Claimed_Qty__c, Claimed_Price__c, Claimed_Subtotal__c,  Item_Desc__c, Approved_Qty__c, Approved_Price__c, Approved_Subtotal__c, Variance__c from Claim_Line_Item__c];
+       List<Claim_Line_Item__c> claimLineItemList = [select Claimed_Qty__c, Claimed_Price__c, Claimed_Subtotal__c,  Item_Desc__c, Approved_Qty__c, Approved_Price__c, Approved_Subtotal__c, Variance__c from Claim_Line_Item__c Limit : 100];
        Test.stoptest();
        system.assertEquals(claimLineItemList.size(), 1);
        
@@ -3047,7 +3051,7 @@ static testMethod void submitResponseAfterPriceVarianceTest() {
        
        Test.stoptest();
        
-       List<Claim_Line_Item__c> claimLineItemList = [select Claimed_Qty__c, Claimed_Price__c, Claimed_Subtotal__c,  Item_Desc__c, Approved_Qty__c, Approved_Price__c, Approved_Subtotal__c, Variance__c from Claim_Line_Item__c];
+       List<Claim_Line_Item__c> claimLineItemList = [select Claimed_Qty__c, Claimed_Price__c, Claimed_Subtotal__c,  Item_Desc__c, Approved_Qty__c, Approved_Price__c, Approved_Subtotal__c, Variance__c from Claim_Line_Item__c Limit : 100];
        //system.assert(false, claimLineItemList);
        system.assertEquals(claimLineItemList[0].Approved_Qty__c, 50);
        system.assertEquals(claimLineItemList[0].Variance__c, -250);
@@ -3120,7 +3124,7 @@ static testMethod void submitResponseonDenialTest() {
        
        Test.stoptest();
        
-       List<Claim_Line_Item__c> claimLineItemList = [select Claimed_Qty__c, Claimed_Price__c, Claimed_Subtotal__c,  Item_Desc__c, Approved_Qty__c, Approved_Price__c, Approved_Subtotal__c, Variance__c from Claim_Line_Item__c];
+       List<Claim_Line_Item__c> claimLineItemList = [select Claimed_Qty__c, Claimed_Price__c, Claimed_Subtotal__c,  Item_Desc__c, Approved_Qty__c, Approved_Price__c, Approved_Subtotal__c, Variance__c from Claim_Line_Item__c Limit : 100];
        //system.assert(false, claimLineItemList);
        system.assertEquals(claimLineItemList[0].Approved_Qty__c, 0);
        system.assertEquals(claimLineItemList[0].Variance__c, -2750);
@@ -3192,7 +3196,7 @@ static testMethod void submitResponseonAcceptTest() {
        
        Test.stoptest();
        
-       List<Claim_Line_Item__c> claimLineItemList = [select Claimed_Qty__c, Claimed_Price__c, Claimed_Subtotal__c,  Item_Desc__c, Approved_Qty__c, Approved_Price__c, Approved_Subtotal__c, Variance__c from Claim_Line_Item__c];
+       List<Claim_Line_Item__c> claimLineItemList = [select Claimed_Qty__c, Claimed_Price__c, Claimed_Subtotal__c,  Item_Desc__c, Approved_Qty__c, Approved_Price__c, Approved_Subtotal__c, Variance__c from Claim_Line_Item__c Limit : 100];
        //system.assert(false, claimLineItemList);
        system.assertEquals(claimLineItemList[0].Approved_Qty__c, 50);
        system.assertEquals(claimLineItemList[0].Variance__c, 0);
@@ -3348,7 +3352,7 @@ static testMethod void getSOPaymentRoleTest() {
        String SOPaymentRole = BPUtility.getDecodedString(CustomerOrderCtrl.getSoPaymentRoleById(BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id)));
        List<SOPaymentWrapper> paymentRoleDetails = (List<SOPaymentWrapper>) System.JSON.deserialize(SOPaymentRole, List<SOPaymentWrapper>.class);
        
-       List<SO_Payment_Role__c> soPaymentList  = [select Claim__c, Deductible_Status__c, Qty__c, Status__c, Tax_Amount__c, Total_Amount__c, Variance__c, recordtype.developername from SO_Payment_Role__c];
+       List<SO_Payment_Role__c> soPaymentList  = [select Claim__c, Deductible_Status__c, Qty__c, Status__c, Tax_Amount__c, Total_Amount__c, Variance__c, recordtype.developername from SO_Payment_Role__c Limit : 100];
        
        system.assertEquals(soPaymentList.size(), 2);
        system.assertEquals(soPaymentList[0].Total_Amount__c, 10);
@@ -3540,7 +3544,7 @@ static testMethod void getPrintingInfoTest() {
        String SOPaymentRole = BPUtility.getDecodedString(CustomerOrderCtrl.getSoPaymentRoleById(BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id)));
        List<SOPaymentWrapper> paymentRoleDetails = (List<SOPaymentWrapper>) System.JSON.deserialize(SOPaymentRole, List<SOPaymentWrapper>.class);
        
-       List<SO_Payment_Role__c> soPaymentList  = [select Claim__c, Deductible_Status__c, Qty__c, Status__c, Tax_Amount__c, Total_Amount__c, Variance__c, recordtype.developername from SO_Payment_Role__c];
+       List<SO_Payment_Role__c> soPaymentList  = [select Claim__c, Deductible_Status__c, Qty__c, Status__c, Tax_Amount__c, Total_Amount__c, Variance__c, recordtype.developername from SO_Payment_Role__c Limit : 100];
        
        system.assertEquals(soPaymentList.size(), 2);
        system.assertEquals(soPaymentList[0].Total_Amount__c, 10);
@@ -3548,454 +3552,10 @@ static testMethod void getPrintingInfoTest() {
        String info = BPUtility.getDecodedString(CustomerOrderCtrl.getPrintingInfo(BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id)));
        system.assertEquals(info.contains('2750'), true);
        
-       Service_Order_Header__c soh = [select id from Service_Order_Header__c];
+       Service_Order_Header__c soh = [select id from Service_Order_Header__c Limit : 100];
        //system.assert(false, soh) ;
        CustomerOrderCtrl.createClaim(soh);
          }
-         static testMethod void salesTaxCalculationForAustralianMarket() {
-        
-        TestUtil.createtaxsettingInGeneralConfig();
-        
-        //Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
-        
-        Account vendor = TestUtil.createVendor(true, 'Test Vendor');
-        Category__c testCategory = TestUtil.createCategory(true, 'Test Category');
-        Price_Level__c defaultPriceLevel = TestUtil.createPriceLevel(true, 'Default Price Level', 'Cost', 10 , true, true);
-        
-        Sales_Tax__c salestax =  TestUtil.createSalesTax(true, 'HST');
-        
-        Sales_Tax_Item__c salesTaxItem = TestUtil.createSalesTaxItem(true, 'Test Item', 8.0, 'Testing ', true, testCategory.Id);
-        Sales_Tax_Item__c salesTaxItem1 = TestUtil.createSalesTaxItem(true, 'Test Item1', 10.0, 'Testing1 ', true, testCategory.Id);
-        
-        Applicable_Taxes__c applicabletax = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem.Id);
-        Applicable_Taxes__c applicabletax1 = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem1.Id);
-        
-        
-        Part__c part = TestUtil.createPart(false, 'part', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
-        part.Applicable_Tax__c = salestax.Id;
-        insert part;
-        
-        
-        
-        Account customer =  TestUtil.createCustomer(true, 'customerName', 'abc@abc.com', 'jaipur', '1111111111', null, null, false, true,'Individual');
-        
-        Tax_Exemption__c taxExemption = Testutil.createTaxExemption(true, customer.Id, salestaxItem.Id);
-        
-        CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
-        CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 1);
-        
-        String coDetailsJSON1 = BPUtility.getDecodedString(CustomerOrderCtrl.getCOHeaderDetailsByGridName(BPUtility.getEncodedString( coHeader.Id), BPUtility.getEncodedString( null)));
-        COHeaderWrapper coDetails1 = (COHeaderWrapper) System.JSON.deserialize(coDetailsJSON1, COHeaderWrapper.class);
-        System.assertEquals( coDetails1.allCOLineItemRecs[0].price, 24.20);
-        
-        String gridTotal = BPUtility.getDecodedString(CustomerOrderCtrl.getGridTotal(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null), BPUtility.getEncodedString('merchandise'), true));
-        COHeaderWrapper.GridTotal gridTotals = (COHeaderWrapper.GridTotal) System.JSON.deserialize(gridTotal, COHeaderWrapper.GridTotal.class);
-        system.assertEquals(gridTotals.SalesTaxList[0].TaxValue, 2.20);
-        system.assertEquals(gridTotals.Total_Part, 24.20);
-        
-        
-        
-    }
-    
-    static testMethod void salesTaxCalculationForNonAustralianMarket() {
-        
-        TestUtil.createtaxsettingInGeneralConfigA();
-        
-        //Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
-        
-        Account vendor = TestUtil.createVendor(true, 'Test Vendor');
-        Category__c testCategory = TestUtil.createCategory(true, 'Test Category');
-        Price_Level__c defaultPriceLevel = TestUtil.createPriceLevel(true, 'Default Price Level', 'MSRP', 10 , true, true);
-        
-        Sales_Tax__c salestax =  TestUtil.createSalesTax(true, 'HST');
-        
-        Sales_Tax_Item__c salesTaxItem = TestUtil.createSalesTaxItem(true, 'Test Item', 8.0, 'Testing ', true, testCategory.Id);
-        Sales_Tax_Item__c salesTaxItem1 = TestUtil.createSalesTaxItem(true, 'Test Item1', 10.0, 'Testing1 ', true, testCategory.Id);
-        
-        Applicable_Taxes__c applicabletax = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem.Id);
-        Applicable_Taxes__c applicabletax1 = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem1.Id);
-        
-        
-        Part__c part = TestUtil.createPart(false, 'part', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
-        part.Applicable_Tax__c = salestax.Id;
-        insert part;
-        
-        
-        
-        Account customer =  TestUtil.createCustomer(true, 'customerName', 'abc@abc.com', 'jaipur', '1111111111', null, null, false, true,'Individual');
-        
-        Tax_Exemption__c taxExemption = Testutil.createTaxExemption(true, customer.Id, salestaxItem.Id);
-        
-        CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
-        CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 1);
-        
-        String coDetailsJSON1 = BPUtility.getDecodedString(CustomerOrderCtrl.getCOHeaderDetailsByGridName(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
-        COHeaderWrapper coDetails1 = (COHeaderWrapper) System.JSON.deserialize(coDetailsJSON1, COHeaderWrapper.class);
-        System.assertEquals( coDetails1.allCOLineItemRecs[0].price, 55);
-        
-        
-        
-    }
-    
-     
- static testMethod void salesTaxCalculationForAustralianMarketForKit() {
-        
-        TestUtil.createtaxsettingInGeneralConfig();
-        
-        //Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
-        
-        Account vendor = TestUtil.createVendor(true, 'Test Vendor');
-        Category__c testCategory = TestUtil.createCategory(true, 'Test Category');
-        Price_Level__c defaultPriceLevel = TestUtil.createPriceLevel(true, 'Default Price Level', 'MSRP', 10 , true, true);
-        
-        Sales_Tax__c salestax =  TestUtil.createSalesTax(true, 'HST');
-        
-        Sales_Tax_Item__c salesTaxItem = TestUtil.createSalesTaxItem(true, 'Test Item', 8.0, 'Testing ', true, testCategory.Id);
-        Sales_Tax_Item__c salesTaxItem1 = TestUtil.createSalesTaxItem(true, 'Test Item1', 10.0, 'Testing1 ', true, testCategory.Id);
-        
-        Applicable_Taxes__c applicabletax = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem.Id);
-        Applicable_Taxes__c applicabletax1 = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem1.Id);
-        
-        
-        Part__c part = TestUtil.createPart(false, 'part', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
-        part.Applicable_Tax__c = salestax.Id;
-        insert part;
-        
-        
-        
-        Account customer =  TestUtil.createCustomer(true, 'customerName', 'abc@abc.com', 'jaipur', '1111111111', null, null, false, true,'Individual');
-        
-        Tax_Exemption__c taxExemption = Testutil.createTaxExemption(true, customer.Id, salestaxItem.Id);
-        
-        CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
-        
-        Unit_Make__c unitmake = TestUtil.createUnitMake(true, 'unitMakeName', '12A', true);
-        Unit_Model__c unitmodel = TestUtil.createUnitModel(true, 'unitModelName', '12A', true, unitMake.Id);
-        Customer_Owned_Unit__c customerOwnedUnit = TestUtil.createCustomerOwnedUnit(true, customer.Id, UnitMake.Id, UnitModel.Id, null);
-        Kit_Header__c kitHeader = TestUtil.createKitHeader(true, true, true, 'Cause', 'Code', 'Concern', 'Correction', 'Description', 10.0, false, true, unitMake.Id, unitModel.Id);
-        Kit_Header_Line_Item__c kitHeaderLineItem = TestUtil.createKitHeaderLineItem(true, false, false, KitHeader.Id, 5.0, null, Part.Id, 1, 5.0);
-        
-        String soHeader = BPUtility.getDecodedString(CustomerOrderCtrl.createSOHeader(BPUtility.getEncodedString(coHeader.Id)));
-        String SOHeaderDetails = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString('soHeader')));
-        SOHeaderWrapper soHeaderDetailsObj = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails, SOHeaderWrapper.class);
-        System.assertEquals(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Name, 'Service Order 1');
-        
-        String lineitems = BPUtility.getDecodedString(CustomerOrderCtrl.addLineItems(BPUtility.getEncodedString(kitHeader.Id), BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id), BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(customer.Id)));
-        
-        String SOHeaderDetails2 = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
-        
-        SOHeaderWrapper soHeaderDetailsObj2 = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails2, SOHeaderWrapper.class);
-        //system.assert(false, soHeaderDetailsObj2 );
-        system.assertEquals(soHeaderDetailsObj2.SOList[0].SOGridItems[0].SOKH.SOLIList[0].KitPrice, 102.54);
-        
-        
-    }
-    
-     static testMethod void salesTaxCalculationForAustralianMarketForServiceOrder() {
-        
-        TestUtil.createtaxsettingInGeneralConfig();
-        
-        //Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
-        
-        Account vendor = TestUtil.createVendor(true, 'Test Vendor');
-        Category__c testCategory = TestUtil.createCategory(true, 'Test Category');
-        Price_Level__c defaultPriceLevel = TestUtil.createPriceLevel(true, 'Default Price Level', 'MSRP', 10 , true, true);
-        
-        Sales_Tax__c salestax =  TestUtil.createSalesTax(true, 'HST');
-        
-        Sales_Tax_Item__c salesTaxItem = TestUtil.createSalesTaxItem(true, 'Test Item', 8.0, 'Testing ', true, testCategory.Id);
-        Sales_Tax_Item__c salesTaxItem1 = TestUtil.createSalesTaxItem(true, 'Test Item1', 10.0, 'Testing1 ', true, testCategory.Id);
-        
-        Applicable_Taxes__c applicabletax = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem.Id);
-        Applicable_Taxes__c applicabletax1 = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem1.Id);
-        
-        
-        Part__c part = TestUtil.createPart(false, 'part', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
-        part.Applicable_Tax__c = salestax.Id;
-        insert part;
-        
-        
-        
-        Account customer =  TestUtil.createCustomer(true, 'customerName', 'abc@abc.com', 'jaipur', '1111111111', null, null, false, true,'Individual');
-        
-        Tax_Exemption__c taxExemption = Testutil.createTaxExemption(true, customer.Id, salestaxItem.Id);
-        
-        CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
-        
-        String soHeader = BPUtility.getDecodedString(CustomerOrderCtrl.createSOHeader(BPUtility.getEncodedString(coHeader.Id)));
-        String SOHeaderDetails = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString('soHeader')));
-        SOHeaderWrapper soHeaderDetailsObj = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails, SOHeaderWrapper.class);
-        system.assertEquals(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Name, 'Service Order 1');
-        
-        String lineitems = BPUtility.getDecodedString(CustomerOrderCtrl.addLineItems(BPUtility.getEncodedString(part.Id), BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id), BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(customer.Id)));
-        
-        String SOHeaderDetails1 = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
-        SOHeaderWrapper soHeaderDetailsObj1 = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails1, SOHeaderWrapper.class);
-        soHeaderDetailsObj1.SOList[0].SOGridItems[0].SOKH.SOLIList[0].QtyNeeded = 1.00 ;
-        //system.assert(false, soHeaderDetailsObj1 );
-        
-        ServiceOrderLineItemTriggerHelper.isTriggerExecuted = false;
-        COLineItemTriggerHelper.isTriggerExecute = false;
-        COTriggerHelper.isTriggerExecute = false;
-        
-        Test.startTest();
-        String updatedSOLI = BPUtility.getDecodedString(CustomerOrderCtrl.updateSOLineItems(BPUtility.getEncodedString(System.JSON.serialize(soHeaderDetailsObj1.SOList[0].SOGridItems[0].SOKH.SOLIList[0])), BPUtility.getEncodedString(coHeader.Id)));
-        //CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 1);
-        Test.stopTest();
-        String SOHeaderDetails2 = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
-        SOHeaderWrapper soHeaderDetailsObj2 = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails2, SOHeaderWrapper.class);
-        system.assertEquals(soHeaderDetailsObj2.SOList[0].SOGridItems[0].SOKH.SOLIList[0].KitPrice, 51.27);
-        
-        String gridTotal = BPUtility.getDecodedString(CustomerOrderCtrl.getGridTotal(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id), BPUtility.getEncodedString(null), true));
-        COHeaderWrapper.GridTotal gridTotals = (COHeaderWrapper.GridTotal) System.JSON.deserialize(gridTotal, COHeaderWrapper.GridTotal.class);
-        system.assertEquals(gridTotals.SalesTaxList[0].TaxValue, 4.66);
-        system.assertEquals(gridTotals.Total_Part, 51.27);
-        
-        
-    }
-    
-    
-     static testMethod void salesTaxCalculationForAustralianMarketOnLabour() {
-        
-        TestUtil.createtaxsettingInGeneralConfigA();
-        
-        //Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
-        
-        Account vendor = TestUtil.createVendor(true, 'Test Vendor');
-        Category__c testCategory = TestUtil.createCategory(true, 'Test Category');
-        Price_Level__c defaultPriceLevel = TestUtil.createPriceLevel(false, 'Default Price Level', 'MSRP', 10 , true, true);
-        defaultPriceLevel.Labour_Rate__c = 60 ;
-        Insert defaultPriceLevel;
-        Sales_Tax__c salestax =  TestUtil.createSalesTax(true, 'HST');
-        
-        Sales_Tax_Item__c salesTaxItem = TestUtil.createSalesTaxItem(true, 'Test Item', 8.0, 'Testing ', true, testCategory.Id);
-        Sales_Tax_Item__c salesTaxItem1 = TestUtil.createSalesTaxItem(true, 'Test Item1', 10.0, 'Testing1 ', true, testCategory.Id);
-        
-        Applicable_Taxes__c applicabletax = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem.Id);
-        Applicable_Taxes__c applicabletax1 = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem1.Id);
-        
-        Account customer =  TestUtil.createCustomer(true, 'customerName', 'abc@abc.com', 'jaipur', '1111111111', null, null, false, true,'Individual');
-        CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
-        
-        Labour_Code__c labourCode = TestUtil.createLabourCode(false, true, testCategory.Id, 'Code', null, 'Description', true, 2, 'LabourCodeName', 50, true);
-        labourCode.Applicable_Tax__c = salestax.Id;
-        insert labourCode;
-        Tax_Exemption__c taxExemption = Testutil.createTaxExemption(true, customer.Id, salestaxItem.Id);
-        
-        
-        String soHeader = BPUtility.getDecodedString(CustomerOrderCtrl.createSOHeader(BPUtility.getEncodedString(coHeader.Id)));
-        String SOHeaderDetails = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString('soHeader')));
-        SOHeaderWrapper soHeaderDetailsObj = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails, SOHeaderWrapper.class);
-        system.assertEquals(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Name, 'Service Order 1');
-        
-        String lineitems = BPUtility.getDecodedString(CustomerOrderCtrl.addLineItems(BPUtility.getEncodedString(labourCode.Id), BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id), BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(customer.Id)));
-        
-        String SOHeaderDetails1 = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
-        SOHeaderWrapper soHeaderDetailsObj1 = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails1, SOHeaderWrapper.class);
-        soHeaderDetailsObj1.SOList[0].SOGridItems[0].SOKH.SOLIList[0].QtyNeeded = 2.00 ;
-        //system.assert(false, soHeaderDetailsObj1 );
-        
-        ServiceOrderLineItemTriggerHelper.isTriggerExecuted = false;
-        COLineItemTriggerHelper.isTriggerExecute = false;
-        COTriggerHelper.isTriggerExecute = false;
-        
-        Test.startTest();
-        String updatedSOLI = BPUtility.getDecodedString(CustomerOrderCtrl.updateSOLineItems(BPUtility.getEncodedString(System.JSON.serialize(soHeaderDetailsObj1.SOList[0].SOGridItems[0].SOKH.SOLIList[0])), BPUtility.getEncodedString(coHeader.Id)));
-        //CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 1);
-        Test.stopTest();
-        
-        String SOHeaderDetails2 = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
-        SOHeaderWrapper soHeaderDetailsObj2 = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails2, SOHeaderWrapper.class);
-        //system.assert(false, soHeaderDetailsObj2);
-        system.assertEquals(soHeaderDetailsObj2.SOList[0].SOGridItems[0].SOKH.SOLIList[0].KitPrice, 50);
-    }
-    
-static testMethod void salesTaxCalculationForAustralianMarketOnFee() {
-        
-        TestUtil.createtaxsettingInGeneralConfigA();
-        
-        //Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
-        
-        Account vendor = TestUtil.createVendor(true, 'Test Vendor');
-        Category__c testCategory = TestUtil.createCategory(true, 'Test Category');
-        Price_Level__c defaultPriceLevel = TestUtil.createPriceLevel(true, 'Default Price Level', 'MSRP', 10 , true, true);
-        
-        Sales_Tax__c salestax =  TestUtil.createSalesTax(true, 'HST');
-        
-        Sales_Tax_Item__c salesTaxItem = TestUtil.createSalesTaxItem(true, 'Test Item', 8.0, 'Testing ', true, testCategory.Id);
-        Sales_Tax_Item__c salesTaxItem1 = TestUtil.createSalesTaxItem(true, 'Test Item1', 10.0, 'Testing1 ', true, testCategory.Id);
-        
-        Applicable_Taxes__c applicabletax = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem.Id);
-        Applicable_Taxes__c applicabletax1 = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem1.Id);
-        
-        Account customer =  TestUtil.createCustomer(true, 'customerName', 'abc@abc.com', 'jaipur', '1111111111', null, null, false, true,'Individual');
-        CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
-        
-        Fee__c fee = TestUtil.createFee(False, True, testCategory.Id, 'FeeCode', null, 'Description', 50, false);
-        fee.Applicable_Tax__c = salestax.Id;
-        insert fee;
-        
-        
-        
-        
-        
-        Tax_Exemption__c taxExemption = Testutil.createTaxExemption(true, customer.Id, salestaxItem.Id);
-        
-        
-         String soHeader = BPUtility.getDecodedString(CustomerOrderCtrl.createSOHeader(BPUtility.getEncodedString(coHeader.Id)));
-        String SOHeaderDetails = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString('soHeader')));
-        SOHeaderWrapper soHeaderDetailsObj = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails, SOHeaderWrapper.class);
-        system.assertEquals(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Name, 'Service Order 1');
-        
-        String lineitems = BPUtility.getDecodedString(CustomerOrderCtrl.addLineItems(BPUtility.getEncodedString(fee.Id), BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id), BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(customer.Id)));
-        
-        String SOHeaderDetails1 = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
-        SOHeaderWrapper soHeaderDetailsObj1 = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails1, SOHeaderWrapper.class);
-        soHeaderDetailsObj1.SOList[0].SOGridItems[0].SOKH.SOLIList[0].QtyNeeded = 1.00 ;
-        //system.assert(false, soHeaderDetailsObj1 );
-        
-        ServiceOrderLineItemTriggerHelper.isTriggerExecuted = false;
-        COLineItemTriggerHelper.isTriggerExecute = false;
-        COTriggerHelper.isTriggerExecute = false;
-        
-        Test.startTest();
-        String updatedSOLI = BPUtility.getDecodedString(CustomerOrderCtrl.updateSOLineItems(BPUtility.getEncodedString(System.JSON.serialize(soHeaderDetailsObj1.SOList[0].SOGridItems[0].SOKH.SOLIList[0])), BPUtility.getEncodedString(coHeader.Id)));
-        //CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 1);
-        Test.stopTest();
-        
-       // String InsertFeeInMerchDetails = CustomerOrderCtrl.insertFeeInMerchGrid( fee.Id, coHeader.Id);
-        
-        String SOHeaderDetails2 = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
-        SOHeaderWrapper soHeaderDetailsObj2 = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails2, SOHeaderWrapper.class);
-       // system.assert(false, soHeaderDetailsObj2);
-        system.assertEquals(soHeaderDetailsObj2.SOList[0].SOGridItems[0].SOKH.SOLIList[0].KitPrice, 50);
-        
-        
-    }
-    
-
-static testMethod void salesTaxCalculationForAustralianMarketForServiceOrderThirdParty() {
-        
-        TestUtil.createtaxsettingInGeneralConfig();
-        
-        //Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
-        
-        Account vendor = TestUtil.createVendor(false, 'Test Vendor');
-        vendor.Claims_for_Service_Work__c = true;
-        insert vendor;
-        Category__c testCategory = TestUtil.createCategory(true, 'Test Category');
-        Price_Level__c defaultPriceLevel = TestUtil.createPriceLevel(true, 'Default Price Level', 'MSRP', 10 , true, true);
-        
-        Sales_Tax__c salestax =  TestUtil.createSalesTax(true, 'HST');
-        
-        Sales_Tax_Item__c salesTaxItem = TestUtil.createSalesTaxItem(true, 'Test Item', 8.0, 'Testing ', true, testCategory.Id);
-        Sales_Tax_Item__c salesTaxItem1 = TestUtil.createSalesTaxItem(true, 'Test Item1', 10.0, 'Testing1 ', true, testCategory.Id);
-        
-        Applicable_Taxes__c applicabletax = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem.Id);
-        Applicable_Taxes__c applicabletax1 = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem1.Id);
-        Account customer =  TestUtil.createCustomer(true, 'customerName', 'abc@abc.com', 'jaipur', '1111111111', null, null, false, true,'Individual');
-        //Transaction_Type__c transactionType =  TestUtil.createTransactionType(false, 'Third-Party', 'Third-Party');
-        Transaction_Type__c transactionType =  TestUtil.createTransactionType(false, 'Third-Party', 'Third-Party');
-        transactionType.Third_Party_Customer__c = customer.Id;
-        insert transactionType ;
-        Part__c part = TestUtil.createPart(false, 'part', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
-        part.Applicable_Tax__c = salestax.Id;
-        insert part;
-        
-        
-        
-        //Account customer =  TestUtil.createCustomer(true, 'customerName', 'abc@abc.com', 'jaipur', '1111111111', null, null, false, true,'Individual');
-        
-        Tax_Exemption__c taxExemption = Testutil.createTaxExemption(true, customer.Id, salestaxItem.Id);
-        
-        CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
-        
-        String soHeader = BPUtility.getDecodedString(CustomerOrderCtrl.createSOHeader(BPUtility.getEncodedString(coHeader.Id)));
-        String SOHeaderDetails = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString('soHeader')));
-        SOHeaderWrapper soHeaderDetailsObj = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails, SOHeaderWrapper.class);
-        system.assertEquals(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Name, 'Service Order 1');
-        soHeaderDetailsObj.SOList[0].SOHeaderInfo.TransactionTypeId = transactionType.Id ;
-        soHeaderDetailsObj.SOList[0].SOHeaderInfo.ProviderId = vendor.Id;
-        String jsonStr = System.Json.serialize(soHeaderDetailsObj.SOList[0].SOHeaderInfo);
-        
-        String soHeaderInfo = BPUtility.getDecodedString(CustomerOrderCtrl.saveSOHeaderInfo(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(jsonStr)));
-        
-        String lineitems = BPUtility.getDecodedString(CustomerOrderCtrl.addLineItems(BPUtility.getEncodedString(part.Id), BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id), BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(customer.Id)));
-        
-        String SOHeaderDetails1 = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
-        SOHeaderWrapper soHeaderDetailsObj1 = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails1, SOHeaderWrapper.class);
-        soHeaderDetailsObj1.SOList[0].SOGridItems[0].SOKH.SOLIList[0].QtyNeeded = 1.00 ;
-        //system.assert(false, soHeaderDetailsObj1 );
-        
-        ServiceOrderLineItemTriggerHelper.isTriggerExecuted = false;
-        COLineItemTriggerHelper.isTriggerExecute = false;
-        COTriggerHelper.isTriggerExecute = false;
-        
-        Test.startTest();
-        String updatedSOLI = BPUtility.getDecodedString(CustomerOrderCtrl.updateSOLineItems(BPUtility.getEncodedString(System.JSON.serialize(soHeaderDetailsObj1.SOList[0].SOGridItems[0].SOKH.SOLIList[0])), BPUtility.getEncodedString(coHeader.Id)));
-        Test.stopTest();
-        
-        String SOHeaderDetails2 = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
-        SOHeaderWrapper soHeaderDetailsObj3 = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails2, SOHeaderWrapper.class);
-        system.assertEquals(soHeaderDetailsObj3.SOList[0].SOGridItems[0].SOKH.SOLIList[0].KitPrice, 51.27);
-    }
-    
-    static testMethod void salesTaxCalculationForAustralianMarketOnLabourNonFixed() {
-        
-        TestUtil.createtaxsettingInGeneralConfigA();
-        
-        //Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
-        
-        Account vendor = TestUtil.createVendor(true, 'Test Vendor');
-        Category__c testCategory = TestUtil.createCategory(true, 'Test Category');
-        Price_Level__c defaultPriceLevel = TestUtil.createPriceLevel(false, 'Default Price Level', 'MSRP', 10 , true, true);
-        defaultPriceLevel.Labour_Rate__c = 60 ;
-        Insert defaultPriceLevel;
-        Sales_Tax__c salestax =  TestUtil.createSalesTax(true, 'HST');
-        
-        Sales_Tax_Item__c salesTaxItem = TestUtil.createSalesTaxItem(true, 'Test Item', 8.0, 'Testing ', true, testCategory.Id);
-        Sales_Tax_Item__c salesTaxItem1 = TestUtil.createSalesTaxItem(true, 'Test Item1', 10.0, 'Testing1 ', true, testCategory.Id);
-        
-        Applicable_Taxes__c applicabletax = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem.Id);
-        Applicable_Taxes__c applicabletax1 = TestUtil.createApplicableTax(true, salestax.Id, salesTaxItem1.Id);
-        
-        Account customer =  TestUtil.createCustomer(true, 'customerName', 'abc@abc.com', 'jaipur', '1111111111', null, null, false, true,'Individual');
-        CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
-        
-        Labour_Code__c labourCode = TestUtil.createLabourCode(false, true, testCategory.Id, 'Code', null, 'Description', false, 2, 'LabourCodeName', 50, true);
-        labourCode.Applicable_Tax__c = salestax.Id;
-        insert labourCode;
-        Tax_Exemption__c taxExemption = Testutil.createTaxExemption(true, customer.Id, salestaxItem.Id);
-        
-        
-        String soHeader = BPUtility.getDecodedString(CustomerOrderCtrl.createSOHeader(BPUtility.getEncodedString(coHeader.Id)));
-        String SOHeaderDetails = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString('soHeader')));
-        SOHeaderWrapper soHeaderDetailsObj = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails, SOHeaderWrapper.class);
-        system.assertEquals(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Name, 'Service Order 1');
-        
-        String lineitems = BPUtility.getDecodedString(CustomerOrderCtrl.addLineItems(BPUtility.getEncodedString(labourCode.Id), BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id), BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(customer.Id)));
-        
-        String SOHeaderDetails1 = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
-        SOHeaderWrapper soHeaderDetailsObj1 = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails1, SOHeaderWrapper.class);
-        soHeaderDetailsObj1.SOList[0].SOGridItems[0].SOKH.SOLIList[0].QtyNeeded = 2.00 ;
-        //system.assert(false, soHeaderDetailsObj1 );
-        
-        ServiceOrderLineItemTriggerHelper.isTriggerExecuted = false;
-        COLineItemTriggerHelper.isTriggerExecute = false;
-        COTriggerHelper.isTriggerExecute = false;
-        
-        Test.startTest();
-        String updatedSOLI = BPUtility.getDecodedString(CustomerOrderCtrl.updateSOLineItems(BPUtility.getEncodedString(System.JSON.serialize(soHeaderDetailsObj1.SOList[0].SOGridItems[0].SOKH.SOLIList[0])), BPUtility.getEncodedString(coHeader.Id)));
-        //CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 1);
-        Test.stopTest();
-        
-        String SOHeaderDetails2 = BPUtility.getDecodedString(CustomerOrderCtrl.getSOHeaderDetails(BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(null)));
-        SOHeaderWrapper soHeaderDetailsObj2 = (SOHeaderWrapper) System.JSON.deserialize(SOHeaderDetails2, SOHeaderWrapper.class);
-        //system.assert(false, soHeaderDetailsObj2);
-       // system.assertEquals(soHeaderDetailsObj2.SOList[0].SOGridItems[0].SOKH.SOLIList[0].KitPrice, 60);
-       system.assertEquals(soHeaderDetailsObj2.SOList[0].SOGridItems[0].SOKH.SOLIList[0].KitPrice, 60.00);
-    
-    }
          
      /**
      * Name: parsePageAttrs
@@ -4003,9 +3563,11 @@ static testMethod void salesTaxCalculationForAustralianMarketForServiceOrderThir
      * @param:  (1) JSONString - String - JSON String 
      * @return: RelatedListPaginationSorting - Class Object
     **/
+    /*
     public static VendorPaginationSorting parsePageAttrs(String json) { 
         return (VendorPaginationSorting) System.JSON.deserialize(json, VendorPaginationSorting.class);
     }
+    */
     
     // Wrapper class for related list pagination and sorting combination
     public class VendorPaginationSorting {

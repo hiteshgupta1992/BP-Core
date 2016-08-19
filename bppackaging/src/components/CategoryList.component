@@ -242,7 +242,7 @@
             var categoryArray = $("#{!uniqueId}grid").data("kendoGrid").dataSource.view();
             for(var i = 0 ; i < categoryArray.length ; i++) {
                 if(categoryArray[i].Cat_Default && !categoryTypeToDefaultCategoryIdMap.hasOwnProperty(categoryArray[i].Cat_Type)) {
-                    categoryTypeToDefaultCategoryIdMap[categoryArray[i].Cat_Type] = categoryArray[i].Cat_Name;
+                    categoryTypeToDefaultCategoryIdMap[categoryArray[i].Cat_Type] = escapeHTML(categoryArray[i].Cat_Name);
                 }
             }
         }
@@ -970,9 +970,9 @@
                 if(prevDefaultUniqueName.length > 0){
                     var confirmMsg = '';
                     if(currRowActive){
-                        confirmMsg += 'For Category Type - <b>' + currRowType + '</b>, Default will be changed from "' + prevDefaultUniqueName + '" to "' + currRowUniqueName + '".' + '\n';
+                        confirmMsg += 'For Category Type - <b>' + escapeHTML(currRowType) + '</b>, Default will be changed from "' + escapeHTML(prevDefaultUniqueName) + '" to "' + escapeHTML(currRowUniqueName) + '".' + '\n';
                     } else {
-                        confirmMsg += '<b> '+ currRowUniqueName + '</b> record will be marked as ACTIVE and set to DEFAULT.' + '\n';
+                        confirmMsg += '<b> '+ escapeHTML(currRowUniqueName) + '</b> record will be marked as ACTIVE and set to DEFAULT.' + '\n';
                     }
                     confirmMsg += 'Do you want to proceed ?';
                     alertAndUpdateDefault_Global(currElem, confirmMsg, prevDefaultDataRowIdx,
@@ -1084,8 +1084,8 @@
                 return;
             }
             
-            var delConfirmMsg = "Are you sure that you want to delete record for " + rowData.PL_Name + "?";
-            confirmAction("Confirm Delete", delConfirmMsg, confirmDeletePriceLevelRecord);
+            var delConfirmMsg = "Are you sure that you want to delete record for " + escapeHTML(rowData.PL_Name) + "?";
+            confirmAction("Confirm Delete", delConfirmMsg , confirmDeletePriceLevelRecord);
         }
         
         

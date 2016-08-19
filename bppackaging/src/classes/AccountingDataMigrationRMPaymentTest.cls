@@ -4,6 +4,9 @@ public with sharing class AccountingDataMigrationRMPaymentTest {
     @testSetup
     private static void setupTestData() {
         TestUtil.createNameSpaceInGeneralConfig();
+        
+		List<General_Configurations__c> config = [SELECT Id FROM General_Configurations__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
+		System.assertNotEquals(0, config.size());
     }
     
     

@@ -813,6 +813,7 @@
             vendorIdG = vendorId;
             if(IsselectedTabModified){
                 var actionConfirmMsg = "PartTabCloseBeforeSave"+"There are some changes not saved in the form. Do you want to continue?";
+                actionConfirmMsg = escapeHTML(actionConfirmMsg);
                 confirmAction("Confirm Action", actionConfirmMsg, removeSelectedTabCallBack);
             }else{
                 removeSelectedTabCallBack(true);

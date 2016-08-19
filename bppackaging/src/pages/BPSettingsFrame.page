@@ -10,6 +10,7 @@
 		Footer Section (bottom-pane): It will contain navigation and various informations in footer section of the page
 	-->
 	<div id="verticalSections">
+	
 		<!-- Header Section -->
 		<div id="top-pane">
 			<div class="pane-content">

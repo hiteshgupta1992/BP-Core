@@ -10,17 +10,15 @@ public with sharing class SearchSuggestionUtil {
     
     public static String getSearchSuggestionJSON(SearchSuggestionJSON.QueryJSON searchQueryJSON){
         textToSearch = String.escapeSingleQuotes(searchQueryJSON.SearchText.toLowerCase());
-
         List<sObject> searchObjRecords = new List<sObject>();
         if(searchQueryJSON.SearchText != null && searchQueryJSON.SearchText.length() != 0){
             searchObjRecords = getRecordsWithOrgSearch(searchQueryJSON.ObjectLabel, searchQueryJSON.SearchText, searchQueryJSON.SearchableObjects, searchQueryJSON.FilterValues);
         }
-        //system.assert(false, searchObjRecords);
-        
+		
         // Grouped result as per objects
         // Create a list of SuggestedRecordEntity with each object and process sorting
         map<String, List<SuggestedRecordEntity>> groupedSortedRecords = getGroupedSortedRecords(searchQueryJSON.ObjectLabel, searchObjRecords);
-        
+		
         // Create JSON for the result with suggested object records first
         String searchJSONString = createSuggestedItemsJSON(groupedSortedRecords, searchQueryJSON.PreferredObject, searchQueryJSON.ObjectLabel, searchQueryJSON.SearchableObjects);
 
@@ -36,7 +34,6 @@ public with sharing class SearchSuggestionUtil {
     **/
     private static List<Sobject> getRecordsWithOrgSearch(String objectLabel, String searchText, String SearchableObjects, List<SearchSuggestionJSON.FilterJSON> FilterValues) {
         String soslQuery = '';
-        
         // Object name to which search in
         String objectName = (objectLabel != null && objectLabel.trim().length() != 0) ? String.escapeSingleQuotes(Constants.objectDisplayLabelToObjectName.get(objectLabel)) : null;
         searchText = (searchText != null) ? searchText : '';
@@ -45,14 +42,14 @@ public with sharing class SearchSuggestionUtil {
         // Searchable ordered list
         List<String> objectsOrderedList = new List<String>();
         if(SearchableObjects != null && SearchableObjects.trim().length() != 0){
-            for(String objName : SearchableObjects.split(',')) {
-                objName = objName.contains('__c') ? Constants.NAMESPACE + objName : objName;
-                objectsOrderedList.add(objName);
-            }
+        	for(String objName : SearchableObjects.split(',')) {
+        		objName = objName.contains('__c') ? Constants.NAMESPACE + objName : objName;
+        		objectsOrderedList.add(objName);
+        	}
         } else {
-            objectsOrderedList = Constants.objectsOrderedList;
+        	objectsOrderedList = Constants.objectsOrderedList;
         }
-        
+		
         String customerSearchText = '';
         String vendorSearchText = '';
         
@@ -64,68 +61,46 @@ public with sharing class SearchSuggestionUtil {
         
         List<String> searchableObjNameList = new List<String>();
         for(String objName : objectsOrderedList) {
-            String whereCondition = '';
+        	system.debug(' TARUN ' + objName);
+        	String whereCondition = '';
             if(objectName != null && objectName != objName){
                 continue;
             } else if(objectName != null) {
-                if(FilterValues != null){
-                    for(SearchSuggestionJSON.FilterJSON FilterJSON : FilterValues){
-                        if(objectName ==  FilterJSON.FilterObject ) {
-                            if(whereCondition != ''){
-                                whereCondition += ' OR ';
-                            } else {
-                                whereCondition = ' WHERE ';
-                            }
-                            whereCondition += FilterJSON.Field + '=\'' + FilterJSON.Value + '\'';
-                        }   
-                    }
-                }
-                if(objectName == 'User') {
-                    if(whereCondition != ''){
-                        whereCondition += ' AND ';
-                    } else {
-                        whereCondition = ' WHERE ';
-                    }
-                    whereCondition += 'IsActive = true';
-                }
+            	if(FilterValues != null){
+            		for(SearchSuggestionJSON.FilterJSON FilterJSON : FilterValues){
+            			if(whereCondition != ''){
+            				whereCondition += ' OR ';
+            			} else {
+            				whereCondition = ' WHERE ';
+            			}
+            			
+            			whereCondition +=  BPUtility.escapeSingleQuotes(FilterJSON.Field) + '=\'' +  BPUtility.escapeSingleQuotes(FilterJSON.Value) + '\'';
+            		}
+            	}
+            	
+            	if(objectName == 'User') {
+        			if(whereCondition != ''){
+        				whereCondition += ' AND ';
+        			} else {
+        				whereCondition = ' WHERE ';
+        			}
+        			
+        			whereCondition += 'IsActive = true';
+        		}
             }
-            else if(objName != null) {
-                if(FilterValues != null){
-                    for(SearchSuggestionJSON.FilterJSON FilterJSON : FilterValues){
-                        if(objName ==  FilterJSON.FilterObject )    {
-                            if(whereCondition != ''){
-                                whereCondition += ' OR ';
-                            } else {
-                                whereCondition = ' WHERE ';
-                            }
-                            whereCondition += FilterJSON.Field + '=\'' + FilterJSON.Value + '\'';
-                        }   
-                    }
-                }
-                if(objectName == 'User') {
-                    if(whereCondition != ''){
-                        whereCondition += ' AND ';
-                    } else {
-                        whereCondition = ' WHERE ';
-                    }
-                    
-                    whereCondition += 'IsActive = true';
-                }
-            }
-            
+            searchableObjNameList.add(objName);
             // Search fields depending on deisplay field and display additional info maps defined in constant class based on use custom setting
             String searchFields = '';
-            //system.assert(false, Constants.objectToSearchableFieldsMap);
             for(String searchField : Constants.objectToSearchableFieldsMap.get(objName)){
-                searchField = String.escapeSingleQuotes(searchField);
+            	searchField = BPUtility.escapeSingleQuotes(searchField);
                 if(searchField.contains('__c'))
-                    searchFields += CONSTANTS.NAMESPACE + searchField + ',';
+                	searchFields += CONSTANTS.NAMESPACE + searchField + ',';
                 else
                     searchFields += searchField + ',';
             }
             searchFields= searchFields.replaceAll( '\\s+', '');
             searchFields = searchFields.substring(0, searchFields.length() - 1);
-
+			
             // Set object returning fields here
             if( !objName.equalsIgnoreCase(Constants.customerObjectLabel) && !objName.equalsIgnoreCase(Constants.vendorObjectLabel) ){
                 soslQuery += objName + ' (LastModifiedDate,' + searchFields + whereCondition;
@@ -147,6 +122,8 @@ public with sharing class SearchSuggestionUtil {
                 }
             }
         }
+        
+        
         
         String soslQueryFind = 'Find \'*' + searchText + '*\'' ;
         if(customerVendorQueryString.length() == 0){
@@ -173,15 +150,14 @@ public with sharing class SearchSuggestionUtil {
             soslQueryFind += '\'';
             soslQuery = soslQueryFind + soslQuery + ' ' + customerVendorQueryString;
         }
-        //system.assert(false, searchableObjNameList);
         for(String objName : searchableObjNameList) {
-            if(objName == 'Customer' || objName == 'Vendor') {
-                objName = 'Account';
-            }
-            if(AccessControl.ifObjectFieldIsAccessible(objName) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        	if(objName == 'Customer' || objName == 'Vendor') {
+        		objName = 'Account';
+        	}
+        	system.debug('Ashish 123 ' +  objName);
+        	if(AccessControl.ifObjectFieldIsAccessible(objName) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         }
         
-        //system.assert(false, soslQuery);
         List<List<Sobject>> sobjectList = Search.query(soslQuery);
         //system.assert(false, soslQuery + '\n\n\n\n' + sobjectList);
         
@@ -193,7 +169,7 @@ public with sharing class SearchSuggestionUtil {
         //System.assert(false, soslQuery + '\n' + searchObjRecords);
         return searchObjRecords;
     }
-        
+    
     private static map<String, List<SuggestedRecordEntity>> getGroupedSortedRecords(String objLabel, List<sObject> searchObjRecords){
         //system.assert(false, objLabel);
         map<String, List<SuggestedRecordEntity>> groupedRecords = new map<String, List<SuggestedRecordEntity>>();
@@ -244,19 +220,20 @@ public with sharing class SearchSuggestionUtil {
         
         // Add default suggested objects in the result JSON
         if(objLabel == null || objLabel == ''){
-            resultSuggestionRecords.addAll(addDefaultSugegstedObjects(textToSearch, SearchableObjects));
+            resultSuggestionRecords.addAll(addDefaultSugegstedObjects(textToSearch));
         }
+        
         if(groupedSortedRecords != null && groupedSortedRecords.size() != 0){
             // Prepare a list of object names so aj to sort the object records grouping (Preferred object name will be at first position)
-            List<String> sortedObjectNameList = new List<String>();
-            if(SearchableObjects != null && SearchableObjects.trim().length() != 0){
-                for(String objName : SearchableObjects.split(',')) {
-                    objName = objName.contains('__c') ? Constants.NAMESPACE + objName : objName;
-                    sortedObjectNameList.add(objName);
-                }
-            } else {
-                sortedObjectNameList = Constants.objectsOrderedList;
-            }
+	        List<String> sortedObjectNameList = new List<String>();
+	        if(SearchableObjects != null && SearchableObjects.trim().length() != 0){
+	        	for(String objName : SearchableObjects.split(',')) {
+	        		objName = objName.contains('__c') ? Constants.NAMESPACE + objName : objName;
+	        		sortedObjectNameList.add(objName);
+	        	}
+	        } else {
+	        	sortedObjectNameList = Constants.objectsOrderedList;
+	        }
 
             if(preferredObject != null && preferredObject.trim().length() != 0){
                 sortedObjectNameList.add(0, preferredObject);
@@ -265,18 +242,11 @@ public with sharing class SearchSuggestionUtil {
             if(groupedSortedRecords.containsKey('Account')){
                 sortedObjectNameList.add(0, 'Account');
             }
-            
-            // Make Set of SearchableObjects List - Adding NameSpace.
-            Set<String> searchableObjectsSet = new Set<String>();
-            if(SearchableObjects != null) {
-                for(String searchableObjectStr : SearchableObjects.split(',')) {
-                    searchableObjectsSet.add(searchableObjectStr.contains('__c') ? CONSTANTS.NAMESPACE + searchableObjectStr : searchableObjectStr);
-                }
-            }
-            
+
             // Add sorted result in SearchSuggestionJSON.ResultJSON list so to format for JSON
             for(String objName : sortedObjectNameList){
-                if(groupedSortedRecords.containsKey(objName) && (SearchableObjects == null || searchableObjectsSet.contains(objName))){
+
+                if(groupedSortedRecords.containsKey(objName)){
                     String displayFieldName = Constants.objectToDisplayFieldsMap.get(objName);
                     displayFieldName = displayFieldName.contains('__c') ? CONSTANTS.NAMESPACE + displayFieldName : displayFieldName;
                     
@@ -317,7 +287,7 @@ public with sharing class SearchSuggestionUtil {
     }
     
     // Add default suggested objects in the result JSON
-    private static List<SearchSuggestionJSON.ResultJSON> addDefaultSugegstedObjects(String searchText, String SearchableObjects){
+    private static List<SearchSuggestionJSON.ResultJSON> addDefaultSugegstedObjects(String searchText){
         List<SearchSuggestionJSON.ResultJSON> resultSuggestionRecords = new List<SearchSuggestionJSON.ResultJSON>();
         
         // Map for object/section name to its related type (Object/Section) in Customer Order page
@@ -333,20 +303,16 @@ public with sharing class SearchSuggestionUtil {
                                                                             Label.Payment_Section_Display_Label => 'section',
                                                                             Label.Suggested_Items_Section_Display_Label => 'section' 
                                                                         };
-        if(SearchableObjects.indexOf('Part__c') > -1) {
-            SearchableObjects += ',' + Label.Part_Object_Display_Label;
-        }
-        //system.assert(false, SearchableObjects);
-        for( String nameKey : coPageObjSectionsMap.keySet()){
-            if( (searchText.length() == 0 || nameKey.toLowerCase().indexOf(searchText.toLowerCase()) > -1) &&
-                        SearchableObjects.toLowerCase().indexOf(searchText.toLowerCase()) > -1){
+        
+        for( String nameKey : coPageObjSectionsMap.keySet() ){
+            if( searchText.length() == 0 || nameKey.toLowerCase().indexOf(searchText.toLowerCase()) != -1 ){
                 String value = (Constants.objectDisplayLabelToObjectName.containsKey(nameKey)) ? Constants.objectDisplayLabelToObjectName.get(nameKey) : nameKey;
                 String info = coPageObjSectionsMap.get(nameKey);
                 nameKey = (coPageObjSectionsMap.get(nameKey) == 'Object') ? (nameKey + ':') : nameKey;
                 resultSuggestionRecords.add( new SearchSuggestionJSON.ResultJSON( null, nameKey, value, null, info, '','','') );
             }
         }
-        //system.assert(false, resultSuggestionRecords);
+        
         return resultSuggestionRecords;
     }
 }

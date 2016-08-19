@@ -1,6 +1,6 @@
 <apex:component controller="ViewVendorRelatedListCtrl">
 	<!-- Include Styles for component here -->
-    <c:AddEditPartsStyles UID="AddNewPOType"/>
+    <c:AddEditParts_Styles UID="AddNewPOType"/>
     
     <!-- Include required directives -->
     <!-- Directive for price fields -->

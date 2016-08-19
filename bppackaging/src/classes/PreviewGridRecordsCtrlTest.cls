@@ -31,7 +31,7 @@ private class PreviewGridRecordsCtrlTest {
         Test.startTest();
         PreviewGridRecordsCtrl.deleteRawFilterData(BPUtility.getEncodedString(filterObject.id));
         Test.stopTest();
-        List<Filter__c> filterList = [Select id from Filter__c];
+        List<Filter__c> filterList = [Select id from Filter__c Limit 100];
         System.assertEquals(0,filterList.size());
       }
     

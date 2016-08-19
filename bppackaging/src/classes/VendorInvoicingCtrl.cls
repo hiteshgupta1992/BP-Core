@@ -155,8 +155,7 @@ global with sharing class VendorInvoicingCtrl {
 	    		return getVendorInvoicingDetails(viHeaderId, null, receivingPageSortAttrsJSON, groupItemsPageSortAttrsJSON);
 	    	}
 	    	String viGroupId = viGroupObj.VIGroupId;
-	    	
-			viGroupId = BPUtility.escapeSingleQuotes(viGroupId);
+	    	viGroupId = BPUtility.escapeSingleQuotes(viGroupId);
 	    	if(AccessControl.ifObjectFieldIsAccessible('Vendor_Invoicing_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 	    	List<Vendor_Invoicing_Group__c> viGroupList = [select VI_Qty__c, VI_Cost__c, VI_Discount__c, VI_SubTotal__c from Vendor_Invoicing_Group__c Where Id =: viGroupId];
 	    	if(viGroupList.size() > 0) {
@@ -187,9 +186,9 @@ global with sharing class VendorInvoicingCtrl {
      * @return: 
     **/
     private static void updateVendorInvoicingTotal(String viHeaderId){
-    	if(AccessControl.ifObjectFieldIsAccessible('Vendor_Invoicing_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	if(AccessControl.ifObjectFieldIsUpdateable('Vendor_Invoicing_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
     	if(AccessControl.ifObjectFieldIsUpdateable('Vendor_Invoicing_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+    	if(AccessControl.ifObjectFieldIsAccessible('Vendor_Invoicing_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	viHeaderId = BPUtility.escapeSingleQuotes(viHeaderId);
     	List<Vendor_Invoicing_Group__c> viGroupList = [select VI_SubTotal__c from Vendor_Invoicing_Group__c Where Vendor_Invoicing_Header__c =: viHeaderId];
     	if(viGroupList.size() > 0) {
@@ -205,6 +204,8 @@ global with sharing class VendorInvoicingCtrl {
     		update vendorInvoicingRec;
     	}
     }
+    
+    
     
     /**
      * Name: updateVIHeader
@@ -304,7 +305,6 @@ global with sharing class VendorInvoicingCtrl {
     	try{
     		viHeaderId = BPUtility.getDecodedString(viHeaderId);
     		vrHeaderId = BPUtility.getDecodedString(vrHeaderId);
-    		vrHeaderId = BPUtility.escapeSingleQuotes(vrHeaderId);
     		receivingPageSortAttrsJSON = BPUtility.getDecodedString(receivingPageSortAttrsJSON);
     		groupItemsPageSortAttrsJSON = BPUtility.getDecodedString(groupItemsPageSortAttrsJSON);
     		
@@ -312,6 +312,8 @@ global with sharing class VendorInvoicingCtrl {
 	    	PaginationSorting groupItemsPageSortAttrs = PaginationSorting.parsePageAttrs(groupItemsPageSortAttrsJSON);
 	    	
 	    	if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+	    	if(AccessControl.ifObjectFieldIsAccessible('PO_Type__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+	    	vrHeaderId = BPUtility.escapeSingleQuotes(vrHeaderId);
 	    	List<Vendor_Order_Header__c> voHeaderList = [select Purchase_Order_Type__c, Purchase_Order_Type__r.Discount__c from Vendor_Order_Header__c Where In_Progress_VR__c =: vrHeaderId];
 	    	String poTypeId;
 	    	Decimal poTypeDiscount = 0;
@@ -376,9 +378,8 @@ global with sharing class VendorInvoicingCtrl {
     **/
     @RemoteAction
     global static String removeFromItemSubSection(String viHeaderId, String vrHeaderId, String receivingPageSortAttrsJSON, String groupItemsPageSortAttrsJSON){
+    	if(AccessControl.ifObjectIsDeletable('Vendor_Invoicing_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
     	try{
-    		if(AccessControl.ifObjectIsDeletable('Vendor_Invoicing_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-    		
     		viHeaderId = BPUtility.getDecodedString(viHeaderId);
     		vrHeaderId = BPUtility.getDecodedString(vrHeaderId);
     		receivingPageSortAttrsJSON = BPUtility.getDecodedString(receivingPageSortAttrsJSON);
@@ -389,6 +390,8 @@ global with sharing class VendorInvoicingCtrl {
 	    	viHeaderId = BPUtility.escapeSingleQuotes(viHeaderId);
 	    	vrHeaderId = BPUtility.escapeSingleQuotes(vrHeaderId);
 	    	if(AccessControl.ifObjectFieldIsAccessible('Vendor_Invoicing_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+	    	if(AccessControl.ifObjectFieldIsAccessible('Vendor_Receiving_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+	    	
 	    	List<Vendor_Invoicing_Group__c> viGroupList = [select Id from Vendor_Invoicing_Group__c Where Vendor_Invoicing_Header__c =: viHeaderId
 	    																AND Vendor_Receiving_Group__r.Vendor_Receiving_Header__c =: vrHeaderId];
 	    	if(viGroupList.size() > 0) {
@@ -424,13 +427,15 @@ global with sharing class VendorInvoicingCtrl {
     global static String finalizeInvoiceAction(String viHeaderId, String receivingPageSortAttrsJSON, String groupItemsPageSortAttrsJSON){
     	Savepoint sp = Database.setSavepoint();
     	try{
-			viHeaderId = BPUtility.escapeSingleQuotes(viHeaderId);
     		viHeaderId = BPUtility.getDecodedString(viHeaderId);
     		receivingPageSortAttrsJSON = BPUtility.getDecodedString(receivingPageSortAttrsJSON);
     		groupItemsPageSortAttrsJSON = BPUtility.getDecodedString(groupItemsPageSortAttrsJSON);
     		
     		if(AccessControl.ifObjectFieldIsAccessible('Vendor_Invoicing_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     		if(AccessControl.ifObjectFieldIsAccessible('Vendor_Invoicing_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    		if(AccessControl.ifObjectFieldIsAccessible('Vendor_Receiving_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    		viHeaderId = BPUtility.escapeSingleQuotes(viHeaderId);
+	    	
     		List<Vendor_Invoicing_Header__c> viHeaderList = [select Id, Status__c, (select VI_Qty__c, Vendor_Receiving_Group__r.Part__c, Vendor_Receiving_Group__r.Vendor_Receiving_Header__c, Vendor_Receiving_Group__r.Part__r.Qty_In_Stock__c, Vendor_Receiving_Group__r.Part__r.Average_Cost__c, VI_Cost__c from Vendor_Invoicing_Groups__r) 
     																from Vendor_Invoicing_Header__c Where Id =: viHeaderId];
     	
@@ -524,12 +529,11 @@ global with sharing class VendorInvoicingCtrl {
     @RemoteAction
     global static String deleteVendorOrderInvoicing(String viHeaderId){
     	try{
-    		if(AccessControl.ifObjectIsDeletable('Vendor_Invoicing_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-    		
     		viHeaderId = BPUtility.getDecodedString(viHeaderId);
-    		viHeaderId = BPUtility.escapeSingleQuotes(viHeaderId);
     		if(AccessControl.ifObjectFieldIsAccessible('Vendor_Invoicing_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     		if(AccessControl.ifObjectFieldIsAccessible('Vendor_Invoicing_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+			if(AccessControl.ifObjectIsDeletable('Vendor_Invoicing_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
+			viHeaderId = BPUtility.escapeSingleQuotes(viHeaderId);
     		List<Vendor_Invoicing_Header__c> viGroupList = [Select (Select Id From Vendor_Invoicing_Groups__r) From Vendor_Invoicing_Header__c   where ID =: viHeaderId ];
     		if(viGroupList[0].Vendor_Invoicing_Groups__r.size() == 0){
     			Vendor_Invoicing_Header__c viInvoiceHeader = new Vendor_Invoicing_Header__c(Id = viHeaderId);
@@ -698,7 +702,7 @@ global with sharing class VendorInvoicingCtrl {
     				this.TotalCost += vrGroupRec.Cost__c * vrGroupRec.Recieved__c;
     			}
     		}
-    		this.TotalCost = this.TotalCost.setScale(2);
+    		
     		if(vrHeaderRec.In_Progress_VRs__r != null && vrHeaderRec.In_Progress_VRs__r.size() == 1) {
     			this.OrderType = vrHeaderRec.In_Progress_VRs__r[0].Vendor_Order_Header__r.Name;
     		} else if(vrHeaderRec.In_Progress_VRs__r != null && vrHeaderRec.In_Progress_VRs__r.size() > 1) {
@@ -744,17 +748,12 @@ global with sharing class VendorInvoicingCtrl {
     		this.Item = viGroupRec.Vendor_Receiving_Group__r.Part__r.Part_ID__c + ' - ' + viGroupRec.Vendor_Receiving_Group__r.Part__r.Description__c;
     		this.PackingNumber = viGroupRec.Vendor_Receiving_Group__r.Vendor_Receiving_Header__r.Packing_Slip_Number__c;
     		this.ReceivingQty = viGroupRec.Vendor_Receiving_Group__r.Recieved__c;
-    		this.ReceivingCost = (viGroupRec.Vendor_Receiving_Group__r.Cost__c != null) ? viGroupRec.Vendor_Receiving_Group__r.Cost__c.setScale(2) : 0.00;
-    		this.InvoiceCost = (viGroupRec.VI_Cost__c != null) ? viGroupRec.VI_Cost__c.setScale(2) : 0.00;
+    		this.ReceivingCost = viGroupRec.Vendor_Receiving_Group__r.Cost__c;
+    		this.InvoiceCost = viGroupRec.VI_Cost__c;
     		this.Discount = viGroupRec.VI_Discount__c;
-    		this.SubTotal = (viGroupRec.VI_SubTotal__c != null) ? viGroupRec.VI_SubTotal__c.setScale(2) : 0.00;
+    		this.SubTotal = viGroupRec.VI_SubTotal__c;
     		this.VIGroupId = viGroupRec.Id;
-    		if(viGroupRec.VI_Cost__c == null || this.ReceivingQty == null || this.Discount == null) {
-    			this.DiscountAmout = 0.00;
-    		} else {
-    			this.DiscountAmout = ((viGroupRec.VI_Cost__c * this.ReceivingQty * this.Discount) / 100).setScale(2);
-    		}
-    		
+    		this.DiscountAmout = (viGroupRec.VI_Cost__c * this.ReceivingQty * this.Discount) / 100;
     		this.OrderType = '';
 	        if(viGroupRec.Vendor_Receiving_Group__r.Part__r.Packaged_Part__c) {
 	            this.ReceivingQty = this.ReceivingQty / viGroupRec.Vendor_Receiving_Group__r.Part__r.Package_Qty__c;
@@ -828,7 +827,6 @@ global with sharing class VendorInvoicingCtrl {
     			this.VIGroupList.add(viGroupObj);
     			this.ItemsTotal += viGroupObj.SubTotal;
     		}
-    		this.ItemsTotal = this.ItemsTotal.setScale(2);
     		this.VIGroupList = getGroupPaginatedRecords(this.VIGroupList, groupItemsPageSortAttrs.CurrentPage, groupItemsPageSortAttrs.PageSize);
     		
     		if(viHeaderList.size() > 0) {
@@ -838,7 +836,6 @@ global with sharing class VendorInvoicingCtrl {
     			}
     			this.Total = this.ItemsTotal + this.PurchaseTax;
     		}
-    		this.Total = this.Total.setScale(2);
     	}
     	
     	/**
@@ -937,8 +934,6 @@ global with sharing class VendorInvoicingCtrl {
     			this.SubTotal += vrGroupObj.Total;
     			this.Tax += vrGroupObj.TaxAmount;
     		}
-    		this.SubTotal = this.SubTotal.setScale(2);
-    		this.Tax = this.Tax.setScale(2);
     		this.Total = this.SubTotal + this.Tax;
     	}
     }
@@ -968,9 +963,9 @@ global with sharing class VendorInvoicingCtrl {
     		this.Id = vrGroupRec.Id;
     		this.QtyOrdered = vrGroupRec.Order__c;
     		this.QtyReceived = vrGroupRec.Recieved__c;
-    		this.Price = (vrGroupRec.Cost__c != null) ? vrGroupRec.Cost__c.setScale(2) : 0.00;
+    		this.Price = vrGroupRec.Cost__c;
     		this.TaxAmount = 0;
-    		this.Total = (this.Price * this.QtyReceived).setScale(2);
+    		this.Total = this.Price * this.QtyReceived;
     	}
     }
 }

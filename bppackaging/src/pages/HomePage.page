@@ -8,8 +8,6 @@
 <c:Css_and_Js ></c:Css_and_Js>
 
 <apex:includeScript value="{!URLFOR($Resource.AngularResources, 'js/jquery-ui.js') }" />
-<link rel="stylesheet" href="https://angular-ui.github.io/ui-date/components/jquery-ui/themes/smoothness/jquery-ui.css" />
-<apex:includeScript value="{!$Resource.JqueryUI}"/>
 <apex:includeScript value="{!URLFOR($Resource.AngularResources, 'js/underscore-min.js') }" />
 <apex:includeScript value="{!URLFOR($Resource.AngularResources, 'js/jquery.mousewheel.js') }" />
 
@@ -309,7 +307,7 @@
    float: left;
    width: 30px;
    height: 30px;
-   background-image: url('{!URLFOR($Resource.Images, 'circlefornumber.png')}') no-repeat;
+   background: url("/resource/Images/circlefornumber.png") no-repeat;
    font-size: 10px;
    padding: 8px 5px;
    }
@@ -1051,7 +1049,7 @@
                     
                     </div>
                         
-                    <apex:iframe src="{!$Page.chatter}?Id={!$User.Id}" height="400" scrolling="true" /> 
+                    <apex:iframe src="/apex/chatter?Id={!$User.Id}" height="400" scrolling="true" /> 
                 </div>
                     
                 </div>

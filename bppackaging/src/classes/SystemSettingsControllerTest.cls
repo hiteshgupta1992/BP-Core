@@ -37,6 +37,9 @@ private class SystemSettingsControllerTest {
     @testSetup
     private static void setupTestData() {
         TestUtil.createNameSpaceInGeneralConfig();
+        
+		List<General_Configurations__c> config = [SELECT Id FROM General_Configurations__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
+		System.assertNotEquals(0, config.size());
     }
     
     static testMethod void getJSONForAllSalesTaxTest() {
@@ -51,7 +54,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         String salesTaxObjectjson = SystemSettingsController.getJSONForSalesTax(BPUtility.getEncodedString(salesTaxObject.id));
         Test.stopTest();
-        List<Sales_Tax__c> salestaxList = [Select id from Sales_Tax__c ];
+        List<Sales_Tax__c> salestaxList = [Select id from Sales_Tax__c Limit 100];
         System.assertEquals(1,salestaxList.size());
     }
     
@@ -60,7 +63,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         String salesTaxObjectjson = SystemSettingsController.getJSONForAllSalesTaxItem();
         Test.stopTest();
-        List<Sales_Tax__c> salestaxList = [Select id from Sales_Tax__c ];
+        List<Sales_Tax__c> salestaxList = [Select id from Sales_Tax__c Limit 100];
         System.assertEquals(1,salestaxList.size());
     }
     
@@ -69,7 +72,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         String salesTaxObjectjson = SystemSettingsController.getJSONForSalesTaxItem(BPUtility.getEncodedString(salesTaxObject.id));
         Test.stopTest();
-        List<Sales_Tax__c> salestaxList = [Select id from Sales_Tax__c ];
+        List<Sales_Tax__c> salestaxList = [Select id from Sales_Tax__c  Limit 100];
         System.assertEquals(1,salestaxList.size());
     }
     
@@ -78,7 +81,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         String priceLevelObjectjson = SystemSettingsController.getJSONForAllPriceLevels();
         Test.stopTest();
-        List<Price_Level__c> priceLevelIdList = [Select id from Price_Level__c];
+        List<Price_Level__c> priceLevelIdList = [Select id from Price_Level__c Limit 100];
         System.assertEquals(1,priceLevelIdList.size());
     }
     
@@ -94,7 +97,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         String salestaxWrapperObjectjson = SystemSettingsController.getJSONForSalesTaxWrapper(BPUtility.getEncodedString(salesTaxObject.id));
         Test.stopTest();
-        List<Sales_Tax__c> salestaxList = [Select id from Sales_Tax__c];
+        List<Sales_Tax__c> salestaxList = [Select id from Sales_Tax__c Limit 100];
         System.assertEquals(1,salestaxList.size());
     }
     
@@ -103,7 +106,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         String countryjson =  SystemSettingsService.getJSONForCountry(new List<Id>{countryObject.id}, 1);
         Test.stopTest();
-        List<Country__c> countryList = [Select id from Country__c];
+        List<Country__c> countryList = [Select id from Country__c Limit 100];
         System.assertEquals(1,countryList.size());
     }
     static testmethod void getJSONForStateTest(){
@@ -111,7 +114,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         String statejson = SystemSettingsService.getJSONForState(countryObject.id);
         Test.stopTest();
-        List<Country__c> countryList = [Select id from Country__c];
+        List<Country__c> countryList = [Select id from Country__c Limit 100];
         System.assertEquals(1,countryList.size());
     }
     
@@ -120,7 +123,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         String countryjson = SystemSettingsService.getJSONForAllCountries();
         Test.stopTest();
-        List<Country__c> countryList = [Select id from Country__c];
+        List<Country__c> countryList = [Select id from Country__c Limit 100];
         System.assertEquals(1,countryList.size());
     }
     
@@ -131,7 +134,7 @@ private class SystemSettingsControllerTest {
         Part__c partObject =   TestUtil.createPart(true, 'POO1', vendorobject.id, 'Testdescription', categoryObject.id, 50, 50, 20, 50, 20);
         SystemSettingsService.getJSONForPartByPartId(partObject.id);
         Test.stopTest();
-        List<Part__c> partList = [Select id from Part__c];
+        List<Part__c> partList = [Select id from Part__c Limit 100];
         System.assertEquals(1,partList.size());
     }
     
@@ -139,7 +142,7 @@ private class SystemSettingsControllerTest {
         Sales_Tax__c  salesTaxObject =  TestUtil.createSalesTax(true, 'testSalesTax');
         Test.startTest();
         SystemSettingsService.deleteSalesTax(salesTaxObject.id);
-        List<Sales_Tax__c> salestaxIdList = [Select id from Sales_Tax__c];
+        List<Sales_Tax__c> salestaxIdList = [Select id from Sales_Tax__c Limit 100];
         System.assertEquals(0,salestaxIdList.size());
         Test.stopTest();
     }
@@ -148,7 +151,7 @@ private class SystemSettingsControllerTest {
         Price_Level__c   priceLevelObject = TestUtil.createPriceLevel(true, 'testpriceLevel');
         Test.startTest();
         SystemSettingsService.deletePriceLevel(priceLevelObject.id);
-        List<Price_Level__c> priceLevelIdList = [Select id from Price_Level__c];
+        List<Price_Level__c> priceLevelIdList = [Select id from Price_Level__c Limit 100];
         System.assertEquals(0,priceLevelIdList.size());
         Test.stopTest();
     }
@@ -160,7 +163,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getJSONForCustomer(new List<id>{customer.id}, 1, 1, false, JSON.serialize(filterObject));
         Test.stopTest();
-        List<Account> accountList = [Select id from Account];
+        List<Account> accountList = [Select id from Account Limit 100];
         System.assertEquals(1,accountList.size());
     }
     
@@ -171,7 +174,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getJSONForVendor(new List<id>{vendorobject.id}, 1, 1, false, JSON.serialize(filterObject));   
         Test.stopTest();
-        List<Filter__c> filterList = [Select id from Filter__c];
+        List<Filter__c> filterList = [Select id from Filter__c Limit 100];
         System.assertEquals(1,filterList.size());
     }
     
@@ -183,7 +186,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getJSONForParts(new List<Id> { partObject.id}, 1, 1, false, JSON.serialize(filterObject));
         Test.stopTest();
-        List<Part__c> partList = [Select id from Part__c];
+        List<Part__c> partList = [Select id from Part__c Limit 100];
         System.assertEquals(1,partList.size());
     }
     
@@ -193,7 +196,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getJSONForUnitMakes(new List<Id> { unitmakeObject.id}, 1, 1, false, JSON.serialize(filterObject));
         Test.stopTest();
-        List<Filter__c> filterList = [Select id from Filter__c];
+        List<Filter__c> filterList = [Select id from Filter__c Limit 100];
         System.assertEquals(1,filterList.size());
     }
     
@@ -203,7 +206,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getJSONForUnitModelByUnitMakeId(unitmakeObject.id, 1, 1, false, JSON.serialize(filterObject));
         Test.stopTest();
-        List<Filter__c> filterList = [Select id from Filter__c];
+        List<Filter__c> filterList = [Select id from Filter__c Limit 100];
         System.assertEquals(1,filterList.size());
         
     }
@@ -212,14 +215,14 @@ private class SystemSettingsControllerTest {
         Category__c categoryObject =  TestUtil.createCategory(true, 'testCategory');
         Sales_Tax_Item__c salestaxItem = TestUtil.createSalesTaxItem(true, 'salesTaxItem', 10,  'salesTaxItem', true, categoryObject.id);
         Test.startTest();
-        List<Sales_Tax_Item__c> salesTaxitemObjectList = [Select id from Sales_Tax_Item__c];
+        List<Sales_Tax_Item__c> salesTaxitemObjectList = [Select id from Sales_Tax_Item__c Limit 100];
         System.assertEquals(1,salesTaxitemObjectList.size());
         SystemSettingsService.deleteSalesTaxItem(salestaxItem.id);
-        salesTaxitemObjectList = [Select id from Sales_Tax_Item__c];
+        salesTaxitemObjectList = [Select id from Sales_Tax_Item__c Limit 100];
         System.assertEquals(0,salesTaxitemObjectList.size());
         salestaxItem = TestUtil.createSalesTaxItem(true, 'salesTaxItem', 10,  'salesTaxItem', true, categoryObject.id);
         SystemSettingsService.deleteSalesTaxItem(salestaxItem.id);
-        salesTaxitemObjectList = [Select id from Sales_Tax_Item__c];
+        salesTaxitemObjectList = [Select id from Sales_Tax_Item__c Limit 100];
         System.assertEquals(0,salesTaxitemObjectList.size());
         Test.stopTest();
     }
@@ -238,6 +241,8 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getAutoCompleteJSONForObj('Part__c', 'Testdescription');
         Test.stopTest();
+        List<Contact> accList = [select Id, Name from Contact limit 100];
+       	system.assertEquals(accList.size(), 0);
     }
     
     static testmethod void getPicklistJSONForObjectRecordsTest(){
@@ -251,7 +256,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.ParseJSONForSalesTaxWrapper(JSON.serialize(salesTaxObject), salesTaxObject.id);
         Test.stopTest();
-        List<Sales_Tax__c> salestaxList = [Select id from Sales_Tax__c];
+        List<Sales_Tax__c> salestaxList = [Select id from Sales_Tax__c Limit 100];
         System.assertEquals(1,salestaxList.size());
     }
     
@@ -260,7 +265,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.saveSalesTaxJSON(JSON.serialize(salesTaxObject));
         Test.stopTest();
-        List<Sales_Tax__c> salestaxList = [Select id from Sales_Tax__c];
+        List<Sales_Tax__c> salestaxList = [Select id from Sales_Tax__c Limit 100];
         System.assertEquals(1,salestaxList.size());
     }
     
@@ -270,7 +275,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.updateStateJSON(JSON.serialize(stateObject));
         Test.stopTest();
-        List<Country__c> countryList = [Select id from Country__c];
+        List<Country__c> countryList = [Select id from Country__c Limit 100];
         System.assertEquals(1,countryList.size());
         
     }
@@ -282,7 +287,7 @@ private class SystemSettingsControllerTest {
         String customerJSON = Utility.createJSON(new List<Account>{customer}, Constants.COMAPANY_CUSTOMER_FIELDS_TO_JSON_MAPPING, Constants.COMAPANY_CUSTOMER_FIELDS_TO_DATA_TYPE_MAPPING, new List<SObject>(), null, null);
         SystemSettingsService.saveComapanyCustomerJSON(customerJSON);
         Test.stopTest();
-        List<Account> accountList = [Select id from Account];
+        List<Account> accountList = [Select id from Account Limit 100];
         System.assertEquals(1,accountList.size());
     }
     
@@ -291,19 +296,19 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.saveCategoryJSON(JSON.serialize(categoryObject));
         Test.stopTest();
-        List<Category__c> categoryList = [Select id from Category__c];
+        List<Category__c> categoryList = [Select id from Category__c Limit 100];
         System.assertEquals(1,categoryList.size());
     }
     
     static testmethod void saveSalesTaxItemJSONTest(){
         Category__c categoryObject =  TestUtil.createCategory(true, 'testCategory');
-        List<Sales_Tax_Item__c> salestaxItemList = [Select id from Sales_Tax_Item__c ];
+        List<Sales_Tax_Item__c> salestaxItemList = [Select id from Sales_Tax_Item__c  Limit 100];
         System.assertEquals(0,salestaxItemList.size());
         Sales_Tax_Item__c salestaxItem = TestUtil.createSalesTaxItem(true, 'salesTaxItem', 10,  'salesTaxItem', true, categoryObject.id);
         Test.startTest();
         SystemSettingsService.saveSalesTaxItemJSON(JSON.serialize(salestaxItem));
         Test.stopTest();
-        salestaxItemList = [Select id from Sales_Tax_Item__c ];
+        salestaxItemList = [Select id from Sales_Tax_Item__c Limit 100];
         System.assertEquals(1,salestaxItemList.size());
     }
     static testmethod void getJSONForCategoriesTest(){
@@ -312,7 +317,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getJSONForCategories(new List<id>{categoryObject.id}, 1, 1, false, JSON.serialize(filterObject));
         Test.stopTest();
-        List<Filter__c> filterList = [Select id from Filter__c];
+        List<Filter__c> filterList = [Select id from Filter__c Limit 100];
         System.assertEquals(1,filterList.size());
     }
     static testmethod void updateCountryJSONTest(){
@@ -321,7 +326,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.updateCountryJSON(JSON.serialize(countryObject1));
         Test.stopTest();
-        List<Country__c> countryList = [Select id from Country__c];
+        List<Country__c> countryList = [Select id from Country__c  Limit 100];
         System.assertEquals(1,countryList.size());
     }
     static testmethod void savePriceLevelJSONTest(){
@@ -329,7 +334,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.savePriceLevelJSON(JSON.serialize(priceLevelObject));
         Test.stopTest();
-        List<Price_Level__c> priceLevelList = [Select id from Price_Level__c];
+        List<Price_Level__c> priceLevelList = [Select id from Price_Level__c Limit 100];
         System.assertEquals(0,priceLevelList.size());
 
     }
@@ -362,7 +367,7 @@ private class SystemSettingsControllerTest {
         customercontact.Sales_Tax__c = salesTaxObject.Id;
         customercontact.Active__c = true;
         customercontact.Is_Vendor__c=false; 
-        List<Contact> contactList = [Select id from Contact];
+        List<Contact> contactList = [Select id from Contact Limit 100];
         //customercontact = [Select LastName,FirstName,MailingStreet,MailingCity,MailingState, MailingCountry,MailingPostalCode,  OtherStreet, OtherCity,OtherState,OtherCountry,OtherPostalCode,SA_same_as_BA__c ,Phone,MobilePhone,Fax,Email,Preferred_Contact__c,VIP__c ,Price_Level__c,Price_Level__r.Name,Sales_Tax__c,Sales_Tax__r.Name,Active__c ,Is_Vendor__c   FROM Contact LIMIT 1];
         String customerJSON = Utility.createJSON(new List<Contact>{customercontact}, Constants.INDIVIDUAL_CUSTOMER_FIELDS_TO_JSON_MAPPING, Constants.INDIVIDUAL_CUSTOMER_FIELDS_TO_DATA_TYPE_MAPPING, new List<SObject>(), null, null);
         System.assertEquals(1,contactList.size());
@@ -376,7 +381,7 @@ private class SystemSettingsControllerTest {
         }
         finally{
         	Test.stopTest();
-        	contactList = [Select id from Contact];
+        	contactList = [Select id from Contact Limit 100];
         }
     }
     
@@ -385,7 +390,7 @@ private class SystemSettingsControllerTest {
         Sales_Tax__c  salesTaxObject =  TestUtil.createSalesTax(true, 'testSalesTax');
         Account customer = TestUtil.createCustomer(true, 'test customer', 'test@gmail.com', 'Jaipur', '8058704475',priceLevelObject.id + '', salesTaxObject.id + '',  false, true, 'Individual', 'test', 'lastName', '8058704475', 'billingstreet');
         Contact  customercontact = TestUtil.createContact(true, 'test contact', 'lastname', customer.id);
-        List<Contact> contactList = [Select id from Contact];
+        List<Contact> contactList = [Select id from Contact Limit 100];
         System.assertEquals(1,contactList.size());
         customer = [Select Id,Name,BillingStreet,BillingCity,BillingState,BillingCountry,BillingPostalCode,ShippingStreet,ShippingCity,ShippingState,ShippingCountry,ShippingPostalCode,SA_same_as_BA__c,Phone,Mobile__c,Fax,Email__c,Preferred_Contact__c,VIP__c,Price_Level__c,Price_Level__r.Name,Sales_Tax__c,Sales_Tax__r.Name,Active__c,Is_Vendor__c FROM Account LIMIT 1];
         String customerJSON = Utility.createJSON(new List<Account>{customer}, Constants.COMAPANY_CUSTOMER_FIELDS_TO_JSON_MAPPING, Constants.COMAPANY_CUSTOMER_FIELDS_TO_DATA_TYPE_MAPPING, new List<SObject>(), null, null);
@@ -398,7 +403,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.saveVendorJSON(JSON.serialize(vendorobject));
         Test.stopTest();
-        List<Account> accountList = [Select id from Account];
+        List<Account> accountList = [Select id from Account Limit 100];
         System.assertEquals(0,accountList.size());        
     }
     
@@ -406,20 +411,20 @@ private class SystemSettingsControllerTest {
         Account vendorobject =TestUtil.createVendor(true, 'testvendor');
         Category__c categoryObject =  TestUtil.createCategory(true, 'testCategory');
         Part__c partObject =   TestUtil.createPart(true, 'POO1', vendorobject.id, 'Testdescription', categoryObject.id, 50, 50, 20, 50, 20);
-        List<Part__c> partList = [Select id, Location__c,Category__c,Description__c,Active__c,Qty_On_Order__c from Part__c];
+        List<Part__c> partList = [Select id, Location__c,Category__c,Description__c,Active__c,Qty_On_Order__c from Part__c Limit 100];
         Test.startTest();
         System.assertEquals(1,partList.size());
         partObject = [Select Id,Description__c,Part_Id__c,Active__c,Qty_On_Order__c,Retail_Price__c,Location__c,Category__r.Name,Category__c,Auto_reorder_Max__c,Auto_reorder_Min__c,Average_Cost__c,Enviro_Fee__c,Last_Cost__c,Last_Counted__c,Last_Sold__c,Last_Stocked__c,MSRP__c,Notes__c,Order_Lots__c,Packaged_Part__c,Package_Qty__c,Qty_Committed__c,Part_Number__c,Qty_In_Stock__c,Superseded_By__c,Superseded_By__r.Part_ID__c,Taxable__c,Vendor__c,Vendor_Code__c,Vendor_Name_And_Code__c   FROM Part__c LIMIT 1];
         String partJSON = Utility.createJSON(new List<Part__c>{partObject}, Constants.PART_FIELDS_TO_JSON_MAPPING, Constants.PART_FIELDS_TO_DATA_TYPE_MAPPING, new List<Sobject>(), null, null);
         SystemSettingsService.savePartJSON(partJSON);
         Test.stopTest();
-        partList = [Select id from Part__c];
+        partList = [Select id from Part__c Limit 100];
         //System.assertEquals(1,partList.size());
     }
     static testmethod void saveUnitMakeJSONTest(){
         Unit_Make__c unitmakeObject =    TestUtil.createUnitMake(true, 'testUnitMake', '201', true);
         Unit_Make__c unitmakeObject1 =    TestUtil.createUnitMake(false, '1testUnitMake', '201', true);
-        List<Unit_Make__c> unitmakeObjectList = [Select id from Unit_Make__c];
+        List<Unit_Make__c> unitmakeObjectList = [Select id from Unit_Make__c Limit 100];
         Test.startTest();
         System.assertEquals(1,unitmakeObjectList.size());
         SystemSettingsService.saveUnitMakeJSON(JSON.serialize(unitmakeObject1));
@@ -428,7 +433,7 @@ private class SystemSettingsControllerTest {
     
     static testmethod void deleteUnitMakeJSONTest(){
         Unit_Make__c unitmakeObject =    TestUtil.createUnitMake(true, 'testUnitMake', '201', true);
-        List<Unit_Make__c> unitmakeObjectList = [Select id from Unit_Make__c];
+        List<Unit_Make__c> unitmakeObjectList = [Select id from Unit_Make__c Limit 100];
         System.assertEquals(1,unitmakeObjectList.size());
         Test.startTest();
         SystemSettingsService.deleteUnitMakeJSON(JSON.serialize(unitmakeObject));
@@ -438,7 +443,7 @@ private class SystemSettingsControllerTest {
     static testmethod void saveUnitModelJSONTest(){
         Unit_Make__c unitmakeObject =    TestUtil.createUnitMake(true, 'testUnitMake', '201', true);
         Unit_Model__c unitmodelObject =    TestUtil.createUnitModel(false, 'TestUnit Model', '123', true, unitmakeObject.id);
-        List<Unit_Model__c> unitmodelObjectList = [Select id from Unit_Model__c];
+        List<Unit_Model__c> unitmodelObjectList = [Select id from Unit_Model__c Limit 100];
         System.assertEquals(0,unitmodelObjectList.size());
         Test.startTest();
         SystemSettingsService.saveUnitModelJSON(JSON.serialize(unitmodelObject));
@@ -447,7 +452,7 @@ private class SystemSettingsControllerTest {
     static testmethod void deleteUnitModelJSONTest(){
         Unit_Make__c unitmakeObject =    TestUtil.createUnitMake(true, 'testUnitMake', '201', true);
         Unit_Model__c unitmodelObject =    TestUtil.createUnitModel(true, 'TestUnit Model', '123', true, unitmakeObject.id);
-        List<Unit_Model__c> unitmodelObjectList = [Select id from Unit_Model__c];
+        List<Unit_Model__c> unitmodelObjectList = [Select id from Unit_Model__c Limit 100];
         System.assertEquals(1,unitmodelObjectList.size());
         Test.startTest();
         SystemSettingsService.deleteUnitModelJSON(JSON.serialize(unitmodelObject));
@@ -459,7 +464,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getJSONForFilteredUnitModels(unitmakeObject.id, 'test', UNIT_MODEL_LIST_NAME_PREFIX +  'VIN_Code', false);
         Test.stopTest();
-        List<Unit_Make__c> unitmakeObjectList = [Select id from Unit_Make__c];
+        List<Unit_Make__c> unitmakeObjectList = [Select id from Unit_Make__c Limit 100];
         System.assertEquals(1,unitmakeObjectList.size());
     }
     
@@ -468,7 +473,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getJSONForFilteredCustomer('test', CUSTOMER_NAME_PREFIX + 'Name', false);
         Test.stopTest();
-        List<Account> accountList = [Select id from Account];
+        List<Account> accountList = [Select id from Account Limit 100];
         System.assertEquals(1,accountList.size());
             
     }
@@ -480,7 +485,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getJSONForFilteredParts('test',PART_NAME_PREFIX +'Location');
         Test.stopTest();
-        List<Category__c> categoryList = [Select id from Category__c];
+        List<Category__c> categoryList = [Select id from Category__c Limit 100];
         System.assertEquals(1,categoryList.size());
     }
     
@@ -489,7 +494,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getJSONForFilteredCategory('test',CATEGORY_LIST_NAME_PREFIX +'Name');
         Test.stopTest();
-        List<Category__c> categoryList = [Select id from Category__c];
+        List<Category__c> categoryList = [Select id from Category__c Limit 100];
         System.assertEquals(1,categoryList.size());
     }
     
@@ -498,7 +503,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getJSONForFilteredVendor('test',VENDOR_LIST_NAME_PREFIX +'Name', false);
         Test.stopTest();
-        List<Account> accountList = [Select id from Account];
+        List<Account> accountList = [Select id from Account Limit 100];
         System.assertEquals(1,accountList.size());
 
     }
@@ -507,7 +512,7 @@ private class SystemSettingsControllerTest {
         Test.startTest();
         SystemSettingsService.getJSONForFilteredUnitMakes('test', UNIT_MAKE_LIST_NAME_PREFIX + 'Name', true);
         Test.stopTest();
-        List<Unit_Make__c> unitmakeObjectList = [Select id from Unit_Make__c];
+        List<Unit_Make__c> unitmakeObjectList = [Select id from Unit_Make__c Limit 100];
         System.assertEquals(1,unitmakeObjectList.size());
         
     }

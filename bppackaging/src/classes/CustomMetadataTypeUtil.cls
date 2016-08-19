@@ -79,6 +79,7 @@ public with sharing class CustomMetadataTypeUtil {
 	**/
 	private static List<HomeSearch_Setting__mdt> getGridCustomMetadataTypeSettings(String objectName) {
 		if(AccessControl.ifObjectFieldIsAccessible('HomeSearch_Setting__mdt') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		objectName = BPUtility.escapeSingleQuotes( objectName);
 		List<String> fieldsList = new List<String>{	'Label', 
 													'Status__c', 
 													'DeveloperName', 
@@ -92,10 +93,8 @@ public with sharing class CustomMetadataTypeUtil {
 		for(String fieldName : fieldsList) {
 			query += ', ' + fieldName;
 		}
-		objectName = BPUtility.escapeSingleQuotes(objectName);
 		query += ' FROM HomeSearch_Setting__mdt';
 		if(objectName != null) {
-			objectName = BPUtility.escapeSingleQuotes(objectName);
 			query += ' WHERE Label =: objectName';
 		}
 		query += ' LIMIT ' + SOQLUtil.getAvailableQueryRowsLimit();
@@ -112,8 +111,8 @@ public with sharing class CustomMetadataTypeUtil {
 	**/
 	public static List<HomeSearch_Grid_Column__mdt> getGridColumnsMetadataTypeSettings(String objectName) {
 		if(AccessControl.ifObjectFieldIsAccessible('HomeSearch_Grid_Column__mdt') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		objectName = BPUtility.escapeSingleQuotes( objectName);
 		List<HomeSearch_Grid_Column__mdt> hsColumnsSetting = new List<HomeSearch_Grid_Column__mdt>();
-		objectName = BPUtility.escapeSingleQuotes(objectName);
 		if(objectName != null) {
 			hsColumnsSetting = [SELECT	Id,
 										Label,

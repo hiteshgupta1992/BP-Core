@@ -214,8 +214,7 @@ private class ViewVendorRelatedListCtrlTest {
 
         
         String defaultCategory = BPUtility.getDecodedString(ViewVendorRelatedListCtrl.getSystemDefaultCategory(BPUtility.getEncodedString(vendor.Id)));
-       	//system.assertEquals(defaultCategory.contains('Test Category'), true);
-        system.assertEquals(defaultCategory.contains('Test Category'), false);
+       	system.assertEquals(defaultCategory.contains('Test Category'), true);
         
      } 
      

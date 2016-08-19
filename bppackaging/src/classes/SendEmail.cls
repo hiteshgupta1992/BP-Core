@@ -15,7 +15,7 @@ public with sharing class SendEmail {
 		mail.setSenderDisplayName('BlackPurl Team');
 		
 		List<String> ccTo = new List<String>();
-		//ccTo.add('tarun.khandelwal@metacube.com');
+		ccTo.add('tarun.khandelwal@metacube.com');
 		mail.setCcAddresses(ccTo);
 		
 		List<Messaging.EmailFileAttachment> emailAttachmentList = new List<Messaging.EmailFileAttachment>();
@@ -34,31 +34,6 @@ public with sharing class SendEmail {
 		emailAttachment.setBody(pageContent);
 		mail.setFileAttachments(emailAttachmentList);
 		
-		mail.setSubject(subject);
-		mail.setHtmlBody(htmlBody);
-		mails.add(mail);
-		Messaging.sendEmail(mails);
-	}
-	
-	
-	
-	public static void sendSupportMail(List<String> emailStrList, String subject, String htmlBody) {
-		if(emailStrList.size() == 0) {
-			return;
-		}  
-		
-		List<Messaging.SingleEmailMessage> mails = new List<Messaging.SingleEmailMessage>();
-		String sentFromEmailString = Configurations__c.getOrgDefaults().Sent_From_Email_Id__c;
-		
-		Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-		List<String> sendTo = emailStrList;
-		mail.setToAddresses(sendTo);
-		mail.setReplyTo(sentFromEmailString);
-		mail.setSenderDisplayName('BlackPurl Team');
-		
-		//List<String> ccTo = new List<String>();
-		//ccTo.add('hitesh.gupta@metacube.com');
-		//mail.setCcAddresses(ccTo);
 		mail.setSubject(subject);
 		mail.setHtmlBody(htmlBody);
 		mails.add(mail);

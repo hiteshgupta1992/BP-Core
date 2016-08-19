@@ -46,12 +46,16 @@ public with sharing class HomeSearchFilterInterface {
 		}
 		
 		/*if(homeSerachFilterObj.Type.Objects.contains('Customer Orders')  && homeSerachFilterObj.Customer_Order_Payments  !=null  &&  homeSerachFilterObj.Customer_Order_Payments){
+				
 				set<CO_Invoice_Header__c> myset = new set<CO_Invoice_Header__c>([select CO_Invoice_Header__c.CO_Header__r.Id from CO_Invoice_Header__c WHERE  Id IN
 									(select  CO_Invoice_Header__c FROM CO_Invoice_Payment__c WHERE Amount__c >= 200)]);
 				//filterJSON.add(new FieldFilter('', '', ));	
 				
 				system.assert(false,'Id In('+myset+' )');
 		}*/
+		
+		
+		
 		for(String objName : objectSet) {
 			List<FieldFilter> filterJSON = new List<FieldFilter>();
 			
@@ -311,7 +315,7 @@ public with sharing class HomeSearchFilterInterface {
 			
 			if(objName == 'Customer Orders') {
 				if(homeSerachFilterObj.Customer_Sales_Id != null && homeSerachFilterObj.Customer_Sales_Id != ''){
-					filterJSON.add(new FieldFilter('Invoice_Number__c', 'Like', '\'%' + homeSerachFilterObj.Customer_Sales_Id + '%\''));
+					filterJSON.add(new FieldFilter('Name', 'Like', '\'%' + homeSerachFilterObj.Customer_Sales_Id + '%\''));
 				}
 				
 				if(!String.isBlank(homeSerachFilterObj.Customer_Sales_Total.SelectedOption) && homeSerachFilterObj.Customer_Sales_Total.SelectedOption != '0'){
@@ -349,7 +353,7 @@ public with sharing class HomeSearchFilterInterface {
 			
 			if(objName == 'Customer Invoices') {
 				if(homeSerachFilterObj.Customer_Sales_Id != null && homeSerachFilterObj.Customer_Sales_Id != ''){
-					filterJSON.add(new FieldFilter('Invoice_Number__c', 'Like', '\'%' + homeSerachFilterObj.Customer_Sales_Id + '%\''));
+					filterJSON.add(new FieldFilter('Name', 'Like', '\'%' + homeSerachFilterObj.Customer_Sales_Id + '%\''));
 				}
 				if(!String.isBlank(homeSerachFilterObj.Customer_Sales_Customer)) {
 					filterJSON.add(new FieldFilter('CO_Header__r.Customer__r.Name', 'Like', '\'%' + homeSerachFilterObj.Customer_Sales_Customer + '%\''));
@@ -361,33 +365,9 @@ public with sharing class HomeSearchFilterInterface {
 						filterJSON.addAll(numericFilterList);
 					}
 				}
-
+				
 				if(!String.isBlank(homeSerachFilterObj.CO_Invoice_Header_Customer_Order)) {
 					filterJSON.add(new FieldFilter('CO_Header__r.Name', 'Like', '\'%' + homeSerachFilterObj.CO_Invoice_Header_Customer_Order + '%\''));
-				}
-				 
-				filterJSON.add(new FieldFilter('Status__c', '=', '\'Closed\''));
-			}
-			
-			if(objName == 'Customer Payments') {
-				if(homeSerachFilterObj.Customer_Sales_Id != null && homeSerachFilterObj.Customer_Sales_Id != ''){
-					filterJSON.add(new FieldFilter('Invoice_Number__c', 'Like', '\'%' + homeSerachFilterObj.Customer_Sales_Id + '%\''));
-				}
-				if(!String.isBlank(homeSerachFilterObj.Customer_Sales_Customer)) {
-					filterJSON.add(new FieldFilter('CO_Invoice_Header__r.CO_Header__r.Customer__r.Name', 'Like', '\'%' + homeSerachFilterObj.Customer_Sales_Customer + '%\''));
-				}
-				
-				if(!String.isBlank(homeSerachFilterObj.Customer_Sales_Total.SelectedOption) && homeSerachFilterObj.Customer_Sales_Total.SelectedOption != '0'){
-					List<FieldFilter> numericFilterList = getNumericFilter(homeSerachFilterObj.Customer_Sales_Total, 'Amount__c');
-					if(numericFilterList.size() > 0) {
-						filterJSON.addAll(numericFilterList);
-					}
-				}
-				if(!String.isBlank(homeSerachFilterObj.CO_Payment_Customer_Order)) {
-					filterJSON.add(new FieldFilter('CO_Invoice_Header__r.CO_Header__r.Name', 'Like', '\'%' + homeSerachFilterObj.CO_Payment_Customer_Order + '%\''));
-				}
-				if(!String.isBlank(homeSerachFilterObj.CO_Payment_Payment_Method.SelectedOption) && homeSerachFilterObj.CO_Payment_Payment_Method.SelectedOption != '0') {
-					filterJSON.add(new FieldFilter('Payment_Method__c', '=', '\'' + optionValueToPaymentMethodMap.get(homeSerachFilterObj.CO_Payment_Payment_Method.SelectedOption) + '\''));
 				}
 				
 			}		
@@ -445,6 +425,7 @@ public with sharing class HomeSearchFilterInterface {
 					
 			//For All Standards Objects
 			if(homeSerachFilterObj.Owner.SelectedOption != null && homeSerachFilterObj.Owner.SelectedOption != '0') {
+				
 				FieldFilter ff = getOwnerFilter(homeSerachFilterObj.Owner, objName);
 				if(ff != null) {
 					filterJSON.add(ff);
@@ -466,11 +447,7 @@ public with sharing class HomeSearchFilterInterface {
 			}
 			
 			if(homeSerachFilterObj.Status != null && (!String.isBlank(homeSerachFilterObj.Status) && homeSerachFilterObj.Status !='0') ) {
-				if(objName == 'Customer Payments') {
-					filterJSON.add(new FieldFilter('CO_Invoice_Header__r.Status__c', '=', '\'' + homeSerachFilterObj.Status + '\''));
-				} else {
-					filterJSON.add(new FieldFilter('Status__c', '=', '\'' + homeSerachFilterObj.Status + '\''));
-				}
+				filterJSON.add(new FieldFilter('Status__c', '=', '\'' + homeSerachFilterObj.Status + '\''));
 			}
 			objectFilterJSON.put(objName, filterJSON);
 		}
@@ -654,7 +631,7 @@ public with sharing class HomeSearchFilterInterface {
 			filterLables.add(new FilterLabel('Status', 'Status', statusName));
 		}
 		
-		if(!String.isBlank(homeSerachFilterObj.ModifiedDate.SelectedOption) && homeSerachFilterObj.ModifiedDate.SelectedOption != '0') {
+		if(String.isBlank(homeSerachFilterObj.ModifiedDate.SelectedOption) && homeSerachFilterObj.ModifiedDate.SelectedOption != '0') {
 			String modifiedLabelName = optionValueToModifiedKeyMap.containsKey(homeSerachFilterObj.ModifiedDate.SelectedOption) ? optionValueToModifiedKeyMap.get(homeSerachFilterObj.ModifiedDate.SelectedOption) : homeSerachFilterObj.ModifiedDate.SelectedOption;
 			if( modifiedLabelName == '5'  && !String.isBlank(HomeSerachFilterObj.ModifiedDate.Value1) && !String.isBlank(homeSerachFilterObj.ModifiedDate.Value2)) {
 				filterLables.add(new FilterLabel('ModifiedDate', 'Modified', homeSerachFilterObj.ModifiedDate.Value1 + ' To ' + homeSerachFilterObj.ModifiedDate.Value2));
@@ -711,7 +688,7 @@ public with sharing class HomeSearchFilterInterface {
 		}
 			
 			
-		if(homeSerachFilterObj.Type.Objects.contains('Customer Orders') || homeSerachFilterObj.Type.Objects.contains('Customer Invoices') || homeSerachFilterObj.Type.Objects.contains('Customer Payments')){				
+		if(homeSerachFilterObj.Type.Objects.contains('Customer Orders')  || homeSerachFilterObj.Type.Objects.contains('Customer Invoices') ){
 				if(!String.isBlank(homeSerachFilterObj.Customer_Sales_Customer)){
 					filterLables.add(new FilterLabel('Customer_Sales_Customer', 'Customer', homeSerachFilterObj.Customer_Sales_Customer));
 				}
@@ -735,6 +712,7 @@ public with sharing class HomeSearchFilterInterface {
 					}
 				}
 				if(!String.isBlank(homeSerachFilterObj.Customer_Order_Deposits.SelectedOption) && homeSerachFilterObj.Customer_Order_Deposits.SelectedOption != '0' ){
+					
 					String modifiedLabelName = optionValueToNumberValueLabelMap.containsKey(homeSerachFilterObj.Customer_Order_Deposits.SelectedOption) ? optionValueToNumberValueLabelMap.get(homeSerachFilterObj.Customer_Order_Deposits.SelectedOption) : homeSerachFilterObj.Customer_Order_Deposits.SelectedOption;
 					if(modifiedLabelName == '5') {
 						filterLables.add(new FilterLabel('Customer_Order_Deposits', 'Deposit', homeSerachFilterObj.Customer_Order_Deposits.Value1 + ' To ' + homeSerachFilterObj.Customer_Order_Deposits.Value2));
@@ -744,6 +722,7 @@ public with sharing class HomeSearchFilterInterface {
 				}
 				
 				if(!String.isBlank(homeSerachFilterObj.Customer_Sales_Total.SelectedOption) && homeSerachFilterObj.Customer_Sales_Total.SelectedOption != '0' ){
+					
 					String modifiedLabelName = optionValueToNumberValueLabelMap.containsKey(homeSerachFilterObj.Customer_Sales_Total.SelectedOption) ? optionValueToNumberValueLabelMap.get(homeSerachFilterObj.Customer_Sales_Total.SelectedOption) : homeSerachFilterObj.Customer_Sales_Total.SelectedOption;
 					if(modifiedLabelName == '5') {
 						filterLables.add(new FilterLabel('Customer_Sales_Total', 'Total', homeSerachFilterObj.Customer_Sales_Total.Value1 + ' To ' + homeSerachFilterObj.Customer_Sales_Total.Value2));
@@ -755,14 +734,6 @@ public with sharing class HomeSearchFilterInterface {
 						filterLables.add(new FilterLabel('CO_Invoice_Header_Customer_Order', 'Customer Order', homeSerachFilterObj.CO_Invoice_Header_Customer_Order));
 				}
 				
-				if(!String.isBlank( homeSerachFilterObj.CO_Payment_Customer_Order)){
-					filterLables.add(new FilterLabel('CO_Payment_Customer_Order', 'Customer Order', homeSerachFilterObj.CO_Payment_Customer_Order));
-			}
-		
-				if(!String.isBlank(homeSerachFilterObj.CO_Payment_Payment_Method.SelectedOption) && homeSerachFilterObj.CO_Payment_Payment_Method.SelectedOption != '0' ){
-					String paymentLabelName = optionValueToPaymentMethodMap.containsKey(homeSerachFilterObj.CO_Payment_Payment_Method.SelectedOption) ? optionValueToPaymentMethodMap.get(homeSerachFilterObj.CO_Payment_Payment_Method.SelectedOption) : homeSerachFilterObj.CO_Payment_Payment_Method.SelectedOption;
-					filterLables.add(new FilterLabel('CO_Payment_Payment_Method', 'Payment Method', paymentLabelName));
-				}
 			}
 		
 			
@@ -773,13 +744,14 @@ public with sharing class HomeSearchFilterInterface {
 				}
 				if(!String.isBlank(homeSerachFilterObj.Vendor_Order_Purchase_Order) && homeSerachFilterObj.Vendor_Order_Purchase_Order != '0'){
 					//filterJSON.add(new FieldFilter('Purchase_Order_Type__c', '=', homeSerachFilterObj.Vendor_Order_Purchase_Order));
-					if(AccessControl.ifObjectFieldIsAccessible('PO_Type__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+					/*if(AccessControl.ifObjectFieldIsAccessible('PO_Type__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 					List<PO_Type__c> PuchaseOrderList = [select Code__c from PO_Type__c where Id =: homeSerachFilterObj.Vendor_Order_Purchase_Order];
 					if(PuchaseOrderList.size() > 0) {
 						filterLables.add(new FilterLabel('Vendor_Order_Purchase_Order', 'Purchase Order', PuchaseOrderList[0].Code__c));
 					} else {
 						filterLables.add(new FilterLabel('Vendor_Order_Purchase_Order', 'Purchase Order', ''));
-					}
+					}*/
+					filterLables.add(new FilterLabel('Vendor_Order_Purchase_Order', 'Purchase Order', ''));
 				}
 				if(!String.isBlank(homeSerachFilterObj.Vendor_Order_Total_Recieved.SelectedOption) && homeSerachFilterObj.Vendor_Order_Total_Recieved.SelectedOption != '0' ){
 					
@@ -993,18 +965,6 @@ public with sharing class HomeSearchFilterInterface {
 																									'3' => 'Greater Than',
 																									'4' => 'Less Than'
 																								};																					
-	
-	public static Map<String, String> optionValueToPaymentMethodMap = new Map<String, String>{ 	'0' => 'Any',
-																								'1' => 'Cash',
-																								'2'	=> 'Debit',
-																								'3' => 'Cheque',
-																								'4' => 'Visa',
-																								'5'	=> 'Mastercard',
-																								'6' => 'Amex',
-																								'7' => 'Gift Card',
-																								'8'	=> 'Charge Account',
-																								'9' => 'Use Deposit'																							};
-	
 	 /**
 	 * Name: FieldFilter
 	 * Description: Field Filter Wrapper Class

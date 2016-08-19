@@ -92,16 +92,14 @@ private class COLineItemTriggerHelperTest {
         Account vendor = TestUtil.createVendor(true, 'Test Vendor');
         
         CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
-        Part__c part = TestUtil.createPart(false, '123', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
-        part.Applicable_Tax__c = defaultSalesTax.Id;
-        insert part;
+        Part__c part = TestUtil.createPart(true, '123', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
         CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(false, coHeader.Id, part.Id, 50);
+        
         Test.startTest();
         insert coLineItem;
         Test.stopTest();
         
         List<CO_Line_Item__c> coLineItemList = [select Tax__c From CO_Line_Item__c where Id = :coLineItem.Id];
-        //system.assert(false, coLineItemList);
         system.assertEquals(coLineItemList[0].Tax__c, 8);
     }
    
@@ -121,10 +119,10 @@ private class COLineItemTriggerHelperTest {
         Account vendor = TestUtil.createVendor(true, 'Test Vendor');
         
         CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
-        Part__c part = TestUtil.createPart(false, '123', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
-        part.Applicable_Tax__c = SalesTax.Id;
-        insert part;
+        Part__c part = TestUtil.createPart(true, '123', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
         CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 50);
+        CO_Line_Item__c coLineItem1 = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 50);
+        Part_Tax__c partTax = TestUtil.createPartTax(true, salesTaxItem1.Id, part.Id);
         COLineItemTriggerHelper.isTriggerExecute = false;
         Test.startTest();
         update coLineItem;
@@ -140,7 +138,7 @@ private class COLineItemTriggerHelperTest {
         //system.assert(false, coLineItem);
         List<CO_Line_Item__c> coLineItemList = [select Tax__c From CO_Line_Item__c where Id = :coLineItem.Id];
         //system.debug('$$$$$$ ' + coLineItemList);
-        system.assertEquals(coLineItemList[0].Tax__c, 15);
+        system.assertEquals(coLineItemList[0].Tax__c, 10);
     }
     
     static testMethod void qtyCommittedLogicTest() {

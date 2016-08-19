@@ -43,15 +43,7 @@
             if($scope.AddEditFee == undefined){
                 $scope.AddEditFee = {};
             }
-           $scope.AddEditFee.tabIndexValue = 4000;
-           
-           $scope.AddEditFee.adjustTabIndex = function(e){
-            	if(e.which == 9){
-            		$('#feetxtCode').focus();
-            		e.preventDefault();
-            	}
-            }
-            
+          
           	$scope.AddEditFee.ActiveOrderPageSortAttrsJSON = {
                ChangesCount    :   0,
                CurrentPage     :   1,
@@ -99,8 +91,7 @@
                 FeeCategory : [
                     {
                         Field : "Type__c",
-                        Value : "Fee",
-                        FilterObject :"Category__c"
+                        Value : "Fee"
                     }
                 ]
             };
@@ -187,19 +178,6 @@
             }
             
             $scope.AddEditFee.loadDefaultFeeData = function() {
-            	AddEditFeeService.getApplicableTaxList().then(function(taxList){
-                	debug(taxList);
-                	$scope.AddEditFee.IsTaxIncludingPricing = taxList.IsTaxIncludingPricing;
-                	$scope.AddEditFee.TaxList = taxList.SalesTaxList;
-                	var defaultTaxIndex = _.findIndex(taxList.SalesTaxList, {IsDefault: true});
-                	if(defaultTaxIndex > -1){
-                		$scope.AddEditFee.feeModel.ApplicableTaxId = $scope.AddEditFee.TaxList[defaultTaxIndex].Id;
-                		$scope.AddEditFee.Tax_Rate = $scope.AddEditFee.TaxList[defaultTaxIndex].TaxRate;
-                	}
-                }, function(errorSearchResult) {
-                    //$scope.ViewCustomer.CustomerInfo = errorSearchResult;
-                });
-                
             	AddEditFeeService.getDefaultFeeData().then(function (feeInfo) {
 					debug(feeInfo);
 					if(feeInfo.CategoryId != null && feeInfo.CategoryId != ""){
@@ -218,40 +196,18 @@
 				});
             }
             
-            $scope.AddEditFee.changeApplicableTax = function(){
-            	var selectedTaxIndex = _.findIndex($scope.AddEditFee.TaxList, {Id: $scope.AddEditFee.feeModel.ApplicableTaxId});
-            	if(selectedTaxIndex > -1){
-            		$scope.AddEditFee.Tax_Rate = $scope.AddEditFee.TaxList[selectedTaxIndex].TaxRate;
-            	}
-            }
           
 			$scope.AddEditFee.openEditFeePopup = function (feeId) {
 				$scope.AddEditFee.setDefaultValidationModel();
 				$scope.AddEditFee.isEditMode = true;
-				
-				AddEditFeeService.getApplicableTaxList().then(function(taxList){
-                	debug(taxList);
-                	$scope.AddEditFee.IsTaxIncludingPricing = taxList.IsTaxIncludingPricing;
-                	$scope.AddEditFee.TaxList = taxList.SalesTaxList;
-                	
-                	AddEditFeeService.getFeeInfoById(feeId, $scope.AddEditFee.ActiveOrderPageSortAttrsJSON).then(function (feeInfo) {
+				AddEditFeeService.getFeeInfoById(feeId, $scope.AddEditFee.ActiveOrderPageSortAttrsJSON)
+				.then(function (feeInfo) {
 					// Assign Labour record:
 					debug("edit services")
 					debug(feeInfo);
 					$scope.AddEditFee.feeModel = feeInfo.FeeRec;
 			
 					$scope.AddEditFee.CategoryNameStr = $scope.AddEditFee.feeModel.CategoryName;
-						if($scope.AddEditFee.feeModel.ApplicableTaxId != null){
-		                	var salesTaxIndex = _.findIndex(taxList.SalesTaxList, {Id: $scope.AddEditFee.feeModel.ApplicableTaxId});
-		                	if(salesTaxIndex > -1){
-		                		$scope.AddEditFee.Tax_Rate = taxList.SalesTaxList[salesTaxIndex].TaxRate;
-		                	}
-		                }
-						var defaultTaxIndex = _.findIndex(taxList.SalesTaxList, {IsDefault: true});
-						if(defaultTaxIndex > -1 && $scope.AddEditFee.feeModel.ApplicableTaxId == null){
-	                		$scope.AddEditFee.feeModel.ApplicableTaxId = $scope.AddEditFee.TaxList[defaultTaxIndex].Id;
-	                		$scope.AddEditFee.Tax_Rate = $scope.AddEditFee.TaxList[defaultTaxIndex].TaxRate;
-	                	}
 					$scope.viewFee.ShowContent = true;
 					$scope.AddEditFee.openPopup();
 					setTimeout(function () {
@@ -263,11 +219,6 @@
 					$scope.viewFee.ShowContent = false;
 					Notification.error("Some error occured while fetching the records. Please refresh the page and try again.");
 				});
-                }, function(errorSearchResult) {
-                    //$scope.ViewCustomer.CustomerInfo = errorSearchResult;
-                });
-				
-				
 			}
            
              
@@ -326,7 +277,7 @@
 			                        $scope.$parent.feeRecordSaveCallback(feeInfo.FeeRec);
 			                        
                    				 }else{
-                    				//Notification.success('Kit Saved Successfully');
+                    				//Notification.success('Kit Saved SucessFully');
                     				var child = window.open("{!$Page.viewFee}?id="+feeInfo.FeeRec.Id);
                     				if(child == undefined ){
                     					Notification.warning('Allow pop-ups from browser settings');
@@ -334,7 +285,7 @@
                     					child.opener.focus(); 
                     				}
                   				  }
-                  				  Notification.success('Fee Saved Successfully');
+                  				  Notification.success('Fee Saved SucessFully');
                              		  $scope.AddEditFee.closePopup();
                             }, function (errorSearchResult) {
                               
@@ -458,28 +409,7 @@
                         escape : true
                     });
                     return deferred.promise;
-                } 
-                
-                this.getApplicableTaxList = function()
-		            {
-	                    var deferred = $q.defer();
-	                    Visualforce.remoting.Manager.invokeAction(
-	                        '{!$RemoteAction.ViewFeeCtrl.getApplicableTaxList}',
-	                        function (result, event) {
-	                           if (event.type == 'exception') {
-	                                deferred.reject(event.message);
-	                            } else {
-	                                var categoryRecord = decodeString(result);
-	                                var find = '\'';
-	                                var re = new RegExp(find, 'g');
-	                                categoryRecord = categoryRecord.replace(re, '');
-	                                deferred.resolve(JSON.parse(categoryRecord));
-	                            }
-	                        }, {
-	                            escape : true
-	                    });
-	                    return deferred.promise;
-		            }
+                }
                     
                 this.getFeeInfoById = function (FeeId, activeOrderPageSortAttrsJSON) {
                    	FeeId = encodeString(FeeId);
@@ -563,14 +493,14 @@
 			<!-- Modal content-->
 			<div class="modal-content col-md-12">
 				<div class="modal-body popup_container fee_popup_container"
-					style="height: 500px;">
+					style="height: 440px;">
 					<div class="popupinside">
 
 						<!-- popup left start here -->
 						<div class="col-lg-4 col-md-4 popupleft"
-							ng-show="AddEditFee.isEditMode!=true" style="height: 430px;">
+							ng-show="AddEditFee.isEditMode!=true" style="height: 400px;">
 							<div class="popupleft_container" id="topsection">
-  
+
 								<h1 class="letpanel_heading">Existing Fees Like This</h1>
 								<i class="fa fa-question-circle helptip" data-toggle="tooltip"
 									title="Similar in case of Code or Description field values"
@@ -580,7 +510,7 @@
 								<div class="min_overflow">
 									<div class="goldbox col-lg-12 col-md-12"
 										ng-repeat="fee in AddEditFee.SimilarFee">
-										<!-- <div class="leftgoldbox">
+										<div class="leftgoldbox">
 											<img class="starimg"
 												src="{!URLFOR($Resource.Images, 'star.png')}" />
 											<div class="star_container">
@@ -589,8 +519,8 @@
 												<i class="fa fa-star"
 													style="float: left; color: #B7BEC6; margin-top: 5px; font-size: 15px;"></i>
 											</div>
-										</div> -->
-										<div class="rightgoldbox rightgoldboxML" id="CustomerSugesstionDiv" style="margin-left: 0px;">
+										</div>
+										<div class="rightgoldbox" id="CustomerSugesstionDiv">
 											<div>
 												<p class="cust_name">{{fee.Code}}</p>
 												<p>Description : {{fee.Description}}</p>
@@ -624,7 +554,7 @@
 									<button type="button" id="closemodal"
 										class="btn btn-default grayBtn"
 										ng-click="AddEditFee.closePopup();"
-										ng-attr-tabindex="{{AddEditFee.tabIndexValue + 31}}" ng-keydown = "AddEditFee.adjustTabIndex($event);">Cancel</button>
+										ng-attr-tabindex="{{AddEditFee.tabIndexValue + 31}}">Cancel</button>
 									<button type="button" class="btn btn-default greenBtn"
 										ng-click="AddEditFee.SaveFeeForm();"
 										ng-attr-tabindex="{{AddEditFee.tabIndexValue + 30}}">Save</button>
@@ -666,8 +596,7 @@
 									<div class="clearfix"></div>
 									<div class="option_field">
 										<div class="lable_fields">
-											<!-- <span class="form_lable_icons text"> 100 </span> -->
-											<span class="form_lable_icons text" style="background: none;"></span>
+											<span class="form_lable_icons text"> 100 </span>
 											<p class="req-label">Description</p>
 										</div>
 										<div class="form_fields">
@@ -712,10 +641,6 @@
 													validation-modal-key="Price" input-model="AddEditFee"
 													rel-value="feePrice" />
 											</div>
-											<div class="form-group pricefiled" id="msrpPretax"  style="padding: 6px;"
-                                            	ng-if="AddEditFee.IsTaxIncludingPricing && AddEditFee.feeModel.IsTaxable">
-                                                <span class="T3">pretax =  {{AddEditFee.feeModel.Price/(1 + AddEditFee.Tax_Rate/100) | currency}} </span>          
-                                            </div>
 											<div class="controls1 controls" id="feePrice">
 												<i class="fa fa-question-circle" data-toggle="tooltip"
 													title="{{AddEditFee.helpText['Price']}}"></i> <i
@@ -786,28 +711,6 @@
 									</div>
 									<!-- END: Taxable field -->
 
-									<!-- START: Applicable Tax field -->
-                                    <div class="clearfix"></div>
-                                    <div class="option_field" ng-show="AddEditFee.feeModel.IsTaxable == true">
-                                        <div class="lable_fields">
-                                            <span class="form_lable_icons text hiddenfield"> </span>
-                                            <p>Applicable Tax</p>
-                                        </div>
-                                        <div class="form_fields">
-                                            <div class="form-group large">
-                                                <select class="form-control" rel="applicabletax"
-                                             		ng-attr-tabindex="{{AddEditFee.tabIndexValue + 6}}"
-                                             		ng-model = "AddEditFee.feeModel.ApplicableTaxId"
-                                             		ng-change = "AddEditFee.changeApplicableTax()"
-                                             		ng-options="taxItem.Id as taxItem.Name for taxItem in AddEditFee.TaxList"></select>
-                                            </div>
-                                            <div  class="controls1 controls" id="applicabletax">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip" title="Fee Applicable Tax"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- END: Applicable Tax field -->
-									
 									<div class="clearfix"></div>
 									<div class="option_field" ng-show="AddEditFee.isEditMode==true">
 										<div class="lable_fields">

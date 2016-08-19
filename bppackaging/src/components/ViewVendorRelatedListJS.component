@@ -253,7 +253,7 @@
 						$scope.ViewVendorRelatedListModal.POTypes_sectionModel.poTypesChangesCount++;
 					}, 10);
 				                
-	                Notification.success('POType Saved Successfully');
+	                Notification.success('POType Saved SucessFully');
             		$scope.$parent.POTypeCompModal.closePopup();
 				}
 			}
@@ -414,7 +414,7 @@
 						$scope.ViewVendorRelatedListModal.ActiveOrders_sectionModel.activeOrdersCurrentPage++;
 					}, 10);
 				                
-	                Notification.success('POType Saved Successfully');
+	                Notification.success('POType Saved SucessFully');
             		//$scope.$parent.POTypeCompModal.closePopup();
 				}
 			}
@@ -576,7 +576,7 @@
 						$scope.ViewVendorRelatedListModal.VendorRelatedInfo.Contacts[indexPosition] = newRecords[0];
 					}
 					
-	                Notification.success('Contact Saved Successfully');
+	                Notification.success('Contact Saved SucessFully');
             		$scope.$parent.VendorContactModal.closePopup();
             		
             		setTimeout(function () {
@@ -737,7 +737,7 @@
 					}
 					$scope.ViewVendorRelatedListModal.VendorRelatedInfo.TotalProducts = newProductDetails[0].TotalProducts;
 					
-					Notification.success('Product Saved Successfully');
+					Notification.success('Product Saved SucessFully');
             		$scope.$parent.ProductCompModal.closePopup();
             		
 					setTimeout(function () {

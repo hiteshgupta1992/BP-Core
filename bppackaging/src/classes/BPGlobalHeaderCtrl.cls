@@ -6,10 +6,8 @@
 **/ 
 global with sharing class BPGlobalHeaderCtrl {
     
+    
 	public boolean Load_New_UI {get{return GeneralConfiguration.isLoadNewUI();} private set;}
-	
-	public Boolean IsTrialOrg { get{return GeneralConfiguration.isTrialOrg();} private set;}
- 	
     
     /**
      * Name: getCurrentUserImageURL

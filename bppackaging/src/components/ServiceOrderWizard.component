@@ -307,10 +307,6 @@
          .logservicelabel .margin-47{
          	padding-right:20%;
          }
-         
-         .disabledClaimLineItemRow	{
-         	pointer-events: none;     
-         }
     </style>
     
     <div class="wizardWrapper col-md-12 P0" ng-if="CustomerOrderModel.isWizardMode">
@@ -375,21 +371,21 @@
                  <div class = "serviceSignin" ng-if="CustomerOrderModel.showSection('Service_Information');">
                     <label class ="text-capitalize T3">Step {{WizardModel.getCurrentActiveChevronIndex()}} of {{CustomerOrderModel.currentChevronList.length}} :</label>
                     <span class = "T3">Service Information</span>
-                    <p class = "T7" style="text-transform: none;">People complete and/ or verify service information</p>
+                    <p class = "T7" style="text-transform: none;">People complete and/ or verify service inforamtion</p>
                     
                     <div class="gid_container_Customer" id="CO_InfoGrid_gid_container">
                         <div class="col-md-12 InfoMT">
                            <div class="col-md-2 col-md-offset-1"><p class="T3">Unit</p></div>
                                <div class="col-md-9">
                                    <div class="lightbox pull-left">
-                                       <!-- <div class="starimgdiv">
+                                       <div class="starimgdiv">
                                            <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
                                            <div class="itemicon" style="display:none;">
                                                <i class="fa fa-motorcycle FC7" style="flot:left;"></i>
                                                <i class="fa fa-registered " style="margin-left:2px;flot:left;"></i>
                                            </div>
-                                       </div> -->
-                                       <div class="infotext" style="left: 0;">
+                                       </div>
+                                       <div class="infotext">
                                            <p class="infoname">Model: {{CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.selectedCOU.ModelName}}</p>
                                            <p class="infoemail">Color: {{CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.selectedCOU.Color}}</p>
                                            <p class="infono">VIN: {{CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.selectedCOU.VIN}}</p>
@@ -493,7 +489,7 @@
                                       <p class="input-group">
                                         <input type="text" ui-date="dateOptions" ui-date-format="mm/dd/yy" class="form-control"
                                           ng-model="CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.selectedDate" style="width: 200px;" 
-                                          ng-attr-tabindex="{{CustomerOrderModel.tabIndexValue + (WizardModel.WizardSOHeaderIndex * 12) + 4}}" readonly="readonly"/>
+                                          ng-attr-tabindex="{{CustomerOrderModel.tabIndexValue + (WizardModel.WizardSOHeaderIndex * 12) + 4}}" />
                                       </p>
                                   </div>  
                                   <div class="pull-left Plr0" style="margin: 0 5px;">
@@ -546,8 +542,7 @@
                                     ng-options="item.Id as item.Type for item in CustomerOrderModel.MasterData.TTList"
                                     ng-model="CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.TransactionTypeId"
                                     ng-change="CustomerOrderModel.changeProviderList(WizardModel.WizardSOHeaderIndex)">
-                                    <!-- 
-									ng-disabled="CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.ClaimStatus =='Ready to Submit'" -->
+
                                 </select>
                              </div>
                          </div>
@@ -557,14 +552,14 @@
                             <div class="col-md-9">
                                 <div class="lightbox pull-left providerBox">
                                    <div ng-if="!(CustomerOrderModel.isEmptyProvider(WizardModel.WizardSOHeaderIndex))"> 
-                                    <!-- <div class="starimgdiv">
+                                    <div class="starimgdiv">
                                         <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
                                         <div class="itemicon" style="display:none;">
                                             <i class="fa fa-motorcycle FC7" style="flot:left;"></i>
                                             <i class="fa fa-registered " style="margin-left:2px;flot:left;"></i>
                                         </div>
-                                    </div> -->
-                                    <div class="infotext" style="left: 0;">
+                                    </div>
+                                    <div class="infotext">
                                         <p class="infoname">Name: {{CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.selectedProvider.Name}}</p>
                                         <p class="infoemail">Email: {{CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.selectedProvider.Email}}</p>
                                         <p class="infono">Phone: {{CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.selectedProvider.Phone}}</p>
@@ -617,7 +612,7 @@
                         <div class="col-md-12 InfoMT">
                             <div class="col-md-2 col-md-offset-1"><p class="T3">Stock</p></div>
                             <div class="col-md-9">
-                            	<p class="T7 pull-left" style="text-transform: none;" ng-if="CustomerOrderModel.getOutstandingItems(WizardModel.WizardSOHeaderIndex) == 0">No outstanding items</p>      
+                            	<p class="T7 pull-left" style="text-transform: none;" ng-if="CustomerOrderModel.getOutstandingItems(WizardModel.WizardSOHeaderIndex) == 0">No outstanding itmes</p>      
                                 <p class="T7 pull-left" style="text-transform: none;" ng-if="CustomerOrderModel.getOutstandingItems(WizardModel.WizardSOHeaderIndex) != 0">{{CustomerOrderModel.getOutstandingItems(WizardModel.WizardSOHeaderIndex)}} items outstanding</p>      
                             </div>
                         </div>
@@ -635,7 +630,7 @@
                  <div class = "serviceSignin" ng-if="CustomerOrderModel.showSection('Sign_In_Unit');">
                     <label class ="text-capitalize T3">Step {{WizardModel.getCurrentActiveChevronIndex()}} of {{CustomerOrderModel.currentChevronList.length}} :</label>
                     <span class = "T3">Service Information</span>
-                    <p class = "T7" style="text-transform: none;">People complete and/ or verify sign In information</p>
+                    <p class = "T7" style="text-transform: none;">People complete and/ or verify sign In inforamtion</p>
                     <div class="gid_container_Customer row" id="CO_CheckOutGrid_gid_container" style="margin: 35px 0 0 0;">
                         <div class="option_field col-md-12 SignIncontainer">
                             <div class="lable_fields col-md-3 ">
@@ -646,7 +641,6 @@
                                     <input type="text" class="form-control"
                                         placeholder="Mileage In"
                                         maxlength="255"
-                                        ng-blur="CustomerOrderModel.saveSignInfo(WizardModel.WizardSOHeaderIndex)"
                                         ng-model="CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOSignInRec.Odometer"
                                         ng-attr-tabindex="{{CustomerOrderModel.tabIndexValue + ($index * 12) + 11}}" />
                                 </div>
@@ -655,14 +649,14 @@
                      </div>
                  </div>
                  
-                   
+                 
                  <!-- Approval Method -->
                  <div class = "Approval col-md-12" ng-if="CustomerOrderModel.showSection('Approval_Method');">
                     <label class ="text-capitalize T3">Step {{WizardModel.getCurrentActiveChevronIndex()}} of {{CustomerOrderModel.currentChevronList.length}} :</label>
                     <span class = "T3">Approval Method</span>
                     <p class = "T7" style="text-transform: none;">Select a method to seek approval from the customer</p>
                     <ul style="margin-top: 35px;">
-                       <!-- <li class="wd50">
+                       <li class="wd50">
                           <span class="chk_tick" ng-class="{'chked' : WizardModel.wizardInfo.Sign_In.Digital_Signature_Approval}" 
                           	ng-click = "WizardModel.changeApprovalMethod(false, 'Digital_Signature_Approval')">
                           <i class="fa fa-check-square chksqure"></i>
@@ -671,7 +665,7 @@
                              <p class = "T3">At-Counter // Digital Signature</p>
                              <p class = "T7" style="text-transform: none;">turn monitor to face customer for Digital Signature</p>
                           </div>
-                       </li> -->
+                       </li>
                        <li class="wd50">  
                           <span class="chk_tick"  ng-class="{'chked' : WizardModel.wizardInfo.Sign_In.Print_Approval}"
                           	ng-click = "WizardModel.changeApprovalMethod(false, 'Print_Approval')" >
@@ -682,7 +676,7 @@
                              <p class = "T7" style="text-transform: none;">print page for physical Signature </p>
                           </div>
                        </li>
-                       <!-- <li class="wd50">
+                       <li class="wd50">
                           <span class="chk_tick" ng-class="{'chked' : WizardModel.wizardInfo.Sign_In.Remotely_Approval}" 
                           	ng-click = "WizardModel.changeApprovalMethod(false, 'Remotely_Approval')">
                           <i class="fa fa-check-square chksqure"></i>
@@ -691,7 +685,7 @@
                              <p class = "T3">remote</p>
                              <p class = "T7" style="text-transform: none;">select communication channel</p>  
                           </div>
-                       </li> -->
+                       </li>
                     </ul>
                  </div>
                  
@@ -741,14 +735,15 @@
                                         </p> </div>
                                 </div>
                                 <div class="lightbox pull-left">
-                                    <!-- <div class="starimgdiv">
-	                                    <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
-	                                    <div class="itemicon" style="display:none;">
-	                                        <i class="fa fa-motorcycle FC7" style="flot:left;"></i>
-	                                        <i class="fa fa-registered " style="margin-left:2px;flot:left;"></i>
-	                                    </div>
-                                    </div> -->
-                                    <div class="infotext MT0" style="left: 0;">
+                                    <div class="starimgdiv">
+                                            <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
+
+                                            <div class="itemicon" style="display:none;">
+                                                <i class="fa fa-motorcycle FC7" style="flot:left;"></i>
+                                                <i class="fa fa-registered " style="margin-left:2px;flot:left;"></i>
+                                            </div>
+                                        </div>
+                                    <div class="infotext MT0">
                                        <div class="infotext">
                                             <p class="infoname"><span>Model:</span> <span>{{PrintPreviewModel.PrintPreviewInfo.COUInfo.ModelName}}</span></p>
                                             <p class="infoemail"><span>Color:</span><span> {{PrintPreviewModel.PrintPreviewInfo.COUInfo.Color}}</span></p>
@@ -821,15 +816,11 @@
                              
                              <div class="main_section_COU_Header row pull-left" id="ServiceItemSection{{$index}}"
                              	ng-if="PrintPreviewModel.PrintPreviewInfo.SOGridItems.length != 0 && WizardModel.currentWizardKey != 'Sign_In'">
-                                 <p class="actionRow T2"> 
-                                 	<span class="sectionText">Items </span> 
-                                 	<!-- <span class="actionText">Actions</span> --> 
-                                 	<span class="ActionIcons">
-	                                    <!-- <i class="fa fa-th"></i> -->
-	                                    <i class="fa fa-question-circle" data-toggle="tooltip"
-	                                                title="Finalize Order Section"></i>
-                                    </span> 
-                                </p>
+                                 <p class="actionRow T2"> <span class="sectionText">Items </span> <span class="actionText">Actions</span> <span class="ActionIcons">
+                                                     <i class="fa fa-th"></i>
+                                                     <i class="fa fa-question-circle" data-toggle="tooltip"
+                                                                 title="Finalize Order Section"></i>
+                                                     </span> </p>
                              </div>
                              <div class="gid_container_Customer" id="Print_Preview_gid_container" 
                              	ng-if="PrintPreviewModel.PrintPreviewInfo.SOGridItems.length != 0 && WizardModel.currentWizardKey != 'Sign_In'">
@@ -871,9 +862,9 @@
                                              <td class="HG50"></td>
                                              <td><i class="fa fa-link FC7" style="font-size: 24px;"></i></td>
                                              <td><i class="fa fa-motorcycle FC7"></i></td>
-                                             <td><!-- <div class="lable_fields">
+                                             <td><div class="lable_fields">
                                                 <span class="form_lable_icons text"> 100 </span>
-                                              </div>  -->
+                                              </div> 
                                              </td> 
                                              <td>{{SOKHitem.SOKH.ItemDescription}}</td> 
                                              <td></td>
@@ -897,11 +888,9 @@
                                                      </i>
                                                  </td>
                                                  <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}"><i class="fa fa-motorcycle FC7"></i></td>
-                                                 <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}">
-                                                 	<!-- <div class="lable_fields">
-                                                 		<span class="form_lable_icons text"> 100 </span>
-                                                     </div> -->
-                                                  </td> 
+                                                 <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}"><div class="lable_fields">
+                                                 <span class="form_lable_icons text"> 100 </span>
+                                                     </div></td> 
                                                   <td >{{Solitem.ItemDesc}}</td>
                                                   <td class="text-center">{{Solitem.QtyNeeded}}</td>
                                                   <td></td>
@@ -966,7 +955,7 @@
                         
                         <div class = "signatureDiv col-md-12" ng-if="CustomerOrderModel.showSection('Digital_Signature_Approval') && approval.ApprovalType == 'Digital_Signature_Approval' ">
                            <div class = "col-md-2 P0">
-                              <p class = "T3">Signature</p>
+                              <p class = "T3">signaure</p>
                            </div>
                            <div class = "pushDiv col-md-6 P0">
                               <i class="fa fa-sign-in" aria-hidden="true"></i>  
@@ -1044,15 +1033,15 @@
                                         </p> </div>
                                 </div>
                                 <div class="lightbox pull-left">
-                                    <!-- <div class="starimgdiv">
-                                        <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
+                                    <div class="starimgdiv">
+                                            <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
 
-                                        <div class="itemicon"  style="display:none;">
-                                            <i class="fa fa-motorcycle FC7" style="flot:left;"></i>
-                                            <i class="fa fa-registered " style="margin-left:2px;flot:left;"></i>
+                                            <div class="itemicon"  style="display:none;">
+                                                <i class="fa fa-motorcycle FC7" style="flot:left;"></i>
+                                                <i class="fa fa-registered " style="margin-left:2px;flot:left;"></i>
+                                            </div>
                                         </div>
-                                    </div> -->
-                                    <div class="infotext MT0" style="left: 0;">
+                                    <div class="infotext MT0">
                                        <div class="infotext">
                                             <p class="infoname"><span>Model:</span> <span>{{PrintPreviewModel.PrintPreviewInfo.COUInfo.ModelName}}</span></p>
                                             <p class="infoemail"><span>Color:</span><span> {{PrintPreviewModel.PrintPreviewInfo.COUInfo.Color}}</span></p>
@@ -1124,15 +1113,11 @@
                                  </div>
                              </div>
                              <div class="main_section_COU_Header row pull-left" id="ServiceItemSection{{$index}}">
-                                 <p class="actionRow T2"> 
-                                 	<span class="sectionText">Items </span> 
-                                 	<!-- <span class="actionText">Actions</span>  -->
-                                 		<span class="ActionIcons">
-	                                        <!-- <i class="fa fa-th"></i> -->
-	                                        <i class="fa fa-question-circle" data-toggle="tooltip"
-	                                                    title="Finalize Order Section"></i>
-                                       	</span> 
-                                </p>
+                                 <p class="actionRow T2"> <span class="sectionText">Items </span> <span class="actionText">Actions</span> <span class="ActionIcons">
+                                                     <i class="fa fa-th"></i>
+                                                     <i class="fa fa-question-circle" data-toggle="tooltip"
+                                                                 title="Finalize Order Section"></i>
+                                                     </span> </p>
                              </div>
                              <div class="gid_container_Customer" id="Print_Preview_gid_container" ng-if="PrintPreviewModel.PrintPreviewInfo.SOGridItems.length != 0">
                                  <table class="table pull-left" id="Print_Preview_ItemGrid">
@@ -1173,9 +1158,9 @@
                                              <td class="HG50"></td>
                                              <td><i class="fa fa-link FC7" style="font-size: 24px;"></i></td>
                                              <td><i class="fa fa-motorcycle FC7"></i></td>
-                                             <td><!-- <div class="lable_fields">
+                                             <td><div class="lable_fields">
                                                 <span class="form_lable_icons text"> 100 </span>
-                                              </div> --> 
+                                              </div> 
                                              </td> 
                                              <td>{{SOKHitem.SOKH.ItemDescription}}</td> 
                                              <td></td>
@@ -1199,11 +1184,9 @@
                                                      </i>
                                                  </td>
                                                  <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}"><i class="fa fa-motorcycle FC7"></i></td>
-                                                 <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}">
-                                                 <!-- <div class="lable_fields">
+                                                 <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}"><div class="lable_fields">
                                                  <span class="form_lable_icons text"> 100 </span>
-                                                     </div> -->
-                                                  </td> 
+                                                     </div></td> 
                                                   <td >{{Solitem.ItemDesc}}</td>
                                                   <td class="text-center">{{Solitem.QtyNeeded}}</td>
                                                   <td></td>
@@ -1260,7 +1243,7 @@
                                          <div>
                                              <label>SUBLET</label> <span class="T7  pull-right">${{PrintPreviewModel.PrintPreviewInfo.Total_Sublet}}</span> </div>
                                          <div>
-                                             <label>FEE</label> <span class="T7  pull-right">${{PrintPreviewModel.PrintPreviewInfo.Total_Other }}</span> </div>
+                                             <label>OTHER</label> <span class="T7  pull-right">${{PrintPreviewModel.PrintPreviewInfo.Total_Other }}</span> </div>
                                          <div class="BB pull-right"></div>
                                          <div> <span class="T7  pull-right">${{PrintPreviewModel.PrintPreviewInfo.Total}}</span> </div> 
                                      </div>
@@ -1390,7 +1373,6 @@
                                         <input type="text" class="form-control"
                                             placeholder="Mileage In"
                                             maxlength="255"
-                                            ng-blur="CustomerOrderModel.saveSignInfo(WizardModel.WizardSOHeaderIndex)"
                                             ng-model="CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOReviewRec.OdometerOnDeparture"
                                             ng-attr-tabindex="{{CustomerOrderModel.tabIndexValue + ($index * 12) + 12}}" />
                                     </div>
@@ -1541,14 +1523,14 @@
                                         <div class="col-md-2 col-md-offset-1"><p class="T3">Unit</p></div>
                                             <div class="col-md-9">
                                                 <div class="lightbox pull-left">
-                                                    <!-- <div class="starimgdiv">
+                                                    <div class="starimgdiv">
                                                         <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
                                                         <div class="itemicon" style="display:none;">
                                                             <i class="fa fa-motorcycle FC7" style="flot:left;"></i>
                                                             <i class="fa fa-registered " style="margin-left:2px;flot:left;"></i>
                                                         </div>
-                                                    </div> -->
-                                                    <div class="infotext" style="left: 0;">
+                                                    </div>
+                                                    <div class="infotext">
                                                         <p class="infoname">Model: {{CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.selectedCOU.ModelName}}</p>
                                                         <p class="infoemail">Color: {{CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.selectedCOU.Color}}</p>
                                                         <p class="infono">VIN: {{WizardModel.WizardSOHeader.SOHeaderInfo.selectedCOU.VIN}}</p>
@@ -1704,8 +1686,8 @@
                                                 ng-attr-tabindex="{{CustomerOrderModel.tabIndexValue + (WizardModel.WizardSOHeaderIndex * 12) + 9}}"
                                                 ng-options="item.Id as item.Type for item in CustomerOrderModel.MasterData.TTList"
                                                 ng-model="CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.TransactionTypeId"
-                                                ng-change="CustomerOrderModel.changeProviderList(WizardModel.WizardSOHeaderIndex)"
-    											ng-disabled="CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.ClaimStatus =='Ready to Submit'">
+                                                ng-change="CustomerOrderModel.changeProviderList(WizardModel.WizardSOHeaderIndex)">
+    
                                             </select>
                                          </div>
                                      </div>
@@ -1715,14 +1697,14 @@
                                          <div class="col-md-9">
                                             <div class="lightbox pull-left providerBox">
                                                 <div ng-if="!(CustomerOrderModel.isEmptyProvider(WizardModel.WizardSOHeaderIndex))"> 
-                                                    <!-- <div class="starimgdiv">
+                                                    <div class="starimgdiv">
                                                         <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
                                                         <div class="itemicon" style="display:none;">
                                                             <i class="fa fa-motorcycle FC7" style="flot:left;"></i>
                                                             <i class="fa fa-registered " style="margin-left:2px;flot:left;"></i>
                                                         </div>
-                                                    </div> -->
-                                                    <div class="infotext" style="left: 0;">
+                                                    </div>
+                                                    <div class="infotext">
                                                         <p class="infoname">Name: {{CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.selectedProvider.Name}}</p>
                                                         <p class="infoemail">Email: {{CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.selectedProvider.Email}}</p>
                                                         <p class="infono">Phone: {{CustomerOrderModel.SOHeaderList[WizardModel.WizardSOHeaderIndex].SOHeaderInfo.selectedProvider.Phone}}</p>
@@ -1775,7 +1757,7 @@
                                      <div class="col-md-12 InfoMT">
                                          <div class="col-md-2 col-md-offset-1"><p class="T3">Stock</p></div>
                                          <div class="col-md-9">
-                                               	<p class="T7 pull-left" style="text-transform: none;" ng-if="CustomerOrderModel.getOutstandingItems(WizardModel.WizardSOHeaderIndex) == 0">No outstanding items</p>      
+                                               	<p class="T7 pull-left" style="text-transform: none;" ng-if="CustomerOrderModel.getOutstandingItems(WizardModel.WizardSOHeaderIndex) == 0">No outstanding itmes</p>      
 				                                <p class="T7 pull-left" style="text-transform: none;" ng-if="CustomerOrderModel.getOutstandingItems(WizardModel.WizardSOHeaderIndex) != 0">{{CustomerOrderModel.getOutstandingItems(WizardModel.WizardSOHeaderIndex)}} items outstanding</p>      
                                             <div class="icon_list">
                                                 <i class="fa fa-question-circle" data-toggle="tooltip" data-original-title="Service Order Info Stock Section"></i>
@@ -1844,9 +1826,9 @@
                                                    <td>
                                                        <img src="{!URLFOR($Resource.Images, 'sparkplug.png')}" style="height: 26px;width: 26px;"/>
                                                    </td>
-                                                   <td><!-- <div class="lable_fields">
+                                                   <td><div class="lable_fields">
                                                       <span class="form_lable_icons text"> 100 </span>
-                                                    </div> --> 
+                                                    </div> 
                                                    </td> 
                                                    <td>{{SOKHitem.SOKH.ItemDescription}}</td> 
                                                    <td></td>
@@ -1870,9 +1852,9 @@
                                                    <td>
                                                        <img src="{!URLFOR($Resource.Images, 'sparkplug.png')}" style="height: 26px;width: 26px;"/>
                                                    </td>
-                                                   <td><!-- <div class="lable_fields">
+                                                   <td><div class="lable_fields">
                                                       <span class="form_lable_icons text"> 100 </span>
-                                                    </div> --> 
+                                                    </div> 
                                                    </td> 
                                                    <td>{{SOKHitem.SOKH.ItemDescription}}</td>
                                                    <td></td>
@@ -1978,10 +1960,9 @@
                                                            <img src="{!URLFOR($Resource.Images, 'dollor.png')}" ng-if="Solitem.IsFee" style="height: 26px;width: 26px;border-radius: 13px;"/>  
 
                                                        </td>
-                                                       <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}"><!-- <div class="lable_fields">
+                                                       <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}"><div class="lable_fields">
                                                        <span class="form_lable_icons text"> 100 </span>
-                                                           </div> -->
-                                                        </td> 
+                                                           </div></td> 
 
                                                         <td ng-if="Solitem.IsPart">
                                                            <a ng-mouseover="CustomerOrderModel.openpartpopup($event, Solitem.PartId);" ng-mouseleave="CustomerOrderModel.hidePartPopUp();">{{Solitem.ItemDesc}}</a>
@@ -2022,9 +2003,9 @@
                                                            <img src="{!URLFOR($Resource.Images, 'dollor.png')}" ng-if="Solitem.IsFee" style="height: 26px;width: 26px;border-radius: 13px;"/>
 
                                                        </td>
-                                                       <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}"><!-- <div class="lable_fields">
+                                                       <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}"><div class="lable_fields">
                                                        <span class="form_lable_icons text"> 100 </span>
-                                                           </div> --></td> 
+                                                           </div></td> 
 
                                                         <td ng-if="Solitem.IsPart">
                                                            <a ng-mouseover="CustomerOrderModel.openpartpopup($event, Solitem.PartId);" ng-mouseleave="CustomerOrderModel.hidePartPopUp();">{{Solitem.ItemDesc}}</a>
@@ -2385,14 +2366,15 @@
                                         </p> </div>
                                 </div>
                                 <div class="lightbox pull-left">
-                                    <!-- <div class="starimgdiv">
-                                        <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
-                                        <div class="itemicon" style="display:none;">
-                                            <i class="fa fa-motorcycle FC7" style="flot:left;"></i>
-                                            <i class="fa fa-registered " style="margin-left:2px;flot:left;"></i>
+                                    <div class="starimgdiv">
+                                            <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
+
+                                            <div class="itemicon" style="display:none;">
+                                                <i class="fa fa-motorcycle FC7" style="flot:left;"></i>
+                                                <i class="fa fa-registered " style="margin-left:2px;flot:left;"></i>
+                                            </div>
                                         </div>
-                                    </div> -->
-                                    <div class="infotext MT0" style="left: 0;">
+                                    <div class="infotext MT0">
                                        <div class="infotext">
                                             <p class="infoname"><span>Model:</span> <span>{{PrintPreviewModel.PrintPreviewInfo.COUInfo.ModelName}}</span></p>
                                             <p class="infoemail"><span>Color:</span><span> {{PrintPreviewModel.PrintPreviewInfo.COUInfo.Color}}</span></p>
@@ -2463,9 +2445,8 @@
                                  </div>
                              </div>
                              <div class="main_section_COU_Header row pull-left" id="ServiceItemSection{{$index}}">
-                                 <p class="actionRow T2"> 
-                                 	<span class="sectionText">Items </span> <!-- <span class="actionText">Actions</span> --> <span class="ActionIcons">
-                                                     <!-- <i class="fa fa-th"></i> -->
+                                 <p class="actionRow T2"> <span class="sectionText">Items </span> <span class="actionText">Actions</span> <span class="ActionIcons">
+                                                     <i class="fa fa-th"></i>
                                                      <i class="fa fa-question-circle" data-toggle="tooltip"
                                                                  title="Finalize Order Section"></i>
                                                      </span> </p>
@@ -2509,9 +2490,9 @@
                                              <td class="HG50"></td>
                                              <td><i class="fa fa-link FC7" style="font-size: 24px;"></i></td>
                                              <td><i class="fa fa-motorcycle FC7"></i></td>
-                                             <td><!-- <div class="lable_fields">
+                                             <td><div class="lable_fields">
                                                 <span class="form_lable_icons text"> 100 </span>
-                                              </div> --> 
+                                              </div> 
                                              </td> 
                                              <td>{{SOKHitem.SOKH.ItemDescription}}</td> 
                                              <td></td>
@@ -2535,9 +2516,9 @@
                                                      </i>
                                                  </td>
                                                  <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}"><i class="fa fa-motorcycle FC7"></i></td>
-                                                 <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}"><!-- <div class="lable_fields">
+                                                 <td ng-class="{'BGFF': SOKHitem.SOKH.hasChildren}"><div class="lable_fields">
                                                  <span class="form_lable_icons text"> 100 </span>
-                                                     </div> --></td> 
+                                                     </div></td> 
                                                   <td >{{Solitem.ItemDesc}}</td>
                                                   <td class="text-center">{{Solitem.QtyNeeded}}</td>
                                                   <td></td>
@@ -2570,7 +2551,7 @@
                                          <div>
                                              <label>SUBLET</label> <span class="T7  pull-right">${{PrintPreviewModel.PrintPreviewInfo.Total_Sublet}}</span> </div>
                                          <div>
-                                             <label>FEE</label> <span class="T7  pull-right">${{PrintPreviewModel.PrintPreviewInfo.Total_Other }}</span> </div>
+                                             <label>OTHER</label> <span class="T7  pull-right">${{PrintPreviewModel.PrintPreviewInfo.Total_Other }}</span> </div>
                                          <div class="BB pull-right"></div>
                                          <div> <span class="T7  pull-right">${{PrintPreviewModel.PrintPreviewInfo.Total}}</span> </div> 
                                      </div>
@@ -2660,7 +2641,6 @@
 	                                                ng-attr-tabindex="1001"
 	                                                  ng-class="{'redborder' : WizardModel.wizardInfo.ClaimResponseValidationModel['ProviderClaimNumber']['isError'] == true}" 
 	                                                    data-toggle="tooltip" title="{{WizardModel.wizardInfo.ClaimResponseValidationModel['ProviderClaimNumber']['ErrorMessage']}}"
-	                                                    ng-disabled="WizardModel.WizardSOHeader.SOHeaderInfo.ClaimStatus =='Approved'"
 	                                                 />
 	                                            
 	                                        </div>
@@ -2683,10 +2663,7 @@
 									                    ng-change="CustomerOrderModel.ResponseDateChanges($index)"
 									                    ng-attr-tabindex="1002" 
 									                    ng-class="{'redborder' : WizardModel.wizardInfo.ClaimResponseValidationModel['ResponseDate']['isError'] == true}" 
-	                                                    data-toggle="tooltip" title="{{WizardModel.wizardInfo.ClaimResponseValidationModel['ResponseDate']['ErrorMessage']}}"
-	                                                    ng-disabled="WizardModel.WizardSOHeader.SOHeaderInfo.ClaimStatus =='Approved'"/>
-	                                                    
-	                                                    
+	                                                    data-toggle="tooltip" title="{{WizardModel.wizardInfo.ClaimResponseValidationModel['ResponseDate']['ErrorMessage']}}"/>
 									            </p>
 	                                        </div>
 	                                    </div>
@@ -2695,7 +2672,7 @@
 								
 								<div class="col-md-12">
 								    <div class="col-md-2">
-								        <p class="T3" >{!$Label.Label_Notes}</p>
+								        <p class="T3 req-label" >{!$Label.Label_Notes}</p>
 
 								    </div>
 								    <div class="col-md-9 ">
@@ -2707,9 +2684,7 @@
 	                                        				cols="60" 
 	                                        				style="resize:none;width: 60%" 
 	                                        				ng-attr-tabindex ="108"
-	                                        				id="notes_crWiz"
-	                                        				ng-disabled="WizardModel.WizardSOHeader.SOHeaderInfo.ClaimStatus =='Approved'"></textarea>
-	                                        				
+	                                        				id="notes_crWiz"></textarea>
 	                                        </div>
 	                                    </div>
 								    </div>
@@ -2737,8 +2712,7 @@
 									               id="Disposition_crWiz"
 									               ng-options="item for item in WizardModel.wizardInfo.ClaimDispositionsList"
 									               ng-model="WizardModel.wizardInfo.ClaimDisposition"
-									               ng-change="CustomerOrderModel.changeClaimDisposition(true)" 
-									               ng-disabled="WizardModel.WizardSOHeader.SOHeaderInfo.ClaimStatus =='Approved'">
+									               ng-change="CustomerOrderModel.changeClaimDisposition(true)" >
 									            </select>
 	                                        </div>
 	                                    </div>
@@ -2775,9 +2749,7 @@
 											</thead>
 											<tbody ng-repeat="ClaimLineItem in WizardModel.wizardInfo.NonVarianceLineItemList">
 												<tr class="clickable_row" id="row{{$index}}" ng-class-even="'C2'"
-													ng-click="CustomerOrderModel.editClaimResponseDetailItemRow($index);" 
-													ng-class="{'disabledClaimLineItemRow': WizardModel.WizardSOHeader.SOHeaderInfo.ClaimStatus =='Approved'}" >
-													
+													ng-click="CustomerOrderModel.editClaimResponseDetailItemRow($index);" >
 													<td id="ClaimLineItemsToApprove_crWiz_grid_container_tbody_tr_td_1_{{$index}}" class="T7 tdPadding20" >
 														{{ClaimLineItem.Itemdesc}}
 													</td>
@@ -2806,8 +2778,7 @@
 														</span>
 														<number-only-input-claim ng-if="ClaimLineItem.IsEdit" 
 																			input-value="ClaimLineItem.ApprovedPrice"
-																			ng-keyup="CustomerOrderModel.changeClaimDisposition(false, $index ,$event)" 
-																			precision-length = "2"/>
+																			ng-keyup="CustomerOrderModel.changeClaimDisposition(false, $index ,$event)" />
 													</td>
 													<td id="ClaimLineItemsToApprove_crWiz_grid_container_tbody_tr_td_7_{{$index}}" class="T7 text-center" >
 														<span>
@@ -2880,8 +2851,7 @@
 												</tr>
 											</thead>
 											<tbody ng-repeat="VarianceLineItem in WizardModel.wizardInfo.VarianceLineItemList">
-												<tr class="clickable_row" id="row{{$index}}" ng-class-even="'C2'" 
-													ng-class="{'disabledClaimLineItemRow': WizardModel.WizardSOHeader.SOHeaderInfo.ClaimStatus =='Approved'}">
+												<tr class="clickable_row" id="row{{$index}}" ng-class-even="'C2'" >
 													<td id="VarianceLineItemsToApprove_crWiz_grid_container_tbody_tr_td_1_{{$index}}" class="T7 tdPadding20" >
 														{{VarianceLineItem.Itemdesc}}
 													</td>

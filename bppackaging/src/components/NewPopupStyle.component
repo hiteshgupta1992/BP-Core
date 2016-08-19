@@ -179,7 +179,7 @@
 	        float: left;
 	        width: 30px;
 	        height: 30px;
-	        background-image: url('{!URLFOR($Resource.Images, 'circlefornumber.png')}') no-repeat;
+	        background: url("/resource/Images/circlefornumber.png") no-repeat;
 	    }
 	    .popupright .tabconainer form .lable_fields .form_lable_icons.text {
 	        font-size: 10px;
@@ -364,7 +364,7 @@
 	        display: block;
 	        width: 30px;
 	        height: 30px;
-	        background-image: url('{!URLFOR($Resource.Images, 'circlefornumber.png')}') no-repeat;
+	        background: url("/resource/Images/circlefornumber.png") no-repeat;
 	        background-size: 100%;
 	        color: #f79420;
 	        font-weight: bold;
@@ -424,7 +424,7 @@
 	        max-width: 100px;
 	    }
 	    .popupright .tabconainer form .form-group .chkbox_custom.disabled .leftchked.checked {
-	        background-image: url('{!URLFOR($Resource.Images, 'chkpngleft_trimmed_disabled.png')}') no-repeat;
+	        background: url("/resource/Images/chkpngleft_trimmed_disabled.png") no-repeat;
 	        color: #FFFFFF;
 	        background-size: 100% 100%;
 	        font-size: 12px;
@@ -444,7 +444,7 @@
 	        padding-right: 5px;
 	    }
 	    .popupright .tabconainer form .form-group .chkbox_custom.disabled .rightchked.checked {
-	        background-image: url('{!URLFOR($Resource.Images, 'chkpngright_trimmed_disabled.png')}') no-repeat;
+	        background: url("/resource/Images/chkpngright_trimmed_disabled.png") no-repeat;
 	        color: #FFFFFF;
 	        background-size: 100% 100%;
 	        font-size: 12px;
@@ -467,7 +467,7 @@
 	        width: 55%;
 	        float: left;
 	        height: 34px;
-	        background-image: url('{!URLFOR($Resource.Images, 'chkpngleft_trimmed_disabled.png')}') no-repeat;
+	        background: url("/resource/Images/chkpngleft_trimmed_disabled.png") no-repeat;
 	        color: #FFFFFF;
 	        background-size: 100% 100%;
 	        font-size: 12px;
@@ -481,7 +481,7 @@
 	        width: 55%;
 	        float: left;
 	        height: 34px;
-	        background-image: url('{!URLFOR($Resource.Images, 'chkpngleft_trimmed_disabled.png')}') no-repeat;
+	        background: url("/resource/Images/chkpngright_trimmed_disabled.png") no-repeat;
 	        color: #FFFFFF;
 	        background-size: 100% 100%;
 	        font-size: 12px;
@@ -494,7 +494,7 @@
 	        margin-top: -1px;
 	    }
 	    .popupright .tabconainer form .form-group .chkbox_custom .leftchked.checked {
-	        background-image: url('{!URLFOR($Resource.Images, 'chkpngleft_trimmed_blue.png')}') no-repeat;
+	        background: url("/resource/Images/chkpngleft_trimmed_blue.png") no-repeat;
 	        color: #FFFFFF;
 	        background-size: 100% 100%;
 	        font-size: 12px;
@@ -504,7 +504,7 @@
 	        padding-right: 5px;
 	    }
 	    .popupright .tabconainer form .form-group .chkbox_custom .rightchked.checked {
-	        background-image: url('{!URLFOR($Resource.Images, 'chkpngleft_trimmed_blue.png')}') no-repeat;
+	        background: url("/resource/Images/chkpngright_trimmed_blue.png") no-repeat;
 	        color: #FFFFFF;
 	        background-size: 100% 100%;
 	        font-size: 12px;

@@ -23,18 +23,13 @@ global with sharing class ViewVendorRelatedListCtrl {
     **/
     @RemoteAction
     global static String addUpdatePOTypeToVendor(String poTypesJSON) {
-
     	poTypesJSON = BPUtility.getDecodedString(poTypesJSON);
-  
+    	
     	try{
 	    	List<POType> poTypesList = POType.parse(poTypesJSON);
 	    	if(poTypesList.size() == 0){
 	    		return BPUtility.getEncodedString('[]');
 	    	}
-			if(getSimilarPOType(BPUtility.getEncodedString(poTypesList[0].Code), BPUtility.getEncodedString(poTypesList[0].VendorId), BPUtility.getEncodedString(poTypesList[0].Id)) == 'true') {
-				return 'Same VO Type Code already present for vendor';
-			}
-			
 	    	// Else add the record in database
 	    	List<PO_Type__c> poTypesToUpsert = new List<PO_Type__c>();
 	    	for(POType poType : poTypesList){
@@ -50,8 +45,8 @@ global with sharing class ViewVendorRelatedListCtrl {
 	    		}
 	    		poTypesToUpsert.add(poTypeRec);
 	    	}
-	    	if(AccessControl.ifObjectFieldIsCreateable('PO_Type__c') == false){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
 	    	if(AccessControl.ifObjectIsUpdateable('PO_Type__c') == false){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
+			if(AccessControl.ifObjectFieldIsCreateable('PO_Type__c') == false){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
 			upsert poTypesToUpsert;
 			
 			if(poTypesList.size() == 1){
@@ -63,25 +58,7 @@ global with sharing class ViewVendorRelatedListCtrl {
   		  return BPUtility.getEncodedString('[]');
   	  }
     }
-    @RemoteAction
-    global static String getSimilarPOType(String poTypeCode, String vendorId, String poTypeId) {
-    	poTypeCode = BPUtility.getDecodedString(poTypeCode);
-		vendorId = BPUtility.getDecodedString(vendorId);
-		poTypeId = BPUtility.getDecodedString(poTypeId);
-		poTypeCode = BPUtility.escapeSingleQuotes(poTypeCode);
-		vendorId = BPUtility.escapeSingleQuotes(vendorId);
-		poTypeId = BPUtility.escapeSingleQuotes(poTypeId);
-		if(AccessControl.ifObjectFieldIsAccessible('PO_Type__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		List<PO_Type__c> poTypeList = [select Id from PO_Type__c where Code__c =: poTypeCode AND Vendor__c =: vendorId AND Id != :poTypeId];
-    	String isSimilarPresent;
-    	if(poTypeList.size() > 0) {
-    		isSimilarPresent = 'true';
-    	} else {
-    		isSimilarPresent = 'false';
-    	}
-    	return BPUtility.getEncodedString(isSimilarPresent);
-
-    }
+    
     /**
      * Name: updateDefaultPOType
      * Desc: method to update record as preffered record
@@ -91,15 +68,15 @@ global with sharing class ViewVendorRelatedListCtrl {
     **/
     @RemoteAction
     global static String updateDefaultPOType(String vendorId, String poTypeId, boolean defaultValToUpdate) {
-
     	vendorId = Id.valueOf(BPUtility.getDecodedString(vendorId));
         poTypeId = Id.valueOf(BPUtility.getDecodedString(poTypeId));
-        poTypeId = BPUtility.escapeSingleQuotes(poTypeId);
+        poTypeId = BPUtility.escapeSingleQuotes(poTypeId );
+        
     	try{
 	    	List<PO_Type__c> poTypestoUpdate = new List<PO_Type__c>();
 	    	if(defaultValToUpdate){
 	    		if(AccessControl.ifObjectFieldIsAccessible('PO_Type__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-	    		List<PO_Type__c> prevDefaultPOTypes = [Select Id, IsDefault__c from PO_Type__c where IsDefault__c = true AND Id !=: poTypeId AND Vendor__c =: vendorId];
+	    		List<PO_Type__c> prevDefaultPOTypes = [Select Id, IsDefault__c from PO_Type__c where IsDefault__c = true AND Id !=: poTypeId];
 	    		if(prevDefaultPOTypes.size() > 0){
 	    			for(PO_Type__c poTypeRec : prevDefaultPOTypes){
 	    				poTypeRec.IsDefault__c = false;
@@ -282,7 +259,6 @@ global with sharing class ViewVendorRelatedListCtrl {
 		if(contactRecord != null){
 			return BPUtility.getEncodedString(System.JSON.serialize( new List<VendorContact>{new VendorContact(contactRecord)} ));
 		}
-
         return BPUtility.getEncodedString('[]');
     }
     
@@ -301,7 +277,6 @@ global with sharing class ViewVendorRelatedListCtrl {
 	        Contact recToUpdate = new Contact(Id = contactId, Relationship__c = relationValToUpdate);
 	        if(AccessControl.ifObjectIsUpdateable('Contact') == false){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
 	        update recToUpdate;
-
 	        
 	        return BPUtility.getEncodedString(String.valueOf(getTotalContactsForVendor(vendorId)));
     	}catch(exception ex){
@@ -369,11 +344,11 @@ global with sharing class ViewVendorRelatedListCtrl {
     	
     	try{
 	        List<VendorContact> vendorContactObjList = VendorContact.parse(contactsJSON);
-
 	        
 	        List<Contact> vendorContactListToInsert = new List<Contact>();
 	        for(VendorContact vendorContactObj : vendorContactObjList) {
 	            Contact vendorContactRec = new Contact();
+	            
 	            vendorContactRec.FirstName = vendorContactObj.FirstName;
 	            vendorContactRec.LastName = vendorContactObj.LastName;
 	            vendorContactRec.Work_Email__c = vendorContactObj.Email;
@@ -388,7 +363,6 @@ global with sharing class ViewVendorRelatedListCtrl {
 	            vendorContactRec.AccountId = vendorContactObj.ParentVendor;
 	            if(vendorContactObj.Id != null) {
 	            	vendorContactRec.Id = vendorContactObj.Id;
-
 	            }
 	            vendorContactListToInsert.add(vendorContactRec);
 	        }
@@ -439,6 +413,7 @@ global with sharing class ViewVendorRelatedListCtrl {
     @RemoteAction
     global static String addUpdateProductToVendor(String productsJSON) {
     	productsJSON = BPUtility.getDecodedString(productsJSON);
+    	
     	try{
 	    	List<VendorProduct> productsList = VendorProduct.parse(productsJSON);
 	    	if(productsList.size() == 0){
@@ -481,33 +456,7 @@ global with sharing class ViewVendorRelatedListCtrl {
     		return BPUtility.getEncodedString('');
     	} 
     }
-     /**
-     * Name: getSimilarProduct
-     * Desc: Method to get similar Products
-     * @param:	(1) productCode - Code of Product
-     * @return: String - List JSON format for similar record
-    **/
-    @RemoteAction
-    global static String getSimilarProduct(String productCode, String vendorId, String productId) {
-    	productCode = BPUtility.getDecodedString(productCode);
-		vendorId = Id.valueOf(BPUtility.getDecodedString(vendorId));
-		productId = Id.valueOf(BPUtility.getDecodedString(productId));
-		productCode = BPUtility.escapeSingleQuotes(productCode);
-		vendorId = BPUtility.escapeSingleQuotes(vendorId);
-		productId = BPUtility.escapeSingleQuotes(productId);
-		if(AccessControl.ifObjectFieldIsAccessible('Product__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		List<Product__c> productList = [select Id from Product__c where Code__c =: productCode AND Vendor__c =: vendorId AND Id != :productId];
-    	String isSimilarPresent;
-    	if(productList.size() > 0) {
-    		isSimilarPresent = 'true';
-    	} else {
-    		isSimilarPresent = 'false';
-    	}
-    	return BPUtility.getEncodedString(isSimilarPresent);
-
-    }
-
-
+    
     /**
      * Name: getProductInfoById
      * Desc: Method to get VendorProduct record information for VendorProduct Id in parameters
@@ -517,6 +466,7 @@ global with sharing class ViewVendorRelatedListCtrl {
     @RemoteAction
     global static String getProductInfoById(String productId) {
     	productId = Id.valueOf(BPUtility.getDecodedString(productId));
+    	
     	try{
 	    	if(productId == null){
 	    		return BPUtility.getEncodedString('[]');
@@ -542,7 +492,8 @@ global with sharing class ViewVendorRelatedListCtrl {
     **/
     @RemoteAction
     global static String getSystemDefaultCategory(String vendorId) {
-    	vendorId = BPUtility.getDecodedString(vendorId);
+    	vendorId = Id.valueOf(BPUtility.getDecodedString(vendorId));
+    	
     	return PartOverviewCtrl.getDefaultCategory(BPUtility.getEncodedString(vendorId));
     }
     
@@ -557,6 +508,7 @@ global with sharing class ViewVendorRelatedListCtrl {
     	vendorId = Id.valueOf(BPUtility.getDecodedString(vendorId));
     	productId = Id.valueOf(BPUtility.getDecodedString(productId));
     	pageSortAttrsJSON = BPUtility.getDecodedString(pageSortAttrsJSON);
+    	
     	try{
 	        Product__c recToDel = new Product__c(Id = productId);
 	        if(AccessControl.ifObjectIsDeletable('Product__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE);}
@@ -616,118 +568,4 @@ global with sharing class ViewVendorRelatedListCtrl {
     	}
     }
     /*****************************	END: PRODUCTS SECTION	*****************************************/
-    
-    
-    
-    /*****************************	START: TAX EXEMPTIONS SECTION	*****************************************/
-    /**
-     * Name: getAllActiveSalesTax
-     * Desc: get all active sales tax list used for tax exemption edit box
-     * @param: (1) customerId - String - Id of Customer 
-     * @return: String - JSON string of Sales Tax. 
-    **/
-    @RemoteAction
-    global static String getAllActiveSalesTax(String vendorId) {
-    	if(AccessControl.ifObjectFieldIsAccessible('Sales_Tax_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        List<Sales_Tax_Item__c> salesTaxItemList = SOQLUtil.getAllSalesTaxItemWithExemptions(vendorId, new Map<String, String>());
-        List<TaxExemptions> taxExemptionsList = new List<TaxExemptions>();
-        Map<Id, List<String>> salesTaxItemIdToAppliesToList = NewViewCustomerCtrl.getAppliesToList(salesTaxItemList);
-        
-        for(Sales_Tax_Item__c salesTaxItemRec : salesTaxItemList) {
-        	taxExemptionsList.add(new TaxExemptions(salesTaxItemRec, salesTaxItemIdToAppliesToList.get(salesTaxItemRec.Id)));
-        }
-        return system.JSON.serialize(taxExemptionsList);
-    }
-    
-    /**
-     * Name: saveTaxExeptionList
-     * Desc: save tax exemption records
-     * @param: (1) customerId - String - Id of Customer 
-     * @return: String - JSON string of Sales Tax. 
-    **/
-    @RemoteAction
-    global static String saveTaxExeptionList(String vendorId, String taxExemptionJSONString, String taxExemptionPageSortAttrsJSON) {
-        List<Tax_Exemption__c> taxExemptionListToInsert = new List<Tax_Exemption__c>();
-        List<Tax_Exemption__c> taxExemptionListToDelete = new List<Tax_Exemption__c>();
-        PaginationSorting taxExemptionPageSortAttrs = parsePageAttrs(taxExemptionPageSortAttrsJSON);
-        
-        List<TaxExemptions> taxExemptionObjList = (List<TaxExemptions>) System.JSON.deserialize(taxExemptionJSONString, List<TaxExemptions>.class);
-        for(TaxExemptions taxExemptionObj : taxExemptionObjList) {
-        	Tax_Exemption__c taxExemptionRec = new Tax_Exemption__c();
-        	if(taxExemptionObj.IsSelected && taxExemptionObj.TaxExemptionId == null) {
-   				taxExemptionRec.Customer__c = vendorId;
-   				taxExemptionRec.Sales_Tax_Item__c = taxExemptionObj.SalesTaxItemId;
-   				taxExemptionListToInsert.add(taxExemptionRec);
-        	} else if(taxExemptionObj.TaxExemptionId != null) {
-        		taxExemptionRec.Id = taxExemptionObj.TaxExemptionId;
-        		taxExemptionListToDelete.add(taxExemptionRec);
-        	}
-        }
-        
-        if(taxExemptionListToInsert.size() > 0) {
-        	if(AccessControl.ifObjectFieldIsCreateable('Tax_Exemption__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
-        	insert taxExemptionListToInsert;
-        }
-        
-        if(taxExemptionListToDelete.size() > 0) {
-        	if(AccessControl.ifObjectIsDeletable('Tax_Exemption__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
-        	delete taxExemptionListToDelete;
-        }
-        
-        // Get all JSON List
-        List<Tax_Exemption__c> taxExemptionList = SOQLUtil.getTaxExemptionList(vendorId, new Map<String, String>());
-        Integer TotalTaxExemptionRecords = taxExemptionList.size(); 
-        taxExemptionList = TaxExemption.getPaginatedRecords(taxExemptionList, taxExemptionPageSortAttrs.CurrentPage, taxExemptionPageSortAttrs.PageSize);
-        taxExemptionObjList = new List<TaxExemptions>();
-        Map<Id, List<String>> salesTaxItemIdToAppliesToList = CustomerDetail.getAppliesToList(taxExemptionList);
-        for(Tax_Exemption__c taxExemptionRec : taxExemptionList) {
-    		taxExemptionObjList.add(new TaxExemptions(taxExemptionRec, salesTaxItemIdToAppliesToList.get(taxExemptionRec.Sales_Tax_Item__c)));
-    	}
-        return system.JSON.serialize(new TaxExemptionJSONWrapper(TotalTaxExemptionRecords, taxExemptionObjList));
-    }
-    
-    
-    public class TaxExemptionJSONWrapper {
-        public Integer TotalTaxExemptionRecords;
-        public List<TaxExemptions> TaxExemptionList;
-        
-        public TaxExemptionJSONWrapper(Integer TotalTaxExemptionRecords, List<TaxExemptions> TaxExemptionList){
-            this.TotalTaxExemptionRecords = TotalTaxExemptionRecords;
-            this.TaxExemptionList = TaxExemptionList;
-        }
-    }
-    
-    /*****************************	END: TAX EXEMPTIONS SECTION	*****************************************/
-    
-    /**
-     * Name: parsePageAttrs
-     * Desc: Method to Parse JSON String to class instance for Pagination and sort attributes
-     * @param:  (1) JSONString - String - JSON String 
-     * @return: PaginationSorting - Class Object
-    **/
-    public static PaginationSorting parsePageAttrs(String json) {
-        return (PaginationSorting) System.JSON.deserialize(json, PaginationSorting.class);
-    }
-    
-    // Wrapper class for pagination and sorting combination
-    public class PaginationSorting {
-        
-        // Current page number
-        public Integer CurrentPage;
-        
-        // Current page size
-        public Integer PageSize;
-        
-        // Sorting list
-        public List<SortAttrs> Sorting;
-    }
-    
-    // SortAttrs for sorting attributes
-    public class SortAttrs {
-        // Field name
-        public String FieldName;
-        
-        // Sort direction
-        public String SortDirection;
-    }
 }

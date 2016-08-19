@@ -135,6 +135,7 @@ global with sharing class ViewPartRelatedListCtrl {
             }
             
             if(AccessControl.ifObjectIsAccessible('Part_Alternates__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
+            if(AccessControl.ifObjectIsAccessible('Part__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
             
             // Check if any alternate part is already added for the part record
             List<Part_Alternates__c> partAlternateRecords = [SELECT Id, Part_ID__r.Part_Number__c, Alternate_Part_ID__r.Part_Number__c
@@ -198,6 +199,7 @@ global with sharing class ViewPartRelatedListCtrl {
 
             alternatePartstoUpdate.add(recToUpdate);
             if(AccessControl.ifObjectIsAccessible('Part_Alternates__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
+            if(AccessControl.ifObjectIsAccessible('Part__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
 
             if(preferredValToUpdate){
                 List<Part_Alternates__c> prevDefaultPOTypes = [Select   Id, 
@@ -251,107 +253,37 @@ global with sharing class ViewPartRelatedListCtrl {
         partId = BPUtility.getDecodedString(partId);
         alternatePartJunctionId = BPUtility.getDecodedString(alternatePartJunctionId);
         alternateOrderRelation = BPUtility.getDecodedString(alternateOrderRelation);
-        
         try{
-	    	List<Part_Alternates__c> recsToUpdate = SOQLUtil.getAlternatePartRecords(new List<Id>{alternatePartJunctionId});
-	    	if(recsToUpdate.size() == 0) {
-	    		return BPUtility.getEncodedString('[]');
-	    	}
-	    	List<Part_Alternates__c> alternatePartRecordListToUpdate = new List<Part_Alternates__c>();
-	    	Part_Alternates__c recToUpdate = recsToUpdate[0];
-	    	recToUpdate.Relation__c = alternateOrderRelation;
-	    	alternatePartRecordListToUpdate.add(recToUpdate);
-	    	
-	    	String referencedPartRelation;
-	    	if(alternateOrderRelation == 'Replaces') {
-	    		referencedPartRelation = 'Replaced By';
-	    	} else if(alternateOrderRelation == 'Replaced By'){
-	    		referencedPartRelation = 'Replaces';
-	    	} else if(alternateOrderRelation == 'Alternate') {
-	    		referencedPartRelation = 'Alternate';
-	    	}
-	    	
-	    	if(AccessControl.ifObjectIsAccessible('Part_Alternates__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
-	    	List<Part_Alternates__c> partAlternateRecords = [SELECT Id, Part_ID__c, Alternate_Part_ID__c
-	    													 FROM Part_Alternates__c 
-	    													 WHERE Part_ID__c =: recToUpdate.Alternate_Part_ID__c 
-	    													 AND Alternate_Part_ID__c =: recToUpdate.Part_ID__c
-	    													];
-	    	if(partAlternateRecords.size() > 0) {
-	    		Part_Alternates__c alternateRecToUpdate = partAlternateRecords[0];
-	    		alternateRecToUpdate.Relation__c = referencedPartRelation;
-	    		alternatePartRecordListToUpdate.add(alternateRecToUpdate);
-	    	}
-	    	
-		    if(AccessControl.ifObjectIsUpdateable('Part_Alternates__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
-		    update alternatePartRecordListToUpdate;
-		    
-		    // Return All alternate part JSON for this Part
-		    //AllAlternatePartsWrapper alternatePartObj = new AllAlternatePartsWrapper(partId, pageSortAttrsJSON);
-		    //return system.JSON.serialize(alternatePartObj);
-		    return BPUtility.getEncodedString('{}');
-    	}catch(exception ex){
-    		throw new BlackPurlException(BlackPurlException.getErrorMessage(ex.getMessage(), ex.getStackTraceString()));
-    		return BPUtility.getEncodedString('');
-    	}
-    }
-    
-    
-    
-    /* Deprecated */
-    global static String changeAlternatePartRelation(Id partId, String alternatePartJunctionId, String alternateOrderRelation, String pageSortAttrsJSON) {
-    	return '' ;
-    }
-    
-    @RemoteAction
-    global static String changeAlternatePartRelation(String partId, String alternatePartJunctionId, String alternateOrderRelation, String pageSortAttrsJSON) {
-    	partId = BPUtility.getDecodedString(partId);
-        alternatePartJunctionId = BPUtility.getDecodedString(alternatePartJunctionId);
-        alternateOrderRelation = BPUtility.getDecodedString(alternateOrderRelation);
-        pageSortAttrsJSON = BPUtility.getDecodedString(pageSortAttrsJSON);
-        
-    	try{
-	    	List<Part_Alternates__c> recsToUpdate = SOQLUtil.getAlternatePartRecords(new List<Id>{alternatePartJunctionId});
-	    	if(recsToUpdate.size() == 0) {
-	    		return BPUtility.getEncodedString('{}');
-	    	}
-	    	List<Part_Alternates__c> alternatePartRecordListToUpdate = new List<Part_Alternates__c>();
-	    	Part_Alternates__c recToUpdate = recsToUpdate[0];
-	    	recToUpdate.Relation__c = alternateOrderRelation;
-	    	alternatePartRecordListToUpdate.add(recToUpdate);
-	    	
-	    	String referencedPartRelation;
-	    	if(alternateOrderRelation == 'Replaces') {
-	    		referencedPartRelation = 'Replaced By';
-	    	} else if(alternateOrderRelation == 'Replaced By'){
-	    		referencedPartRelation = 'Replaces';
-	    	} else if(alternateOrderRelation == 'Alternate') {
-	    		referencedPartRelation = 'Alternate';
-	    	}
-	    	
-	    	if(AccessControl.ifObjectIsAccessible('Part_Alternates__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
-	    	List<Part_Alternates__c> partAlternateRecords = [SELECT Id, Part_ID__c, Alternate_Part_ID__c
-	    													 FROM Part_Alternates__c 
-	    													 WHERE Part_ID__c =: recToUpdate.Alternate_Part_ID__c 
-	    													 AND Alternate_Part_ID__c =: recToUpdate.Part_ID__c
-	    													];
-	    	if(partAlternateRecords.size() > 0) {
-	    		Part_Alternates__c alternateRecToUpdate = partAlternateRecords[0];
-	    		alternateRecToUpdate.Relation__c = referencedPartRelation;
-	    		alternatePartRecordListToUpdate.add(alternateRecToUpdate);
-	    	}
-	    	
-		    if(AccessControl.ifObjectIsUpdateable('Part_Alternates__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
-		    update alternatePartRecordListToUpdate;
-		    
-		    // Return All alternate part JSON for this Part
-		    AllAlternatePartsWrapper alternatePartObj = new AllAlternatePartsWrapper(partId, pageSortAttrsJSON);
-		    return BPUtility.getEncodedString(system.JSON.serialize(alternatePartObj));
-		    
-    	}catch(exception ex){
-    		throw new BlackPurlException(BlackPurlException.getErrorMessage(ex.getMessage(), ex.getStackTraceString()));
-    		return BPUtility.getEncodedString('');
-    	}
+            List<Part_Alternates__c> recsToUpdate = SOQLUtil.getAlternatePartRecords(new List<Id>{alternatePartJunctionId});
+            Part_Alternates__c recToUpdate = recsToUpdate[0];
+            
+            // If part relation changes to "Replaces", then check for validity is the alternate part does not have the part as its alternative part
+            if(alternateOrderRelation == 'Replaces'){
+                if( String.valueOf(recToUpdate.Part_ID__c).substring(0,15) != String.valueOf(partId).substring(0, 15) ){
+                    recToUpdate.Alternate_Part_ID__c = recToUpdate.Part_ID__c;
+                    recToUpdate.Part_ID__c = partId;
+                } else {
+                    if(AccessControl.ifObjectIsAccessible('Part_Alternates__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
+                    if(AccessControl.ifObjectIsAccessible('Part__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
+                    List<Part_Alternates__c> partAlternateRecords = [SELECT Id, Part_ID__r.Part_Number__c, Alternate_Part_ID__r.Part_Number__c
+                                                                     FROM Part_Alternates__c 
+                                                                     WHERE Part_ID__c =: recToUpdate.Alternate_Part_ID__c 
+                                                                     AND Alternate_Part_ID__c =: recToUpdate.Part_ID__c
+                                                                    ];
+                    if(partAlternateRecords.size() > 0){
+                        String errorMsg = 'Alternate Part cannot be updated to "Replaces" relation, as same has "' + partAlternateRecords[0].Part_ID__r.Part_Number__c + '" as alternate part';
+                        return BPUtility.getEncodedString(String.valueOf(getTotalAlternatePartsForPart(BPUtility.getEncodedString(recToUpdate.Part_ID__c)) + ',' + errorMsg));
+                    }
+                }
+            }
+            recToUpdate.Relation__c = alternateOrderRelation;
+            if(AccessControl.ifObjectIsUpdateable('Part_Alternates__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
+            update recToUpdate;
+            return BPUtility.getEncodedString(String.valueOf(getTotalAlternatePartsForPart(BPUtility.getEncodedString(recToUpdate.Part_ID__c))));
+        }catch(exception ex){
+            throw new BlackPurlException(BlackPurlException.getErrorMessage(ex.getMessage(), ex.getStackTraceString()));
+            return BPUtility.getEncodedString('');
+        }
     }
     
     /**
@@ -362,13 +294,15 @@ global with sharing class ViewPartRelatedListCtrl {
     **/
     @RemoteAction
     global static String removeAlternatePartRelation(String partId, String alternatePartJunctionId, String pageSortAttrsJSON) {
+    	if(AccessControl.ifObjectIsDeletable('Part_Alternates__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
         partId = Id.valueOf(BPUtility.getDecodedString(partId));
         alternatePartJunctionId = Id.valueOf(BPUtility.getDecodedString(alternatePartJunctionId));
         pageSortAttrsJSON = BPUtility.getDecodedString(pageSortAttrsJSON);
         
+        
         try{
             Part_Alternates__c recToDel = new Part_Alternates__c(Id = alternatePartJunctionId);
-            if(AccessControl.ifObjectIsDeletable('Part_Alternates__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE);}
+            if(AccessControl.ifObjectIsDeletable('Product__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE);}
             delete recToDel;
             return BPUtility.getEncodedString(System.JSON.serialize( new AllAlternatePartsWrapper(partId, pageSortAttrsJSON) ));
         }catch(exception ex){
@@ -413,9 +347,9 @@ global with sharing class ViewPartRelatedListCtrl {
      * @return: String - JSON format for all the tax exemptions
     **/
     private static List<TaxExemption> getAllTaxExemptionsForPart(String partId, String pageSortAttrsJSON) {
-        /*List<TaxExemption> taxExemptions = TaxExemption.getAllTaxExemptionsForPart(partId, pageSortAttrsJSON);
-        return taxExemptions;*/
-        return new List<TaxExemption>();
+        List<TaxExemption> taxExemptions = TaxExemption.getAllTaxExemptionsForPart(partId, pageSortAttrsJSON);
+        return taxExemptions;
+        //return new List<TaxExemption>();
     }
     
     /**
@@ -426,8 +360,9 @@ global with sharing class ViewPartRelatedListCtrl {
     **/
     @RemoteAction
     global static Integer getTotalTaxExemptionsForPart(String partId) {
-        return 500;
-        //return TaxExemption.getTotalTaxExemptionsForPart(partId);
+        //return 500;
+        partId = BPUtility.getDecodedString(partId);
+        return TaxExemption.getTotalTaxExemptionsForPart(partId);
     }
     
     /**
@@ -438,7 +373,8 @@ global with sharing class ViewPartRelatedListCtrl {
     **/
     @RemoteAction
     global static String addTaxExemptionToPart(String taxExemptionsJSON) {
-        /*try{
+    	taxExemptionsJSON = BPUtility.getDecodedString(taxExemptionsJSON);
+        try{
             List<TaxExemption> taxExemptionsList = TaxExemption.parse(taxExemptionsJSON);
             if(taxExemptionsList.size() == 0){
                 return '';
@@ -468,13 +404,13 @@ global with sharing class ViewPartRelatedListCtrl {
             
             if(taxExemptionsList.size() == 1){
                 taxExemptionsToInsert = SOQLUtil.getPartTaxesWithSalesTaxesForPart(taxExemptionsToInsert[0].Part_ID__c, null);
-                return System.JSON.serialize( new List<TaxExemption.TaxExemptionWrapper>{new TaxExemption.TaxExemptionWrapper(taxExemptionsToInsert[0], taxExemptionsToInsert[0].Part_ID__c)} );
+                return BPUtility.getEncodedString(System.JSON.serialize( new List<TaxExemption.TaxExemptionWrapper>{new TaxExemption.TaxExemptionWrapper(taxExemptionsToInsert[0], taxExemptionsToInsert[0].Part_ID__c)} ));
             }
-            return '';
+            return BPUtility.getEncodedString('');
         }catch(exception ex){
             throw new BlackPurlException(BlackPurlException.getErrorMessage(ex.getMessage(), ex.getStackTraceString()));
             return '';
-        }*/
+        }
         return BPUtility.getEncodedString('[]');
     }
     
@@ -486,8 +422,10 @@ global with sharing class ViewPartRelatedListCtrl {
     **/
     @RemoteAction
     global static String getPaginatedTaxExemptionsForPart(String partId, String pageSortAttrsJSON) {
-        //return System.JSON.serialize( new AllTaxExemptionsWrapper(partId, pageSortAttrsJSON) );
-        return BPUtility.getEncodedString('{}');
+    	partId = BPUtility.getDecodedString(partId);
+        pageSortAttrsJSON = BPUtility.getDecodedString(pageSortAttrsJSON);
+        return BPUtility.getEncodedString(System.JSON.serialize( new AllTaxExemptionsWrapper(partId, pageSortAttrsJSON) ));
+        //return BPUtility.getEncodedString('{}');
     }
     
     /**
@@ -498,28 +436,31 @@ global with sharing class ViewPartRelatedListCtrl {
     **/
     @RemoteAction
     global static String removeTaxExemption(String partId, String taxExemptionId, String pageSortAttrsJSON) {
-        /*try{
+        partId = BPUtility.getDecodedString(partId);
+        taxExemptionId = BPUtility.getDecodedString(taxExemptionId);
+        pageSortAttrsJSON = BPUtility.getDecodedString(pageSortAttrsJSON);
+        try{
             Part_Tax__c recToDel = new Part_Tax__c(Id = taxExemptionId);
             if(AccessControl.ifObjectIsDeletable('Part_Tax__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE);}
             delete recToDel;
-            return System.JSON.serialize( new AllTaxExemptionsWrapper(partId, pageSortAttrsJSON) );
+            return BPUtility.getEncodedString(System.JSON.serialize( new AllTaxExemptionsWrapper(partId, pageSortAttrsJSON) ));
         }catch(exception ex){
             throw new BlackPurlException(BlackPurlException.getErrorMessage(ex.getMessage(), ex.getStackTraceString()));
-            return '';
-        } */
+            return BPUtility.getEncodedString('');
+        } 
         return BPUtility.getEncodedString('');
     }
     
     public class AllTaxExemptionsWrapper {
         // All records
-        //public List<TaxExemption> taxExemptions;
+        public List<TaxExemption> taxExemptions;
         
         // Total records
-        //public Integer TotalTaxExemptions;
+        public Integer TotalTaxExemptions;
         
         public AllTaxExemptionsWrapper(String partId, String pageSortAttrsJSON){
-            //this.taxExemptions = ViewPartRelatedListCtrl.getAllTaxExemptionsForPart(partId, pageSortAttrsJSON);
-            //this.TotalTaxExemptions = TaxExemption.getTotalTaxExemptionsForPart(partId);
+            this.taxExemptions = ViewPartRelatedListCtrl.getAllTaxExemptionsForPart(partId, pageSortAttrsJSON);
+            this.TotalTaxExemptions = TaxExemption.getTotalTaxExemptionsForPart(partId);
         }
         
     }

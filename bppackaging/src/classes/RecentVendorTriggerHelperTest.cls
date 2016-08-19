@@ -43,6 +43,8 @@ private class RecentVendorTriggerHelperTest {
         Test.stopTest();
         
         List<Recent_Vendor__c> recentVendorList = [select Id from Recent_Vendor__c];
+        List<Contact> accList = [select Id, Name from Contact limit 100];
+      	system.assertEquals(accList.size(), 0);
         //system.assertEquals(recentVendorList.size(), 20);
     }
 }

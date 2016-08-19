@@ -61,30 +61,12 @@ global with sharing class PartOverviewCtrl {
             partRec.Description__c = partObj.Description;
             partRec.Vendor__c = partObj.VendorId;
             partRec.Category__c = partObj.CategoryId;
-            //partRec.Superseded_By__c = partObj.ReplacedById;
+            partRec.Superseded_By__c = partObj.ReplacedById;
             partRec.Packaged_Part__c = partObj.IsPackagedPart;
-            if(!partRec.Packaged_Part__c){
-            	partRec.Package_Qty__c = 0;
-            	partRec.Package_Unit__c = null;
-            	partRec.Package_Cost__c = 0;
-            }else{
             partRec.Package_Qty__c = partObj.PackagedQty;
             partRec.Package_Unit__c = partObj.PackagedUnit;
-            	partRec.Package_Cost__c = partObj.PackagedCost;
-            }
             partRec.Qty_In_Stock__c = partObj.InStockQty;
             partRec.Taxable__c = partObj.IsTaxable;
-            if(partObj.IsTaxable) {
-            	partRec.Applicable_Tax__c = partObj.ApplicableTaxId;
-            } else {
-            	partRec.Applicable_Tax__c = null;
-            }
-            partRec.Is_OrderLot__c = partObj.IsOrderLot;
-            if(partRec.Is_OrderLot__c){
-            	partRec.Order_Lots__c = partObj.OrderLots;
-            }else{
-            	partRec.Order_Lots__c = 0; 
-            }
             partRec.Location__c = partObj.Location;
             partRec.Last_Cost__c = partObj.Cost;
             partRec.Package_Cost__c = partObj.PackagedCost;
@@ -94,6 +76,7 @@ global with sharing class PartOverviewCtrl {
             partRec.Auto_reorder_Min__c = partObj.AutoReorderAt;
             partRec.Auto_reorder_Max__c = partObj.AutoReorderTo;
             partRec.Order_Lots__c = partObj.OrderLots;
+            partRec.Applicable_Tax__c = partObj.ApplicableTaxId;
             
             if(partObj.Id != null) {
             	isInsert = false;
@@ -150,21 +133,21 @@ global with sharing class PartOverviewCtrl {
     @RemoteAction
     global static String getDefaultCategory(String vendorId) {
     	vendorId = BPUtility.getDecodedString(vendorId);
-    	vendorId = BPUtility.escapeSingleQuotes(vendorId);
     	if(AccessControl.ifObjectFieldIsAccessible('Category__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	if(AccessControl.ifObjectFieldIsAccessible('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		List<Category__c> categoryList = new List<Category__c>();
 		if(vendorId == '') {
 			categoryList = [select Id, Name from Category__c WHERE default__c = true and Type__c = 'Part'];
 		} else {
+			vendorId= BPUtility.escapeSingleQuotes(vendorId );
 			List<Account> vendorList = [select Id, Part_Category_Default__c, Part_Category_Default__r.Name from Account where Id = :vendorId AND Is_Vendor__c = true];
 			if(vendorList.size() > 0 && vendorList[0].Part_Category_Default__c != null) {
 				Category__c categoryRec = new Category__c (Name = vendorList[0].Part_Category_Default__r.Name, Id = vendorList[0].Part_Category_Default__c);
 				categoryList.add(categoryRec);
 			} else {
-				categoryList = [select Id, Name from Category__c WHERE default__c = true and Type__c = 'Part'];
+				categoryList = [select Id, Name from Category__c WHERE default__c = true];
 			}
-		} 
+		}
 		String jsonString = '{}'; 
 		if(categoryList.size() > 0) {
 			JSONGenerator gen = JSON.createGenerator(true);

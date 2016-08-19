@@ -19,12 +19,9 @@ global with sharing class ViewVendorCtrl {
     	
     	try{
 	        List<Account> vendors = SOQLUtil.getVendorDetailRecord('Id', vendorId);
-	        List<Tax_Exemption__c> taxExemptionList = SOQLUtil.getTaxExemptionList(vendorId, new Map<String, String>());
-	        List<Business_Profile__c> businessProfileList = SOQLUtil.getBusinessProfileData(new List<Id>());
-	        
 	        String JSONString = '{}';
 	        if(vendors.size() > 0) {
-	            JSONString = System.JSON.serialize(new VendorDetail(vendors[0], taxExemptionList, businessProfileList));
+	            JSONString = System.JSON.serialize(new VendorDetail(vendors[0]));
 	        }
 	        return BPUtility.getEncodedString(JSONString);
     	}catch(exception ex){
@@ -66,12 +63,11 @@ global with sharing class ViewVendorCtrl {
     **/
     @RemoteAction
     global static String saveVendor(String jsonString){
+    	if(AccessControl.ifObjectFieldIsCreateable('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
+		if(AccessControl.ifObjectFieldIsUpdateable('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
     	jsonString = BPUtility.getDecodedString(jsonString);
         
     	try{
-    		if(AccessControl.ifObjectFieldIsCreateable('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
-			if(AccessControl.ifObjectFieldIsUpdateable('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-    		
 	        Vendor vendorObj = Vendor.parse(jsonString);
 	        //system.assert(false, vendorObj);
 	        Account vendorToInsert = new Account();

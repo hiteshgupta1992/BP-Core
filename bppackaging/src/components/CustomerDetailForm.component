@@ -586,7 +586,7 @@
             <tr>
                 <td colspan="2">
                     <input type="text" id="{!uniqueId}BillingPostalCode" class="k-input k-textbox requiredField" maxlength="6" 
-                            placeholder="Postal/Zip Code" accApi="BillingPostalCode" conApi="MailingPostalCode" title="Postal/Zip Code"/>
+                            placeholder="Postal/Zip" accApi="BillingPostalCode" conApi="MailingPostalCode" title="Postal/Zip"/>
                     <script>
                         $("#{!uniqueId}BillingPostalCode").val('{!JSENCODE(customer.BillingPostalCode)}');
                         $("#{!uniqueId}BillingPostalCode").focusout(function() {
@@ -795,7 +795,7 @@
             <tr>
                 <td colspan="2">
                     <input type="text" id="{!uniqueId}ShippingPostalCode" class="k-input k-textbox requiredField" maxlength="6" 
-                            placeholder="Postal/Zip Code" accApi="ShippingPostalCode" conApi="OtherPostalCode" title="Postal/Zip Code"/>
+                            placeholder="Postal/Zip" accApi="ShippingPostalCode" conApi="OtherPostalCode" title="Postal/Zip"/>
                     <script>
                         $("#{!uniqueId}ShippingPostalCode").val('{!JSENCODE(customer.ShippingPostalCode)}');
                         $("#{!uniqueId}ShippingPostalCode").focusout(function() {

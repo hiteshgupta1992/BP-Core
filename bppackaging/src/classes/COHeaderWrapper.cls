@@ -51,7 +51,6 @@ public with sharing class COHeaderWrapper {
     public Integer TotalInvoiceHistories;
     
     public Decimal MerchandiseTotal;
-    public Boolean IsTaxIncludingPricing;
     
     public SO_KLI_Recalculation.Errorhandler error;
     
@@ -130,7 +129,6 @@ public with sharing class COHeaderWrapper {
         for(Customer_Owned_Unit__c couRec : couList) {
         	this.COUList.add(new CustomerOwnedUnit(couRec));
         }
-        this.IsTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
     }
     
     // Constructor
@@ -193,7 +191,6 @@ public with sharing class COHeaderWrapper {
     		
     		Decimal TaxAmount = (coLineItemObj.Tax__c == null) ? 0 : (coLineItemObj.Qty__c * coLineItemObj.Price__c * coLineItemObj.Tax__c / 100);
     		merchandiseTotal += (coLineItemObj.Qty__c * coLineItemObj.Price__c) + TaxAmount;
-    		merchandiseTotal = merchandiseTotal.setScale(2);
             //this.coLineItemRecs.add(coliObj);
         }
         
@@ -237,7 +234,6 @@ public with sharing class COHeaderWrapper {
         }
         
         this.error = (CustomerOrderCtrl.error != null) ? CustomerOrderCtrl.error : new SO_KLI_Recalculation.Errorhandler('200', 'Success');
-        this.IsTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
     }
     
     /**
@@ -268,8 +264,7 @@ public with sharing class COHeaderWrapper {
 													'Service_Kit__c',
 													'Fixed_Price_Flag__c',
 													'Actual_Kit_Price__c',
-													'CO_Fixed_KitHeader__c',
-													'Tax_Amount__c'
+													'CO_Fixed_KitHeader__c '
                                                 };
         return cokhFields;
     }
@@ -340,30 +335,16 @@ public with sharing class COHeaderWrapper {
 		public Boolean hasChildren;
 		public Decimal ActualKitPrice;
 		public Boolean IsFixedKitHeaderCO;
-		public Decimal TaxAmount;
     	
     	public COKitHeader(CO_Kit_Header__c coKitHeaderRec, List<CO_Line_Item__c> coliList, Boolean hasChild) {
     		this.hasChildren = hasChild;
-    		this.TaxAmount = coKitHeaderRec.Tax_Amount__c;
-    		Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
-    		if(!isTaxIncludingPricing) {
-    			this.Price = coKitHeaderRec.Price__c;
-    		} else {
-    			if(coKitHeaderRec.Tax_Amount__c == null) {
-    				coKitHeaderRec.Tax_Amount__c = 0;
-    			}
-    			if(coKitHeaderRec.Price__c == null) {
-    				coKitHeaderRec.Price__c = 0;
-    			}
-    			this.Price = coKitHeaderRec.Price__c + coKitHeaderRec.Tax_Amount__c;
-    			this.Price = this.Price.setScale(2);
-    		}
+    		this.Price = coKitHeaderRec.Price__c;
     		this.ItemDescription = coKitHeaderRec.Kit_Header__r.Kit_Unique_Name__c;
 			this.Id = coKitHeaderRec.Id;
 			this.IsServiceKit = (coKitHeaderRec.Service_Kit__c == null) ? false : coKitHeaderRec.Service_Kit__c;
 			this.IsFixedPrice = (coKitHeaderRec.Fixed_Price_Flag__c == null) ? false : coKitHeaderRec.Fixed_Price_Flag__c;
 			this.CanItSplit = (coKitHeaderRec.Can_Split__c == null) ? false : coKitHeaderRec.Can_Split__c;
-			this.ActualKitPrice = (coKitHeaderRec.Actual_Kit_Price__c != null) ? coKitHeaderRec.Actual_Kit_Price__c.setScale(2) : 0.00;
+			this.ActualKitPrice = coKitHeaderRec.Actual_Kit_Price__c;
     		
     		this.COLIList = new List<COLineItem>();
     		
@@ -384,11 +365,9 @@ public with sharing class COHeaderWrapper {
 		public Decimal Total_Laobur;
 		public Decimal Total_Sublet;
 		public Decimal Total_Fee;
-    	public List<IndividualTax> SalesTaxList;
     	
     	public GridTotal(Decimal total, Decimal salesTax, Decimal priceOverride, 
-    					  Decimal total_Part, Decimal total_Laobur, Decimal total_Sublet, Decimal total_Other,
-    					  Map<String, Decimal> salesTaxNameToTaxValue) {
+    					  Decimal total_Part, Decimal total_Laobur, Decimal total_Sublet, Decimal total_Other) {
     		this.Total = total.setScale(2);
     		this.SalesTax = salesTax.setScale(2);
     		this.PriceOverrides = priceOverride.setScale(2);
@@ -397,21 +376,6 @@ public with sharing class COHeaderWrapper {
     		this.Total_Laobur = total_Laobur.setScale(2);
     		this.Total_Sublet = total_Sublet.setScale(2);
     		this.Total_Fee = total_Other.setScale(2);
-    		
-    		this.SalesTaxList = new List<IndividualTax>();
-    		for(String taxName : salesTaxNameToTaxValue.keySet()) {
-    			this.SalesTaxList.add(new IndividualTax(taxName, salesTaxNameToTaxValue.get(taxName)));	
-    		}
-    	}
-    }
-    
-    public class IndividualTax {
-    	public String TaxName;
-    	public Decimal TaxValue;
-    	
-    	public IndividualTax(String taxName, Decimal taxValue) {
-    		this.TaxName = taxName;
-    		this.TaxValue = (taxValue != null) ? taxValue.setScale(2) : 0;
     	}
     }
     
@@ -436,10 +400,9 @@ public with sharing class COHeaderWrapper {
     		this.COLineItemId = VendorOrderLineItemRec.CO_Line_Item__c;
     		this.Item = VendorOrderLineItemRec.Part__r.Part_Number__c + ' - ' + VendorOrderLineItemRec.Part__r.Description__c;
     		this.QtyNeeded = VendorOrderLineItemRec.Qty_Needed__c;
-    		if(VendorOrderLineItemRec.Status__c == null) {
-    			this.Status = VendorOrderLineItemRec.CO_Line_Item__r.Status__c == 'Ordered' ? 'Ordered':'Required' ;	
-    		}
-    		else{
+    		if(VendorOrderLineItemRec.Status__c == null){
+    			this.Status = 'Required';	
+    		}else{
     			this.Status = VendorOrderLineItemRec.Status__c;	
     		}
     		

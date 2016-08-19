@@ -8,7 +8,7 @@ public with sharing class SOTriggerHelper {
 	
 	// List to store trigger new list
     public static List<Service_Order_Header__c> soHeaderNewList = new List<Service_Order_Header__c>();
-     
+    
     // List to store trigger old list
     public static List<Service_Order_Header__c> soHeaderOldList = new List<Service_Order_Header__c>();
     
@@ -26,7 +26,6 @@ public with sharing class SOTriggerHelper {
     
     public static String COMPLETE_STATUS = 'Complete';
     public static String REVIEWED_STATUS = 'Reviewed';
-    public static String SIGNEDOUT_STATUS = 'Signed Out';
     
      /**
      * Name: beforeInsertOperation
@@ -73,9 +72,7 @@ public with sharing class SOTriggerHelper {
     	Boolean isValidEntry = false;
     	for(Service_Order_Header__c soHeaderRec : soHeaderNewList) {
 	    	if((soHeaderNewMap.get(soHeaderRec.Id).Work_Status__c != soHeaderOldMap.get(soHeaderRec.Id).Work_Status__c) &&
-				 (soHeaderNewMap.get(soHeaderRec.Id).Work_Status__c == COMPLETE_STATUS 
-                 || soHeaderNewMap.get(soHeaderRec.Id).Work_Status__c == REVIEWED_STATUS || 
-                 soHeaderNewMap.get(soHeaderRec.Id).Work_Status__c == SIGNEDOUT_STATUS )){
+				 (soHeaderNewMap.get(soHeaderRec.Id).Work_Status__c == COMPLETE_STATUS || soHeaderNewMap.get(soHeaderRec.Id).Work_Status__c == REVIEWED_STATUS)){
 				 isValidEntry = true;
 	    	}
     	}
@@ -87,11 +84,7 @@ public with sharing class SOTriggerHelper {
     private static void updateStatusFieldForSOHeader(){
     	for(Service_Order_Header__c soHeaderRec : soHeaderNewList) {
     		if(soHeaderRec.Work_Status__c != null){
-    			if(soHeaderRec.Work_Status__c == SIGNEDOUT_STATUS) {
-    				soHeaderRec.Status__c = COMPLETE_STATUS ;
-    			} else {
-    				soHeaderRec.Status__c = soHeaderRec.Work_Status__c;
-    			}
+    			soHeaderRec.Status__c = soHeaderRec.Work_Status__c;
     		}
     	}
     }

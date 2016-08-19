@@ -35,7 +35,7 @@ private class VendorOrderLineItemTriggerHelperTest {
         CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 150);
         Test.stopTest();
         
-        List<Vendor_Order_Line_Item__c> vendorOrderList = [select Id, Qty_Needed__c, Qty_Ordered__c from Vendor_Order_Line_Item__c];
+        List<Vendor_Order_Line_Item__c> vendorOrderList = [select Id, Qty_Needed__c, Qty_Ordered__c from Vendor_Order_Line_Item__c limit 100];
         //system.assert(false,vendorOrderList );
         system.assertEquals(vendorOrderList[0].Qty_Needed__c, 50.000);
     }
@@ -61,7 +61,7 @@ private class VendorOrderLineItemTriggerHelperTest {
         CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 150);
         Test.stopTest();
         
-        List<Vendor_Order_Line_Item__c> vendorOrderList = [select Id, Qty_Needed__c, Qty_Ordered__c, Vendor_Order_Header__c, Is_required_For_Customer__c, CO_Line_Item__c from Vendor_Order_Line_Item__c];
+        List<Vendor_Order_Line_Item__c> vendorOrderList = [select Id, Qty_Needed__c, Qty_Ordered__c, Vendor_Order_Header__c, Is_required_For_Customer__c, CO_Line_Item__c from Vendor_Order_Line_Item__c limit 100];
         //system.assert(false,vendorOrderList );
         system.assertEquals(vendorOrderList[0].Qty_Needed__c, 50.000);
         
@@ -69,7 +69,7 @@ private class VendorOrderLineItemTriggerHelperTest {
         vendorOrderList[0].CO_Line_Item__c = coLineItem.Id;
         vendorOrderList[0].Vendor_Order_Header__c = voHeader.Id;
         update vendorOrderList[0];
-        vendorOrderList = [select Id, Qty_Needed__c, Qty_Ordered__c from Vendor_Order_Line_Item__c];
+        vendorOrderList = [select Id, Qty_Needed__c, Qty_Ordered__c from Vendor_Order_Line_Item__c limit 100];
         system.assertEquals(vendorOrderList[0].Qty_Needed__c, 60.000);
     }
     
