@@ -1,0 +1,1727 @@
+<apex:page standardStylesheets="false" showChat="false" showHeader="false" sidebar="false" controller="ViewVendorCtrl">
+    <html ng-app="viewVendor">
+    <head>
+        <title>View Vendor</title>
+        
+        <c:Css_and_Js />
+        <c:NewViewCustomerStyle />
+        <c:NewDirPagination />
+        <style>
+            .round_btn{
+                border-radius:3pt;
+                padding:3px 0px;
+                height: 24px;   
+            }
+            .rowGeneral .subsectionGeneral {
+                padding-left: 10px;
+                padding-right: 10px
+            }
+            .rowGeneral .subsectionGeneral_rightonly {
+                padding-right: 10px
+            }
+            .main_section .rowGeneral {
+                padding-right: 4%;
+            }
+            .Profile_pic {
+                padding-right: 0px;
+            }
+            .rowGeneral .Active_Button {
+                Padding: 0px;
+                height: 24px;
+            }
+            .rowGeneral .Active_Button_row {
+                Padding-right: 0px;
+                margin-top: 12px;
+            }
+            .rowGeneral .see_more_button {
+                padding-top: 0px;
+                padding-bottom: 0px;
+            }
+            .rowGeneral .see_more_button_row {
+                margin-top: 20px;
+            }
+            .rowGeneral .social_icon_row {
+                margin-top: 12px;
+            }
+            .rowGeneral .icon_google {
+                color: #d34836;
+                font-size: 24px;
+            }
+            .rowGeneral .icon_in {
+                color: #007bb6;
+                font-size: 24px;
+            }
+            .rowGeneral .icon_fb {
+                color: #3B5998;
+                font-size: 24px;
+            }
+            .rowGeneral .icon_tweet {
+                color: #00AEEF;
+                font-size: 24px;
+            }
+            .favorite {
+                font-size: 10px
+            }
+            .non_favorite {
+                margin-left: 9px;
+            }
+            .label_favorite {
+                margin-left: 5px;
+            }
+            .customer_general_column {
+                padding-right: 1px;
+            }
+            .rowGeneral .general_info_customer {
+                margin-top: 12px;
+            }
+            .rowGeneral .statistics_row {
+                margin-top: 24px
+            }
+            .telemetry_Main {
+                border-top: 1px solid #ECF0F1;
+                margin-top: 24px;
+            }
+            .cou_plus_icon {
+                margin-left: 10px;
+                color: #939CA9;
+            }
+            .main_section_COU {
+                margin-bottom: 48px;
+                margin-top: 21px;
+            }
+            .main_section_COU .line {
+                border-top: 1px solid #ECF0F1;
+                margin: 0px 20px 0px 20px;
+            }
+            .main_section_COU_Header .actionRow .sectionText {
+                font-weight: bold;
+                color: #000000;
+                margin-left: 24px;
+            }
+            .main_section_COU_Header {
+                border-top: 1px solid #ECF0F1;
+                margin: 0px 20px 0px 20px;
+                padding-top: 24px;
+                border-top: 1px solid #ECF0F1;
+            }
+            .gid_container_Customer .table {
+                border: 0;
+            }
+            .main_section_COU_Header .actionRow .actionText {
+                margin-left: 5px;
+                color: #939CA9;
+            }
+            .clickable_row .first_img {
+                height: 30px;
+            }
+            .gid_container_Customer .table th {
+                border: none;
+                padding-top: 15px;
+                padding-bottom: 15px;
+            }
+            .gid_container_Customer .table tbody {
+                border: none;
+            }
+            .gid_container_Customer .table tbody > tr > td {
+                border: none;
+                padding-top: 2px;
+                padding-bottom: 2px;
+                vertical-align: middle;
+            }
+            .gid_container_Customer .table tbody .tddropdown td {
+                padding-top: 2px;
+                padding-bottom: 2px;
+                vertical-align: middle;
+            }
+            .angucomplete-dropdown {
+                width: 100%;
+                margin-top: 28px;
+            }
+            .gid_container_Customer .tableHeader {
+                margin-left: -15px;
+                margin-right: -15px;
+            }
+            .gid_container_Customer .S2 {
+                margin-left: 12px;
+                margin-right: 12px;
+            }
+            .gid_container_Customer table tr.edit_panel {
+                background: #fff;
+            }
+            .gid_container_Customer table tr.edit_panel,
+            .gid_container_Customer table tr.Editable_row {} .gid_container_Customer table tr.edit_panel.show_tr {
+                display: table-row;
+            }
+            .gid_container_Customer table tr.edit_panel input[type="radio"] {
+                float: left;
+                position: relative;
+            }
+            .gid_container_Customer table tr.edit_panel td .edit_box .edit-body .editform_btn {
+                position: absolute;
+                right: 20px;
+                top: 87px;
+                width: 50px;
+            }
+            .gid_container_Customer table tr.edit_panel td {
+                overflow: hidden;
+                height: 0;
+                padding-top: 5px;
+            }
+            .gid_container_Customer table tr.edit_panel td .edit_box {
+                border: 1px dashed #A8A8A8;
+                margin: 10px 5px;
+                position: relative;
+            }
+            .gid_container_Customer table tr.edit_panel.animate_tr td {
+                border-left: 3px solid #939393;
+                height: auto;
+                padding: 4px;
+            }
+            .gid_container_Customer table tr.edit_panel td .edit_box.ng-hide {
+                height: 0;
+            }
+            .gid_container_Customer table tr.edit_panel td .edit_box {
+                transition: all 0.5s ease;
+            }
+            .edit_box {
+                transition: .5s linear all;
+                height: 130px;
+            }
+            .gid_container_Customer table tr.edit_panel.animate_tr {
+                margin-top: 10px;
+                transition: all 0.5s ease;
+            }
+            .gid_container_Customer table tr.edit_panel td .edit_box .its-heading {
+                position: absolute;
+                left: 24px;
+                top: -15px;
+                min-width: 175px;
+                background: #fff;
+                min-height: 30px;
+                padding: 6px;
+                font-size: 14px;
+                color: #939CA9;
+                font-weight: bold;
+            }
+            .gid_container_Customer .table .clickable_row .edite_btn {
+                height: 38px;
+                width: 38px;
+                float: left;
+                padding: 4px;
+                margin: 4px 0;
+            }
+            .gid_container_Customer table tr.edit_panel td .edit_box .edit-body {
+                margin: 26px;
+            }
+            .animate-showContent {
+                opacity: 1;
+            }
+            .animate-showContent.ng-hide-add.ng-hide-add-active,
+            .animate-showContent.ng-hide-remove.ng-hide-remove-active {
+                -webkit-transition: all ease-in-out 0.1s;
+                transition: all ease-in-out 0.1s;
+            }
+            .animate-showContent.ng-hide {
+                line-height: 0;
+                opacity: 0;
+                padding: 0 10px;
+            }
+            .caret {
+                font-size: 16px
+            }
+            .statistics_row .tiles {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            @media screen and (min-width: 1200px) {
+                .mb-datepicker {
+                    width: 350px;
+                }
+                .mb-datepicker table {
+                    width: 350px;
+                    border-spacing: 13px 5px;
+                    border-collapse: inherit;
+                }
+                .mb-datepicker table tbody {
+                    display: block;
+                    border: 1px solid #B7BEC6;
+                    border-collapse: separate;
+                    margin: -13px;
+                    margin-top: 2px;
+                    border-radius: 1px;
+                }
+            }
+            @media screen and (max-width: 1200px) {
+                .mb-datepicker {
+                    width: 300px;
+                }
+                .mb-datepicker table {
+                    width: 300px;
+                    border-spacing: 6px 5px;
+                    border-collapse: inherit;
+                }
+                .mb-datepicker table tbody {
+                    display: block;
+                    border: 1px solid #B7BEC6;
+                    border-collapse: separate;
+                    margin: -6px;
+                    margin-top: 2px;
+                    border-radius: 1px;
+                }
+            }
+            .mb-datepicker {
+                background-color: #fff;
+                margin-top: 0px;
+                margin-left: 10px;
+                font-family: 'Open Sans', sans-serif;
+            }
+            .mb-datepicker table tbody tr td.day-head {
+                background-color: #fff;
+                border-bottom: 1px solid #FFF;
+            }
+            .mb-datepicker table tbody tr td.day-head:hover {
+                background-color: #fff;
+                border-bottom: 1px solid #FFF;
+            }
+            .header-year-wrapper {
+                padding-top: 5px;
+                padding-bottom: 5px;
+                color: white;
+                font-family: \"Open Sans\", sans-serif;
+             font-size: 16px;
+                background-color: #B7BEC6;
+            }
+            .header-month {
+                width: 66%;
+            }
+            .header-nav-wrapper {
+                padding-top: 2px;
+                padding-bottom: 1px;
+                color: #fff;
+                font-family: \"Open Sans\", sans-serif;
+                font-size: 15px;
+                background-color: #B7BEC6;
+                text-transform: uppercase;
+            }
+            .header-nav-wrapper .header-item {
+                 margin-top:2px
+            }
+            .mb-datepicker table tbody tr td {
+                padding: 4px;
+                color: #939CA9;
+            }
+            .day {
+                color: #000 !important;
+            }
+            .mb-datepicker table tbody tr.days .day-item:hover {
+                background-color: #FFF;
+                color: #000 !important;
+            }
+            .today {
+                border: 1px solid #00AEEF;
+                background-color: #FFF !important;
+                color: #000 !important;
+            }
+            .searchToAdd .input-group{
+                border: 2px solid #fff;
+                margin-top: -2px;
+             }
+            #SearchToAddElement > .form-control{
+                border: none;
+                box-shadow: none;
+                height: 32px;
+            }
+        </style>
+        
+    
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <apex:includeScript value="{!$Resource.AngularMap}"/>
+    <apex:includeScript value="{!URLFOR($Resource.AngularResources, 'js/angular-animate.') }" />
+    <apex:stylesheet value="{!URLFOR($Resource.angular_calender, 'mbdatepicker.css')}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.angular_calender, 'mbdatepicker.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.angular_calender, 'moment.js')}"/>
+    <c:ViewVendorRelatedListJS />
+     
+    <script>
+        var viewVendor = angular.module('viewVendor', ['BPGlobalHeader', 'ngMap', 'ngAnimate', 'searchToAddModule', 'materialDatePicker', 'dir.listPagination', 'ui-notification', 'viewVendorRelatedListModule']);
+
+        viewVendor.controller('ViewVendor', function ($scope, $timeout, Notification, VendorInfoService) {
+
+            // View Vendor page variable
+			$scope.ViewVendor = {};
+			$scope.SearchToadd = {};
+			$scope.typeToSearch = 'None';
+			$scope.ViewVendor.vendorId = "{!JSENCODE(URLENCODE($CurrentPage.parameters.id))}";
+			$scope.ViewVendor.ShowMore = false;
+			$scope.ViewVendor.VendorInfo = {};
+			$scope.ViewVendor.VendorInfo.VendorDetailRec = {};
+			
+			//Map default Values declration
+	        $scope.ViewVendor.activeAddress = "BillingAddress";
+	        $scope.ViewVendor.addressOnMap = "";
+			
+			$scope.POTypeCompModal = {};
+			$scope.VendorContactModal = {};
+			$scope.ProductCompModal = {};
+			$scope.ViewVendorRelatedListModal = {};
+			
+			//Change Address type on Map
+            $scope.ViewVendor.changeActiveAddress = function (address) {
+            	$scope.ViewVendor.activeAddress = address;
+                if (address == "BillingAddress") {
+                	$scope.ViewVendor.addressOnMap = $scope.ViewVendor.VendorInfo.VendorDetailRec.BillingStreet2 + ' ' + $scope.ViewVendor.VendorInfo.VendorDetailRec.BillingStreet1 + ' ' + $scope.ViewVendor.VendorInfo.VendorDetailRec.BillingCity + ' ' + $scope.ViewVendor.VendorInfo.VendorDetailRec.BillingState + ' ' + $scope.ViewVendor.VendorInfo.VendorDetailRec.BillingCountry + ' ' + $scope.ViewVendor.VendorInfo.VendorDetailRec.BillingPostalCode
+                } else {
+                    $scope.ViewVendor.addressOnMap = $scope.ViewVendor.VendorInfo.VendorDetailRec.ShippingStreet2 + ' ' + $scope.ViewVendor.VendorInfo.VendorDetailRec.ShippingStreet1 + ' ' + $scope.ViewVendor.VendorInfo.VendorDetailRec.ShippingCity + ' ' + $scope.ViewVendor.VendorInfo.VendorDetailRec.ShippingState + ' ' + $scope.ViewVendor.VendorInfo.VendorDetailRec.ShippingCountry + ' ' + $scope.ViewVendor.VendorInfo.VendorDetailRec.ShippingPostalCode
+                }
+            }
+			
+			// Help Text
+			$scope.ViewVendor.helpText = { Info : 'Basic information of Customer',
+										Statistics : 'All statistics for the Customer',
+										Vital_Statistics : 'Vital statistics for the Customer',
+										Telemetry : 'Metrics and Measurement',
+										Related : 'Records related to the Customer',
+										COU : 'Customer Owned Units',
+										Customers : 'List of other customers related to the Customer',
+										Contacts : 'List of contacts related to the Customer'
+					};
+			
+			// Method to hide the vendor Page sections
+			$scope.ViewVendor.hidePanel = function(event, id){
+	            var targetelement = angular.element(event.target).closest('h1').find('.fa:first');
+	            if(targetelement.hasClass('fa-chevron-right')){
+	                targetelement.removeClass('fa-chevron-right');
+	                targetelement.addClass('fa-chevron-down');
+	            } else {
+	                targetelement.removeClass('fa-chevron-down');
+	                targetelement.addClass('fa-chevron-right');
+	            }
+	            $('#'+id).toggle();
+	        }
+	        
+	        $scope.ViewVendor.infoLabel = { OtherEmail : 'OTHER EMAIL',
+          		 							OtherPhone : 'OTHER PHONE',
+          		 							MobileNumberSMS : 'OTHER NUMBER SMS',
+                                            HomeEmail : 'HOME EMAIL',
+                                            HomeNumber : 'HOME NUMNER',
+                                            HomeNumberSMS : 'HOME NUMBER SMS',
+                                            WorkEmail : 'WORK EMAIL',
+                                            WorkNumber : 'WORK NUMBER',
+                                            WorkNumberSMS : 'WORK NUMBER SMS'
+                            };
+	        
+	        // set Preffered Valu in info section
+            $scope.ViewVendor.setPrefferedEmail = function () {
+                if ($scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredEmail != null && $scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredEmail != "") {
+                    return $scope.ViewVendor.VendorInfo.VendorDetailRec[$scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredEmail];
+                } else if ($scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredEmail == "" || $scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredEmail != null) {
+                    return ($scope.ViewVendor.VendorInfo.VendorDetailRec.WorkEmail != null && $scope.ViewVendor.VendorInfo.VendorDetailRec.WorkEmail !== "") ? $scope.ViewVendor.VendorInfo.VendorDetailRec.WorkEmail : ($scope.ViewVendor.VendorInfo.VendorDetailRec.OtherEmail != null) ? $scope.ViewVendor.VendorInfo.VendorDetailRec.OtherEmail : ""
+                }
+            }
+            
+            $scope.ViewVendor.setPrefferedPhone = function () {
+                if ($scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredPhone != null && $scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredPhone != "") {
+                    $scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredPhoneLabel = $scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredPhone;
+                    return $scope.ViewVendor.VendorInfo.VendorDetailRec[$scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredPhone];
+                } else if ($scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredPhone == null || $scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredPhone == "") {
+                    $scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredPhoneLabel = ($scope.ViewVendor.VendorInfo.VendorDetailRec.WorkNumber != null && $scope.ViewVendor.VendorInfo.VendorDetailRec.WorkNumber != "") ? 'WorkNumber' : ($scope.ViewVendor.VendorInfo.VendorDetailRec.OtherPhone != null) ? 'OtherPhone' : "WorkNumber";
+                    return ($scope.ViewVendor.VendorInfo.VendorDetailRec.WorkNumber != null && $scope.ViewVendor.VendorInfo.VendorDetailRec.WorkNumber != "") ? $scope.ViewVendor.VendorInfo.VendorDetailRec.WorkNumber : ($scope.ViewVendor.VendorInfo.VendorDetailRec.OtherPhone != null) ? $scope.ViewVendor.VendorInfo.VendorDetailRec.OtherPhone : ""
+                }
+            }
+        
+            $scope.ViewVendor.setPrefferedSMS = function () {
+                if ($scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredSMS != null && $scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredSMS != "") {
+                    $scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredSMSLabel = $scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredSMS;
+                    return $scope.ViewVendor.VendorInfo.VendorDetailRec[$scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredSMS];
+                } else if ($scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredSMS == null || $scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredSMS == "") {
+                    $scope.ViewVendor.VendorInfo.VendorDetailRec.PreferredSMSLabel = ($scope.ViewVendor.VendorInfo.VendorDetailRec.WorkNumberSMS != false) ? 'WorkNumber' : ($scope.ViewVendor.VendorInfo.VendorDetailRec.MobileNumberSMS != false) ? "MobileNumber" : "WorkNumber";
+                    return ($scope.ViewVendor.VendorInfo.VendorDetailRec.WorkNumberSMS != false) ? $scope.ViewVendor.VendorInfo.VendorDetailRec.WorkNumber : ($scope.ViewVendor.VendorInfo.VendorDetailRec.MobileNumberSMS != false) ? $scope.ViewVendor.VendorInfo.VendorDetailRec.OtherPhone : ""
+                }
+            }
+				
+			// Load Vendor Infomration
+      		$scope.ViewVendor.loadVendorInfo = function(){
+      			var vendorId = $scope.ViewVendor.vendorId;
+      			VendorInfoService.getVendorInfo(vendorId).then(function(vendorInfo) {
+                   	$scope.ViewVendor.VendorInfo = vendorInfo; 
+                   	$scope.ViewVendor.ShowContent = true;
+                   	$scope.ViewVendor.changeActiveAddress('BillingAddress');
+                   	debug($scope.ViewVendor.VendorInfo);
+                   	// View Part related list modals load
+                   	$scope.ViewVendorRelatedListModal.RenderPOTypesSection = ($scope.ViewVendor.VendorInfo.VendorDetailRec.IsPartPurchases 
+                   																|| $scope.ViewVendor.VendorInfo.VendorDetailRec.IsSubletPurchases 
+                   																|| $scope.ViewVendor.VendorInfo.VendorDetailRec.IsUnitPurchases);
+                   	
+                   	$scope.ViewVendorRelatedListModal.RenderActiveOrdersSection = (	$scope.ViewVendor.VendorInfo.VendorDetailRec.IsPartPurchases 
+	                   																|| $scope.ViewVendor.VendorInfo.VendorDetailRec.IsSubletPurchases 
+	                   																|| $scope.ViewVendor.VendorInfo.VendorDetailRec.IsUnitPurchases);
+					
+                   	$scope.ViewVendorRelatedListModal.VendorRelatedInfo = vendorInfo.VendorRelatedInfo;
+                   	$scope.ViewVendorRelatedListModal.VendorId = $scope.ViewVendor.vendorId;
+                   	$scope.ViewVendorRelatedListModal.initModals();
+                }, function(errorSearchResult) {
+                	$scope.ViewVendor.VendorInfo = errorSearchResult;
+                });
+      		}
+	      	
+	      	// Related lists save callback action
+            $scope.ViewVendor.RelatedLists_recordSaveCallback = function (objType, newRecordsDetails) {
+            	$scope.ViewVendorRelatedListModal.VendorRelatedLists_recordSaveCallback(objType, newRecordsDetails);
+            }
+	      	
+      		// Set focus on search text box. It is used when to add related records via page level search box
+            $scope.ViewVendor.setFocusToSearchBox = function (typeToSearch) {
+            	$scope.typeToSearch = typeToSearch;
+            	$scope.PreferredObject = typeToSearch;
+                angular.element('#SearchToaddCutomer').focus();
+            }
+	      		
+      		// START: PART POPUP ATTRS AND METHODS
+	        // Modals for Add/Edit Vendor component
+	        $scope.ViewVendor.createVendor = function(){
+	            $rootScope.$broadcast('AddVendorEvent');
+	        }
+	        
+	        $scope.ViewVendor.editVendor = function(){
+	            $rootScope.$broadcast('EditVendorEvent', {vendorId : $scope.ViewVendor.vendorId});
+	        }
+	        
+	        $scope.vendorRecordSaveCallback = function() {
+	        	$scope.ViewVendor.loadVendorInfo();
+	        }
+	        // END: Vendor POPUP ATTRS AND METHODS
+            
+            $scope.ViewVendor.showMoreDetails = function (status) {
+                $scope.ViewVendor.ShowMore = status;
+            }
+            
+            
+            // scrolling method and variables
+            
+            $scope.ViewVendor.displaySections = {
+                'Info' : true,
+                'Statistics' : true,
+                'Related' : true,
+                'ActivityStream' : true
+            };
+
+            $scope.ViewVendor.activeSidepanelink = '#InfoSection';
+
+            angular.element(document).off("scroll");
+            angular.element(document).on("scroll", function () {
+                $scope.ViewVendor.onScroll();
+            });
+
+            $scope.ViewVendor.sidepanelLink = function (event, relatedContent) {
+                event.preventDefault();
+                //$scope.ViewVendor.displaySections[relatedContent] = true;
+                angular.element(document).off("scroll");
+                var target = angular.element(event.target.closest('a')).attr("href");
+                angular.element('html, body').stop().animate({
+                    scrollTop : angular.element(target).offset().top - 120
+                }, 500, function () {
+                    angular.element(document).on("scroll", function () {
+                        $scope.ViewVendor.onScroll();
+                    });
+                    $scope.ViewVendor.onScroll();
+                });
+            }
+
+            $scope.ViewVendor.onScroll = function () {
+                var activeSidepanelink;
+                var heading = '';
+                var scrollPos = angular.element(document).scrollTop();
+                if (scrollPos < angular.element('#InfoSection').position().top + angular.element('#InfoSection').height() + 50) {
+                    activeSidepanelink = '#InfoSection';
+                } else if (scrollPos < angular.element('#StatisticsSection').position().top + angular.element('#StatisticsSection').height() + 50) {
+                    activeSidepanelink = '#StatisticsSection';
+                } else if (scrollPos < angular.element('#RelatedSection').position().top + angular.element('#RelatedSection').height() + 50) {
+                    activeSidepanelink = '#RelatedSection';
+                } else if (scrollPos < angular.element('#ActivitySection').position().top + angular.element('#ActivitySection').height() + 50) {
+                    activeSidepanelink = '#ActivitySection';
+                } else {  
+                    activeSidepanelink = '#ActivitySection';
+                }
+                
+                $scope.ViewVendor.activeSidepanelink = activeSidepanelink;
+                if (!$scope.$$phase) {
+                    $scope.$digest();
+                }
+            }
+			// scrolling End
+
+        });
+
+        // Service Starts	
+   		viewVendor.service("VendorInfoService", function ($q) {
+            this.getVendorInfo = function(vendorId)
+            {	
+            	vendorId = encodeString(vendorId);
+             	var deferred = $q.defer();
+             	Visualforce.remoting.Manager.invokeAction(
+					'{!$RemoteAction.ViewVendorCtrl.getVendorInfo}',
+						vendorId,
+	                function (result, event) {
+	                   if (event.type == 'exception') {
+	                        deferred.reject(event.message);
+	                    } else {
+	                        var vendorInfo = decodeString(result);
+	                        var find = '\'';
+	                        var re = new RegExp(find, 'g');
+	                        vendorInfo = vendorInfo.replace(re, '');
+	                        deferred.resolve(JSON.parse(vendorInfo));
+	                    }
+	                }, {
+	                    escape : true
+              	});
+              	return deferred.promise;
+        	}
+        });
+    </script>
+    </head>
+    
+        <body  ng-controller="ViewVendor" ng-init="ViewVendor.loadVendorInfo()" ng-cloak="ng-cloak">
+        <c:BPGlobalHeader />
+        <div class="content">
+        <div class="col-lg-2 col-md-2 sidePanel ">
+            <div class="sidepaneluserinfo row">
+                <div class="userimg">
+                    <div style="float:left;background-color: #373c40; border-radius: 5px; padding: 1px; margin-right: 5px;">
+                            <img  src="{!URLFOR($Resource.Images, 'star.png')}" style="height:35px; width:35px; padding: 5px;"/>
+                    </div>
+                </div>
+                <div class="userNameblock">
+                    <p class="T3"> 
+                    <span> {{ViewVendor.VendorInfo.VendorDetailRec.VendorName}}</span>
+                    </p>
+                    <p class="customerNumber">{{ViewVendor.VendorInfo.VendorDetailRec.VendorAccountNumber}}</p>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="row statusRow">
+                <span class="userType T3">Vendor</span>
+                <span class="divider">|</span>
+                <span class="userStatus" ng-show="ViewVendor.VendorInfo.VendorDetailRec.Active == true" >Active</span>
+                <span class="userStatus" style="color:#E80000" ng-show="ViewVendor.VendorInfo.VendorDetailRec.Active == false" >Deactive</span>
+            </div>
+            
+            
+            <div class="leftPanelLinks">
+                <a class="row T10 mainSectionLink" ng-class="{'active' : ViewVendor.activeSidepanelink =='#InfoSection'}" 
+                    href="#InfoSection" ng-click="ViewVendor.sidepanelLink($event, 'Info')" ><span class="alphabetLetter">A</span>Info</a>
+                    
+                <a class="row T10 mainSectionLink" ng-class="{'active' : ViewVendor.activeSidepanelink =='#StatisticsSection'}" 
+                    href="#StatisticsSection" ng-click="ViewVendor.sidepanelLink($event, 'Statistics')" ><span class="alphabetLetter">B</span>Statistics</a>                    
+                <a class="row T10 subSectionLink" href="#StatisticsSection" ng-click="ViewVendor.sidepanelLink($event, 'Statistics')">
+                    <span class="alphabetLetter"></span>Vital Statistics</a>
+                <a class="row T10 subSectionLink" href="#TelemetryStatistics" ng-click="ViewVendor.sidepanelLink($event, 'Statistics')">
+                    <span class="alphabetLetter"></span>Telemetry</a>
+                
+                <a class="row T10 mainSectionLink" ng-class="{'active' : ViewVendor.activeSidepanelink =='#RelatedSection'}" 
+                    href="#RelatedSection" ng-click="ViewVendor.sidepanelLink($event, 'Related')" ><span class="alphabetLetter">C</span>Related</a>
+                <a class="subSectionLink row T10" href="#RelatedSection" ng-click="ViewVendor.sidepanelLink($event, 'Related')">
+                    <span class="alphabetLetter"></span>Purchase Order Types</a>
+                <a class="subSectionLink row T10" href="#RelatedSection" ng-click="ViewVendor.sidepanelLink($event, 'Related')">
+                    <span class="alphabetLetter"></span>Active Orders</a>
+                <a class="row T10 subSectionLink" href="#RelatedSection_Cou_Block" ng-click="ViewVendor.sidepanelLink($event, 'Related')">
+                    <span class="alphabetLetter"></span>Contacts</a>
+                <a class="row T10 subSectionLink" href="#RelatedSection_Customer_BLock" ng-click="ViewVendor.sidepanelLink($event, 'Related')">
+                    <span class="alphabetLetter"></span>Products</a>
+                <a class="row T10 subSectionLink" href="#RelatedSection_Contact_BLock" ng-click="ViewVendor.sidepanelLink($event, 'Related')">
+                    <span class="alphabetLetter"></span>Unit Catalog</a>
+                
+                <a class="row T10 mainSectionLink" ng-class="{'active' : ViewVendor.activeSidepanelink =='#ActivitySection'}" 
+                    href="#ActivitySection" ng-click="ViewVendor.sidepanelLink($event, 'ActivityStream')" ><span class="alphabetLetter">D</span>Price File Info</a>
+                    
+                <a class="row T10 mainSectionLink" ng-class="{'active' : ViewVendor.activeSidepanelink =='#ActivitySection'}" 
+                    href="#ActivitySection" ng-click="ViewVendor.sidepanelLink($event, 'ActivityStream')" ><span class="alphabetLetter">E</span>Activity Stream</a>
+            </div>
+            
+        </div>
+        <div class="col-lg-10 col-md-10 mainSection" style="margin-top: 98px;">
+            <div class=" sectionHeader row fixedRow" >
+                <div class="col-lg-4 col-md-4" ng-show="ViewVendor.activeSidepanelink =='#InfoSection'">
+                    <div class="fixedHeaderText">
+                        <span class="headerlabel">
+                        <i class="fa fa-angle-right" style="width:10px; padding: 0 3px;"
+                            ng-show="!ViewVendor.displaySections.Info"
+                            ng-Click="ViewVendor.displaySections.Info = true">
+                        </i> 
+                        <i class="fa fa-angle-down" style="width:10px;"
+                            ng-show="ViewVendor.displaySections.Info"
+                            ng-Click="ViewVendor.displaySections.Info = false">
+                        </i> 
+                        <span class="divider">|</span>
+                        <span class="T2">A INFO</span>
+                        </span>
+                        <span class="ActionIcons pull-right">
+                        <i class="fa fa-th"></i>
+                        <i class="fa fa-question-circle"></i>
+                        </span> 
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4" ng-show="ViewVendor.activeSidepanelink =='#StatisticsSection'">
+                    <div class="fixedHeaderText">
+                        <span class="headerlabel">
+                        <i class="fa fa-angle-right" style="width:10px; padding: 0 3px;"
+                            ng-show="!ViewVendor.displaySections.Statistics"
+                            ng-Click="ViewVendor.displaySections.Statistics = true">
+                        </i> 
+                        <i class="fa fa-angle-down" style="width:10px;"
+                            ng-show="ViewVendor.displaySections.Statistics"
+                            ng-Click="ViewVendor.displaySections.Statistics = false">
+                        </i> 
+                        <span class="divider">|</span>
+                        <span class="T2">B Statistics</span>
+                        </span>
+                        <span class="ActionIcons pull-right">
+                        <i class="fa fa-th"></i>
+                        <i class="fa fa-question-circle"></i>
+                        </span> 
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4" ng-show="ViewVendor.activeSidepanelink =='#RelatedSection'">
+                    <div class="fixedHeaderText">
+                        <span class="headerlabel">
+                        <i class="fa fa-angle-right" style="width:10px; padding: 0 3px;"
+                            ng-show="!ViewVendor.displaySections.Related"
+                            ng-Click="ViewVendor.displaySections.Related = true">
+                        </i> 
+                        <i class="fa fa-angle-down" style="width:10px;"
+                            ng-show="ViewVendor.displaySections.Related"
+                            ng-Click="ViewVendor.displaySections.Related = false">
+                        </i> 
+                        <span class="divider">|</span>
+                        <span class="T2">C Related</span>
+                        </span>
+                        <span class="ActionIcons pull-right">
+                        <i class="fa fa-th"></i>
+                        <i class="fa fa-question-circle"></i>
+                        </span> 
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4" ng-show="ViewVendor.activeSidepanelink =='#ActivitySection'">
+                    <div class="fixedHeaderText">
+                        <span class="headerlabel">
+                        <i class="fa fa-angle-right" style="width:10px; padding: 0 3px;"
+                            ng-show="!ViewVendor.displaySections.ActivityStream"
+                            ng-Click="ViewVendor.displaySections.ActivityStream = true">
+                        </i> 
+                        <i class="fa fa-angle-down" style="width:10px;"
+                            ng-show="ViewVendor.displaySections.ActivityStream"
+                            ng-Click="ViewVendor.displaySections.ActivityStream = false">
+                        </i> 
+                        <span class="divider">|</span>
+                        <span class="T2">D Activity Stream</span>
+                        </span>
+                        <span class="ActionIcons pull-right">
+                        <i class="fa fa-th"></i>
+                        <i class="fa fa-question-circle"></i>
+                        </span> 
+                    </div>
+                </div>
+            
+                <div class="col-lg-8 col-md-8 fixedContent">
+                    <button type="button" class="flatBtn" ng-click="ViewVendor.editCustomerDetails()">EDIT</button>
+                    <div class="fa-icons">
+                        <i class="fa fa-floppy-o"></i>
+                        <i class="fa fa-cog"></i>
+                    </div>
+                    <a href="#" class="newLink" ng-click="ViewVendor.NewCustomer()">NEW</a>
+                    <div class="col-lg-8 col-md-7 searchToAdd">
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn C5 LabelBtn">
+                                <span class="T5" style="color: #939CA9;">TO:</span>
+                                <span style="color: #FFFFFF;">C Vendor</span>
+                                </button>
+                                <button type="button" class="btn C5 dropdown-toggle caretBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="caret"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Customer</a></li>
+                                    <li><a href="#">Merchandise</a></li>
+                                    <li><a href="#">Vendor</a></li>
+                                    <li><a href="#">User</a></li>
+                                    <li><a href="#">Category</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="#">ADVANCED SEARCH</a></li>
+                                </ul>
+                            </div>
+                            <!-- /btn-group -->
+                            <div class="inner-addon right-addon">
+                                <i class="fa fa-search fa-flip-horizontal"></i>
+                                <c:SearchToAdd />
+                                <!-- <input class="header-search form-control"  placeholder="search to Add Related" type="text" /> -->
+                            </div>
+                        </div>
+                        <!-- /input-group -->
+                    </div>
+                </div>
+            </div>
+            <div id="InfoSection" >
+                <div class="main_section row" ng-show="ViewVendor.displaySections.Info">
+                    <p class="actionRow T2">
+                        <span class="sectionText">General</span>
+                        <span class="actionText">Actions</span>
+                        <span class="ActionIcons">
+                        <i class="fa fa-th"></i>
+                        <i class="fa fa-question-circle"></i>
+                        </span> 
+                    </p>
+                    <div class="row rowGeneral" >
+                        <div class="col-md-4 col-lg-4 subsectionGeneral_rightonly">
+                            <div  class="row">
+                                <div class="col-md-5 col-lg-5 " >
+                                    <div  class="row ">
+                                        <div class="col-md-12 col-lg-12  Profile_pic">
+                                            <img src="{!URLFOR($Resource.Images, 'profile_default.jpg')}" style="height:120px;width:100%"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-7" >
+                                    <div class="row">
+                                        <div class="col-md-12 col-lg-12">
+                                            <div class="T1">
+                                                <span> {{ViewVendor.VendorInfo.VendorDetailRec.VendorName}}</span>
+                                            </div>
+                                            <div class="T7">
+                                                <span>
+                                                {{ViewVendor.VendorInfo.VendorDetailRec.VendorAccountNumber}}
+                                                </span>
+                                            </div>
+                                            <div class="T7">
+                                                <span>
+                                                {{ViewVendor.VendorInfo.VendorDetailRec.VendorNumber}}
+                                                </span>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 col-lg-12" >
+                                                    <div style="float:left;background-color: #373c40; border-radius: 5px; padding: 1px; margin-right: 5px;">
+                                                            <img  src="{!URLFOR($Resource.Images, 'star.png')}" style="height:35px; width:35px; padding: 5px;"/>
+                                                    </div>
+                                                    <div style="margin-left:20px;padding-top:10px ;padding-left:24px" class="T7">
+                                                        Gamification
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" >
+                                <div class="col-md-5 col-lg-5 " >
+                                    <div  class="row ">
+                                        <div class="col-md-12 col-lg-12 Active_Button_row ">
+                                            <button class="form-control C10 T4 Active_Button round_btn" ng-if="ViewVendor.VendorInfo.VendorDetailRec.Active == true">ACTIVE</button> 
+                                            <button class="form-control C9 T4 Active_Button round_btn" ng-if="ViewVendor.VendorInfo.VendorDetailRec.Active ==false" >DEACTIVE</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-7 " >
+                                    <div  class="social_icon_row">
+                                        <span>
+                                        <a href="{{ViewVendor.VendorInfo.VendorDetailRec.TwitterLink}}" target="_blank" ng-if="ViewVendor.VendorInfo.VendorDetailRec.TwitterLink != ''">
+                                        <i class="fa fa-twitter-square icon_tweet"></i>
+                                        </a>
+                                        <a href="#" target="_blank" ng-if="ViewVendor.VendorInfo.VendorDetailRec.TwitterLink == ''">
+                                        <i class="fa fa-twitter-square icon_tweet"></i>
+                                        </a>
+                                        </span>
+                                        <span>
+                                        <a href="{{ViewVendor.VendorInfo.VendorDetailRec.FacebookLink}}" target="_blank" ng-if="ViewVendor.VendorInfo.VendorDetailRec.FacebookLink != ''">
+                                        <i class="fa fa-facebook-square icon_fb"></i>  
+                                        </a>
+                                        <a href="#" target="_blank" ng-if="ViewVendor.VendorInfo.VendorDetailRec.FacebookLink == ''">
+                                        <i class="fa fa-facebook-square icon_fb"></i>  
+                                        </a>
+                                        </span>
+                                        <span>
+                                        <a href="{{ViewVendor.VendorInfo.VendorDetailRec.LinkedInLink}}" target="_blank" ng-if="ViewVendor.VendorInfo.VendorDetailRec.LinkedInLink != ''">
+                                        <i class="fa fa-linkedin-square icon_in"></i>  
+                                        </a>
+                                        <a href="#" target="_blank" ng-if="ViewVendor.VendorInfo.VendorDetailRec.LinkedInLink == ''">
+                                        <i class="fa fa-linkedin-square icon_in"></i>  
+                                        </a>
+                                        </span>
+                                        <span>
+                                        <i class="fa fa-google-plus-square icon_google"></i>  
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="general_info_customer">
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-4  customer_general_column">
+                                        <span style="padding-top:10px;">    
+                                        <i class="fa fa-star orange favorite" ></i><label class="T7 label_favorite" for="labelFirstName">Send Email  </label>
+                                        </span>
+                                    </div>
+                                    <div  class="col-lg-8 col-md-8 " >
+                                        <span class="blue T3"  ng-bind="ViewVendor.setPrefferedEmail()"> </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-4 customer_general_column"> 
+                                        <span style="padding-top:10px;">    
+                                        <i class="fa fa-star orange favorite" ></i>
+                                        <label class="T7 label_favorite" for="labelFirstName">
+                                        	{{ViewVendor.infoLabel[ViewVendor.VendorInfo.VendorDetailRec.PreferredPhoneLabel ]}}
+                                        </label> 
+                                        </span>
+                                    </div>
+                                    <div  class="col-lg-8 col-md-8" >
+                                        <span class=" T3"  ng-bind="ViewVendor.setPrefferedPhone()"> </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-4 customer_general_column">
+                                        <span style="padding-top:10px;">    
+                                        <i class="fa fa-star orange favorite" ></i>
+                                        <label class="T7 label_favorite" for="labelFirstName">
+                                        	{{ViewVendor.infoLabel[ViewVendor.VendorInfo.VendorDetailRec.PreferredSMSLabel]}}	
+                                        </label>
+                                        </span>
+                                    </div>
+                                    <div  class="col-lg-8 col-md-8" >
+                                        <span class="blue T3"  ng-bind="ViewVendor.setPrefferedSMS();"> </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-4 customer_general_column">
+                                        <span style="padding-top:10px;">
+                                            <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Send Fax  </label></div>
+                                        </span>
+                                    </div>
+                                    <div  class="col-lg-8 col-md-8" >
+                                        <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.Fax}} </span>
+                                    </div>
+                                </div>
+                                <div class="MoreSectionContent animate-showContent"  ng-show="ViewVendor.ShowMore==false">
+                                    <div class="row " ng-show="ViewVendor.VendorInfo.VendorDetailRec.Website != ''">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Website </label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.Website}} </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row " ng-show="ViewVendor.VendorInfo.VendorDetailRec.PartCategoryName != ''">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Part Category</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.PartCategoryName}} </span>
+                                        </div>
+                                    </div>
+                                    <div class="row " ng-show="ViewVendor.VendorInfo.VendorDetailRec.PurchaseTaxLevelName != ''" >
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Purchase Tax Level</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.PurchaseTaxLevelName}} </span>
+                                        </div>
+                                    </div>
+                                    <div class="row " ng-show="ViewVendor.VendorInfo.VendorDetailRec.SalsePriceLevelName != ''" >
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Salse Price Level</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.SalsePriceLevelName}} </span>
+                                        </div>
+                                    </div>
+                                    <div class="row " ng-show="ViewVendor.VendorInfo.VendorDetailRec.SalesTaxLevelName != ''" >
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Sales Tax Level</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.SalesTaxLevelName}} </span>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                    <div class="row "  ng-show="ViewVendor.VendorInfo.VendorDetailRec.HomeNumberSMS==true && ViewVendor.VendorInfo.VendorDetailRec.Type == 'Individual' && 
+                                        ViewVendor.VendorInfo.VendorDetailRec.PreferredPhoneLabel != 'HomeNumber' && ViewVendor.VendorInfo.VendorDetailRec.HomeNumber != ''">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">SMS Home</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.HomeNumber}} </span>
+                                        </div>
+                                    </div>
+                                    <div class="row "  ng-show="ViewVendor.VendorInfo.VendorDetailRec.Type == 'Business' && ViewVendor.VendorInfo.VendorDetailRec.PreferredPhoneLabel != 'WorkNumber'
+                                        && ViewVendor.VendorInfo.VendorDetailRec.WorkNumber != ''">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Call Work</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.WorkNumber}} </span>
+                                        </div>
+                                    </div>
+                                    <div class="row " ng-show="ViewVendor.VendorInfo.VendorDetailRec.PreferredSMSLabel != 'WorkNumberSMS' && ViewVendor.VendorInfo.VendorDetailRec.WorkNumber != ''
+                                        && ViewVendor.VendorInfo.VendorDetailRec.PreferredPhoneLabel != 'WorkNumberSMS'">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">SMS Work</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.WorkNumber}} </span>
+                                        </div>
+                                    </div>
+                                    <div class="row "  ng-show="ViewVendor.VendorInfo.VendorDetailRec.PreferredPhoneLabel != 'OtherPhone' &&
+                                        ViewVendor.VendorInfo.VendorDetailRec.OtherPhone != ''">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Call Other</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.OtherPhone}} </span>
+                                        </div>
+                                    </div>
+                                    <div class="row "   ng-show="ViewVendor.VendorInfo.VendorDetailRec.PreferredSMSLabel != 'MobileNumberSMS' &&
+                                        ViewVendor.VendorInfo.VendorDetailRec.OtherPhone != ''">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">SMS Other</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.OtherPhone}} </span>
+                                        </div>
+                                    </div>
+                                    <div class="row "   ng-show="ViewVendor.VendorInfo.VendorDetailRec.JobTitle != ''">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Job Title</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.JobTitle}} </span>
+                                        </div>
+                                    </div>
+                                    <div class="row "   ng-show="ViewVendor.VendorInfo.VendorDetailRec.Company != ''">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Job Title</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.Company}} </span>
+                                        </div>
+                                    </div>
+                                    <div class="row "   ng-show="ViewVendor.VendorInfo.VendorDetailRec.Birthdate != null">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Birthday</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.Birthdate | date:'MMM d, y'}}  </span>
+                                        </div>
+                                    </div>
+                                    <div class="row "   ng-show="ViewVendor.VendorInfo.VendorDetailRec.SalesTaxLevelName != ''">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Sales Tax</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.SalesTaxLevelName}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="row "   ng-show="ViewVendor.VendorInfo.VendorDetailRec.PriceLevelName != ''">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Price Level</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.PriceLevelName}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="row "   ng-show="ViewVendor.VendorInfo.VendorDetailRec.PurchaseTaxName != ''">
+                                        <div class="col-lg-4 col-md-4 customer_general_column">
+                                            <span style="padding-top:10px;">
+                                                <div class="non_favorite"><label class="T7 label_favorite" for="labelFirstName">Vendor Tax</label></div>
+                                            </span>
+                                        </div>
+                                        <div  class="col-lg-8 col-md-8" >
+                                            <span class="blue T3"  >{{ViewVendor.VendorInfo.VendorDetailRec.PurchaseTaxName}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 col-lg-12 see_more_button_row " ng-show="ViewVendor.ShowMore ==true">
+                                        <button class="form-control C5 T4 see_more_button round_btn"  ng-click="ViewVendor.showMoreDetails(false)">SEE MORE...</button>
+                                    </div>
+                                    <div class="col-md-12 col-lg-12 see_more_button_row " ng-show="ViewVendor.ShowMore ==false">
+                                        <button class="form-control C5 T4 see_more_button round_btn"  ng-click="ViewVendor.showMoreDetails(true)">SEE LESS...</button> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-4 subsectionGeneral">
+                            <div class="row" ng-show="ViewVendor.VendorInfo.VendorDetailRec.IsBothAddressSame == false" >
+                                <div class=" col-lg-4 col-md-4 " style="padding-left:10px ;text-align:center;cursor:pointer">
+                                    <div class="T4 round_btn" ng-click="ViewVendor.changeActiveAddress('BillingAddress')"  
+                                        ng-class="{ C11: ViewVendor.activeAddress=='BillingAddress' ,  C5: ViewVendor.activeAddress=='ShippingAddress'}" > BILLING </div>
+                                </div>
+                                
+                                
+                                <div class=" col-lg-4 col-md-4 "  style="padding-left:10px;text-align:center;cursor:pointer" >
+                                    <div class="T4 round_btn" ng-class="{ C5: ViewVendor.activeAddress=='BillingAddress' ,  C11: ViewVendor.activeAddress=='ShippingAddress'}" ng-click="ViewVendor.changeActiveAddress('ShippingAddress')" > SHIPPING </div>
+                                </div>
+                            </div>
+                            <div class="row"  ng-show="ViewVendor.VendorInfo.VendorDetailRec.IsBothAddressSame == true">
+                                <div class=" col-lg-4 col-md-4 " style="padding-left:10px ;text-align:center;cursor:pointer">
+                                    <div class="C11 T4 round_btn"  ng-click="ViewVendor.changeActiveAddress('ShippingAddress')" > ADDRESS </div>
+                                </div>
+                            </div>
+                            <div class="row" >
+                                <div class="col-lg-12 col-md-12" style="padding:10px" >
+                                    <map zoom="12" center="37.7699298, -122.4469157" style="height:160px " >
+                                        <directions 
+                                            draggable="false"
+                                            panel="directions-panel" 
+                                            travel-mode="DRIVING"
+                                            origin="280,Nelson Street,Vancouver"
+                                            destination="{{ViewVendor.addressOnMap}}">
+                                        </directions>
+                                    </map>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12" style="padding:10px">
+                                        
+                                    <p class="T3"  ng-show="ViewVendor.VendorInfo.VendorDetailRec.IsBothAddressSame ==false" >
+                                        <b ng-show="ViewVendor.activeAddress=='ShippingAddress'" >Shipping Address</b>
+                                        <b ng-show="ViewVendor.activeAddress=='BillingAddress'" >Billing Address</b>
+                                    </p>
+                                    <p class="T3"  ng-show="ViewVendor.VendorInfo.VendorDetailRec.IsBothAddressSame ==true" >
+                                        <b> Address</b>
+                                    </p>
+                                    
+                                    <div ng-show="ViewVendor.VendorInfo.VendorDetailRec.IsBothAddressSame ==false" >
+                                            <div ng-show="ViewVendor.activeAddress=='ShippingAddress'">
+                                                <p class="T7" >{{ViewVendor.VendorInfo.VendorDetailRec.ShippingStreet1}} {{ViewVendor.VendorInfo.VendorDetailRec.ShippingStreet2}}</p>
+                                                <p class="T7" >{{ViewVendor.VendorInfo.VendorDetailRec.ShippingCity}}  {{ViewVendor.VendorInfo.VendorDetailRec.ShippingState}}</p>
+                                                <p class="T7" >{{ViewVendor.VendorInfo.VendorDetailRec.ShippingCountry}}   {{ViewVendor.VendorInfo.VendorDetailRec.ShippingPostalCode}}</p>
+                                            </div>
+                                            <div ng-show="ViewVendor.activeAddress=='BillingAddress'">
+                                                <p class="T7" >{{ViewVendor.VendorInfo.VendorDetailRec.BillingStreet1}} {{ViewVendor.VendorInfo.VendorDetailRec.BillingStreet2}}</p>
+                                                <p class="T7" >{{ViewVendor.VendorInfo.VendorDetailRec.BillingCity}}  {{ViewVendor.VendorInfo.VendorDetailRec.BillingState}}</p>
+                                                <p class="T7" >{{ViewVendor.VendorInfo.VendorDetailRec.BillingCountry}}   {{ViewVendor.VendorInfo.VendorDetailRec.BillingPostalCode}}</p>
+                                            </div>
+                                            
+                                    </div>
+                                    <div ng-show="ViewVendor.VendorInfo.VendorDetailRec.IsBothAddressSame == true" >
+                                                <p class="T7" >{{ViewVendor.VendorInfo.VendorDetailRec.BillingStreet1}} {{ViewVendor.VendorInfo.VendorDetailRec.BillingStreet2}}</p>
+                                                <p class="T7" >{{ViewVendor.VendorInfo.VendorDetailRec.BillingCity}}  {{ViewVendor.VendorInfo.VendorDetailRec.BillingState}}</p>
+                                                <p class="T7" >{{ViewVendor.VendorInfo.VendorDetailRec.BillingCountry}}   {{ViewVendor.VendorInfo.VendorDetailRec.BillingPostalCode}}</p>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-4 subsectionGeneral">
+                            <mb-datepicker element-id='date1'
+                                input-class="testClass"
+                                input-name="testName"
+                                arrows="arrows"
+                                calendar-header="header"
+                                date="date"
+                                date-format="YYYY-MM-DD" ></mb-datepicker>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sectionHeader row">
+                <div class="col-lg-4 col-lg-5">
+                    <div class="fixedHeaderText">
+                        <span class="headerlabel">
+                        <i class="fa fa-angle-right" style="width:10px; padding: 0 3px;"
+                            ng-show="!ViewVendor.displaySections.Statistics"
+                            ng-Click="ViewVendor.displaySections.Statistics = true">
+                        </i> 
+                        <i class="fa fa-angle-down" style="width:10px;"
+                            ng-show="ViewVendor.displaySections.Statistics"
+                            ng-Click="ViewVendor.displaySections.Statistics = false">
+                        </i> 
+                        <span class="divider">|</span>
+                        <span class="T2">B Statistics</span>
+                        </span>
+                        <span class="ActionIcons pull-right">
+                        <i class="fa fa-th"></i>
+                        <i class="fa fa-question-circle"></i>
+                        </span> 
+                    </div>
+                </div>
+            </div>
+            <div id="StatisticsSection" >
+                <div class="main_section row" ng-show="ViewVendor.displaySections.Statistics">
+                    <div id="VitalStatistics">
+                        <p class="actionRow T2">
+                            <span class="sectionText">Vital Statistics</span>
+                            <span class="actionText">Actions</span>
+                            <span class="ActionIcons">
+                            <i class="fa fa-th"></i>
+                            <i class="fa fa-question-circle"></i>
+                            </span> 
+                        </p>
+                        <div class="row statistics_row">
+                            <div  style="  height:84px ; float :left ; margin-left: 1%;" class="C7" >
+                                            <div style="padding:20px 20px 0 20px; text-align: center; " >
+                                                <div class="T4" style="width: 100%">Count Confidence</div>
+                                                <div class="T13"  style="width: 100%">85%</div>
+                                            </div> 
+                                    </div>
+                                    <div  style="  height:84px ; float :left ; margin-left: 1%;" class="C7" >
+                                            <div style="padding:20px 20px 0 20px; text-align: center;" >
+                                                <div class="T4"  style="width: 100%">Sold Lifetime</div>
+                                                <div class="T13"  style="width: 100%" ng-show="ViewVendor.VendorInfo.SoldLifeTime != null"> {{ViewVendor.VendorInfo.SoldLifeTime | number : 0}}</div>
+                                                <div class="T13"  style="width: 100%" ng-show="ViewVendor.VendorInfo.SoldLifeTime == null"> 0</div>
+                                            </div> 
+                                    </div>
+                                    <div  style="  height:84px ; float :left ; margin-left: 1%;" class="C7" >
+                                            <div style="padding:20px 20px 0 20px; text-align: center;" >
+                                                <div class="T4" style="width: 100%">Revenue Lifetime</div>
+                                                <div class="T13"  style="width: 100%" ng-show="ViewVendor.VendorInfo.RevenueLifeTime != null" >${{ViewVendor.VendorInfo.RevenueLifeTime | number : 2}}</div>
+                                                <div class="T13"  style="width: 100%" ng-show="ViewVendor.VendorInfo.RevenueLifeTime == null" > $0</div>
+                                            </div> 
+                                    </div> 
+                                    <div  style="  height:84px ; float :left ; margin-left: 1%;" class="C7" >
+                                            <div style="padding:20px 20px 0 20px; text-align: center;" >
+                                                <div>
+                                                    <div class="T4" style="width: 100%" >Special Order</div>
+                                                    <div class="T13" style="width: 100%">35%</div>
+                                                </div>  
+                                            </div>  
+                                    </div>
+                                    <div  style="  height:84px ; float :left ; margin-left: 1%;" class="C7" >
+                                            <div style="padding:20px 20px 0 20px; text-align: center;" >
+                                                <div class="T4" style="width: 100%" > Last Sold  </div>
+                                                <div class="T13" style="width: 100%" ng-show="ViewVendor.VendorInfo.LastSold != null" > {{ViewVendor.VendorInfo.LastSold}} </div>
+                                                <div class="T13" style="width: 100%" ng-show="ViewVendor.VendorInfo.LastSold == null" > 0 </div>
+                                            </div> 
+                                    </div>
+                                    <div  style="  height:84px ; float :left ; margin-left: 1%;" class="C7" >
+                                            <div style="padding:20px 20px 0 20px; text-align: center;" >
+                                                <div class="T4"  style="width: 100%" > Last Ordered </div>
+                                                <div class="T13"  style="width: 100%" > 1m 4d </div>
+                                            </div> 
+                                    </div>
+                        </div>
+                    </div>
+                    
+                    <div id="TelemetryStatistics">
+                        <div class="telemetry_Main">
+                            <p class="actionRow T2 ">
+                                <span class="sectionText">Telemetry</span>
+                                <span class="actionText">Actions</span>
+                                <span class="ActionIcons">
+                                <i class="fa fa-th"></i>
+                                <i class="fa fa-question-circle"></i>
+                                </span> 
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sectionHeader row">
+                <div class="col-lg-4 col-lg-5">
+                    <div class="fixedHeaderText">
+                        <span class="headerlabel">
+                        <i class="fa fa-angle-right" style="width:10px; padding: 0 3px;"
+                            ng-show="!ViewVendor.displaySections.Related"
+                            ng-Click="ViewVendor.displaySections.Related = true">
+                        </i> 
+                        <i class="fa fa-angle-down" style="width:10px;"
+                            ng-show="ViewVendor.displaySections.Related"
+                            ng-Click="ViewVendor.displaySections.Related = false">
+                        </i> 
+                        <span class="divider">|</span>
+                        <span class="T2">C Related</span>
+                        </span>
+                        <span class="ActionIcons pull-right">
+                        <i class="fa fa-th"></i>
+                        <i class="fa fa-question-circle"></i>
+                        </span> 
+                    </div>
+                </div>
+            </div>
+            <div id="RelatedSection" >
+                <div ng-show="ViewVendor.displaySections.Related">
+                    <div id="RelatedSection_Cou_Block">
+                        <div class="main_section_COU row">
+                            <div class="main_section_COU_Header row" >
+                                <p class="actionRow T2">
+                                    <span class="sectionText">Customer Owned Units <i class="fa fa-plus cou_plus_icon " ng-click="ViewVendor.openAddCustomerOwnedUnitPopup($event)"></i></span>
+                                    <span class="actionText">Actions</span>
+                                    <span class="ActionIcons">
+                                    <i class="fa fa-th"></i>
+                                    <i class="fa fa-question-circle"></i>
+                                    </span> 
+                                </p>
+                            </div>
+                            <div class="gid_container_Customer" id="Customer_Owned_Units" >
+                                <table class="table" id="CM_Owned_UnitsGrid">
+                                    <col width="1%"  />
+                                    <col width="3%"  />
+                                    <col width="8%"  />
+                                    <col width="16%" />
+                                    <col width="11%"  />
+                                    <col width="12%" />
+                                    <col width="17%" />
+                                    <col width="10%"  />
+                                    <col width="8%" />
+                                    <col width="13%"  />
+                                    <col width="1%"  />
+                                    <tr  class="tableHeader T3 C2">
+                                        <th></th>
+                                        <th></th>
+                                        <th>YEAR</th>
+                                        <th>MAKE</th>
+                                        <th>MODEL</th>
+                                        <th>SUB MODEL</th>
+                                        <th>VIN</th>
+                                        <th>PLATE</th>
+                                        <th>MILEAGE</th>
+                                        <th>COLOR</th>
+                                        <th></th>
+                                    </tr>
+                                    <tbody ng-repeat="ownedUnit in ViewVendor.CMOwnedUnits" >
+                                        <!-- Display rows -->
+                                        <tr class="clickable_row" id="row1" rel="owned_unit_row{{$index}}_edit"  ng-click="ViewVendor.editOwnedUnit($event, $index)"
+                                            ng-blur = "ViewVendor.editOwnedUnit($event, $index)"  ng-class-even="'C2'"   >
+                                            <td style="background:#fff"></td>
+                                            <td id="CM_Owned_Units_block_grid_container_tbody_tr_td_1_{{$index}}" >
+                                                <a href="" class="edite_btn" rel="row1_edit">
+                                                <img src="{!URLFOR($Resource.Images, 'user-3.png')}" class="first_img" /> 
+                                                </a>
+                                            </td>
+                                            <td id="CM_Owned_Units_block_grid_container_tbody_tr_td_2_{{$index}}" class="T7">  <span>{{ownedUnit.Year}}</span> </td>
+                                            <td id="CM_Owned_Units_block_grid_container_tbody_tr_td_3_{{$index}}" class="T7 " ><u>  {{ownedUnit.MakeName}}</u></td>
+                                            <td id="CM_Owned_Units_block_grid_container_tbody_tr_td_4_{{$index}}" class="T7">  {{ownedUnit.ModelName}} </td>
+                                            <td id="CM_Owned_Units_block_grid_container_tbody_tr_td_5_{{$index}}" class="T7">  {{ownedUnit.SubModelName}}      </td>
+                                            <td id="CM_Owned_Units_block_grid_container_tbody_tr_td_6_{{$index}}"  class="T7"> {{ownedUnit.VIN}}           </td>
+                                            <td id="CM_Owned_Units_block_grid_container_tbody_tr_td_7_{{$index}}" class="T7">  {{ownedUnit.Plate}}         </td>
+                                            <td id="CM_Owned_Units_block_grid_container_tbody_tr_td_8_{{$index}}" class="T7">  {{ownedUnit.Mileage}}       </td>
+                                            <td id="CM_Owned_Units_block_grid_container_tbody_tr_td_9_{{$index}}" class="T7 ">  {{ownedUnit.Color}}     </td>
+                                            <td style="background:#fff"></td>
+                                        </tr>
+                                        <!-- action editable Row -->
+                                        <tr ng-show="ViewVendor.CMOwnedUnits_editRow[$index].isEdit" class="edit_panel sample-show-hide" id="owned_unit_row{{$index}}_edit">
+                                            <td style="background:#fff"></td>
+                                            <td colspan="9" id="CM_Owned_Units_block_grid_container_tbody_expandtr_td_1_{{$index}}">
+                                                <div id="CM_Owned_Units_block_grid_container_tbody_expandtr_edit_box_{{$index}}" class="edit_box col-lg-9 col-md-9" ng-show="ViewVendor.CMOwnedUnits_editRow[$index].isEdit">
+                                                    <div class="its-heading" id="CM_Owned_Units_block_grid_container_tbody_expandtr_edit_box_its-heading_{{$index}}">
+                                                        <img src="{!URLFOR($Resource.icon_images, 'images/edit_icon.png')}" class="img_action"/>
+                                                        <span>Actions (4 Available)</span>
+                                                    </div>
+                                                    <div id="CM_Owned_Units_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}" class="edit-body">
+                                                        <form>
+                                                            <!-- Edit link as action -->
+                                                            <div class="radio" id="CM_Owned_Units_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}_radio_1">
+                                                                <label>
+                                                                <input type="radio" name="optionsRadios" id="optionsRadios1" value="1"
+                                                                    ng-model= "ViewVendor.CMOwnedUnits_editRow[$index].radioValue"/>
+                                                                <span>
+                                                                <i class="fa fa-pencil-square-o"></i>
+                                                                Edit
+                                                                </span>
+                                                                </label>
+                                                            </div>
+                                                            <!-- Schedule Service as action -->
+                                                            <div class="radio" id="CM_Owned_Units_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}_radio_2">
+                                                                <label>
+                                                                <input type="radio" name="optionsRadios" id="optionsRadios2" value="2"
+                                                                    ng-model= "ViewVendor.CMOwnedUnits_editRow[$index].radioValue"/>
+                                                                <span>
+                                                                <i class="fa fa-pencil-square-o"></i>
+                                                                Schedule Service
+                                                                </span>
+                                                                </label>
+                                                            </div>
+                                                            <!-- Transfer to another customer as action -->
+                                                            <div class="radio" id="CM_Owned_Units_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}_radio_3">
+                                                                <label>
+                                                                <input type="radio" name="optionsRadios" id="optionsRadios3" value="3"
+                                                                    ng-model= "ViewVendor.CMOwnedUnits_editRow[$index].radioValue"/>
+                                                                <span>
+                                                                <i class="fa fa-pencil-square-o"></i>
+                                                                Transfer to another customer
+                                                                </span>
+                                                                </label>
+                                                            </div>
+                                                            <!-- Remove link as action -->
+                                                            <div class="radio" id="CM_Owned_Units_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}_radio_4">
+                                                                <label>
+                                                                <input type="radio" name="optionsRadios" id="optionsRadios4" value="4"
+                                                                    ng-model= "ViewVendor.CMOwnedUnits_editRow[$index].radioValue"/>
+                                                                <span>
+                                                                <i class="fa fa-times"></i>
+                                                                Remove Link
+                                                                </span>
+                                                                </label>
+                                                            </div>
+                                                            <!-- Action button (Go) -->
+                                                            <a href="" id="CM_Owned_Units_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}_go_btn" 
+                                                                class="btn C11 T4 addmoreinfoBtn editform_btn" role="button"
+                                                                ng-click="ViewVendor.CM_OwnedUnits_GoAction($index)"> Go  </a>                                
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="background:#fff"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Pagination container -->
+                            <div class="row pagination_container" id="COU_Items_Pagination" style="margin-left: 10px; margin-right: 0;"
+                                ng-if="ViewVendor.TotalCOURecords != undefined" >
+                                <list-pagination id-value = "COU_Items_Pagination_" 
+                                                total-records-length = "ViewVendor.TotalCOURecords"
+                                                page-size = "ViewVendor.COUPageSortAttrsJSON.PageSize"
+                                                current-page = "ViewVendor.COUPageSortAttrsJSON.CurrentPage"
+                                                changes-count = "ViewVendor.COUPageSortAttrsJSON.ChangesCount"
+                                                pagination-control-method = "ViewVendor.COUs_paginationControlsAction" />
+                            </div>
+                        </div>
+                        <!--   <p class="actionRow T2">
+                            <span class="sectionText">Customers</span>
+                            <span class="actionText">Actions</span>
+                            <span class="ActionIcons">
+                                <i class="fa fa-th"></i>
+                                <i class="fa fa-question-circle"></i>
+                            </span> 
+                            </p>
+                            
+                            <p class="actionRow T2">
+                            <span class="sectionText">Contacts</span>
+                            <span class="actionText">Actions</span>
+                            <span class="ActionIcons">
+                                <i class="fa fa-th"></i>
+                                <i class="fa fa-question-circle"></i>
+                            </span> 
+                            </p> -->
+                    </div>
+                    <div id="RelatedSection_Customer_BLock">
+                        <div class="main_section_COU row">
+                            <div class="main_section_COU_Header row" >
+                                <p class="actionRow T2">
+                                    <span class="sectionText">Customer <i class="fa fa-plus cou_plus_icon " ng-click="setFocusToSearchBox();"></i></span>
+                                    <span class="actionText">Actions</span>
+                                    <span class="ActionIcons">
+                                    <i class="fa fa-th"></i>
+                                    <i class="fa fa-question-circle"></i>
+                                    </span> 
+                                </p>
+                            </div>
+                            <div class="gid_container_Customer" id="Customer_Owned_Units" >
+                                <table class="table" id="CM_Owned_UnitsGrid">
+                                    <col width="1%"  />
+                                    <col width="4%"  />
+                                    <col width="17%"  />
+                                    <col width="20%"  />
+                                    <col width="17%" />
+                                    <col width="25%"  />
+                                    <col width="15%" />
+                                    <col width="1%"  />
+                                    <tr  class="tableHeader T3 C2">
+                                        <th></th>
+                                        <th></th>
+                                        <th>CUSTOMER NUMBER</th>
+                                        <th>CUSTOMER NAME</th>
+                                        <th>PHONE NUMBER</th>
+                                        <th>EMAIL ADDRESS</th>
+                                        <th>RELATION</th>
+                                        <th></th>
+                                    </tr>
+                                    <tbody  ng-repeat="indivCustomer in ViewVendor.CMCustomers" >
+                                        <!-- Display rows -->
+                                        <tr class="clickable_row tddropdown"  id="row1" rel="rel_customer_row{{$index}}_edit" 
+                                            ng-click="ViewVendor.editRelatedCustomer($event, $index)"  ng-class-even="'C2'"  >
+                                            <td style="background:#fff"></td>
+                                            <td id="CM_Customers_block_grid_container_tbody_tr_td_1_{{$index}}">
+                                                <a href="" class="edite_btn C5" rel="row1_edit">
+                                                <img src="{!URLFOR($Resource.Images, 'star.png')}"  class="first_img" />
+                                                </a>
+                                            </td>
+                                            <td id="CM_Customers_block_grid_container_tbody_tr_td_2_{{$index}}" class="T7">    <span>{{indivCustomer.CustomerNumber}}</span>   </td>
+                                            <td id="CM_Customers_block_grid_container_tbody_tr_td_3_{{$index}}" class="T7">    <u>{{indivCustomer.CustomerName}}</u>           </td>
+                                            <td id="CM_Customers_block_grid_container_tbody_tr_td_4_{{$index}}" class="T7">
+                                                {{indivCustomer.PhoneNumber}}
+                                                <i class="fa fa-star orange favorite" ng-show="indivCustomer.IsPreferredPhone && indivCustomer.PhoneNumber != ''"></i>
+                                                <i class="fa fa-star-o" ng-show="!indivCustomer.IsPreferredPhone && indivCustomer.PhoneNumber != null && indivCustomer.PhoneNumber != ''"></i>
+                                            </td>
+                                            <td id="CM_Customers_block_grid_container_tbody_tr_td_5_{{$index}}" class="T7" >
+                                                {{indivCustomer.Email}}
+                                                <i class="fa fa-star orange favorite" ng-show="indivCustomer.IsPreferredEmail && indivCustomer.Email != ''"></i>
+                                                <i class="fa fa-star-o" ng-show="!indivCustomer.IsPreferredEmail && indivCustomer.Email != null && indivCustomer.Email != ''"></i>
+                                            </td>
+                                            <td id="CM_Customers_block_grid_container_tbody_tr_td_6_{{$index}}" class="T7 " >
+                                                <select class="form-control T7 input-sm  " ng-model="indivCustomer.Relation" 
+                                                    ng-click="$event.stopPropagation();"
+                                                    ng-change="ViewVendor.addUpdateCustomerRecord(indivCustomer.Id, indivCustomer.Relation)">
+                                                    <option value="Family">Family</option>
+                                                    <option value="Friend">Friend</option>
+                                                    <option value="Employee">Employee</option>
+                                                    <option value="Co-Worker">Co-Worker</option>
+                                                    <option value="Employer">Employer</option>
+                                                </select>
+                                            </td>
+                                            <td style="background:#fff"></td>
+                                        </tr>
+                                        <!-- Actions row in case editable row -->
+                                        <tr ng-show="ViewVendor.CMCustomers_editRow[$index].isEdit" class="edit_panel sample-show-hide" id="rel_customer_row{{$index}}_edit">
+                                            <td style="background:#fff"></td>
+                                            <td colspan="6" id="CM_Customers_block_grid_container_tbody_expandtr_td_1_{{$index}}">
+                                                <div id="CM_Customers_block_grid_container_tbody_expandtr_edit_box_{{$index}}" 
+                                                    class="edit_box col-lg-9 col-md-9" 
+                                                    ng-show="ViewVendor.CMCustomers_editRow[$index].isEdit">
+                                                    <div class="its-heading" id="CM_Customers_block_grid_container_tbody_expandtr_edit_box_its-heading_{{$index}}">
+                                                        <img src="{!URLFOR($Resource.icon_images, 'images/edit_icon.png')}" styleClass="img_action"/>
+                                                        <span>Actions (2 Available)</span>
+                                                    </div>
+                                                    <div id="CM_Customers_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}" class="edit-body">
+                                                        <form>
+                                                            <!-- Edit link as action -->
+                                                            <div class="radio" id="CM_Customers_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}_radio_1">
+                                                                <label>
+                                                                <input type="radio" name="optionsRadios" id="optionsRadios2" value="1"
+                                                                    ng-model= "ViewVendor.CMCustomers_editRow[$index].radioValue"/>
+                                                                <span>
+                                                                <i class="fa fa-pencil-square-o"></i>
+                                                                Edit
+                                                                </span>
+                                                                </label>
+                                                            </div>
+                                                            <!-- Remove link as action -->
+                                                            <div class="radio" id="CM_Customers_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}_radio_2">
+                                                                <label>
+                                                                <input type="radio" name="optionsRadios" id="optionsRadios2" value="2"
+                                                                    ng-model= "ViewVendor.CMCustomers_editRow[$index].radioValue"/>
+                                                                <span>
+                                                                <i class="fa fa-times"></i>
+                                                                Remove Link
+                                                                </span>
+                                                                </label>
+                                                            </div>
+                                                            <!-- Action button (Go) -->
+                                                            <a href="" id="CM_Customers_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}_go_btn" class="btn C11 T4 addmoreinfoBtn editform_btn" role="button"
+                                                                ng-click="ViewVendor.CM_Customers_GoAction($index)">  Go  </a>                                
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="background:#fff"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Pagination container -->
+                            <div class="row pagination_container" id="Customers_Pagination" style="margin-left: 10px;margin-right: 0;" 
+                                ng-if="ViewVendor.TotalCustomerRecords != undefined" >
+                                <list-pagination id-value = "Customers_Pagination_" 
+                                                total-records-length = "ViewVendor.TotalCustomerRecords"
+                                                page-size = "ViewVendor.customersPageSortAttrsJSON.PageSize"
+                                                current-page = "ViewVendor.customersPageSortAttrsJSON.CurrentPage"
+                                                changes-count = "ViewVendor.customersPageSortAttrsJSON.ChangesCount"
+                                                pagination-control-method = "ViewVendor.Customers_paginationControlsAction" />
+                            </div>
+                        </div>
+                    </div>
+                    <div id="RelatedSection_Contact_BLock">
+                        <div class="main_section_COU row">
+                            <div class="main_section_COU_Header row" >
+                                <p class="actionRow T2">
+                                    <span class="sectionText">Contact <i class="fa fa-plus cou_plus_icon " ng-click="ViewVendor.openAddContactPopup()"></i></span>
+                                    <span class="actionText">Actions</span>
+                                    <span class="ActionIcons">
+                                    <i class="fa fa-th"></i>
+                                    <i class="fa fa-question-circle"></i>
+                                    </span> 
+                                </p>
+                            </div>
+                            <div class="gid_container_Customer" id="Customer_Owned_Units" >
+                                <table class="table" id="CM_Owned_UnitsGrid">
+                                    <col width="1%"  />
+                                    <col width="4%"  />
+                                    <col width="16%"  />
+                                    <col width="26%"  />
+                                    <col width="17%" />
+                                    <col width="22%"  />
+                                    <col width="13%" />
+                                    <col width="1%"  />
+                                    <tr  class="tableHeader T3 C2">
+                                        <th></th>
+                                        <th></th>
+                                        <th>FIRST NAME</th>
+                                        <th>LAST NAME</th>
+                                        <th>PHONE NUMBER</th>
+                                        <th>EMAIL ADDRESS</th>
+                                        <th>RELATION</th>
+                                        <th></th>
+                                    </tr>
+                                    <tbody  ng-repeat="indivContact in ViewVendor.CMContacts" >
+                                        <!-- Display rows -->
+                                        <tr class="clickable_row" id="row1" rel="rel_contact_row{{$index}}_edit" 
+                                            ng-click="ViewVendor.editRelatedContact($event, $index)"
+                                            ng-blur = "ViewVendor.editRelatedContact($event, $index)" ng-class-even="'C2'" >
+                                            <td style="background:#fff"></td>
+                                            <td id="CM_Contacts_block_grid_container_tbody_tr_td_1_{{$index}}">
+                                                <a href="" class="edite_btn C5" rel="row1_edit">
+                                                <img src="{!URLFOR($Resource.Images, 'star.png')}"  class="first_img" />
+                                                </a>
+                                            </td>
+                                            <td id="CM_Contacts_block_grid_container_tbody_tr_td_2_{{$index}}">     <span>{{indivContact.FirstName}}</span> </td>
+                                            <td id="CM_Contacts_block_grid_container_tbody_tr_td_3_{{$index}}">     {{indivContact.LastName}}               </td>
+                                            <td id="CM_Contacts_block_grid_container_tbody_tr_td_4_{{$index}}">
+                                                {{indivContact.Phone}}
+                                                <i class="fa fa-star orange" ng-show="indivContact.PreferredPhone && indivContact.Phone != ''"></i>
+                                                <i class="fa fa-star-o" ng-show="!indivContact.PreferredPhone && indivContact.Phone != null && indivContact.Phone != ''"></i>
+                                            </td>
+                                            <td id="CM_Contacts_block_grid_container_tbody_tr_td_5_{{$index}}">
+                                                {{indivContact.Email}}
+                                                <i class="fa fa-star orange" ng-show="indivContact.PreferredEmail && indivContact.Email != ''"></i>
+                                                <i class="fa fa-star-o" ng-show="!indivContact.PreferredEmail && indivContact.Email != null && indivContact.Email != ''"></i>
+                                            </td>
+                                            <td id="CM_Contacts_block_grid_container_tbody_tr_td_6_{{$index}}" >
+                                                <select class="form-control" ng-model="indivContact.Relation" 
+                                                    ng-change="ViewVendor.addUpdateContactRecord(indivContact.Id, indivContact.Relation)" 
+                                                    ng-click="$event.stopPropagation();">
+                                                    <option value="Family">Family</option>
+                                                    <option value="Friend">Friend</option>
+                                                    <option value="Employee">Employee</option>
+                                                    <option value="Co-Worker">Co-Worker</option>
+                                                    <option value="Employer">Employer</option>
+                                                </select>
+                                            </td>
+                                            <td style="background:#fff"></td>
+                                        </tr>
+                                        <!-- Actions row in case editable row -->
+                                        <tr ng-show="ViewVendor.CMContacts_editRow[$index].isEdit" class="edit_panel sample-show-hide" id="rel_contact_row{{$index}}_edit">
+                                            <td style="background:#fff"></td>
+                                            <td colspan="6" id="CM_Contacts_block_grid_container_tbody_expandtr_td_1_{{$index}}">
+                                                <div id="CM_Contacts_block_grid_container_tbody_expandtr_edit_box_{{$index}}" 
+                                                    class="edit_box col-lg-9 col-md-9" 
+                                                    ng-show="ViewVendor.CMContacts_editRow[$index].isEdit">
+                                                    <div class="its-heading" id="CM_Contacts_block_grid_container_tbody_expandtr_edit_box_its-heading_{{$index}}">
+                                                        <img src="{!URLFOR($Resource.icon_images, 'images/edit_icon.png')}" styleClass="img_action"/>
+                                                        <span>Actions (2 Available)</span>
+                                                    </div>
+                                                    <div id="CM_Contacts_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}" class="edit-body">
+                                                        <form>
+                                                            <!-- Edit link as action -->
+                                                            <div class="radio" id="CM_Contacts_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}_radio_1">
+                                                                <label>
+                                                                <input type="radio" name="optionsRadios" id="optionsRadios2" value="1"
+                                                                    ng-model= "ViewVendor.CMContacts_editRow[$index].radioValue"/>
+                                                                <span>
+                                                                <i class="fa fa-pencil-square-o"></i>
+                                                                Edit
+                                                                </span>
+                                                                </label>
+                                                            </div>
+                                                            <!-- Remove link as action -->
+                                                            <div class="radio" id="CM_Contacts_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}_radio_2">
+                                                                <label>
+                                                                <input type="radio" name="optionsRadios" id="optionsRadios2" value="2"
+                                                                    ng-model= "ViewVendor.CMContacts_editRow[$index].radioValue"/>
+                                                                <span>
+                                                                <i class="fa fa-times"></i>
+                                                                Remove Link
+                                                                </span>
+                                                                </label>
+                                                            </div>
+                                                            <!-- Action button (Go) -->
+                                                            <a href="" id="CM_Contacts_block_grid_container_tbody_expandtr_edit_box_its-heading_edit-body_{{$index}}_go_btn" class="btn C11 T4 addmoreinfoBtn editform_btn" role="button"
+                                                                ng-click="ViewVendor.CM_Contacts_GoAction($index)">   Go  </a>                                
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="background:#fff"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Pagination container -->
+                            <div class="row pagination_container" id="Contacts_Pagination" style="margin-left: 10px;margin-right: 0;"
+                                ng-if="ViewVendor.TotalContactRecords != undefined" >
+                                <list-pagination id-value = "Contacts_Pagination_" 
+                                                total-records-length = "ViewVendor.TotalContactRecords"
+                                                page-size = "ViewVendor.contactsPageSortAttrsJSON.PageSize"
+                                                current-page = "ViewVendor.contactsPageSortAttrsJSON.CurrentPage"
+                                                changes-count = "ViewVendor.contactsPageSortAttrsJSON.ChangesCount"
+                                                pagination-control-method = "ViewVendor.Contacts_paginationControlsAction" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sectionHeader row">
+                <div class="col-lg-4 col-lg-5">
+                    <div class="fixedHeaderText">
+                        <span class="headerlabel">
+                        <i class="fa fa-angle-right" style="width:10px; padding: 0 3px;"
+                            ng-show="!ViewVendor.displaySections.ActivityStream"
+                            ng-Click="ViewVendor.displaySections.ActivityStream = true">
+                        </i> 
+                        <i class="fa fa-angle-down" style="width:10px;"
+                            ng-show="ViewVendor.displaySections.ActivityStream"
+                            ng-Click="ViewVendor.displaySections.ActivityStream = false">
+                        </i> 
+                        <span class="divider">|</span>
+                        <span class="T2">D Activity Stream</span>
+                        </span>
+                        <span class="ActionIcons pull-right">
+                        <i class="fa fa-th"></i>
+                        <i class="fa fa-question-circle"></i>
+                        </span> 
+                    </div>
+                </div>
+            </div>
+            <div id="ActivitySection" >
+                <div class="main_section row" ng-show="ViewVendor.displaySections.ActivityStream">
+                    <p class="actionRow T2">
+                        <span class="sectionText">Activity Stream</span>
+                        <span class="actionText">Actions</span>
+                        <span class="ActionIcons">
+                        <i class="fa fa-th"></i>
+                        <i class="fa fa-question-circle"></i>
+                        </span> 
+                    </p>
+                </div>
+            </div>
+            <c:ViewVendorRelatedList />
+            <div style="height:600px; background: #E6EBEC; margin: 0 -15px;" />
+            </div>
+        </div>
+    </body>
+    
+    </html>
+</apex:page>

@@ -1,0 +1,11 @@
+<!-- Customers management Frame page for BlackPurl site -->
+<apex:page controller="BlackPurlContentCtrl" id="HomePage" title="Customers Management"
+			showHeader="false" sidebar="false" standardStylesheets="false">
+	
+	
+	<apex:outputPanel id="customersGrid">
+		<h2>Page is deprecated.</h2>
+<!-- 		<c:CustomersList uniqueId="Customers_"/> -->
+    </apex:outputPanel>
+	
+</apex:page>
