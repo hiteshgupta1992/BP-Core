@@ -1,6 +1,6 @@
 <apex:component controller="PartOverviewCtrl">
     <!-- Include Styles for component here -->
-    <c:AddEditParts_Styles UID="AddNewPart"/>
+    <c:AddEditPartsStyles UID="AddNewPart"/>
     <apex:includeScript value="{!URLFOR($Resource.AngularResources, 'js/underscore-min.js') }" />
     <style>
     .popupright .tabconainer .form-group .form-control:focus {
@@ -48,7 +48,7 @@
     }
     .applyTaxHide{
         position: static;
-        width: auto%;
+        width: auto;
     }
     .MT50{
         margin-top: 50px;
@@ -62,6 +62,22 @@
     #Vendor .autocomplete-dropdown{
         top: 0;
     }
+    .popupright .tabconainer{
+    	padding-bottom: 40px !important  ;
+    }
+    
+    
+    .disabledFieldsOnEditViewPArt input {
+		background: #eee;
+		pointer-events: none;
+		cursor: not-allowed;
+    }
+    .chked .chksqure {
+	    display: block;
+	}
+	.chk_tick .chksqure {
+	    display: block;
+	}
     </style>
     <!-- Include required directives -->
     <!-- Directive for price fields -->
@@ -73,7 +89,7 @@
             $(".form-control").focus(function(){
                 $('.controls').hide();  
                 $('#'+ $(this).attr('rel')).show();
-                
+                debug("id for $('#'+ $(this).attr('rel')) : "+$('#'+ $(this).attr('rel')));
             });
             
             $(".anguinput").focus(function(){
@@ -82,7 +98,9 @@
                 
             })
             
-            $('[data-toggle="tooltip"]').tooltip({placement : 'bottom'}); 
+            debug("focus tootltip")
+            setTimeout(function(){ angular.element('[data-toggle="tooltip"]').tooltip({placement : 'bottom'}); }, 2000);
+            //$('[data-toggle="tooltip"]').tooltip({placement : 'bottom'});  
         })
     </script>
     
@@ -99,7 +117,7 @@
             $scope.PartCompModal.CategoryNameStr ="";
             $scope.PartCompModal.ReplacedByNameStr="";
             $scope.PartCompModal.PartLocations = [];
-            $scope.PartCompModal.tabIndexValue = 0;
+            $scope.PartCompModal.tabIndexValue = 1000;
             $scope.PartCompModal.isValidForm = true;
             $scope.PartCompModal.Tax_Rate = 1;
             $scope.PartCompModal.PartModal.isOrderLot = false;  
@@ -158,21 +176,6 @@
             }
             // END: Modals declaration
             
-            $scope.PartCompModal.applicableTaxList = [ 
-                                {label : "Any"},
-                                {label : "Equal To"},
-                                {label : "Not Equal To"},
-                                {label : "Greater than"},
-                                {label : "Less Than"},
-                                {label : "Less Greater"},
-                                {label : "Less Than"},
-                                {label : "Less Any"},
-                                {label : "Less Than"},
-                                {label : "Less Any"},
-                                {label : "Less Than"},
-                                {label : "Between"}
-            ];
-            
             $scope.PartCompModal.applyTaxText = "Default"; 
             $scope.PartCompModal.PriceMethod =  [ 
                                 {label : "Default"}
@@ -188,10 +191,13 @@
                                                 Catagory : '{!JSENCODE($Label.Tooltip_Add_Part_Category)}',
                                                 PriceMethod : '{!JSENCODE($Label.Tooltip_Add_Part_PriceMethod)}',
                                                 ReplaceBy : '{!JSENCODE($Label.Tooltip_Add_Part_ReplaceBy)}',
-                                                InStockQuantity : 'To modify this value go to the Cost Tracking section of the part',
+                                                InStockQuantity : '{!JSENCODE($Label.Add_Part_Tooltip_InStockQuantity)}',
+
                                                 Location : '{!JSENCODE($Label.Tooltip_Add_Part_Location)}',
-                                                Cost : 'To modify this value go to the Cost Tracking section of the part',
-                                                PackagedCost : 'To modify this value go to the Cost Tracking section of the part',
+                                                Cost : '{!JSENCODE($Label.Tooltip_Add_Part_Cost)}',
+                                                CostForNewPart : '{!JSENCODE($Label.Tooltip_Add_Part_CostForNewPart)}',
+                                                PackagedCost : '{!JSENCODE($Label.Add_Part_Tooltip_Package_Cost)}',
+												PackagedCostForNewPart : '{!JSENCODE($Label.Add_Part_Tooltip_PackagedCostForNewPart)}',
                                                 MSRP : '{!JSENCODE($Label.Tooltip_Add_Part_MSRP)}',
                                                 Retail : '{!JSENCODE($Label.Tooltip_Add_Part_Retail)}',
                                                 Enviro : '{!JSENCODE($Label.Tooltip_Add_Part_Enviro)}',
@@ -201,7 +207,20 @@
                                                 GeneralInfo : '{!JSENCODE($Label.Tooltip_Add_Part_GeneralInfo)}',
                                                 LocationAndQty :'{!JSENCODE($Label.Tooltip_Add_Part_LocationAndQty)}',
                                                 PriceAndCost : '{!JSENCODE($Label.Tooltip_Add_Part_PriceAndCost)}',
-                                                OrderingInfo :'{!JSENCODE($Label.Tooltip_Add_Part_OrderingInfo)}'
+                                                OrderingInfo :'{!JSENCODE($Label.Tooltip_Add_Part_OrderingInfo)}',
+												Qty : '{!JSENCODE($Label.Add_Part_Tooltip_Qty)}',
+                                                ApplicableTax : '{!JSENCODE($Label.Add_Part_Tooltip_Applicable_Tax)}',
+                                                PackageCost : '{!JSENCODE($Label.Add_Part_Tooltip_Package_Cost)}',
+                                                PkgUnitOfMeasure : '{!JSENCODE($Label.Add_Part_Tooltip_Pkg_Unit_of_Measure)}',
+                                                ItemsPerPackage : '{!JSENCODE($Label.Add_Part_Tooltip_Items_Per_Package)}',
+                                                CostingInfo : '{!JSENCODE($Label.Add_Part_Tooltip_CostingInfo)}',
+                                                InStockQuantityForNewPart : '{!JSENCODE($Label.Add_Part_Tooltip_InStockQuantityForNewPart)}'
+
+
+
+  
+
+
                                     };
                             
             // START: Popup related methods
@@ -215,8 +234,10 @@
             
             // Method to open self popup.
             $scope.PartCompModal.openEditPartPopup = function (partId) {
+            	console.log('edit part');
+            	
                 // Get current COU id and fill the form with related information
-                $scope.PartCompModal.currentPartId = partId;
+                $scope.PartCompModal.currentPartId = partId; 
                 
                 // Set default values
                 $scope.PartCompModal.setDataDefault();
@@ -233,12 +254,24 @@
                   $scope.PartCompModal.openEditPartPopup(args.partId);
             });
             
+            $scope.PartCompModal.PartFieldsFilter = {
+                PartCategory : [
+                    {
+                        Field : "Type__c",
+                        Value : "Part",
+                        FilterObject :"Category__c"
+                    }
+                ]
+            };
+            
             // Open popup box
             $scope.PartCompModal.openPopup = function(){
                 angular.element('#AddNewPart').modal({
                     backdrop : 'static',
                     keyboard : false
                 });
+                debug("focus tootltip1")
+                setTimeout(function(){ angular.element('[data-toggle="tooltip"]').tooltip({placement : 'bottom'}); });
             }
             
             // Close popup box
@@ -251,6 +284,7 @@
             // Event listener when a record is selected from Search bar
             $scope.$on('autoCompleteSelectCallback', function (event, args) {
                 debug(args);  
+
                 var obejctType = args.ObejctType.toUpperCase();
                 var searchResult = args.SearchResult;
                 var validationKey = args.ValidationKey;
@@ -355,6 +389,7 @@
                 $scope.PartCompModal.ReplacedByNameStr = "";
                 
                 $scope.PartCompModal.PartModal.IsTaxable    =   true;
+				$scope.PartCompModal.PartModal.IsOrderLot =  false;
                 $scope.PartCompModal.PartModal.IsPackagedPart = false;
                 
                 $scope.PartCompModal.setDefaultForNumberFields();
@@ -419,6 +454,7 @@
                 if($scope.PartCompModal.isValidForm){
                     var partRecords = [];
                     partRecords.push($scope.PartCompModal.PartModal);
+
                     $scope.PartCompModal.savePartData(partRecords);
                 }
             }
@@ -434,12 +470,12 @@
                 $scope.PartCompModal.PartModal.IsPackagedPart = !$scope.PartCompModal.PartModal.IsPackagedPart;
                 if($scope.PartCompModal.PartModal.IsPackagedPart == true){
                         $scope.PartCompModal.PartModal.PackagedUnit='EA';
-                        $scope.PartCompModal.PartModal.Cost= 0 ;
+                        //$scope.PartCompModal.PartModal.Cost= 0 ;
                         $scope.PartCompModal.PartModal.PackagedQty = 1;
-                        $scope.PartCompModal.PartModal.PackagedCost = 0;
+                        $scope.PartCompModal.PartModal.PackagedCost = $scope.PartCompModal.PartModal.Cost;
                 }else{
                         $scope.PartCompModal.PartModal.PackagedUnit='EA';
-                        $scope.PartCompModal.PartModal.Cost = 0 ;
+                        //$scope.PartCompModal.PartModal.Cost = 0 ;
                         $scope.PartCompModal.PartModal.PackagedCost = 0;
                         $scope.PartCompModal.PartModal.PackagedQty = 1;
                 }
@@ -465,6 +501,11 @@
             
             // Event handler for Location field validation for unique value
             $scope.PartCompModal.validateLocationUniqueness = function (event) {
+				var locationVal = $scope.PartCompModal.PartLocations[0].nameVal;
+                if(locationVal.trim().length != 0){
+                    $scope.PartCompModal.PartFormValidationModal["Location"].isError = false;
+                    $scope.PartCompModal.PartFormValidationModal["Location"].ErrorMessage = '';
+                }
                 // First reset the error box
                 $scope.PartCompModal.addRemoveErrorClassOnLocationField(false, null);
                 
@@ -489,11 +530,24 @@
                         && $scope.PartCompModal.PartModal.PackagedQty != ""
                         && $scope.PartCompModal.PartModal.PackagedQty != 0
                     ){
-                        $scope.PartCompModal.PartModal.Cost = ($scope.PartCompModal.PartModal.PackagedCost / $scope.PartCompModal.PartModal.PackagedQty).toFixed(2);
+                        if($scope.PartCompModal.currentPartId != null){
+                        	$scope.PartCompModal.PartModal.PackagedCost = ($scope.PartCompModal.PartModal.PackagedQty * $scope.PartCompModal.PartModal.Cost).toFixed(2);
+                        }
+                       	$scope.PartCompModal.PartModal.Cost = ($scope.PartCompModal.PartModal.PackagedCost / $scope.PartCompModal.PartModal.PackagedQty).toFixed(2);
+                        
                     }
                 } else {
                     
                 }
+                console.log('$scope.PartCompModal.PartModal.Cost'+$scope.PartCompModal.PartModal.Cost);
+                        
+            }
+            
+            $scope.PartCompModal.adjustTabIndex = function(e){
+            	if(e.which == 9){
+            		$('#partNumber').focus();
+            		e.preventDefault();
+            	}
             }
             
             $scope.PartCompModal.OnFocus = function (targetId) {
@@ -523,7 +577,10 @@
                 
                 setTimeout(function(){
                     var elemId = "#pLocation" + (index + 1);
+                    angular.element(elemId).parent().css("margin-top","10px");
                     angular.element(elemId).focus();
+                    debug("focus tootltip2")
+                     angular.element('[data-toggle="tooltip"]').tooltip({placement : 'bottom'});
                 }, 10);
             }
             
@@ -690,22 +747,52 @@
                     }
                 }
                 
+				if(modelKey == 'Location'){	
+                    $scope.PartCompModal.PartFormValidationModal["Location"].isError = false;
+                    $scope.PartCompModal.PartFormValidationModal["Location"].ErrorMessage = '';
+                }
                 // Set validation flag value
                 if($scope.PartCompModal.PartFormValidationModal[modelKey].isError == true){
                     $scope.PartCompModal.isValidForm = false;
                 }
+
             }
             // END: Form validation process
             
             // START: Service call methods
             // Get part related data from server and fill form
             $scope.PartCompModal.getCurrentPartData = function () {
-                AddEditPartService.getPartInfoById($scope.PartCompModal.currentPartId).then(function(partRecord) {
-                    $scope.PartCompModal.UpdateFormFieldsWithExistingPart(partRecord);
-                   
+            	AddEditPartService.getApplicableTaxList().then(function(taxList){
+            		console.log(taxList.SalesTaxList);
+                	$scope.PartCompModal.IsTaxIncludingPricing = taxList.IsTaxIncludingPricing;
+                	$scope.PartCompModal.TaxList = taxList.SalesTaxList;
+                	
+                	
+                	AddEditPartService.getPartInfoById($scope.PartCompModal.currentPartId).then(function(partRecord) {
+	                    $scope.PartCompModal.UpdateFormFieldsWithExistingPart(partRecord);
+
+						var defaultTaxIndex = _.findIndex(taxList.SalesTaxList, {IsDefault: true});
+						var TaxIndex = _.findIndex(taxList.SalesTaxList, {Id: $scope.PartCompModal.PartModal.ApplicableTaxId});
+						console.log('TaxIndex'  + TaxIndex);
+						if(TaxIndex > -1  && $scope.PartCompModal.PartModal.ApplicableTaxId != null){
+							$scope.PartCompModal.Tax_Rate = $scope.PartCompModal.TaxList[TaxIndex].TaxRate;
+							console.log('Tax Rate Edit ' +$scope.PartCompModal.Tax_Rate);
+						}
+	                	if(defaultTaxIndex > -1 && $scope.PartCompModal.PartModal.ApplicableTaxId == null){
+	                		$scope.PartCompModal.PartModal.ApplicableTaxId = $scope.PartCompModal.TaxList[defaultTaxIndex].Id;
+	                		$scope.PartCompModal.Tax_Rate = $scope.PartCompModal.TaxList[defaultTaxIndex].TaxRate;
+	                		console.log('Tax Rate Edit ' +$scope.PartCompModal.Tax_Rate);
+	                	}
+	                	console.log('Tax Rate Edit ' +$scope.PartCompModal.Tax_Rate);
+	                }, function(errorSearchResult) {
+
+	                });
+                	
                 }, function(errorSearchResult) {
                     //$scope.ViewCustomer.CustomerInfo = errorSearchResult;
                 });
+                
+                
             }
             
             // Get default category for part as selected vendor value
@@ -721,20 +808,19 @@
             
             $scope.PartCompModal.getAndSetSystemDefaultCategory = function () {
                 AddEditPartService.getDefaultPartByVendorId('').then(function(categoryRecord) {
-                    debug('111111');
-                    //break;
-                  
-                    debug(categoryRecord);
                     $scope.PartCompModal.UpdateCategoryInForm(categoryRecord);
-                    debug(categoryRecord);
+                    console.log(categoryRecord);
                 }, function(errorSearchResult) {
+                debug('errorSearchResult');
+                debug(errorSearchResult);
                     //$scope.ViewCustomer.CustomerInfo = errorSearchResult;
                 });
                 AddEditPartService.getApplicableTaxList().then(function(taxList){
-                	debug(taxList);
+
+                	console.log(taxList);
                 	$scope.PartCompModal.IsTaxIncludingPricing = taxList.IsTaxIncludingPricing;
                 	$scope.PartCompModal.TaxList = taxList.SalesTaxList;
-                	debug( taxList.SalesTaxList);
+
                 	var defaultTaxIndex = _.findIndex(taxList.SalesTaxList, {IsDefault: true});
                 	if(defaultTaxIndex > -1){
                 		$scope.PartCompModal.PartModal.ApplicableTaxId = $scope.PartCompModal.TaxList[defaultTaxIndex].Id;
@@ -756,6 +842,7 @@
             $scope.PartCompModal.savePartData = function (partJSON) {
                 AddEditPartService.savePartInfo(partJSON).then(function(partId) {
                 debug(partId)
+
                     if(partId ==1001)
                     {
                         Notification.error('{!JSENCODE($Label.Cannot_Replace_With_Same_Part_Select_Another_Part)}');
@@ -772,11 +859,15 @@
                         $scope.$parent.partRecordSaveCallback();
                        
                     }else{
-                        //Notification.success('Kit Saved SucessFully');
-                        var child = window.open("{!$Page.viewPart}?id="+partId);
-                        child.opener.focus();
+                        //Notification.success('Kit Saved Successfully');
+                        var child = window.open("{!$Page.NewViewPart}?id="+partId);
+                        if(child == undefined ){
+                    		Notification.warning('Allow pop-ups from browser settings');
+                    	} else {
+                    		child.opener.focus(); 
+                    	}
                     }
-                    Notification.success('{!JSENCODE($Label.Part_Saved_SucessFully)}');
+                    Notification.success('{!JSENCODE($Label.Part_Saved_Successfully)}');
                     $scope.PartCompModal.closePopup();
                 }, function(errorSearchResult) {
                     //$scope.ViewCustomer.CustomerInfo = errorSearchResult;
@@ -824,8 +915,10 @@
                         function (result, event) {
                            if (event.type == 'exception') {
                                 deferred.reject(event.message);
+
                             } else {
                                 var partRecord = decodeString(result);
+
                                 var find = '\'';
                                 var re = new RegExp(find, 'g');
                                 partRecord = partRecord.replace(re, '');
@@ -833,6 +926,7 @@
                             }
                         }, {
                             escape : true
+
                     });
                     return deferred.promise;
             }
@@ -842,6 +936,7 @@
             {	
             		vendorId = encodeString(vendorId);
             		debug(vendorId);
+
                     var deferred = $q.defer();
                     Visualforce.remoting.Manager.invokeAction( 
                         '{!$RemoteAction.PartOverviewCtrl.getDefaultCategory}',
@@ -849,10 +944,12 @@
                         function (result, event) {
                            if (event.type == 'exception') {
                                 deferred.reject(event.message);
+
                             } else {
                             	debug(result);
                                 var categoryRecord = decodeString(result);
                                 debug(categoryRecord);
+
                                 var find = '\'';
                                 var re = new RegExp(find, 'g');
                                 categoryRecord = categoryRecord.replace(re, '');
@@ -864,6 +961,7 @@
                             }
                         }, {
                             escape : true
+
                     });
                     return deferred.promise;
             }
@@ -876,8 +974,10 @@
                         function (result, event) {
                            if (event.type == 'exception') {
                                 deferred.reject(event.message);
+
                             } else {
                                 var categoryRecord = decodeString(result);
+
                                 var find = '\'';
                                 var re = new RegExp(find, 'g');
                                 categoryRecord = categoryRecord.replace(re, '');
@@ -885,6 +985,7 @@
                             }
                         }, {
                             escape : true
+
                     });
                     return deferred.promise;
             }
@@ -901,8 +1002,10 @@
                         function (result, event) {
                            if (event.type == 'exception') {
                                 deferred.reject(event.message);
+
                             } else {
                                 var partId = decodeString(result);
+
                                 var find = '\'';
                                 var re = new RegExp(find, 'g');
                                 partId = partId.replace(re, '');
@@ -910,6 +1013,7 @@
                             }
                         }, {
                             escape : true
+
                     });
                     return deferred.promise;
             }
@@ -929,7 +1033,7 @@
                             <h1 class="right_panel_heading" ng-show="PartCompModal.currentPartId == null">{!$Label.New_Label} {!$Label.Part_Object_Display_Label}</h1>
                             <h1 class="right_panel_heading" ng-show="PartCompModal.currentPartId != null">{!$Label.Edit_Label} {!$Label.Part_Object_Display_Label}</h1>
                             <div class="savecancle_btncntnr">
-                                <button type="button" id="partCancelBtn" class="btn btn-default grayBtn" ng-click="PartCompModal.CancelPartForm($event);" ng-blur="PartCompModal.tabIndexValue = 0" ng-attr-tabindex="{{PartCompModal.tabIndexValue + 31}}">{!$Label.Cancel_Label}</button>
+                                <button type="button" id="partCancelBtn" class="btn btn-default grayBtn" ng-click="PartCompModal.CancelPartForm($event);" ng-blur="PartCompModal.tabIndexValue = 0" ng-keydown = "PartCompModal.adjustTabIndex($event);"  ng-attr-tabindex="{{PartCompModal.tabIndexValue + 31}}">{!$Label.Cancel_Label}</button>
                                 <button type="button" id="partSaveBtn" class="btn btn-default greenBtn" ng-click="PartCompModal.SavePartForm($event);" ng-attr-tabindex="{{PartCompModal.tabIndexValue + 30}}">{!$Label.Save_Label}</button>
                             </div>
                         </div>
@@ -948,10 +1052,18 @@
                                         </div>
                                         <div class="form_fields left">
                                             <div class="form-group midnew2 T7">
+
+
                                                 <input type="text" class="form-control" id="partNumber" placeholder="{!$ObjectType.Part__c.fields.Part_Number__c.label}" maxlength="50"
                                                         ng-model="PartCompModal.PartModal.PartNumber" rel="partNumberId" ng-attr-tabindex="{{PartCompModal.tabIndexValue + 1}}"
+
+
+
+
+
                                                         ng-class="{'redborder' : PartCompModal.PartFormValidationModal['PartNumber']['isError'] == true}" 
-                                                        data-toggle="tooltip" title="{{PartCompModal.PartFormValidationModal['PartNumber']['ErrorMessage']}}"/>
+                                                        data-toggle="tooltip"  title="{{PartCompModal.PartFormValidationModal['PartNumber']['ErrorMessage']}}"
+                                                        ng-blur="PartCompModal.validateFieldWithKey('PartNumber')"/>
                                             </div>
                                             <div class="controls1 controls" id="partNumberId" >
                                                 <i class="fa fa-question-circle helplink" data-toggle="tooltip" title="{{PartCompModal.helpText['PartNumber']}}"></i>
@@ -970,7 +1082,8 @@
                                                 <input type="text" class="form-control" id="partDescription" placeholder="{!$ObjectType.Part__c.fields.Description__c.label}" maxlength="255"
                                                         ng-model="PartCompModal.PartModal.Description" rel="descriptionId" ng-attr-tabindex="{{PartCompModal.tabIndexValue + 2}}"
                                                         ng-class="{'redborder' : PartCompModal.PartFormValidationModal['Description']['isError'] == true}" 
-                                                        data-toggle="tooltip" title="{{PartCompModal.PartFormValidationModal['Description']['ErrorMessage']}}"/>
+                                                        data-toggle="tooltip" title="{{PartCompModal.PartFormValidationModal['Description']['ErrorMessage']}}" 
+                                                        ng-blur="PartCompModal.validateFieldWithKey('Description')" />
                                             </div>
                                             <div class="controls1 controls" id="descriptionId" >
                                                 <i class="fa fa-question-circle helplink" data-toggle="tooltip" title="{{PartCompModal.helpText['Description']}}"></i>
@@ -985,6 +1098,7 @@
                                         <div class="form_fields left">
                                             <div class="form-group midnew2 T7">
                                                <autocomplete  id="Vendor" tab-index ="{{PartCompModal.tabIndexValue + 3}}"  rel-value="vendorId" placeholder="{!$ObjectType.Part__c.fields.Vendor__c.label}"  type="{!$Label.Vendor_Object_Display_Label}"  titlefield="Name" validationkey="VendorId" errorclass="PartCompModal.PartFormValidationModal"  typesearchmodal="PartCompModal.VendorNameStr"/>
+                                            <!-- ng-attr-tabindex -->
                                             </div>
                                             <div class="controls1 controls" id="vendorId" >
                                                 <i class="fa fa-question-circle helplink" data-toggle="tooltip" title="{{PartCompModal.helpText['Vendor']}}"></i>
@@ -998,7 +1112,16 @@
                                         </div>
                                         <div class="form_fields left">
                                             <div class="form-group midnew2 T7">
-                                               <autocomplete  id="Category" tab-index ="{{PartCompModal.tabIndexValue + 4}}" rel-value="categoryId" placeholder="{!$Label.Category_Object_Display_Label}"  type="{!$Label.Category_Object_Display_Label}"  titlefield="Name" validationkey="CategoryId" errorclass="PartCompModal.PartFormValidationModal"  typesearchmodal="PartCompModal.CategoryNameStr"/>
+                                               <autocomplete  id="Category" 
+                                               				ng-attr-tabindex ="{{PartCompModal.tabIndexValue + 4}}" 
+                                               				rel-value="categoryId" 
+                                               				placeholder="{!$Label.Category_Object_Display_Label}"
+                                               				type="{!$Label.Category_Object_Display_Label}" 
+                                               				titlefield="Name" 
+                                               				validationkey="CategoryId" 
+                                               				errorclass="PartCompModal.PartFormValidationModal"  
+                                               				typesearchmodal="PartCompModal.CategoryNameStr"
+                                               				filter-param="PartCompModal.PartFieldsFilter.PartCategory"/>
                                             </div>
                                             <div class="controls1 controls" id="categoryId" >
                                                 <i class="fa fa-question-circle helplink" data-toggle="tooltip" title="{{PartCompModal.helpText['Catagory']}}"></i>
@@ -1054,20 +1177,22 @@
                                              		ng-options="taxItem.Id as taxItem.Name for taxItem in PartCompModal.TaxList"></select>
                                              </div>
                                             <div class="controls1 controls" id="applicabletax" >
-                                                <i class="fa fa-question-circle helplink" data-toggle="tooltip"></i>
+                                                <i class="fa fa-question-circle helplink" data-toggle="tooltip"
+                                                	title="{{PartCompModal.helpText['ApplicableTax']}}"></i>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="clearfix"></div>
 
                                     <div class="option_field">
+
                                     <div class="lable_fields T3">
                                         <p>{!$ObjectType.Part__c.fields.Location__c.label}</p>
                                     </div>
                                     <div class="form_fields left">
                                         <div class="form-group midnewlocation midnew2">
                                             <div ng-repeat="partLocation in PartCompModal.PartLocations" >
-                                                 <div class="row" style="margin-top: 5px; margin-left: -16px;"> 
+                                                 <div class="row" style="margin-left: -16px;"> 
                                                     <div class="col-lg-7 col-md-10 T7"> 
                                                         <input type="text" class="form-control"
                                                                 id="pLocation{{$index}}" 
@@ -1079,12 +1204,14 @@
                                                                 ng-class="{'redborder' : PartCompModal.PartFormValidationModal['Location']['isError'] == true}" 
                                                                 data-toggle="tooltip" title="{{PartCompModal.PartFormValidationModal['Location']['ErrorMessage']}}" 
                                                                 style="width: 97%;" />
+
                                                     </div>
                                                     <div class="col-lg-2 col-md-2 controls" id="partLocationIcons{{$index}}" style="margin-top: -5px;">
                                                         <div class="row">
                                                             <div class="col-lg-4 col-md-4">
                                                                 <a class="addlink" >
-                                                                    <i class="fa fa-plus" ng-click="PartCompModal.validateFirstLocationField($event); PartCompModal.addLocationInput($index);" style="font-weight: inherit;"></i>
+                                                                     <i class="fa fa-plus" ng-click="PartCompModal.validateFirstLocationField($event); PartCompModal.addLocationInput($index);" style="font-weight: inherit;"></i>
+                                                                    <!-- ng-click="PartCompModal.validateFirstLocationField($event); PartCompModal.addLocationInput($index);" -->
                                                                 </a>
                                                             </div>
                                                             <div class="col-lg-1 col-md-1" >
@@ -1110,19 +1237,21 @@
                                         <p>{!$ObjectType.Part__c.fields.Qty_In_Stock__c.label}</p>
                                     </div>
                                     <div class="form_fields left">
-                                        <div class="form-group midnew1 marginleft T7">
+                                        <div class="form-group midnew1 marginleft T7" 
+                                        	ng-class="{'disabledFieldsOnEditViewPArt': PartCompModal.currentPartId != null}">
                                             <price-only-input id-value = "inStockQty"
                                                               class-value = "form-control small"
                                                               place-holder-value = "0"
                                                               max-length = "16"
                                                               rel-value="inStockId"
-                                                              precision-length = "2" 
+                                                              precision-length = "0" 
+
                                                               tab-index="{{PartCompModal.tabIndexValue + 8}}"
                                                               input-value = "PartCompModal.PartModal.InStockQty" 
                                                               validation-modal = "PartCompModal.PartFormValidationModal"
                                                               validation-modal-key = "InStockQty"
                                                               input-model = "PartCompModal"
-                                                              packaged="true" /> 
+                                                              packaged="true" />   <!--  precision-length = "2"  -->
                                                               
                                             <!--  <price-only-input id-value = "inStockQty"
                                                               class-value = "form-control small"
@@ -1139,7 +1268,8 @@
                                             
                                         </div>
                                         <div class="controls1 controls" id="inStockId" >
-                                            <i class="fa fa-question-circle helplink" data-toggle="tooltip" title="{{PartCompModal.helpText['InStockQuantity']}}"></i>
+                                             <i class="fa fa-question-circle helplink" data-toggle="tooltip" title="{{PartCompModal.helpText['InStockQuantity']}}" ng-show="PartCompModal.currentPartId != null"></i>
+                                            <i class="fa fa-question-circle helplink" data-toggle="tooltip" title="{{PartCompModal.helpText['InStockQuantityForNewPart']}}" ng-show="PartCompModal.currentPartId == null"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -1154,7 +1284,7 @@
                             <h1 class="gen_heading">
                                 <span class="T2">{!$Label.Ordering_Information_Label}</span>
                                 <a href="#" class="helplink">
-                                    <i class="fa fa-question-circle" data-toggle="tooltip" title="{{PartCompModal.helpText['LocationAndQty']}}"></i>
+                                    <i class="fa fa-question-circle" data-toggle="tooltip" title="{{PartCompModal.helpText['Qty']}}"></i>   <!-- title="{{PartCompModal.helpText['LocationAndQty']}}" -->
                                 </a>
                             </h1>
                             <div class="tabconainer">
@@ -1185,30 +1315,52 @@
                                     <div class="form_fields left">
                                         <div class="form-group midnew1 marginleft T7">
                                               <price-only-input id-value = "packagedQty"
+                                              					rel-value="packagedQtyId"
                                                                   class-value = "form-control small"
                                                                   place-holder-value = "{!$ObjectType.Part__c.fields.Package_Qty__c.label}"
                                                                   max-length = "16" 
                                                                   precision-length = "-1" 
-                                                                  tab-index = "{{PartCompModal.tabIndexValue + 10}}"
+                                                                  ng-attr-tabindex = "{{PartCompModal.tabIndexValue + 10}}"
                                                                   input-value = "PartCompModal.PartModal.PackagedQty"
                                                                   validation-modal = "PartCompModal.PartFormValidationModal"
                                                                   validation-modal-key = "PackagedQty"
                                                                   input-model = "PartCompModal" 
                                                                   packaged="PartCompModal.PartModal.IsPackagedPart"
                                                                   blur-callback = "PartCompModal.packageCostCallback" />
+
+
                                         </div>
                                     </div>
+                                     
+                                    <div class="controls1 controls" id="packagedQtyId" >
+                                         <i class="fa fa-question-circle" style="margin-left: -25%;" data-toggle="tooltip" title="Item per Package"></i>
+                                     </div>
+                                     
+ 
                                 </div>
                                 <div class="clearfix"></div>
                                 <div class="option_field" ng-hide="PartCompModal.PartModal.IsPackagedPart==false">
                                         <div class="lable_fields T3">
-                                            <p>Pkg Unit of Measure</p>
+
+                                            <p>Pkg Unit of Measure </p>
                                         </div>
                                         <div class="form_fields left">
                                             <div class="form-group midnew1 marginleft T7">
-                                                         <input type="text" class="form-control small" ng-attr-tabindex="{{PartCompModal.tabIndexValue + 11}}" value="" placeholder="Unit" id="unit" ng-model="PartCompModal.PartModal.PackagedUnit"/>
+                                                         <input type="text" 
+                                                         class="form-control small" 
+                                                         tabindex="{{PartCompModal.tabIndexValue + 11}}" 
+                                                         value="" placeholder="Unit" 
+                                                         id="unit" 
+                                                         ng-model="PartCompModal.PartModal.PackagedUnit"
+                                                         rel="unitOfMeasureId"/>
+
                                             </div>
                                         </div>
+                                         <div class="controls1 controls" id="unitOfMeasureId" >
+                                         <i class="fa fa-question-circle" style="margin-left: -25%;"  data-toggle="tooltip" title="Package unit of measure">
+                                         <!-- class="fa fa-question-circle" style="margin-left: -25%;" --></i>
+                                       </div>
+
                                 </div>
                                 <div class="clearfix"></div>
                                 <div class="option_field">
@@ -1221,7 +1373,9 @@
                                                 <div class="form-group small" >
                                                     <label class="checkbox">
                                                         <span class="chk_tick" ng-class="{'chked' : PartCompModal.PartModal.IsOrderLot == true}" 
-                                                                                ng-click="PartCompModal.onClickOrderLot($event);" ng-attr-tabindex="{{PartCompModal.tabIndexValue + 12}}" style="margin-left: 8px;">
+                                                                                ng-click="PartCompModal.onClickOrderLot($event);" 
+                                                                                ng-attr-tabindex="{{PartCompModal.tabIndexValue + 12}}" 
+                                                                                style="margin-left: 8px;">
                                                             <i class="fa fa-check-square chksqure" ></i>
                                                         </span>
                                                     </label>
@@ -1406,14 +1560,16 @@
                                                                   input-model = "PartCompModal"
                                                                   packaged="true" />
                                             </div>
-                                            <div class="form-group pricefiled" id="msrpPretax "  style="padding: 6px;"
+
+                                            <div class="form-group pricefiled" id="msrpPretax"  style="padding: 6px;"
                                             	ng-if="PartCompModal.IsTaxIncludingPricing && PartCompModal.PartModal.IsTaxable">
-                                                <span class="T3">pretax =  {{PartCompModal.PartModal.MSRP/(1 + PartCompModal.Tax_Rate) | currency}} </span>          
+                                                <span class="T3">pretax =  {{PartCompModal.PartModal.MSRP/(1 + PartCompModal.Tax_Rate/100) | currency}} </span>          
                                             </div>
                                         </div>
                                         <div class="controls1 controls" id="msrpId" >
                                             <i class="fa fa-question-circle helplink" style="margin-left: -25%;" data-toggle="tooltip" title="{{PartCompModal.helpText['MSRP']}}"></i>
                                         </div>
+
                                     </div>
                                     <div class="clearfix"></div>
                                     <div class="option_field">
@@ -1454,7 +1610,7 @@
                                             </div>
                                             <div class="form-group pricefiled" id="retailpricePretax"  style="padding: 6px;"
                                             	ng-if="PartCompModal.IsTaxIncludingPricing && PartCompModal.PartModal.IsTaxable">
-                                                    <span class="T3">pretax =  {{PartCompModal.PartModal.Retail/(1 + PartCompModal.Tax_Rate) | currency }} </span>          
+                                                    <span class="T3">pretax =  {{PartCompModal.PartModal.Retail/(1 + PartCompModal.Tax_Rate/100) | currency }} </span>          
                                             </div>
                                         </div>
                                         <div class="controls1 controls" id="retailId" >
@@ -1487,7 +1643,7 @@
                                             </div>
                                             <div class="form-group pricefiled" id="enviro_feePretax"  style="padding: 6px;"
                                             	ng-if="PartCompModal.IsTaxIncludingPricing && PartCompModal.PartModal.IsTaxable">
-                                                    <span class="T3">pretax =  {{PartCompModal.PartModal.EnviroFee/(1 + PartCompModal.Tax_Rate) | currency }} </span>          
+                                                    <span class="T3">pretax =  {{PartCompModal.PartModal.EnviroFee/(1 + PartCompModal.Tax_Rate/100) | currency }} </span>          
                                             </div>
                                         </div>
                                         <div class="controls1 controls" id="enviroId" >
@@ -1501,17 +1657,19 @@
                             <h1 class="gen_heading">
                                 <span class="T2">Costing Information</span>
                                 <a href="#" class="helplink">
-                                    <i class="fa fa-question-circle" data-toggle="tooltip" title="{{PartCompModal.helpText['OrderingInfo']}}"></i>
+                                    <i class="fa fa-question-circle" data-toggle="tooltip" title="{{PartCompModal.helpText['CostingInfo']}}"></i>
                                 </a>
                             </h1>
+
                             <div class="tabconainer">
-                                    <div class="option_field"
-                                    	ng-if="PartCompModal.PartModal.IsPackagedPart"> 
+
+                                    <div class="option_field" ng-if="PartCompModal.PartModal.IsPackagedPart"> 
                                         <div class="lable_fields T3">
                                             <p>{!$ObjectType.Part__c.fields.Package_Cost__c.label}</p>
                                         </div>
                                         <div class="form_fields left T7">
-                                            <div class="form-group midnew2 pricefiled">
+                                            <div class="form-group midnew2 pricefiled"
+                                            	ng-class="{'disabledFieldsOnEditViewPArt': PartCompModal.currentPartId != null}">
                                                 <span class="currency">
                                                 {!$Label.Currency_Symbol}
                                                 </span>
@@ -1519,7 +1677,7 @@
                                                                   class-value = "form-control"
                                                                   place-holder-value = ""
                                                                   max-length = "15"
-                                                                  rel-value="packagedCostId"
+                                                                  rel-value="packagedCostId_k"
                                                                   precision-length = "2" 
                                                                   tab-index ="{{PartCompModal.tabIndexValue + 20}}"
                                                                   input-value = "PartCompModal.PartModal.PackagedCost"
@@ -1529,10 +1687,15 @@
                                                                   packaged="PartCompModal.PartModal.IsPackagedPart" 
                                                                   blur-callback = "PartCompModal.packageCostCallback" />
                                             </div>
+                                            <div class="controls1 controls" id="packagedCostId_k" >
+
+	                                            <i class="fa fa-question-circle helplink" style="margin-left: -25%;" data-toggle="tooltip" title="{{PartCompModal.helpText['PackagedCost']}}" ng-show="PartCompModal.currentPartId != null"></i>
+	                                       		<i class="fa fa-question-circle helplink" style="margin-left: -25%;" data-toggle="tooltip" title="{{PartCompModal.helpText['PackagedCostForNewPart']}}" ng-show="PartCompModal.currentPartId == null"></i>
+	                                        
+	                                        </div>
+                                        
                                         </div>
-                                        <div class="controls1 controls" id="packagedCostId" >
-                                            <i class="fa fa-question-circle helplink" style="margin-left: -25%;" data-toggle="tooltip" title="{{PartCompModal.helpText['PackagedCost']}}"></i>
-                                        </div>
+                                        
                                     </div>
                                     <div class="clearfix"></div>
                                     <div class="option_field">
@@ -1540,7 +1703,8 @@
                                             <p>Per Item Cost</p>
                                         </div>
                                         <div class="form_fields left T7">
-                                            <div class="form-group midnew2 pricefiled">
+                                            <div class="form-group midnew2 pricefiled"
+                                            	ng-class="{'disabledFieldsOnEditViewPArt': PartCompModal.currentPartId != null}">
                                                 <span class="currency">
                                                 {!$Label.Currency_Symbol}
                                                 </span>
@@ -1550,17 +1714,20 @@
                                                                   max-length = "15"
                                                                   precision-length = "2"
                                                                   tab-index ="{{PartCompModal.tabIndexValue + 21}}"
-                                                                  rel-value="costId" 
+                                                                  rel-value="costId_k" 
                                                                   input-value = "PartCompModal.PartModal.Cost"
                                                                   validation-modal = "PartCompModal.PartFormValidationModal"
                                                                   validation-modal-key = "Cost"
                                                                   input-model = "PartCompModal"
                                                                   packaged="!PartCompModal.PartModal.IsPackagedPart" />
                                             </div>
+                                            <div class="controls1 controls" id="costId_k" >
+	                                            <i class="fa fa-question-circle helplink" style="margin-left: -25%;" data-toggle="tooltip" title="{{PartCompModal.helpText['Cost']}}" ng-show="PartCompModal.currentPartId != null"></i>
+	                                       		<i class="fa fa-question-circle helplink" style="margin-left: -25%;" data-toggle="tooltip" title="{{PartCompModal.helpText['CostForNewPart']}}" ng-show="PartCompModal.currentPartId == null"></i>
+	                                       	</div>
                                         </div>
-                                        <div class="controls1 controls" id="costId" >
-                                            <i class="fa fa-question-circle helplink" style="margin-left: -25%;" data-toggle="tooltip" title="{{PartCompModal.helpText['Cost']}}"></i>
-                                        </div>
+                                        
+                                        
                                     </div>
                                     <div class="clearfix"></div>
                                </div>

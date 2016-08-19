@@ -61,8 +61,8 @@ global with sharing class MasterDataUploadCtrl {
                 insert priceLevelListToInsert;
                      
             } else if(csvType.equals('Make Model Template')) {
-                 List<Unit_Model__c> makeListToInsert =  insertMakeData(strList );
-                 insert makeListToInsert ;
+                 string makeListToInsert =  insertMakeData(strList );
+                 //insert makeListToInsert ;
             }else if(csvType.equals('Sales Tax Template')){
                 List<Sales_Tax__c> salesTaxListToInsert = insertSalesTaxData(strList );
                 insert salesTaxListToInsert;
@@ -70,8 +70,8 @@ global with sharing class MasterDataUploadCtrl {
                 List<Sales_Tax_Item__c> salesTaxListItemToInsert = insertSalesTaxItemData(strList );
                 insert salesTaxListItemToInsert;
             }else if(csvType.equals('Country State Template')){
-                List<State__c> countryListToInsert = insertCountryData(strList );
-                insert countryListToInsert;
+                String countryListToInsert = insertCountryData(strList );
+                //insert countryListToInsert;
             }
         } catch(Exception e) {  
             Database.rollback(sp);
@@ -139,14 +139,12 @@ global with sharing class MasterDataUploadCtrl {
      * @return: Error Message
     **/    
     
-    public static List<Unit_Model__c> insertMakeData(String strList ){
+    public static String insertMakeData(String strList ){
         List<Unit_Make__c> makeListToInsert = new List<Unit_Make__c>();
         List<Unit_Model__c> modelListToInsert = new List<Unit_Model__c>();
         
-        if(AccessControl.ifObjectFieldIsCreateable('Unit_Make__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
         Map<String, Id> MakeNameToIdMap = new Map<String, Id>();
-      	if(AccessControl.ifObjectFieldIsAccessible('Unit_Make__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        List<Unit_Make__c> makeList = [select Name from Unit_Make__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
+        List<Unit_Make__c> makeList = [select Name from Unit_Make__c LIMIT: SOQLUtil.getAvailableQueryRowsLimit()];
         for(Unit_Make__c makeObj : makeList){
             MakeNameToIdMap.put(makeObj.Name , makeObj.Id);
          }
@@ -174,19 +172,25 @@ global with sharing class MasterDataUploadCtrl {
             MakeNameToIdMap.put(makeObj.Name , makeObj.Id);
          }
          for(MakeModel makemodelRec : makecsvList){
-            Unit_Model__c modelObj = new Unit_Model__c( Name__c =  makemodelRec.Model,
-                                                        Sub_Model__c = makemodelRec.SubModel,
-                                                        VIN_Code__c = makemodelRec.ModelVIN,
-                                                        Model_Description__c = makemodelRec.ModelDescription
-                                                );
-            modelObj.Active__c= (makemodelRec.ModelActive.equalsIgnoreCase('TRUE') || makemodelRec.ModelActive.equalsIgnoreCase('Yes'))? true : false;                                              
-            if(MakeNameToIdMap.containsKey(makemodelRec.Name)){
-                 modelObj.Unit_Make__c = MakeNameToIdMap.get(makemodelRec.Name);    
-            }    
-            modelListToInsert.add(modelObj);
+            if(!(String.isBlank(makemodelRec.Model))){
+                Unit_Model__c modelObj = new Unit_Model__c( Name__c =  makemodelRec.Model,
+                                                            Sub_Model__c = makemodelRec.SubModel,
+                                                            VIN_Code__c = makemodelRec.ModelVIN,
+                                                            Model_Description__c = makemodelRec.ModelDescription
+                                                    );
+                modelObj.Active__c= (makemodelRec.ModelActive.equalsIgnoreCase('TRUE') || makemodelRec.ModelActive.equalsIgnoreCase('Yes'))? true : false;                                              
+                if(MakeNameToIdMap.containsKey(makemodelRec.Name)){
+                    //system.Assert(false, modelObj );
+                     modelObj.Unit_Make__c = MakeNameToIdMap.get(makemodelRec.Name);    
+                } 
+                modelListToInsert.add(modelObj);
+             }
             
          }
-        return modelListToInsert;
+         if(modelListToInsert.size()>0){
+             insert modelListToInsert;
+         }
+        return '';
      }
     /**
      * Name: insertCountryData
@@ -194,7 +198,7 @@ global with sharing class MasterDataUploadCtrl {
      * @param: (1)String strList - JSON of the CSV Uploaded
      * @return: Error Message
     **/    
-      public static List<State__c> insertCountryData(String strList ){
+      public static String insertCountryData(String strList ){
         
         Map<String, Id> countryNameToIdMap = new Map<String, Id>();
         if(AccessControl.ifObjectFieldIsAccessible('Country__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
@@ -234,15 +238,21 @@ global with sharing class MasterDataUploadCtrl {
          }
         
          for(CountryState countryStateRec : countrycsvList){
-            State__c stateObj = new State__c(Name__c =  countryStateRec.StateName);
-            if(countryNameToIdMap.containsKey(countryStateRec.CountryName)){
-                stateObj.Country__c = countryNameToIdMap.get(countryStateRec.CountryName);  
-            }
-            stateObj.Default__c= (countryStateRec.StateDefaultValue.equalsIgnoreCase('TRUE') || countryStateRec.StateDefaultValue.equalsIgnoreCase('Yes')) ? true : false; 
-            
-            stateListToInsert.add(stateObj);
+               if(!(String.isBlank(countryStateRec.StateName))){
+                    State__c stateObj = new State__c(Name__c =  countryStateRec.StateName);
+                    if(countryNameToIdMap.containsKey(countryStateRec.CountryName)){
+                        stateObj.Country__c = countryNameToIdMap.get(countryStateRec.CountryName);  
+                    }
+                    stateObj.Default__c= (countryStateRec.StateDefaultValue.equalsIgnoreCase('TRUE') || countryStateRec.StateDefaultValue.equalsIgnoreCase('Yes')) ? true : false; 
+                    
+                    stateListToInsert.add(stateObj);
+               }
          }
-        return stateListToInsert;
+            
+        if(stateListToInsert.size()>0){
+             insert stateListToInsert;
+         }
+        return '';
       }
     /**
      * Name: insertSalesTaxData

@@ -159,7 +159,6 @@
             
             dropDownNumber = document.getElementById('{!uniqueId}dropDownList').value;
             isInactiveIncluded = document.getElementById('{!uniqueId}IncludeInactiveCheckBox').checked;
-            //console.log('hitesh 6');
             getUnitModelecords(unitMakeId, dropDownNumber, isInactiveIncluded, FilterJsonData, loadUnitModelCallback);
             
             jQuery('.unit_model_scroll-to-add').click(function(event) {
@@ -696,13 +695,11 @@
         
         // Method: click bindings for document click
         function {!uniqueId}unitModel_DocOnClikcBindings(event){
-        	//console.log('hitesh -1');
             var isSuccessfullySaved = {!uniqueId}validateAndSaveRow();
         }
         
         
         function bindGridDataCallback(dataArray) {
-        	//console.log('hitesh 12');
         	$("#{!uniqueId}grid").data("kendoGrid").dataSource.data(dataArray);
                                 
             if(dataArray.length ==  +dropDownNumber) {
@@ -739,7 +736,7 @@
         }   
         
         function {!uniqueId}unitModelGridCellSingleClickEvent(thisElem){
-            //console.log('hitesh 0');
+            
             // Check if selected row is alreadey in edited mode
             if($(thisElem).parent().hasClass('k-grid-edit-row')) {
                 
@@ -793,7 +790,6 @@
 		}
         
         function {!uniqueId}unitModelGridAddButtonClickEvent(){
-        	//console.log('hitesh 1');
             if({!uniqueId}unitModelGrid.tbody.children().hasClass("k-grid-edit-row")) {
                 {!uniqueId}validateAndSaveRow();
             } else {
@@ -832,12 +828,10 @@
         
         // Validate and Save row
         function {!uniqueId}validateAndSaveRow(){
-        	//console.log('hitesh 2');
         	var hasEditedRow = {!uniqueId}unitModelGrid.tbody.children().hasClass("k-grid-edit-row");
             var isRowIsBlank;
             if(hasEditedRow) {
                 isRowIsBlank = {!uniqueId}checkIfNewRowIsBlank();
-                //console.log('hitesh 3');
             }
         
         	if(!isRowIsBlank) {
@@ -850,10 +844,8 @@
 	                } else if (FilterKeys.length > 0 && isCategorySuccessfullySaved != null){
 	                	{!uniqueId}unitModelGrid.dataSource.filter(FilterKeys);
 	                }
-	                //console.log('hitesh 4');
 	                return true;
 	            } else {
-	            	//console.log('hitesh 5');
 	                return false;
 	            }
             }

@@ -28,7 +28,7 @@
 				}]
 			};
             try{
-            	$scope.ViewPartRelatedListModal.ActiveOrders_sectionModel.activeOrdersPageSize = 10;
+            	$scope.ViewPartRelatedListModal.ActiveOrders_sectionModel.activeOrdersPageSize = '{!JSENCODE(TEXT(Related_List_Page_Size))}';
             } catch (ex){}
             
             $scope.ViewPartRelatedListModal.ActiveSalesOrders_sectionModel = {
@@ -41,7 +41,7 @@
 				}]
 			};
             try{
-            	$scope.ViewPartRelatedListModal.ActiveSalesOrders_sectionModel.activeSalesOrdersPageSize = 10;
+            	$scope.ViewPartRelatedListModal.ActiveSalesOrders_sectionModel.activeSalesOrdersPageSize = '{!JSENCODE(TEXT(Related_List_Page_Size))}';
             } catch (ex){}
             
             $scope.ViewPartRelatedListModal.AlternateParts_sectionModel = {
@@ -54,7 +54,7 @@
 				}]
 			};
             try{
-            	$scope.ViewPartRelatedListModal.AlternateParts_sectionModel.alternatePartsPageSize = 10;
+            	$scope.ViewPartRelatedListModal.AlternateParts_sectionModel.alternatePartsPageSize = '{!JSENCODE(TEXT(Related_List_Page_Size))}';
             } catch (ex){}
             
             $scope.ViewPartRelatedListModal.TaxExemptions_sectionModel = {
@@ -63,11 +63,11 @@
 				taxExemptionsPageSize		:	10,
 				sorting	:	[{
 					fieldName		:	"SalesTax",
-					sortDirection	:	""
+					sortDirection	:	"ASC"
 				}]
 			};
             try{
-            	$scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.taxExemptionsPageSize = 10;
+            	$scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.taxExemptionsPageSize = '{!JSENCODE(TEXT(Related_List_Page_Size))}';
             } catch (ex){}
 			// END: Modals definition
 			
@@ -107,9 +107,6 @@
             $scope.ViewPartRelatedListModal.initModals = function () {
             	// Initialize/Update Alternate Parts default modals
 				$scope.ViewPartRelatedListModal.AlternateParts_initModals();
-				
-				// Initialize/Update Tax Exemptions default modals
-				$scope.ViewPartRelatedListModal.TaxExemptions_initModals();
             }
             
             // Select callback when a record is selected in search to add autocomplete box
@@ -337,7 +334,7 @@
 			            	$scope.ViewPartRelatedListModal.AlternateParts_sectionModel.alternatePartsChangesCount++;
 			            }, 10);
 	                    
-	                    Notification.success('{!JSENCODE($Label.Part_Saved_SucessFully)}');
+	                    Notification.success('{!JSENCODE($Label.Part_Saved_Successfully)}');
 	                    // Now focus to "Relation" field
 	                    angular.element("#Alternate_Parts_row" + initIndex).find("select").filter(':first').focus();
 					}
@@ -350,7 +347,12 @@
             // Update relation field value action
             $scope.ViewPartRelatedListModal.AlternateParts_updateRelation = function (alternatePartJunctionId, alternateOrderRelation, indexVal) {
                 // Invoke add alternate part UPDATE service
-                AlternatePartsServices.updateAlternatePartRelation($scope.ViewPartRelatedListModal.PartId, alternatePartJunctionId, alternateOrderRelation).then(function(totalAlternateParts) {
+                AlternatePartsServices.updateAlternatePartRelation($scope.ViewPartRelatedListModal.PartId, alternatePartJunctionId, alternateOrderRelation,
+                													JSON.stringify($scope.ViewPartRelatedListModal.AlternateParts_sectionModel)).then(function(successResult) {
+                	console.log(successResult);
+                	$scope.ViewPartRelatedListModal.PartRelatedInfo.AlternateParts = successResult.alternateParts;
+                	Notification.success('{!$Label.Part_Saved_Successfully}');
+                	/*
                 	if(totalAlternateParts.indexOf(',') != -1){
                 		Notification.error( totalAlternateParts.substring(totalAlternateParts.indexOf(',')) );
                 		$scope.ViewPartRelatedListModal.PartRelatedInfo.TotalAlternateParts = parseInt( totalAlternateParts.substring(0, totalAlternateParts.indexOf(",")) );
@@ -362,8 +364,9 @@
 			            	$scope.ViewPartRelatedListModal.AlternateParts_sectionModel.alternatePartsChangesCount++;
 			            }, 10);
 	                	
-	                	Notification.success('{!JSENCODE($Label.Part_Saved_SucessFully)}');
+	                	Notification.success('{!JSENCODE($Label.Part_Saved_Successfully)}'); 
 	                }
+	                */
                 }, function(errorSearchResult) {
                 	Notification.error('{!JSENCODE($Label.Page_Server_Save_Error)}');
                     //$scope.ViewPartRelatedListModal.PartRelatedInfo.AlternateParts = errorSearchResult;
@@ -423,9 +426,9 @@
 		            		setTimeout(function () {
 				            	$scope.ViewPartRelatedListModal.AlternateParts_sectionModel.alternatePartsChangesCount++;
 				            }, 10);
-			            }
+			            } 
 			            
-	                	Notification.success('{!JSENCODE($Label.Part_Updated_SucessFully)}');
+	                	Notification.success('{!JSENCODE($Label.Part_Updated_Successfully)}');
 	                }, function(errorSearchResult) {
 	                	Notification.error('{!JSENCODE($Label.Page_Server_Save_Error)}');
 	                    //$scope.ViewPartRelatedListModal.PartRelatedInfo.AlternateParts = errorSearchResult;
@@ -434,169 +437,21 @@
             }
             // END: Alternate Parts subsection methods
             
-            // START: Tax Exemptions subsection methods
-            // Initialize/Update Tax Exemptions default modals
-            $scope.ViewPartRelatedListModal.TaxExemptions_initModals = function () {
-            	// Populate edit rows modal
-            	$scope.ViewPartRelatedListModal.TaxExemptions_initEditRowsModal();
-            }
-            
-            // Init edit rows
-            $scope.ViewPartRelatedListModal.TaxExemptions_initEditRowsModal = function () {
-            	$scope.ViewPartRelatedListModal.TaxExemptions_editRow = [];
-            	for (i = 0; i < $scope.ViewPartRelatedListModal.PartRelatedInfo.TaxExemptions.length; i++) {
-                    $scope.ViewPartRelatedListModal.TaxExemptions_editRow.push({
-                        isEdit : false,
-                        radioValue : 0,
-                        optionSelected : 0
-                    });
-                }
-            }
-            
             // Method to handle any updates in pagination controls
             $scope.ViewPartRelatedListModal.TaxExemptions_paginationControlsAction = function () {
                 TaxExemptionsServices.getPaginatedTaxExemptionsForPart(	$scope.ViewPartRelatedListModal.PartId,
                 														$scope.ViewPartRelatedListModal.TaxExemptions_sectionModel
                 													).then(function(taxExemptionsInfo) {
                 	$scope.ViewPartRelatedListModal.PartRelatedInfo.TotalTaxExemptions = taxExemptionsInfo.TotalTaxExemptions;
-                	$scope.ViewPartRelatedListModal.PartRelatedInfo.TaxExemptions = taxExemptionsInfo.taxExemptions;
                 }, function(errorSearchResult) {
                 	Notification.error('{!JSENCODE($Label.Page_Server_Save_Error)}');
                     //$scope.ViewPartRelatedListModal.PartRelatedInfo.AlternateParts = errorSearchResult;
                 });
             }
             
-            // Method to handle sorting controls
-            $scope.ViewPartRelatedListModal.TaxExemptions_sortControlsAction = function () {
-            	var newSortOrder = sortOrderMap[$scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.sorting[0].sortDirection];
-            	if(newSortOrder == null || newSortOrder == undefined){
-            		newSortOrder = "ASC";
-            	}
-            	$scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.sorting[0].sortDirection = newSortOrder;
             	
-            	// Set current page to 1
-            	$scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.taxExemptionsCurrentPage = 1;
-            	$scope.ViewPartRelatedListModal.TaxExemptions_paginationControlsAction();
-            }
-            
-            // Method for DOM action: Add
-			$scope.ViewPartRelatedListModal.TaxExemptions_addAction = function (event) {
-				$scope.$parent.ViewPart.setFocusToSearchBox('Sales Tax Item');
-			}
-            
-            // Method for DOM action: Add
-			$scope.ViewPartRelatedListModal.TaxExemptions_addActionSearchRecSelectCallback = function (selectedRecordId) {
-				// First check if the selected record is already added in the list.
-				// If so, then return and information message and do not process the request
-				var doProcess = true;
-				angular.forEach($scope.ViewPartRelatedListModal.PartRelatedInfo.TaxExemptions, function (value, key) {
-					if(selectedRecordId == value.SalesTaxId.substring(0, 15)){
-						doProcess = false;
-					}
 				});
-				if(!doProcess){
-					Notification.info("{!JSENCODE($Label.Part_Sales_Tax_Is_Already_Tax_Exemption)}");
-					return;
-				}
 				
-				var newTaxExemptions = [{
-                    SalesTaxId : selectedRecordId,
-                    Description : "",
-                    PartId : $scope.ViewPartRelatedListModal.PartId
-                }];
-                
-                // Invoke add alternate part ADD service
-                TaxExemptionsServices.addTaxExemptionToPart(newTaxExemptions).then(function(newTaxExemptionDetails) {
-                    var newRecords = [newTaxExemptionDetails[0].TaxExemptionRecord];
-                    
-                    // Check for any error
-                    if(newTaxExemptionDetails[0].isError == true){
-                    	Notification.info(newTaxExemptionDetails[0].ErrorMsg);
-                    } else {
-	                    $scope.ViewPartRelatedListModal.PartRelatedInfo.TaxExemptions = newRecords.concat($scope.ViewPartRelatedListModal.PartRelatedInfo.TaxExemptions);
-	                    $scope.ViewPartRelatedListModal.TaxExemptions_initEditRowsModal();
-	                    
-	                    if( $scope.ViewPartRelatedListModal.PartRelatedInfo.TaxExemptions.length > $scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.taxExemptionsPageSize){
-	                    	$scope.ViewPartRelatedListModal.PartRelatedInfo.TaxExemptions.length = $scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.taxExemptionsPageSize;
-	                    }
-	                    
-	                    $scope.ViewPartRelatedListModal.PartRelatedInfo.TotalTaxExemptions = newTaxExemptionDetails[0].TotalTaxExemptions;
-	            		setTimeout(function () {
-			            	$scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.taxExemptionsChangesCount++;
-			            }, 10);
-	                    
-	                    Notification.success('{!JSENCODE($Label.Tax_Exemption_Saved_SucessFully)}');
-	                    // Now focus to "Relation" field
-	                    angular.element("#Tax_Exemptions_row0").focus();
-					}
-                }, function(errorSearchResult) {
-                	Notification.error('{!JSENCODE($Label.Page_Server_Save_Error)}');
-                    //$scope.ViewPartRelatedListModal.PartRelatedInfo.TaxExemptions = errorSearchResult;
-                });
-			}
-			
-            // Method to open row in edit mode
-            $scope.ViewPartRelatedListModal.TaxExemptions_openRowAsEdit = function (event, index) {
-           		event.stopPropagation();
-            	
-            	// Close previous open row first
-            	var editRowIndex = $scope.ViewPartRelatedListModal.TaxExemptions_closeEditRows();
-                
-                if(editRowIndex != index){
-	                // Open selected row now
-	                $scope.ViewPartRelatedListModal.TaxExemptions_editRow[index].isEdit = true;
-	                setTimeout(function () {
-                    	angular.element(event.target).closest('tr').next().find('input').filter(':first').focus();
-	                }, 10);
-				}
-            }
-            
-            // Method to close row from edit mode
-            $scope.ViewPartRelatedListModal.TaxExemptions_closeEditRows = function (event) {
-            	var editRowIndex;
-            	
-            	for (i = 0; i < $scope.ViewPartRelatedListModal.TaxExemptions_editRow.length; i++) {
-                    if ($scope.ViewPartRelatedListModal.TaxExemptions_editRow[i].isEdit == true) {
-                        $scope.ViewPartRelatedListModal.TaxExemptions_editRow[i].isEdit = false;
-                        editRowIndex = i;
-                        break;
-                    }
-                }
-                return editRowIndex;
-            }
-            
-            // Edit row "GO" Action
-            $scope.ViewPartRelatedListModal.TaxExemptions_GoAction = function (index) {
-            	// selected radio value == 1 Means delete the record from the list
-                if($scope.ViewPartRelatedListModal.TaxExemptions_editRow[index].radioValue == 1){
-                   // Invoke add alternate part REMOVE service
-	                TaxExemptionsServices.removeTaxExemption(	$scope.ViewPartRelatedListModal.PartId, 
-	                											$scope.ViewPartRelatedListModal.PartRelatedInfo.TaxExemptions[index].Id,
-	                											$scope.ViewPartRelatedListModal.TaxExemptions_sectionModel
-	                										)
-	                .then(function(newAlternatePartsDetails) {
-	                	$scope.ViewPartRelatedListModal.PartRelatedInfo.TaxExemptions = newAlternatePartsDetails.taxExemptions;
-	                	$scope.ViewPartRelatedListModal.TaxExemptions_initEditRowsModal();
-	                	$scope.ViewPartRelatedListModal.PartRelatedInfo.TotalTaxExemptions = newAlternatePartsDetails.TotalTaxExemptions;
-	                	
-	                	if($scope.ViewPartRelatedListModal.PartRelatedInfo.TotalTaxExemptions % $scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.taxExemptionsPageSize == 0){
-	            			$scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.taxExemptionsCurrentPage--;
-	            			$scope.ViewPartRelatedListModal.TaxExemptions_paginationControlsAction();
-	            		} else {
-		            		setTimeout(function () {
-				            	$scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.taxExemptionsChangesCount++;
-				            }, 10);
-			            }
-	                	Notification.success('{!JSENCODE($Label.Tax_Exemption_Updated_SucessFully)} Exeption record removed successfully.');
-	                }, function(errorSearchResult) {
-	                	Notification.error('{!JSENCODE($Label.Page_Server_Save_Error)}');
-	                    //$scope.ViewPartRelatedListModal.PartRelatedInfo.TaxExemptions = errorSearchResult;
-	                });
-                }
-            }
-            // END: Tax Exemptions subsection methods
-		});
-		
 		// START: Services for component
 		viewPartRelatedListModule.service("ActiveOrdersServices", function ($q) {
             // Service method to get Active Order records as per pagination and sorting attributes
@@ -679,15 +534,16 @@
             }
             
             // Service method to update an alternate part relation
-            this.updateAlternatePartRelation = function(partId, alternatePartJunctionId, alternateOrderRelation)
+            this.updateAlternatePartRelation = function(partId, alternatePartJunctionId, alternateOrderRelation, alternatePartsPaginationJSON)
             {
             		partId = encodeString(partId);
             		alternatePartJunctionId = encodeString(alternatePartJunctionId);
             		alternateOrderRelation = encodeString(alternateOrderRelation);
+            		alternatePartsPaginationJSON = encodeString(alternatePartsPaginationJSON);
                     var deferred = $q.defer();
                     Visualforce.remoting.Manager.invokeAction(
-                        '{!$RemoteAction.ViewPartRelatedListCtrl.updateAlternatePartRelation}',
-                        partId, alternatePartJunctionId, alternateOrderRelation,
+                        '{!$RemoteAction.ViewPartRelatedListCtrl.changeAlternatePartRelation}',
+                        partId, alternatePartJunctionId, alternateOrderRelation, alternatePartsPaginationJSON,
                         function (result, event) {
                            if (event.type == 'exception') {
                                 deferred.reject(event.message);
@@ -695,7 +551,7 @@
                                 var totalAlternateParts = decodeString(result);
                                 var find = '\'';
                                 var re = new RegExp(find, 'g');
-                                deferred.resolve(totalAlternateParts);
+                                deferred.resolve(JSON.parse(totalAlternateParts));
                             }
                         }, {
                             escape : true
@@ -805,32 +661,6 @@
                     return deferred.promise;
             }
             
-            // Service method to remove an Tax Exemption
-            this.removeTaxExemption = function(partId, taxExemptionJunctionId, pageSortAttrsJSON)
-            {
-            		partId = encodeString(partId);
-            		taxExemptionJunctionId = encodeString(taxExemptionJunctionId);
-            		pageSortAttrsJSON = encodeString(angular.toJson(pageSortAttrsJSON));
-                    var deferred = $q.defer();
-                    Visualforce.remoting.Manager.invokeAction(
-                        '{!$RemoteAction.ViewPartRelatedListCtrl.removeTaxExemption}',
-                        partId, taxExemptionJunctionId, pageSortAttrsJSON,
-                        function (result, event) {
-                           if (event.type == 'exception') {
-                                deferred.reject(event.message);
-                            } else {
-                                var taxExemptionsInfo = decodeString(result);
-                                var find = '\'';
-                                var re = new RegExp(find, 'g');
-                                taxExemptionsInfo = taxExemptionsInfo.replace(re, '');
-                                deferred.resolve(JSON.parse(taxExemptionsInfo));
-                            }
-                        }, {
-                            escape : true
-                    });
-                    return deferred.promise;
-            }
-            
             // Service method to get alternate part records as per pagination and sorting attributes
             this.getPaginatedTaxExemptionsForPart = function(partId, pageSortAttrsJSON)
             {
@@ -840,7 +670,7 @@
                     Visualforce.remoting.Manager.invokeAction(
                         '{!$RemoteAction.ViewPartRelatedListCtrl.getPaginatedTaxExemptionsForPart}',
                         partId, pageSortAttrsJSON,
-                        function (result, event) {
+                        function (result, event) { 
                            if (event.type == 'exception') {
                                 deferred.reject(event.message);
                             } else {

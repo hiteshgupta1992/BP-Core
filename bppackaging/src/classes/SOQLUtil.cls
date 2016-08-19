@@ -85,6 +85,7 @@ public with sharing class SOQLUtil {
             query += ' order by Name__c ASC ' ;
         }
         if(AccessControl.ifObjectFieldIsAccessible('Country__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Country__c> countries = Database.query(query);
         if(currentNoOfCountry != null && BlackPurlContentCtrl.isIncreaseCountriesMethodExecuted) {
             if(countries.size() + 5 < currentNoOfCountry ) {

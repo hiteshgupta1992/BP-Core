@@ -116,8 +116,8 @@ public with sharing class VendorOrderLineItemWrapper{
     
     
     private void populateVRHistoryList(Id voHeaderId) {
-    	if(AccessControl.ifObjectIsAccessible('In_Progress_VR__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
     	voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
+    	if(AccessControl.ifObjectIsAccessible('In_Progress_VR__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
     	List<In_Progress_VR__c> inProgressVRList = [select Vendor_Receiving_Header__c from In_Progress_VR__c where Vendor_Order_Header__c =: voHeaderId];
     	Set<Id> vrHeaderIdSet = new Set<Id>();
     	for(In_Progress_VR__c inProgressVRRec : inProgressVRList) {
@@ -140,8 +140,6 @@ public with sharing class VendorOrderLineItemWrapper{
     private String getQuery(Set<Id> vrHeaderIdSet) {
     	if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Group__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
     	if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
-    	if(AccessControl.ifObjectIsAccessible('Owner__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
-    	if(AccessControl.ifObjectIsAccessible('Part__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
     	String query = '';
     	query += 'SELECT ';
     	

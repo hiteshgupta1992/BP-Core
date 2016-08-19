@@ -64,8 +64,6 @@ public with sharing class CountryTriggerHelper {
 				if(countriesToBeUpdated.size() > 0 ) {
 					runDefaultCheckBoxUpdate = false;
 					updateDefaultFieldOfOtherStates();
-					
-					
 					update countriesToBeUpdated;
 				}
 			}
@@ -93,7 +91,6 @@ public with sharing class CountryTriggerHelper {
 			statesToBeUpdated.add(state);
 		}
 		if(statesToBeUpdated.size() > 0) {
-			
 			update statesToBeUpdated;
 		}
 	}

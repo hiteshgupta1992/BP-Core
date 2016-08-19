@@ -124,6 +124,14 @@ public with sharing class HomeSearchResultWrapper {
 			result = new ResultWrapper(totalRecordsFound, 'CustomerInvoiceRecords');
 			result.CustomerInvoiceRecords = customerInvoiceRecords;
 			
+		} else if(objName == 'Customer Payments') {
+			List<CustomerPayment> customerPaymentRecords = new List<CustomerPayment>();
+			for(CO_Invoice_Payment__c coPaymentRec : (List<CO_Invoice_Payment__c>)records) {
+				customerPaymentRecords.add(new CustomerPayment(coPaymentRec));
+			}
+			result = new ResultWrapper(totalRecordsFound, 'CustomerPaymentRecords');
+			result.CustomerPaymentRecords = customerPaymentRecords;
+			
 		} else if(objName == 'Customer Sales') {
 			List<CustomerSales> customerSalesRecords = new List<CustomerSales>();
 			for(Sobject sobjRec : records) {
@@ -211,6 +219,8 @@ public with sharing class HomeSearchResultWrapper {
 			}
 			result = new ResultWrapper(totalRecordsFound, 'AnyObjectRecords');
 			result.AnyObjectRecords = anyObjectRecords;
+		} else {
+			result = new ResultWrapper(0, 'NoMatchedRecords');
 		}
 		
 		
@@ -250,6 +260,7 @@ public with sharing class HomeSearchResultWrapper {
         public List<CustomerSales> CustomerSalesRecords {get; set;}
     	public List<CustomerOrders> CustomerOrderRecords {get; set;}
     	public List<CustomerInvoice> CustomerInvoiceRecords {get; set;}
+    	public List<CustomerPayment> CustomerPaymentRecords {get; set;}
     	
     	// Vendor Orders
     	public List<VendorOrder> VendorOrderRecords {get; set;}
@@ -862,7 +873,7 @@ public with sharing class HomeSearchResultWrapper {
 		
 		public CustomerInvoice(CO_Invoice_Header__c coInvoiceHeader) {
 			this.Id = coInvoiceHeader.CO_Header__c;
-			this.Invoice_Number = coInvoiceHeader.Name;
+			this.Invoice_Number = coInvoiceHeader.Invoice_Number__c;
 			this.Type = HomeSearchUtil.displayObjectNameToTypeNumber.get('Customer Invoices');
 			this.Customer_Name =  coInvoiceHeader.CO_Header__r.Customer__r.Name;
 			this.Total = coInvoiceHeader.Total_Payment__c;
@@ -874,6 +885,42 @@ public with sharing class HomeSearchResultWrapper {
 			//this.Balance_Due = coInvoiceHeader.CO_Header__r.Total_Balance_Due__c;
 		}
 	}
+	
+	/**
+	 * Name: CustomerPayment
+	 * Description: Sets the Value of the Customer Invoice
+	**/	
+	
+	public class CustomerPayment {
+		public Integer Type {get; private set;}
+		public String Payment_Number {get; private set;}
+		public String Customer_Name {get; private set;}
+		public Decimal Total {get; private set;}
+		public String Status {get; private set;}
+		public String Order_Number {get; private set;}
+		public String Owner {get; private set;}
+		public String Modified {get; private set;}
+		public String Created {get; private set;}
+		public String Payment_Method {get; private set;}
+		public String Reverse_Payment_Id {get; private set;}
+		public String Id {get; private set;}
+		
+		public CustomerPayment(CO_Invoice_Payment__c coPaymentRec) {
+			this.Id = (coPaymentRec.CO_Invoice_Header__c != null) ? coPaymentRec.CO_Invoice_Header__r.CO_Header__c : null;
+			this.Payment_Number = coPaymentRec.Name;
+			this.Type = HomeSearchUtil.displayObjectNameToTypeNumber.get('Customer Payments');
+			this.Customer_Name = (coPaymentRec.CO_Invoice_Header__c != null) ? coPaymentRec.CO_Invoice_Header__r.CO_Header__r.Customer__r.Name : null;
+			this.Total = coPaymentRec.Amount__c;
+			this.Status = (coPaymentRec.CO_Invoice_Header__c != null) ? coPaymentRec.CO_Invoice_Header__r.Status__c : null;
+			this.Order_Number = (coPaymentRec.CO_Invoice_Header__c != null) ? coPaymentRec.CO_Invoice_Header__r.CO_Header__r.Name : null;
+			this.Owner = (coPaymentRec.CO_Invoice_Header__c != null && coPaymentRec.CO_Invoice_Header__r.CO_Header__r.Owner__c != null) ? coPaymentRec.CO_Invoice_Header__r.CO_Header__r.Owner__r.Name : null;
+			this.Created = coPaymentRec.CreatedDate.format('MM/dd/yyyy');
+			this.Modified = coPaymentRec.LastModifiedDate.format('MM/dd/yyyy');
+			this.Payment_Method = coPaymentRec.Payment_Method__c;
+			this.Reverse_Payment_Id = (coPaymentRec.Reverse_Payment_From__c != null) ? coPaymentRec.Reverse_Payment_From__r.Name : null;
+		}
+	}
+	
 	
 	/**
 	 * Name: CustomerSales
@@ -914,16 +961,34 @@ public with sharing class HomeSearchResultWrapper {
 			  
 			} else if(objectName == Constants.NAMESPACE +'CO_Invoice_Header__c') {
 				this.Type = HomeSearchUtil.displayObjectNameToTypeNumber.get('Customer Invoices');
-				this.Name =  (sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r') != null && sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Customer__r') != null && sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Customer__r').get('Name') != null) ? String.valueOf(sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Customer__r').get('Name')) : null;
+				this.Name = (sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r') != null && 
+                		     sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Customer__r') != null && sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Customer__r').get('Name') != null) ? String.valueOf(sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Customer__r').get('Name')) : null;
 				this.Status = (sobjRec.get(Constants.NAMESPACE +'Status__c') != null) ? String.valueOf(sobjRec.get(Constants.NAMESPACE +'Status__c')) : null;
 				
 				//this.Total =  (sobjRec.getSobject('CO_Header__r') != null &&  sobjRec.getSobject('CO_Header__r').get('Total_Order_Value__c') != null) ? Decimal.valueOf(String.valueOf(sobjRec.getSobject('CO_Header__r').get('Total_Order_Value__c'))) : null;
 				
-				this.Order_Number = (sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r') != null &&  sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').get('Name') != null ) ? String.valueOf(sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').get('Name')) : null;
+				this.Order_Number = (sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r') != null &&
+				 						sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').get('Name') != null ) ? 
+				 						String.valueOf(sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').get('Name')) : null;
 				this.Owner = (sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r') != null &&  sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').get(Constants.NAMESPACE +'Owner__c') != null &&  sobjRec.getSobject('CO_Header__r').getSobject(Constants.NAMESPACE +'Owner__r').get('Name') != null) ? String.valueOf(sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Owner__r').get('Name')) : null;
 				this.Total = (sobjRec.get(Constants.NAMESPACE +'Total_Payment__c') != null) ?  Decimal.valueOf(String.valueOf(sobjRec.get(Constants.NAMESPACE +'Total_Payment__c'))) : null;
 				this.Balance_Due = (sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r') != null && sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').get(Constants.NAMESPACE +'Total_Balance_Due__c') != null) ? Decimal.valueOf(String.valueOf(sobjRec.getSobject(Constants.NAMESPACE +'CO_Header__r').get(Constants.NAMESPACE +'Total_Balance_Due__c'))) : null;
-			} 
+			
+            } else if(objectName == Constants.NAMESPACE +'CO_Invoice_Payment__c') {
+				this.Type = HomeSearchUtil.displayObjectNameToTypeNumber.get('Customer Payments');
+				this.Name = (sobjRec.getSobject(Constants.NAMESPACE +'CO_Invoice_Header__r') != null && sobjRec.getSobject(Constants.NAMESPACE +'CO_Invoice_Header__r').getSobject(Constants.NAMESPACE +'CO_Header__r') != null && 
+							sobjRec.getSobject(Constants.NAMESPACE +'CO_Invoice_Header__r').getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Customer__r') != null && 
+							sobjRec.getSobject(Constants.NAMESPACE +'CO_Invoice_Header__r').getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Customer__r').get('Name') != null) ? 
+									String.valueOf(sobjRec.getSobject(Constants.NAMESPACE +'CO_Invoice_Header__r').getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Customer__r').get('Name')) : 
+									null;
+				this.Total = (sobjRec.get(Constants.NAMESPACE +'Amount__c') != null) ? Decimal.valueOf(String.valueOf(sobjRec.get(Constants.NAMESPACE +'Amount__c'))) : null;
+				
+				this.Order_Number = ( (sobjRec.getSobject(Constants.NAMESPACE +'CO_Invoice_Header__r').getSobject(Constants.NAMESPACE +'CO_Header__r') != null) &&  
+									  (sobjRec.getSobject(Constants.NAMESPACE +'CO_Invoice_Header__r').getSobject(Constants.NAMESPACE +'CO_Header__r').get('Name')) != null) ? 
+									String.valueOf(sobjRec.getSobject(Constants.NAMESPACE +'CO_Invoice_Header__r').getSobject(Constants.NAMESPACE +'CO_Header__r').get('Name')) : null;
+				this.Owner = (sobjRec.getSobject(Constants.NAMESPACE +'CO_Invoice_Header__r').getSobject(Constants.NAMESPACE +'CO_Header__r') != null &&  sobjRec.getSobject(Constants.NAMESPACE +'CO_Invoice_Header__r').getSobject(Constants.NAMESPACE +'CO_Header__r').get(Constants.NAMESPACE +'Owner__c') != null &&
+                			sobjRec.getSobject(Constants.NAMESPACE +'CO_Invoice_Header__r').getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Owner__r').get('Name') != null) ? String.valueOf(sobjRec.getSobject(Constants.NAMESPACE +'CO_Invoice_Header__r').getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Owner__r').get('Name')) : null;
+			}
 			
 			this.Created = (DateTime.valueOf(String.valueOf(sobjRec.get('CreatedDate')))).format('MM/dd/yyyy');
 			this.Modified = (DateTime.valueOf(String.valueOf(sobjRec.get('LastModifiedDate')))).format('MM/dd/yyyy');
@@ -1298,9 +1363,14 @@ public with sharing class HomeSearchResultWrapper {
 				
 			} else if(objectName == Constants.NAMESPACE + 'CO_Invoice_Header__c') {
 				this.Type = HomeSearchUtil.displayObjectNameToTypeNumber.get('Customer Invoices');
-				this.Key = (sobjRec.get('Name') != null) ? String.valueOf(sobjRec.get('Name')) : null;
+				this.Key = (sobjRec.get('Invoice_Number__c') != null) ? String.valueOf(sobjRec.get('Invoice_Number__c')) : null;
 				this.Status = (sobjRec.get(Constants.NAMESPACE +'Status__c') != null) ? String.valueOf(sobjRec.get(Constants.NAMESPACE +'Status__c')) : null;
-				
+			
+            } else if(objectName == Constants.NAMESPACE + 'CO_Invoice_Payment__c') {
+				this.Type = HomeSearchUtil.displayObjectNameToTypeNumber.get('Customer Payments');
+				this.Key = (sobjRec.get('Name') != null) ? String.valueOf(sobjRec.get('Name')) : null;
+				this.Status = 'Active';
+                
 			} else if(objectName == Constants.NAMESPACE + 'Vendor_Order_Header__c') {
 				this.Type = HomeSearchUtil.displayObjectNameToTypeNumber.get('Vendor Orders');
 				this.Key = (sobjRec.get('Name') != null) ? String.valueOf(sobjRec.get('Name')) : null;
@@ -1365,6 +1435,11 @@ public with sharing class HomeSearchResultWrapper {
 				if(sobjRec.getSObject(ownerFieldsMap[0]) != null && sobjRec.getSObject(ownerFieldsMap[0]).getSObject(ownerFieldsMap[1]) != null) {
 					ownerFieldNameValue = (String) sobjRec.getSObject(ownerFieldsMap[0]).getSObject(ownerFieldsMap[1]).get(ownerFieldsMap[2]);
 					ownerFieldIdValue = (String) sobjRec.getSObject(ownerFieldsMap[0]).getSObject(ownerFieldsMap[1]).get('Id');
+				}
+			} else if(ownerFieldsMap.size() == 4){
+				if(sobjRec.getSObject(ownerFieldsMap[0]) != null && sobjRec.getSObject(ownerFieldsMap[0]).getSObject(ownerFieldsMap[1]) != null && sobjRec.getSObject(ownerFieldsMap[0]).getSObject(ownerFieldsMap[1]).getSObject(ownerFieldsMap[2]) != null) {
+					ownerFieldNameValue = (String) sobjRec.getSObject(ownerFieldsMap[0]).getSObject(ownerFieldsMap[1]).getSObject(ownerFieldsMap[2]).get(ownerFieldsMap[3]);
+					ownerFieldIdValue = (String) sobjRec.getSObject(ownerFieldsMap[0]).getSObject(ownerFieldsMap[1]).getSObject(ownerFieldsMap[2]).get('Id');
 				}
 			}
 			this.Owner = ownerFieldNameValue;

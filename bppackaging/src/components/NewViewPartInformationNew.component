@@ -8,7 +8,7 @@
                     color: #000;
                     padding-left:20px;/* padding: 10px 20px; */
                     width: 650px;
-                    height:200px;  
+                    height:200px;
               }
               
               /* .Vendor-Order-Part-Popup:before{
@@ -314,6 +314,12 @@
                 .tablePartDetails{
                     width: 97%;
                 }
+                .widgetAvailable{
+                	height:185px;
+                }
+                .widgetUnAvailable{
+                	height:60px;
+                }
         </style>
         <script>
             var PartPopUpModuleOnLoad = angular.module('PartPopUpModuleOnLoad', []);
@@ -331,23 +337,12 @@
                 angular.element('.partPopUp-flyout').scrollTop = 0;  
            }); 
            
-           ///////////new///////////////////
-           
-          /*  $scope.$on('WidgetDisplayEvent', function(event, partId) { 
-            alert("partId in widget : "+partId);
-            debug("partId in widget : "+partId);
-                $scope.PartPopUpOnLoad.partModel={};
-                jsonRectanglesOnLoad={};
-                 $scope.$watch($scope.PartPopUpOnLoad.loadData(partId));
-                angular.element('.partPopUp-flyout1').scrollTop = 0;  
-           });  */
-           //////////new////////////////////
+         
             
             
             ////////////////////////widget2//////////////
             $scope.$on('activeButtonChanged', function (event, args) {  
                 $scope.PartPopUpOnLoad.item = args.item;
-               // alert("$scope.PartPopUpOnLoad.item= : "+$scope.PartPopUpOnLoad.item);
             });
              ////////////////////////widget2//////////////
            $scope.PartPopUpOnLoad.loadData = function(partId){
@@ -363,6 +358,8 @@
                     });
                }
              $scope.PartPopUpOnLoad.loadChart=function(){
+             	$scope.PartPopUpOnLoad.isZeroTotalValue = false
+             	$scope.PartPopUpOnLoad.isZeroTotalValue1 = false;
              
                 d3.selectAll(".PartPopupOnVenderOrdernew svg").remove();
                 
@@ -411,112 +408,36 @@
                                        {  "color" : "#939CA9" , "onorder" : onorder}];
                 
                 var total_value = jsonRectangles[0].commited + jsonRectangles[1].available + jsonRectangles[2].onorder ;
-                jsonRectangles[0].commited = ((jsonRectangles[0].commited)/total_value)*100
-                jsonRectangles[1].available = ((jsonRectangles[1].available)/total_value)*100
-                jsonRectangles[2].onorder  = ((jsonRectangles[2].onorder)/total_value)*100
-                /* var total_instock= jsonRectangles[0].commited + jsonRectangles[1].available; */ 
-                var ft1=(580*jsonRectangles[0].commited)/100; 
-                var ft2= (580*jsonRectangles[1].available)/100;
-                var ft3= (580*jsonRectangles[2].onorder)/100;
-                debug("ft1 : "+ft1);
-                debug("ft2 : "+ft2);
-                debug("ft3 : "+ft3);
-                var commitedName= "COMMITED:" ;
-                var availablename= "AVAILABLE:" ;
-                var onordername= "ON ORDER:" ;
-                
-                var inStock = "INSTOCK:" ;
-                var instock_tringle=(580*total_instock)/100;
-                var jsonRectangles1 = [{ "color" : "#71BF3E" , "commited": total_instock }];
-                
-                //////////////////////widget2///////////////////////
-                var reOrder =0;  var isSmaller=false;;
-                
-                debug("$scope.PartPopUpOnLoad.partModel.QtyAvailable : "+$scope.PartPopUpOnLoad.partModel.QtyAvailable);
-                debug("$scope.PartPopUpOnLoad.partModel.QtyOnOrder : "+$scope.PartPopUpOnLoad.partModel.QtyOnOrder);
-                
-                var available=$scope.PartPopUpOnLoad.partModel.QtyAvailable;
-                var onorder=$scope.PartPopUpOnLoad.partModel.QtyOnOrder;
-                
-                var max1 = 0;
-                if(available < 0){
-                	if(Math.abs(available)>max1)
-                		max1 = Math.abs(available);
-                }
-                if(onorder < 0){
-                	if(Math.abs(onorder)>max1)
-                		max1 = Math.abs(onorder);
-                }
-                available = available + max1;
-                onorder = onorder + max1;
-                
-                
-                var reorderAt = $scope.PartPopUpOnLoad.partModel.AutoReorderAt;
-                var reorderTo = $scope.PartPopUpOnLoad.partModel.AutoReorderTo;
-                
-                debug("reorderAt : "+reorderAt);
-                 debug("reorderTo : "+reorderTo);
-                
-                var total_value1 = 0;
-                var jsonRectangles2 = [ {  "color" : "#727983" , "available" : available  },
-                                       {  "color" : "#939CA9" , "onorder" : onorder},
-                                       {  "color" : "white" , "reOrder": reOrder  }];
-                if((onorder + available) > reorderTo ){
-                    total_value1 = onorder + available;
-                    debug("in if");
-                }
-                else{
-                    total_value1 = 1.5 * reorderTo;
-                    isSmaller = true;
-                     debug("in else");
-                }
-                debug("jsonRectangles2[0].available : "+jsonRectangles2[0].available);
-                debug("jsonRectangles2[1].onorder : "+jsonRectangles2[1].onorder);
-                
-                debug("total_value1 : "+total_value1);
-               jsonRectangles2[0].available = ((jsonRectangles2[0].available)/total_value1)*100;
-                jsonRectangles2[1].onorder  = ((jsonRectangles2[1].onorder)/total_value1)*100;
-                
-                debug("jsonRectangles2[0].available : "+jsonRectangles2[0].available);
-                debug("jsonRectangles2[1].onorder : "+jsonRectangles2[1].onorder);
-                
-                jsonRectangles2[2].reOrder = 0;
-                if(isSmaller)
-                	jsonRectangles2[2].reOrder = 100 - (jsonRectangles2[0].available + jsonRectangles2[1].onorder);
-                
-                var ft4=(580*jsonRectangles2[0].available)/100;
-                var ft5=(580*jsonRectangles2[1].onorder)/100;
-                var ft6 = 0;
-                if(isSmaller)
-                	ft6 = 580-(ft4+ft5); 
-                	
-                debug("ft4 : "+ft4);
-                debug("ft5 : "+ft5);
-                debug("ft6 : "+ft6);
-                
-               
-                var reorderAtName= "REORDER MIN:" ;
-                var reorderToName= "REORDER TO:" ;
-                              
-                var ft7 = (reorderAt*580)/total_value1; 
-                var ft8 = (reorderTo*580)/total_value1;
-                debug("ft7 : "+ft7);
-                debug("ft8 : "+ft8);
-                
-                var availablename= "AVAILABLE:" ;
-                var onordername= "ON ORDER:" ;
-                
-                //////////////////////widget2///////////////////////
-              /* text node */
-                var textsvg=d3.select('#loadPartWrapper')
-                                .append('svg')
-                                .data(jsonRectangles)
-                                .attr({'width':580 + "px",'height':45 + "px"}); //30???????????
-                             
-                 if(jsonRectangles[0].commited >= 0) //>
-                 {
-                 /* displaying name */
-                 textsvg.append("text").attr("dx", function (d,i) {
+                debug("total_value : "+total_value);
+                if(total_value != 0) {
+                	debug("in if : isZeroTotalValue = " + $scope.PartPopUpOnLoad.isZeroTotalValue);
+	                jsonRectangles[0].commited = ((jsonRectangles[0].commited)/total_value)*100
+	                jsonRectangles[1].available = ((jsonRectangles[1].available)/total_value)*100
+	                jsonRectangles[2].onorder  = ((jsonRectangles[2].onorder)/total_value)*100
+	                var ft1=(580*jsonRectangles[0].commited)/100; 
+	                var ft2= (580*jsonRectangles[1].available)/100;
+	                var ft3= (580*jsonRectangles[2].onorder)/100;
+	                debug("ft1 : "+ft1);
+	                debug("ft2 : "+ft2);
+	                debug("ft3 : "+ft3);
+	                var commitedName= "COMMITED:" ;
+	                var availablename= "AVAILABLE:" ;
+	                var onordername= "ON ORDER:" ;
+	                
+	                var inStock = "INSTOCK:" ;
+	                var instock_tringle=ft1+ft2;
+	                var jsonRectangles1 = [{ "color" : "#71BF3E" , "commited": instock_tringle }];
+	                
+	                /* text node */
+	                var textsvg=d3.select('#loadPartWrapper')
+	                                .append('svg')
+	                                .data(jsonRectangles)
+	                                .attr({'width':580 + "px",'height':45 + "px"}); 
+	                             
+	                 if(jsonRectangles[0].commited >= 0) 
+	                 {
+	                 /* displaying name */
+	                 textsvg.append("text").attr("dx", function (d,i) {
                                                     var p;
                                                     if(ft1<100)
                                                     {
@@ -556,7 +477,7 @@
                                      	
                                      }
                                 
-                                    if(jsonRectangles[1].available >= 0)   //>
+                                    if(jsonRectangles[1].available >= 0)  
                                     {
                                     
                                     /* displaying name */  
@@ -608,7 +529,7 @@
                                      	
                                      }
                                 
-                                    if(jsonRectangles[2].onorder>=0) //>
+                                    if(jsonRectangles[2].onorder>=0) 
                                     {
                                     
                                     /* displaying name */    
@@ -661,7 +582,7 @@
                                .append('svg')
                                .attr({'width':580 + "px",'height':25 + "px"});  
                                 
-                                if(jsonRectangles[0].commited >= 0)   //>
+                                if(jsonRectangles[0].commited >= 0)   
                                 {
                                         var arc = d3.svg.symbol().type('triangle-up')
                                                   .size(function(d){ return scale(d); });
@@ -669,8 +590,14 @@
                                         var scale = d3.scale.linear()
                                                     .domain([1,8])
                                                     .range([100,580]);
-                                        var group = svg.append('g')
-                                                    .attr('transform','translate('+ ft1/2 + 5 +','+ 10 +')'); //added 5
+                                        
+                                        var group = svg.append('g');
+                                        
+                                        if(ft1!=0)
+                                        	group.attr('transform','translate('+ ft1/2  +','+ 10 +')'); 
+                                        else
+                                        	group.attr('transform','translate('+ (ft1/2+5) +','+ 10 +')'); 
+                                        	
                                         var line = group.selectAll('path')
                                                 .data(data)
                                                 .enter()
@@ -679,10 +606,10 @@
                                                 .attr('stroke','#FFF')
                                                 .style("fill","#414449")
                                                 .attr('stroke-width',1)
-                                                .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });//10???????
+                                                .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });
                                  }
                             
-                                if(jsonRectangles[1].available >= 0)  //>
+                                if(jsonRectangles[1].available >= 0)  
                                 {
                                         var arc = d3.svg.symbol().type('triangle-up')
                                                   .size(function(d){ return scale(d); });
@@ -690,8 +617,8 @@
                                         var scale = d3.scale.linear()
                                                     .domain([1,8])
                                                     .range([100,580]);
-                                        var group = svg.append('g')
-                                                   .attr('transform','translate('+ (ft1 + (ft2/2)) + 5 +','+ 10 +')');
+                                        var group = svg.append('g').attr('transform','translate('+ (ft1 + (ft2/2)) +','+ 10 +')');
+                                                                                          
                                         var line = group.selectAll('path')
                                                     .data(data)
                                                     .enter()
@@ -700,10 +627,10 @@
                                                     .attr('stroke','#FFF')
                                                     .style("fill","#727983")
                                                     .attr('stroke-width',1)
-                                                    .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });//10???????
+                                                    .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });
                                     }   
                                     
-                                    if(jsonRectangles[2].onorder >= 0)  //>
+                                    if(jsonRectangles[2].onorder >= 0) 
                                     {
                                           var arc = d3.svg.symbol().type('triangle-up')
                                                     .size(function(d){ return scale(d); });
@@ -711,8 +638,13 @@
                                                 var scale = d3.scale.linear()
                                                             .domain([1,8])
                                                             .range([100,580]);
-                                                var group = svg.append('g')
-                                                            .attr('transform','translate('+ (ft1 + ft2 + (ft3/2)) + 5 +','+ 10 +')');
+                                                var group = svg.append('g');
+                                                
+                                                if(ft3!=0)
+			                                    	group.attr('transform','translate('+ (ft1 + ft2 + (ft3/2))  +','+ 10 +')');
+			                                    else
+			                                    	group.attr('transform','translate('+ (ft1 + ft2 + (ft3/2) - 5)  +','+ 10 +')'); 
+                                                            
                                                 var line = group.selectAll('path')
                                                         .data(data)
                                                         .enter()
@@ -721,7 +653,7 @@
                                                         .attr('stroke','#FFF')
                                                         .style("fill","#939CA9")
                                                         .attr('stroke-width',1)
-                                                        .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });//10???????
+                                                        .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });
                                         }
                                      /* Tringle  node */   
                                      
@@ -821,8 +753,12 @@
                                             var scale = d3.scale.linear()
                                                         .domain([1,8])
                                                         .range([100,580]);
-                                            var group = svg.append('g')
-                                                    .attr('transform','translate('+( (instock_tringle)/2 + 7) +','+ 10 +')');
+                                            var group = svg.append('g');
+                                            
+                                            if(instock_tringle != 0 )
+                                            	group.attr('transform','translate('+( (instock_tringle)/2) +','+ 10 +')'); 
+                                            else
+                                            	group.attr('transform','translate('+( (instock_tringle)/2 + 5) +','+ 10 +')'); 
                                             var line = group.selectAll('path')
                                                     .data(data)
                                                     .enter()
@@ -838,7 +774,7 @@
                                                         .attr("class","instocktext")
                                                         .attr({'width':580 + "px",'height':30 + "px"});
                                            
-                                           if(instock_tringle >= 0) //>
+                                           if(instock_tringle >= 0) 
                                            {
                                             /* displaying text */  
                                             textsvg.append("text")
@@ -879,422 +815,502 @@
                                      	
                                     } 
                                     
-                                                        
-                                           
-                                   
-            
-            //////////////////////widget2///////////////////////
-             /* text node */
-                  var textsvg1=d3.select('#loadPartWrapper2')
-                                .append('svg')
-                                .data(jsonRectangles2)
-                                .attr({'width':580 + "px",'height':45 + "px"});
-                                    
-                                    if(jsonRectangles2[0].available >= 0) //>
-                                    {
-                                      /* displaying name */      
-                                             textsvg1.append("text")
-                                            .attr("dx", function (d,i) {
-                                                    var p;
-                                                     if(ft4<100)
-                                                    {
-                                                    p=0;
-                                                    } else if((580-ft4)>500){
-                                                    	p = 450;
-                                                    } else
-                                                    {
-                                                    debug(ft4);
-                                                    p=(ft4/2)-50;
-                                                    }
-                                                    return p;
-                                             })
-                                            .attr("dy", 25) 
-                                            .style('fill', "#414449")
-                                            .text(function(d) { return availablename});
-                                            
-                                            
-                                            /* displaying quantity */                    
-                                           textsvg1.append("text").attr("dx", function (d,i) {
-							                                                   var p;
-							                                                     if(ft4<100)
-							                                                    {
-							                                                    p=0;
-							                                                    } else if((580-ft4)>500){
-							                                                    	p = 450;
-							                                                    } else
-							                                                    {
-							                                                    debug(ft4);
-							                                                    p=(ft4/2)-50;
-							                                                    }
-							                                                    return (p+80); 
-							                                             })
-														                 .attr("dy", 25)
-														                 .attr("font-weight", "bold")
-														                 .style('fill', "#414449")
-														                 .text( function (d) { return $scope.PartPopUpOnLoad.partModel.QtyAvailable }); 
-                                     	
-                                     }
-                                
-                                    if(jsonRectangles2[1].onorder >= 0) //>
-                                    {
-                                    /* displaying quantity */     
-                                            textsvg1.append("text")
-                                            .attr("dx", function (d,i) {
-                                                    var p;
-                                                    if(ft4>=480)
-                                                    {
-                                                    	p = 450;
-                                                    } 
-                                                    else if((ft4<480)&&(ft4>100)){
-                                                    	p=ft4 + (ft5/2)-50;
-                                                    }
-                                                    else if(ft4<=100){
-                                                    	p=ft4 + (ft5/2)-50;
-                                                    }
-                                                    return p; 
-                                             })
-                                            .attr("dy", 45)
-                                            .style('fill', "#727983")
-                                            .text(function(d) { return onordername});
-                                            
-                                             /* displaying quantity */                    
-                                           textsvg1.append("text").attr("dx", function (d,i) {
-							                                                   var p;
-							                                                     if(ft4>=480)
+	            }else{
+	            	
+	            	$scope.PartPopUpOnLoad.isZeroTotalValue = true;
+	            	debug("in else : isZeroTotalValue :"+$scope.PartPopUpOnLoad.isZeroTotalValue);
+	            }    
+                //////////////////////widget2///////////////////////
+                var reOrder =0;  var isSmaller=false;;
+                
+                debug("$scope.PartPopUpOnLoad.partModel.QtyAvailable : "+$scope.PartPopUpOnLoad.partModel.QtyAvailable);
+                debug("$scope.PartPopUpOnLoad.partModel.QtyOnOrder : "+$scope.PartPopUpOnLoad.partModel.QtyOnOrder);
+                
+                var available=$scope.PartPopUpOnLoad.partModel.QtyAvailable;
+                var onorder=$scope.PartPopUpOnLoad.partModel.QtyOnOrder;
+                
+                var max1 = 0;
+                if(available < 0){
+                	if(Math.abs(available)>max1)
+                		max1 = Math.abs(available);
+                }
+                if(onorder < 0){
+                	if(Math.abs(onorder)>max1)
+                		max1 = Math.abs(onorder);
+                }
+                available = available + max1;
+                onorder = onorder + max1;
+                
+                
+                var reorderAt = $scope.PartPopUpOnLoad.partModel.AutoReorderAt;
+                var reorderTo = $scope.PartPopUpOnLoad.partModel.AutoReorderTo;
+                
+                debug("reorderAt : "+reorderAt);
+                 debug("reorderTo : "+reorderTo);
+                
+                var total_value1 = 0;
+                var jsonRectangles2 = [ {  "color" : "#727983" , "available" : available  },
+                                       {  "color" : "#939CA9" , "onorder" : onorder},
+                                       {  "color" : "white" , "reOrder": reOrder  }];
+                if((onorder + available) > reorderTo ){
+                    total_value1 = onorder + available;
+                    debug("in if");
+                }
+                else{
+                    total_value1 = 1.5 * reorderTo;
+                    isSmaller = true;
+                    debug("in else");
+                }
+                debug("jsonRectangles2[0].available : "+jsonRectangles2[0].available);
+                debug("jsonRectangles2[1].onorder : "+jsonRectangles2[1].onorder);
+                debug("total_value1 : "+total_value1);
+                
+                if(total_value1 != 0){
+	                jsonRectangles2[0].available = ((jsonRectangles2[0].available)/total_value1)*100;
+	                jsonRectangles2[1].onorder  = ((jsonRectangles2[1].onorder)/total_value1)*100;
+	                
+	                debug("jsonRectangles2[0].available : "+jsonRectangles2[0].available);
+	                debug("jsonRectangles2[1].onorder : "+jsonRectangles2[1].onorder);
+	                
+	                jsonRectangles2[2].reOrder = 0;
+	                if(isSmaller)
+	                	jsonRectangles2[2].reOrder = 100 - (jsonRectangles2[0].available + jsonRectangles2[1].onorder);
+	                
+	                var ft4=(580*jsonRectangles2[0].available)/100;
+	                var ft5=(580*jsonRectangles2[1].onorder)/100;
+	                var ft6 = 0;
+	                if(isSmaller)
+	                	ft6 = 580-(ft4+ft5); 
+	                	
+	                debug("ft4 : "+ft4);
+	                debug("ft5 : "+ft5);
+	                debug("ft6 : "+ft6);
+	                
+	                var reorderAtName= "REORDER MIN:" ;
+	                var reorderToName= "REORDER TO:" ;
+	                              
+	                var ft7 = (reorderAt*580)/total_value1; 
+	                var ft8 = (reorderTo*580)/total_value1;
+	                debug("ft7 : "+ft7);
+	                debug("ft8 : "+ft8);
+	                
+	                var availablename= "AVAILABLE:" ;
+	                var onordername= "ON ORDER:" ;
+	                
+	            	/* text node */
+	                var textsvg1=d3.select('#loadPartWrapper2')
+	                                .append('svg')
+	                                .data(jsonRectangles2)
+	                                .attr({'width':580 + "px",'height':45 + "px"});
+	                                    
+	                                    if(jsonRectangles2[0].available >= 0) 
+	                                    {
+	                                      /* displaying name */      
+	                                             textsvg1.append("text")
+	                                            .attr("dx", function (d,i) {
+	                                                    var p;
+	                                                     if(ft4<100)
+	                                                    {
+	                                                    p=0;
+	                                                    } else if((580-ft4)>500){
+	                                                    	p = 450;
+	                                                    } else
+	                                                    {
+	                                                    debug(ft4);
+	                                                    p=(ft4/2)-50;
+	                                                    }
+	                                                    return p;
+	                                             })
+	                                            .attr("dy", 25) 
+	                                            .style('fill', "#414449")
+	                                            .text(function(d) { return availablename});
+	                                            
+	                                            
+	                                            /* displaying quantity */                    
+	                                           textsvg1.append("text").attr("dx", function (d,i) {
+								                                                   var p;
+								                                                     if(ft4<100)
 								                                                    {
+								                                                    p=0;
+								                                                    } else if((580-ft4)>500){
 								                                                    	p = 450;
-								                                                    } 
-								                                                    else if((ft4<480)&&(ft4>100)){
-								                                                    	p=ft4 + (ft5/2)-50;
+								                                                    } else
+								                                                    {
+								                                                    debug(ft4);
+								                                                    p=(ft4/2)-50;
 								                                                    }
-								                                                    else if(ft4<=100){
-								                                                    	p=ft4 + (ft5/2)-50;
-								                                                    }
-							                                                    return (p+85); 
-							                                             })
-														                 .attr("dy", 45)
-														                 .attr("font-weight", "bold")
-														                 .style('fill', "#727983")
-														                 .text( function (d) { return $scope.PartPopUpOnLoad.partModel.QtyOnOrder });
-                                     	
-                                     }
-                        
-                                
-                /* text node */  
-                      /* Tringle  node */       
-                         
-                    var svg = d3.select('#loadPartWrapper2')
-                               .append('svg')
-                               .attr({'width':580 + "px",'height':25 + "px"});
-                                
-                                if(jsonRectangles2[0].available >= 0)  //>
-                                {
-                                        var arc = d3.svg.symbol().type('triangle-up')
-                                                  .size(function(d){ return scale(d); });
-                                        var data = [.5];
-                                        var scale = d3.scale.linear()
-                                                    .domain([1,8])
-                                                    .range([100,580]);
-                                        var group = svg.append('g')
-                                                    .attr('transform','translate('+ ft4/2 + 5 +','+ 10 +')');
-                                                    
-                                         var line = group.selectAll('path')
-                                                .data(data)
-                                                .enter()
-                                                .append('path')
-                                                .attr('d',arc)
-                                                .attr('stroke','#FFF')
-                                                .style("fill","#414449")
-                                                .attr('stroke-width',1)
-                                                .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });
-                                 } 
-                            
-                                if(jsonRectangles2[1].onorder >= 0) //>
-                                {
-                                        var arc = d3.svg.symbol().type('triangle-up')
-                                                  .size(function(d){ return scale(d); });
-                                        var data = [.5];
-                                        var scale = d3.scale.linear()
-                                                    .domain([1,8])
-                                                    .range([100,580]);
-                                        var group = svg.append('g')
-                                                   .attr('transform','translate('+ (ft4 + (ft5/2) + 5)   +','+ 10 +')');
-                                        var line = group.selectAll('path')
-                                                    .data(data)
-                                                    .enter()
-                                                    .append('path')
-                                                    .attr('d',arc)
-                                                    .attr('stroke','#FFF')
-                                                    .style("fill","#727983")
-                                                    .attr('stroke-width',1)
-                                                    .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });
-                                    }    
-                                    
-                                     /* Tringle  node */   
-                                     
-                                            /* rectangle  node */   
-                                                          
-                       var svgContainer2 = d3.select("#loadPartWrapper2").append("svg")
-                                          .attr("width", 580 + "px")
-                                          .attr("height", 36 + "px")
-                                          .attr("class","rectanglecont")
-                                                                                    
-                                          var rectangles = svgContainer2.selectAll("rect")
-                                                           .data(jsonRectangles2)
-                                                           .enter()
-                                                           .append("rect");
-                                                           rectangles.append("text")
-                                                           .attr("x", function(d) { return  100 })
-                                                           .attr("y", 200)
-                                                           .attr("dy", ".35em")
-                                                           .attr('fill', 'red')
-                                                           
-                                                            var rectangleAttributes = rectangles
-                                                                  .attr("x", function (d,i) { 
-                                                                      if(i==0){
-                                                                         d.x=0;
-                                                                      } 
-                                                                      if(i==1)
-                                                                      {
-                                                                         d.x=(((jsonRectangles2[i-1].available)*580)/100);
-                                                                         
-                                                                      }
-                                                                      if(i==2)
-                                                                     {
-                                                                         d.x= (((jsonRectangles2[i-2].available)*580)/100) + (((jsonRectangles2[i-1].onorder)*580)/100);
-                                                                     }
-                                                                     if(i==3)
-                                                                     {
-                                                                         d.x= (((jsonRectangles2[i-2].available)*580)/100) + (((jsonRectangles2[i-1].onorder)*580)/100) + (((jsonRectangles2[i-3].reOrder)*580)/100);
-                                                                     }
-                                                                      
-                                                                         return d.x;
-                                                                })
-                                                                 .attr("y", function (d) { return 10; })
-                                                                 .attr("height", function (d) { return 25; })
-                                                                 .attr("width", function (d,i) {
-                                                                        if(i==0)
-                                                                        {
-                                                                        d.width=d.available + "%";
-                                                                        }
-                                                                        if(i==1)
-                                                                        {
-                                                                        d.width=d.onorder + "%";
-                                                                        }
-                                                                        if(i==2)
-                                                                        {
-                                                                        d.width=d.reOrder + "%";
-                                                                        }
-                                                                        return d.width;                 
-                                                                   })
-                                                                   .attr("stroke-width", 1)
-                         											.attr("stroke", "rgb(114, 121, 131)")
-                                                                  .style("fill", function(d) { return d.color; });
-                                                                  
-                                                              
-                       //////////////////line////////////////
-                         var x1, x2;
-                        
-                         x1 = ft7;
-                         x2 = ft8;
-                         debug("x1 : "+x1 +" x2 : "+x2);
-                        //Draw the line
-                        // white
- var lineMin = svgContainer2.append("line")
-                          .attr("x1", x1)
-                          .attr("y1", 10)
-                         .attr("x2", x1)
-                         .attr("y2", 27)
-                         .attr("stroke-width", 2)
-                         //.attr("stroke", "rgb(227, 227, 228)");
-                         //.call(d3.behavior.drag().on("drag", moveMin));
-                         
-if((onorder + available) < reorderAt ){
-	lineMin.attr("stroke", "rgb(114, 121, 131)");// black
-}else{
-	lineMin.attr("stroke", "rgb(227, 227, 228)");// white
-}
-                         
-/*   function moveMin(){
-    this.parentNode.appendChild(this);
-    var dragTarget = d3.select(this);
-    dragTarget
-        .attr("x1", function(){return d3.event.dx + parseInt(dragTarget.attr("x1"))})
-        .attr("x2", function(){return d3.event.dx + parseInt(dragTarget.attr("x2"))});
-    var dragTargetMin = d3.select("#minTriangle");
-    dragTargetMin.attr('transform','translate('+ d3.event.dx +')');
-        
-    //alignNames(d3.event.dx);
-};    */                    
-                         
- ////////triangle bottom at min
- if(reorderAt>0){
-                                        var arc = d3.svg.symbol().type('triangle-up')
-                                                  .size(function(d){ return scale(d); });
-                                        var data = [.5];
-                                        var scale = d3.scale.linear()
-                                                    .domain([1,8])
-                                                    .range([100,580]);
-                                        var group = svgContainer2.append('g')
-                                                    .attr('transform','translate('+ x1 +','+ 27 +')');
-                                                    
-                                         var line = group.selectAll('path')
-                                                .data(data)
-                                                .enter()
-                                                .append('path')
-                                                .attr('d',arc)
-                                                .attr('stroke',"rgb(179, 180, 181)")//'rgb(114, 121, 131)'
-                                                .style("fill","white")
-                                                .attr('stroke-width',2)
-                                                .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; })
-                                                .attr("id", "minTriangle"); 
-                                 } 
- ////////triangle bottom at min                    
-                      
- var lineMax = svgContainer2.append("line")
-                          .attr("x1", x2)
-                          .attr("y1", 10)
-                         .attr("x2", x2)
-                         .attr("y2", 27)
-                         .attr("stroke-width", 2);
-                         //.call(d3.behavior.drag().on("drag", moveMax));
-                         //.attr("stroke", "white");
-                         
- if(isSmaller)
- 	lineMax.attr("stroke", "rgb(114, 121, 131)");// black
- else
- 	lineMax.attr("stroke", "rgb(227, 227, 228)");// white
- 	
- 	
-/* function moveMax(){
-    this.parentNode.appendChild(this);
-    var dragTarget = d3.select(this);
-    dragTarget
-    	.attr("x1", function(){return d3.event.dx + parseInt(dragTarget.attr("x1"))})
-        .attr("x2", function(){return d3.event.dx + parseInt(dragTarget.attr("x2"))});
-        
-    (d3.select("#maxTriangle")).parentNode.appendChild(d3.select("#maxTriangle"));
-    var dragTargetMax = d3.select("#maxTriangle");
-    dragTargetMax.attr('transform','translate('+ d3.event.dx +','+ 0 +')');    
-    //alignNames(d3.event.dx);
-}; */
-
- ////////triangle bottom at max
- if(reorderTo>0)
- {
-                                        var arc = d3.svg.symbol().type('triangle-up')
-                                                  .size(function(d){ return scale(d); });
-                                        var data = [.5];
-                                        var scale = d3.scale.linear()
-                                                    .domain([1,8])
-                                                    .range([100,580]);
-                                        var group = svgContainer2.append('g')
-                                                    .attr('transform','translate('+ x2 +','+ 27 +')');
-                                                    
-                                         var line = group.selectAll('path')
-                                                .data(data)
-                                                .enter()
-                                                .append('path')
-                                                .attr('d',arc)
-                                                .attr('stroke',"rgb(179, 180, 181)")//'rgb(114, 121, 131)'
-                                                .style("fill","white")
-                                                .attr('stroke-width',2)
-                                                .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; })
-                                                .attr("id", "maxTriangle"); 
-                                 } 
- ////////triangle bottom at max  
-                       //////////////////line////////////////
-                                            
-                       /* rectangle  node */   
-                                             
-                         
-                    
-                                    
-                                 var textsvg2=d3.select('#loadPartWrapper2')
-                                .append('svg')
-                                .data(jsonRectangles2)
-                                .attr({'width':580 + "px",'height':45 + "px"});
-                                   
-                                 if(reorderAt>0){
-                                 	 /* displaying name */  
-                                      textsvg2.append("text")
-                                             .attr("dx", function (d,i) {
-                                                    var p;
-                                                    if(ft7<60)
-                                                    {
-                                                    	p=0;
-                                                    } 
-                                                    else
-                                                    {
-	                                                    debug(ft7);
-	                                                    p=ft7-60;
-                                                    }
-                                                   return p;
-                                             })
-                                            .attr("dy", 45)
-                                            .style('fill', "#939CA9")
-                                            .text(function(d) { return reorderAtName});
-                                            
-                                           /* displaying quantity */                    
-                                           textsvg2.append("text").attr("dx", function (d,i) {
-							                        var p;
-							                        if(ft7<60)
-                                                    {
-                                                    	p=0;
-                                                    } 
-                                                    else
-                                                    {
-	                                                    debug(ft7);
-	                                                    p=ft7-60;
-                                                    }
-							                        return (p+105); 
-							                     })
-												.attr("dy", 45)
-												.attr("font-weight", "bold")
-												.style('fill', "#939CA9")
-												.text( function (d) { return $scope.PartPopUpOnLoad.partModel.AutoReorderAt });
-                                     	
-                                    } 
-                                    
-                                    if(reorderTo>0){
-                                    	/* displaying name */
-                                        textsvg2.append("text")
-                                             .attr("dx", function (d,i) {
-                                                    var p;
-                                                    if(ft8<60)
-                                                    {
-                                                    	p=ft7 + (ft8/2);
-                                                    }
-                                                    else
-                                                    {
-                                                    	p=ft8-90;
-                                                    }
-                                                    return p;
-                                             })
-                                            .attr("dy", 25)
-                                            .style('fill', "#939CA9")
-                                            .text(function(d) { return reorderToName});
-                                        
-                                           /* displaying quantity */                    
-                                           textsvg2.append("text").attr("dx", function (d,i) {
-							                        var p;
-							                        if(ft8<60)
-                                                    {
-                                                    	p=ft7 + (ft8/2);
-                                                    }
-                                                    else
-                                                    {
-                                                    	p=ft8-90;
-                                                    }
-							                        return (p+100); 
-							                     })
-												.attr("dy", 25)
-												.attr("font-weight", "bold")
-												.style('fill', "#939CA9")
-												.text( function (d) { return $scope.PartPopUpOnLoad.partModel.AutoReorderTo });
-                                    } 
-                                    
-               //////////////////////widget2///////////////////////                   
+								                                                    return (p+80); 
+								                                             })
+															                 .attr("dy", 25)
+															                 .attr("font-weight", "bold")
+															                 .style('fill', "#414449")
+															                 .text( function (d) { return $scope.PartPopUpOnLoad.partModel.QtyAvailable }); 
+	                                     	
+	                                     }
+	                                
+	                                    if(jsonRectangles2[1].onorder >= 0)
+	                                    {
+	                                    /* displaying quantity */     
+	                                            textsvg1.append("text")
+	                                            .attr("dx", function (d,i) {
+	                                                    var p;
+	                                                   
+	                                                    if(ft5>=480)
+	                                                    {
+	                                                    	p = 450;
+	                                                    } 
+	                                                    else if((ft5<480)&&(ft5>100)){
+	                                                    	p=ft4 + (ft5/2)-50;
+	                                                    }
+	                                                    else if((ft5<=100)&&(ft4!=0)){
+	                                                    	p=ft4 + (ft5/2)-110;
+	                                                    }
+	                                                    else if((ft5<=100)&&(ft4==0))
+									                        p=0;
+	                                                    return p; 
+	                                             })
+	                                            .attr("dy", 45)
+	                                            .style('fill', "#727983")
+	                                            .text(function(d) { return onordername});
+	                                            
+	                                             /* displaying quantity */                    
+	                                           textsvg1.append("text").attr("dx", function (d,i) {
+								                                                   var p;
+								                                                     
+									                                                    if(ft5>=480)
+									                                                    {
+									                                                    	p = 450;
+									                                                    } 
+									                                                    else if((ft5<480)&&(ft5>100)){
+									                                                    	p=ft4 + (ft5/2)-50;
+									                                                    }
+									                                                    else if((ft5<=100)&&(ft4!=0)){
+									                                                    	p=ft4 + (ft5/2)-110;
+									                                                    }
+									                                                    else if((ft5<=100)&&(ft4==0))
+									                                                    	p=0;
+								                                                    return (p+85); 
+								                                             })
+															                 .attr("dy", 45)
+															                 .attr("font-weight", "bold")
+															                 .style('fill', "#727983")
+															                 .text( function (d) { return $scope.PartPopUpOnLoad.partModel.QtyOnOrder });
+	                                     	
+	                                     }
+	                        
+	                                
+	                /* text node */  
+	                      /* Tringle  node */       
+	                         
+	                    var svg = d3.select('#loadPartWrapper2')
+	                               .append('svg')
+	                               .attr({'width':580 + "px",'height':25 + "px"});
+	                                
+	                                if(jsonRectangles2[0].available >= 0) 
+	                                {
+	                                        var arc = d3.svg.symbol().type('triangle-up')
+	                                                  .size(function(d){ return scale(d); });
+	                                        var data = [.5];
+	                                        var scale = d3.scale.linear()
+	                                                    .domain([1,8])
+	                                                    .range([100,580]);
+	                                        var group = svg.append('g');
+	                                        
+	                                        
+	                                        if(ft4 != 0)
+	                                        	group.attr('transform','translate('+ ft4/2  +','+ 10 +')');
+	                                        else
+	                                        	group.attr('transform','translate('+ (ft4/2 + 5)  +','+ 10 +')');
+	                                                    
+	                                         var line = group.selectAll('path')
+	                                                .data(data)
+	                                                .enter()
+	                                                .append('path')
+	                                                .attr('d',arc)
+	                                                .attr('stroke','#FFF')
+	                                                .style("fill","#414449")
+	                                                .attr('stroke-width',1)
+	                                                .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });
+	                                 } 
+	                            
+	                                if(jsonRectangles2[1].onorder >= 0) 
+	                                {
+	                                        var arc = d3.svg.symbol().type('triangle-up')
+	                                                  .size(function(d){ return scale(d); });
+	                                        var data = [.5];
+	                                        var scale = d3.scale.linear()
+	                                                    .domain([1,8])
+	                                                    .range([100,580]);
+	                                        var group = svg.append('g');
+	                                        
+	                                        if(ft5 != 0)
+	                                        	group.attr('transform','translate('+ (ft4 + (ft5/2) ) +','+ 10 +')');
+	                                        else
+	                                        	group.attr('transform','translate('+ (ft4 + (ft5/2) - 5) +','+ 10 +')');
+	                                                   
+	                                                   
+	                                        var line = group.selectAll('path')
+	                                                    .data(data)
+	                                                    .enter()
+	                                                    .append('path')
+	                                                    .attr('d',arc)
+	                                                    .attr('stroke','#FFF')
+	                                                    .style("fill","#727983")
+	                                                    .attr('stroke-width',1)
+	                                                    .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });
+	                                    }    
+	                                    
+	                                     /* Tringle  node */   
+	                                     
+	                                            /* rectangle  node */   
+	                                                          
+	                       var svgContainer2 = d3.select("#loadPartWrapper2").append("svg")
+	                                          .attr("width", 580 + "px")
+	                                          .attr("height", 36 + "px")
+	                                          .attr("class","rectanglecont")
+	                                                                                    
+	                                          var rectangles = svgContainer2.selectAll("rect")
+	                                                           .data(jsonRectangles2)
+	                                                           .enter()
+	                                                           .append("rect");
+	                                                           rectangles.append("text")
+	                                                           .attr("x", function(d) { return  100 })
+	                                                           .attr("y", 200)
+	                                                           .attr("dy", ".35em")
+	                                                           .attr('fill', 'red')
+	                                                           
+	                                                            var rectangleAttributes = rectangles
+	                                                                  .attr("x", function (d,i) { 
+	                                                                      if(i==0){
+	                                                                         d.x=0;
+	                                                                      } 
+	                                                                      if(i==1)
+	                                                                      {
+	                                                                         d.x=(((jsonRectangles2[i-1].available)*580)/100);
+	                                                                         
+	                                                                      }
+	                                                                      if(i==2)
+	                                                                     {
+	                                                                         d.x= (((jsonRectangles2[i-2].available)*580)/100) + (((jsonRectangles2[i-1].onorder)*580)/100);
+	                                                                     }
+	                                                                     if(i==3)
+	                                                                     {
+	                                                                         d.x= (((jsonRectangles2[i-2].available)*580)/100) + (((jsonRectangles2[i-1].onorder)*580)/100) + (((jsonRectangles2[i-3].reOrder)*580)/100);
+	                                                                     }
+	                                                                      
+	                                                                         return d.x;
+	                                                                })
+	                                                                 .attr("y", function (d) { return 10; })
+	                                                                 .attr("height", function (d) { return 25; })
+	                                                                 .attr("width", function (d,i) {
+	                                                                        if(i==0)
+	                                                                        {
+	                                                                        d.width=d.available + "%";
+	                                                                        }
+	                                                                        if(i==1)
+	                                                                        {
+	                                                                        d.width=d.onorder + "%";
+	                                                                        }
+	                                                                        if(i==2)
+	                                                                        {
+	                                                                        d.width=d.reOrder + "%";
+	                                                                        }
+	                                                                        return d.width;                 
+	                                                                   })
+	                                                                   .attr("stroke-width", 1)
+	                         											.attr("stroke", "rgb(114, 121, 131)")
+	                                                                  .style("fill", function(d) { return d.color; });
+	                                                                  
+	                                                              
+	                       //////////////////line////////////////
+	                         var x1, x2;
+	                        
+	                         x1 = ft7;
+	                         x2 = ft8;
+	                         
+	                         if(x1==0)
+	                         	x1 = x1+5;
+	                         if(x2==0)
+	                         	x2 = x2+5; 
+	                         debug("x1 : "+x1 +" x2 : "+x2);
+	                        //Draw the line
+	                        // white
+	 var lineMin = svgContainer2.append("line")
+	                          .attr("x1", x1)
+	                          .attr("y1", 10)
+	                         .attr("x2", x1)
+	                         .attr("y2", 27)
+	                         .attr("stroke-width", 2)
+	                         
+	if((onorder + available) < reorderAt ){
+		lineMin.attr("stroke", "rgb(114, 121, 131)");// black
+	}else{
+		lineMin.attr("stroke", "rgb(227, 227, 228)");// white
+	}
+	                         
+	              
+	                         
+	 ////////triangle bottom at min
+	 if(reorderAt>=0)//>
+	 {
+	                                        var arc = d3.svg.symbol().type('triangle-up')
+	                                                  .size(function(d){ return scale(d); });
+	                                        var data = [.5];
+	                                        var scale = d3.scale.linear()
+	                                                    .domain([1,8])
+	                                                    .range([100,580]);
+	                                        var group = svgContainer2.append('g').attr('transform','translate('+ (x1) +','+ 27 +')');           
+	                                         var line = group.selectAll('path')
+	                                                .data(data)
+	                                                .enter()
+	                                                .append('path')
+	                                                .attr('d',arc)
+	                                                .attr('stroke',"rgb(179, 180, 181)")
+	                                                .style("fill","white")
+	                                                .attr('stroke-width',2)
+	                                                .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; })
+	                                                .attr("id", "minTriangle"); 
+	                                 } 
+	 ////////triangle bottom at min                    
+	                      
+	 var lineMax = svgContainer2.append("line")
+	                          .attr("x1", x2)
+	                          .attr("y1", 10)
+	                         .attr("x2", x2)
+	                         .attr("y2", 27)
+	                         .attr("stroke-width", 2);
+	                        
+	                         
+	 if(isSmaller)
+	 	lineMax.attr("stroke", "rgb(114, 121, 131)");// black
+	 else
+	 	lineMax.attr("stroke", "rgb(227, 227, 228)");// white
+	 	
+	 	
+	
+	
+	 ////////triangle bottom at max
+	 if(reorderTo>=0)//>
+	 {
+	                                        var arc = d3.svg.symbol().type('triangle-up')
+	                                                  .size(function(d){ return scale(d); });
+	                                        var data = [.5];
+	                                        var scale = d3.scale.linear()
+	                                                    .domain([1,8])
+	                                                    .range([100,580]);
+	                                        var group = svgContainer2.append('g').attr('transform','translate('+ x2 +','+ 27 +')');
+	                                        
+	                                       
+	                                         var line = group.selectAll('path')
+	                                                .data(data)
+	                                                .enter()
+	                                                .append('path')
+	                                                .attr('d',arc)
+	                                                .attr('stroke',"rgb(179, 180, 181)")
+	                                                .style("fill","white")
+	                                                .attr('stroke-width',2)
+	                                                .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; })
+	                                                .attr("id", "maxTriangle"); 
+	                                 } 
+	 ////////triangle bottom at max  
+	                       //////////////////line////////////////
+	                                            
+	                       /* rectangle  node */   
+	                                             
+	                         
+	                    
+	                                    
+	                                 var textsvg2=d3.select('#loadPartWrapper2')
+	                                .append('svg')
+	                                .data(jsonRectangles2)
+	                                .attr({'width':580 + "px",'height':45 + "px"});
+	                                   
+	                                 if(reorderAt>=0)//>
+	                                 {
+	                                 	 /* displaying name */  
+	                                      textsvg2.append("text")
+	                                             .attr("dx", function (d,i) {
+	                                                    var p;
+	                                                    if(ft7<60)
+	                                                    {
+	                                                    	p=0;
+	                                                    } 
+	                                                    else
+	                                                    {
+		                                                    debug(ft7);
+		                                                    p=ft7-60;
+	                                                    }
+	                                                   return p;
+	                                             })
+	                                            .attr("dy", 45)
+	                                            .style('fill', "#939CA9")
+	                                            .text(function(d) { return reorderAtName});
+	                                            
+	                                           /* displaying quantity */                    
+	                                           textsvg2.append("text").attr("dx", function (d,i) {
+								                        var p;
+								                        if(ft7<60)
+	                                                    {
+	                                                    	p=0;
+	                                                    } 
+	                                                    else
+	                                                    {
+		                                                    debug(ft7);
+		                                                    p=ft7-60;
+	                                                    }
+								                        return (p+105); 
+								                     })
+													.attr("dy", 45)
+													.attr("font-weight", "bold")
+													.style('fill', "#939CA9")
+													.text( function (d) { return $scope.PartPopUpOnLoad.partModel.AutoReorderAt });
+	                                     	
+	                                    } 
+	                                    
+	                                    if(reorderTo>=0)//>
+	                                    {
+	                                    	/* displaying name */
+	                                        textsvg2.append("text")
+	                                             .attr("dx", function (d,i) {
+	                                                    var p;
+	                                                    if(ft8<60)
+	                                                    {
+	                                                    	p=ft7 + (ft8/2);
+	                                                    }
+	                                                    else
+	                                                    {
+	                                                    	p=ft8-90;
+	                                                    }
+	                                                    return p;
+	                                             })
+	                                            .attr("dy", 25)
+	                                            .style('fill', "#939CA9")
+	                                            .text(function(d) { return reorderToName});
+	                                        
+	                                           /* displaying quantity */                    
+	                                           textsvg2.append("text").attr("dx", function (d,i) {
+								                        var p;
+								                        if(ft8<60)
+	                                                    {
+	                                                    	p=ft7 + (ft8/2);
+	                                                    }
+	                                                    else
+	                                                    {
+	                                                    	p=ft8-90;
+	                                                    }
+								                        return (p+100); 
+								                     })
+													.attr("dy", 25)
+													.attr("font-weight", "bold")
+													.style('fill', "#939CA9")
+													.text( function (d) { return $scope.PartPopUpOnLoad.partModel.AutoReorderTo });
+	                                    } 
+	                                    
+	               //////////////////////widget2///////////////////////          
+	               }
+	               else{
+	                	$scope.PartPopUpOnLoad.isZeroTotalValue1 = true;
+	               }         
              }
           }); 
           
@@ -1329,20 +1345,23 @@ if((onorder + available) < reorderAt ){
         <div class="Vendor-Order-Part-PopupNew PartPopupOnVenderOrdernew pull-left"  ng-controller="newPartCtrl" id="PartInfoPopupOnVenderOrder" >
             <div>
                 <div class="row clearfix" style="height:20px;">
-                </div>  
-                    <div class="vendorOrder-flyout partPopUp-flyout" ng-show="PartPopUpOnLoad.item=='CurrentStock'">
-                         <div id="loadPartWrapper"></div>
-                          <div id="loadPartWrapper1"></div>
-                      </div>
-                      <!-- <div class="row clearfix" style="height:20px;"> 
-                </div>-->
-                <div class="vendorOrder-flyout partPopUp-flyout" ng-show="PartPopUpOnLoad.item=='Ordering'">
-                  <div id="loadPartWrapper2">
-                  </div>
                 </div> 
-                       
-              </div>       
-        
+                 
+                <div class="vendorOrder-flyout partPopUp-flyout" ng-show="PartPopUpOnLoad.item=='CurrentStock'">
+                	<div ng-if="!PartPopUpOnLoad.isZeroTotalValue" class="widgetAvailable">
+	                	<div id="loadPartWrapper"></div>
+	                    <div id="loadPartWrapper1"></div>
+                    </div>
+                    <div ng-if="PartPopUpOnLoad.isZeroTotalValue" class="widgetUnAvailable T6">There is no inventory for this part</div>
+                </div> 
+                <div class="vendorOrder-flyout partPopUp-flyout" ng-show="PartPopUpOnLoad.item=='Ordering'">
+                	<div ng-if="!PartPopUpOnLoad.isZeroTotalValue1" class="widgetAvailable">
+	                	<div id="loadPartWrapper2">
+	                	</div>
+	                </div>
+	                <div ng-if="PartPopUpOnLoad.isZeroTotalValue1" class="widgetUnAvailable T6">There is no inventory for this part</div>
+                </div>     
+        	</div>  
         </div>
-      
+        
 </apex:component>

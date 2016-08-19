@@ -27,10 +27,13 @@ global with sharing class ViewCustomerCtrl {
         List<Account> relatedCustomerRecList = SOQLUtil.getRelatedAccountRecs(accountIdToRelationMap.keyset());
         List<Customer_Owned_Unit__c> COUList = SOQLUtil.getCOURecordByFieldName('Account__c', customerId);
         List<Contact> customerContactList = SOQLUtil.getCustomerContactByFieldName('AccountId', customerId);
+        List<Business_Profile__c> businessProfileList = SOQLUtil.getBusinessProfileData(new List<Id>());
         String JSONString = '{}';
         //system.assert(false, ActiveOrder.getAllActiveOrdersForCustomer(customerId, null));
         if(customers.size() > 0) {
-            JSONString = System.JSON.serialize(new CustomerDetail(customers[0], relatedCustomerRecList, accountIdToRelationMap, COUList, new List<CO_Header__c>(), customerContactList, getLastVisitOrderByCustomerId(customerId)));
+            JSONString = System.JSON.serialize(new CustomerDetail(customers[0], relatedCustomerRecList, accountIdToRelationMap, COUList, new List<CO_Header__c>(), 
+            										customerContactList, getLastVisitOrderByCustomerId(customerId),
+            										new List<Tax_Exemption__c>(), businessProfileList));
         }
         return BPUtility.getEncodedString(JSONString);
     }
@@ -192,21 +195,20 @@ global with sharing class ViewCustomerCtrl {
     **/
     @RemoteAction
     global static String updateRelatedCustomer(String relatedCustomerString) {
-    	if(AccessControl.ifObjectFieldIsCreateable('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
-		if(AccessControl.ifObjectFieldIsUpdateable('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
     	if(AccessControl.ifObjectFieldIsCreateable('People__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 		if(AccessControl.ifObjectFieldIsUpdateable('People__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+		if(AccessControl.ifObjectFieldIsCreateable('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
+		if(AccessControl.ifObjectFieldIsUpdateable('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
     	if(AccessControl.ifObjectIsDeletable('People__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
+    	if(AccessControl.ifObjectFieldIsAccessible('People__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	relatedCustomerString = BPUtility.getDecodedString(relatedCustomerString);
     	
         List<RelatedCustomer> relatedCustomerObjList = RelatedCustomer.parse(relatedCustomerString);
         List<Account> relatedCustomerListToUpsert = new List<Account>();
         List<People__c> peopleRecToInsert = new List<People__c>();
         
-        if(relatedCustomerObjList.size() > 0) {
-        	RelatedCustomer relatedCustomerObj = relatedCustomerObjList[0];
-        	
-        	Account relatedCustomerRec = new Account();
+        for(RelatedCustomer relatedCustomerObj : relatedCustomerObjList) {
+            Account relatedCustomerRec = new Account();
             relatedCustomerRec.Id = relatedCustomerObj.Id;
             List<People__c> peopleList = [select Id from People__c Where (Parent_Customer1__c = :relatedCustomerObj.ParentCustomer AND Parent_Customer2__c = :relatedCustomerObj.Id) OR 
             															(Parent_Customer2__c = :relatedCustomerObj.ParentCustomer AND Parent_Customer1__c = :relatedCustomerObj.Id)]; 
@@ -227,7 +229,6 @@ global with sharing class ViewCustomerCtrl {
 	        }
 	    	relatedCustomerListToUpsert.add(relatedCustomerRec);
         }
-        
         if(relatedCustomerListToUpsert.size() > 0) {
             upsert relatedCustomerListToUpsert;
         }

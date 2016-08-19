@@ -41,8 +41,8 @@
 			var numberRegex = /^\d+$/;
 			return {
 				restrict : 'EA',
-				template : '<div class="divMiddleText col-lg-4 col-md-4 T6" id="{{idValue}}Total_Records" style="padding-left: 20px;">'
-								+ '({{totalRecordsLength}} {{totalRecordsLength == 1 ? "Record" : "Records"}} returned)'
+				template : '<div class="divMiddleText col-lg-4 col-md-4 T6" id="{{idValue}}Total_Records" style="padding-left: 20px; text-transform:none;">'
+								+ '({{totalRecordsLength}} {{totalRecordsLength == 1 ? "Record" : "Record(s)"}} returned)'
 							+ '</div>'
 							+ '<div class="col-lg-7 col-md-7 T6" id="{{idValue}}Page_Index" style="padding: 0px; float: right; height: 52px;">'
 								+ '<div align="right" style="padding: 0px" class="divMiddleText col-lg-8 col-md-8" >'
@@ -158,9 +158,14 @@
 						if (isValidPageNumber(num) && !scope.paginationInProcess) {
 							scope.paginationInProcess = true;
 							scope.currentPage = num;
+							console.log("abcd");
+							console.log(scope.pageSize);
+							var pageSizeTemp = scope.pageSize;
+							console.log(pageSizeTemp);
 							setTimeout(function () {
 								if (scope.paginationControlMethod != undefined) {
-									scope.paginationControlMethod();
+									console.log(pageSizeTemp);
+									scope.paginationControlMethod(pageSizeTemp);
 								}
 								scope.paginationInProcess = false;
 							}, 10);

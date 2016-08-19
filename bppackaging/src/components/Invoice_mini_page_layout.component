@@ -414,13 +414,15 @@
                             </div>
                             <div class="row">
                                 <div class="cross_icon">
-                                    <img src="http://www.excelcharts.com/blog/wp-content/uploads/2011/11/circle.png" height="30px;" width="50px;" />
+                                    <!-- <img src="http://www.excelcharts.com/blog/wp-content/uploads/2011/11/circle.png" height="30px;" width="50px;" /> -->
+                                    <img src="{!URLFOR($Resource.Images, 'circle.png')}" height="30px;" width="50px;" />
                                 </div>
                                 <div class="col-md-3 T7">
                                     {{CustomerOrderModel.InvoiceDetailInfo.COInvoiceHeaderRec.ClosedInvoiceDate}}
                                 </div>
                                 <div class="cross_icon">
-                                    <img src="http://www.excelcharts.com/blog/wp-content/uploads/2011/11/circle.png" height="30px;" width="50px;" />
+                                    <!-- <img src="http://www.excelcharts.com/blog/wp-content/uploads/2011/11/circle.png" height="30px;" width="50px;" /> -->
+                                    <img src="{!URLFOR($Resource.Images, 'circle.png')}" height="30px;" width="50px;" />
                                 </div>
                                 <div class="col-md-3 T7">
                                     {{CustomerOrderModel.InvoiceDetailInfo.COInvoiceHeaderRec.ClosedInvoiceDate}}
@@ -432,7 +434,8 @@
                            
                             <div class="row">
                                 <div class="cross_icon">
-                                    <img src="http://www.excelcharts.com/blog/wp-content/uploads/2011/11/circle.png" height="30px;" width="50px;" />
+                                    <!-- <img src="http://www.excelcharts.com/blog/wp-content/uploads/2011/11/circle.png" height="30px;" width="50px;" /> -->
+                                    <img src="{!URLFOR($Resource.Images, 'circle.png')}" height="30px;" width="50px;" />
                                 </div>
                                 <div class="col-md-3 T7">
                                     {{CustomerOrderModel.InvoiceDetailInfo.COInvoiceHeaderRec.InvoiceStatus}}
@@ -444,7 +447,8 @@
                             
                             <div class="row">
                                 <div class="cross_icon">
-                                    <img src="http://www.excelcharts.com/blog/wp-content/uploads/2011/11/circle.png" height="30px;" width="50px;" />
+                                    <!-- <img src="http://www.excelcharts.com/blog/wp-content/uploads/2011/11/circle.png" height="30px;" width="50px;" /> -->
+                                    <img src="{!URLFOR($Resource.Images, 'circle.png')}" height="30px;" width="50px;" />
                                 </div>
                                 <div class="col-md-3">
                                     <i class="T7">{!$Label.Label_Click_To_Add} {!$Label.Label_Notes}</i>

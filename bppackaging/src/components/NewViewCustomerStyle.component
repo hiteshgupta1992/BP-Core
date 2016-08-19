@@ -25,6 +25,13 @@
 			margin: 0.01em;
 			color: #414449;
 		}
+		.T3_1{
+			font-family: 'Open Sans', sans-serif;
+			font-weight: 700;
+			font-size: 13px;
+			margin: 0.01em;
+			color: #414449;
+		}
 		.T4{
 			font-family: 'Open Sans', sans-serif;
 			font-weight: 600;
@@ -218,6 +225,8 @@
 		.userNameblock{
 			float: left;
 			margin-left: 10px;
+			word-break: break-all;
+			width: 70%;
 		}
 		.userNameblock p{
 			margin: 0;
@@ -256,7 +265,6 @@
 			color: #FFFFFF;
 			padding: 10px 20px;
 		}
-		
 		.mainSectionLink{
 			border-top: 2px solid #ECF0F1;
 		}

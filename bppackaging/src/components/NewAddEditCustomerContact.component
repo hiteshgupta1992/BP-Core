@@ -53,6 +53,20 @@
 	    .popupright .tabconainer form .controls .fa-times {
 	        color: #9E9E9E;
 	    }
+	    
+	    .disablePhoneSmsChkBx	{
+	    	pointer-events: none;
+	    }
+	    .reqForContact {
+		    width: 30%;
+		    float: right;
+		}
+		.yes{
+			border-color:blue;
+		}
+		.no{
+			border-color:red;
+		}
 	</style>
 	
 	<script>
@@ -206,6 +220,8 @@
 				$scope.CustomerContact.ContactInfo.PreferredPhone = false;
 				$scope.CustomerContact.ContactInfo.PreferredSMS = false;
 				$scope.CustomerContact.ContactInfo.IsSMS = false;
+				
+				$scope.CustomerContact.ContactInfo.Relation = 'Employee';
 				$scope.CustomerContact.setDefaultValidationModel();
 			}
 		
@@ -247,8 +263,10 @@
 					if($scope.$parent.ViewVendor != undefined && $scope.$parent.ViewVendor.RelatedLists_recordSaveCallback != undefined){
 						$scope.$parent.ViewVendor.RelatedLists_recordSaveCallback("{!JSENCODE($ObjectType.Contact.label)}", relatedCustomerContactList);
 					}
+					
 				}, function (errorSearchResult) {
 					//$scope.ViewCustomer.CustomerInfo = errorSearchResult;
+					
 				});
 			}
 		
@@ -342,11 +360,18 @@
 	                                <h1 class="right_panel_heading" ng-show="false">Edit Contact</h1>
 	                                <div class="savecancle_btncntnr">
 	                                    <button type="button" id="closemodal" class="btn btn-default grayBtn" ng-click="CustomerContact.CancelContactForm()" ng-attr-tabindex="{{CustomerModal.tabIndexValue + 204}}">Cancel</button>
-	                                    <button type="button" class="btn btn-default greenBtn" ng-click="CustomerContact.saveCustomerContactRecord()" ng-attr-tabindex="{{CustomerModal.tabIndexValue + 202}}">Save</button>
+	                                    <button type="button" class="btn btn-default greenBtn" ng-click="CustomerContact.saveCustomerContactRecord()"
+	                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 202}}" 
+	                                     >
+	                                     Save</button> <!-- ng-class="{'yes':CustomerContact.saveCustomerContactRecord()==true,'no':CustomerContact.saveCustomerContactRecord()==false}" -->
 	                                </div>
 	                            </div>
 	                            <div class="tabconainer" style="min-height: 375px;">
 	                                <form>
+	                                    <div class="clearfix"></div>
+	                                    <div class="form-group reqForContact">
+                                        	<label class="FC9" for="required">* Indicates required fields</label>
+                                        </div>
 	                                    <div class="clearfix"></div>
 	                                    <div class="option_field">
 	                                        <div class="lable_fields name_class">
@@ -354,14 +379,14 @@
 	                                        </div>
 	                                        <div class="form_fields" style="margin:4px 0 8px 0;">
 	                                            <div class="form-group " >
-	                                                <label for="labelFirstName">First Name </label>
+	                                                <label for="labelFirstName">First Name <span class="FC9">*</span></label>
 	                                                <input type="text" class="form-control " id="txtFirstName" rel="NameId" ng-model="CustomerContact.ContactInfo.FirstName"
 	                                                    ng-blur="CustomerContact.validateForm('FirstName');" placeholder="First Name" ng-attr-tabindex="{{CustomerContact.tabIndexValue + 1}}"
 	                                                    data-toggle="tooltip" title="{{CustomerContact.CustomerContactFormValidationModal['FirstName']['ErrorMessage'] }}"
 	                                                    ng-class="{'redborder' : CustomerContact.CustomerContactFormValidationModal['FirstName']['isError'] == true}"/>
 	                                            </div>
 	                                            <div class="form-group">
-	                                                <label for="labelLastName">Last Name</label>
+	                                                <label for="labelLastName">Last Name <span class="FC9">*</span></label>
 	                                                <input type="text" class="form-control " id="txtLastName" rel="NameId" ng-model="CustomerContact.ContactInfo.LastName"
 	                                                    ng-blur="CustomerContact.validateForm('LastName');" placeholder="Last Name" ng-attr-tabindex="{{CustomerContact.tabIndexValue + 2}}"
 	                                                    data-toggle="tooltip" title="{{CustomerContact.CustomerContactFormValidationModal['LastName']['ErrorMessage'] }}"
@@ -411,9 +436,10 @@
 	                                                    ng-click="CustomerContact.markFavourite('PreferredPhone');"></i>
 	                                                </a>
 	                                            </div>
-	                                            <div class="form-group small">
+	                                            <div class="form-group small" ng-class="{'disablePhoneSmsChkBx' :  CustomerContact.CustomerContactFormValidationModal['Phone']['isError'] || 
+	                                               CustomerContact.ContactInfo.Phone == null || CustomerContact.ContactInfo.Phone == undefined ||  CustomerContact.ContactInfo.Phone == ''}">
 	                                                <label class="checkbox smschkbox">
-	                                                <span class="chk_tick" ng-class="{'chked' : CustomerContact.ContactInfo.IsSMS == true}" 
+	                                                <span class="chk_tick" ng-class="{'chked' : CustomerContact.ContactInfo.IsSMS==true}" 
 	                                                    ng-click="CustomerContact.markFavourite('IsSMS');">
 	                                                <i class="fa fa-check-square chksqure" ></i>
 	                                                </span>

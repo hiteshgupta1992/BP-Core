@@ -71,9 +71,13 @@
 					var text = '';
 	
 					text = responseData[i][$scope.titleField];
+					if(responseData[i].Description != null){
+                    	text += ' > '+responseData[i].Description; 
+                    }
 					var resultRow = {
 						title : $sce.trustAsHtml(text),
 						originalObject : responseData[i],
+						info:responseData[i].Info
 					}
 					$scope.results[$scope.results.length] = resultRow;
 				}
@@ -95,14 +99,14 @@
 				}
 	
 				$scope.results.push({
-					title : $sce.trustAsHtml("ADVANCE SEACRH"),
+					title : $sce.trustAsHtml("ADVANCED SEARCH"),
 					originalObject : " ",
 				});
 
-				$scope.results.push({
+				/* $scope.results.push({
 					title : $sce.trustAsHtml("+ Add New Customer"),
 					originalObject : " ",
-				});
+				}); */
 			} else {
 				$scope.results = [];
 			}
@@ -119,17 +123,25 @@
 		}
 	
 		$scope.SearchSuggestion = function (str) {
+		 var filterParam = null;
+		 	if($scope.$parent.VendorOrderModel != undefined){
+		 		filterParam = [{"Field": "Vendor__c",
+        	 					"Value": ($scope.$parent.VendorOrderModel.VendorOrderHeader== undefined) || ($scope.$parent.VendorOrderModel.VendorOrderHeader.VendorId == undefined) ? "" : $scope.$parent.VendorOrderModel.VendorOrderHeader.VendorId, 
+        	 					"FilterObject" :"Part__c" }]
+        	}
 			var searchQueryJson = {
 				"ObjectLabel" : ($scope.typeToSearch == undefined) ? "Customer" : $scope.typeToSearch,
 				"SearchText" : str,
 				"PreferredObject" : ($scope.PreferredObject == undefined) ? "Customer" : $scope.PreferredObject,
-				"SearchableObjects" : ($scope.SearchableObjects == undefined) ? "" : $scope.SearchableObjects
-			}
+				"SearchableObjects" : ($scope.SearchableObjects == undefined) ? "Vendor" : $scope.SearchableObjects,
+				"FilterValues":filterParam  
+			}    
 			searchQueryJson = JSON.stringify(searchQueryJson);
 			var responseData = "";
-	
+			 debug(searchQueryJson );
 			searchservice.searchText(searchQueryJson)
 			.then(function (successfulSearchResult) {
+				console.log(successfulSearchResult);
 				responseData = successfulSearchResult;
 				$scope.searching = false;
 				$scope.processResults((($scope.dataField) ? responseData[$scope.dataField] : responseData));
@@ -185,8 +197,10 @@
 			$scope.searchStr = "";
 			
 			if($scope.SearchToAddCallback == undefined){
+			   
 				$scope.$parent.ViewCustomer.selectCallBack(result);
 			} else {
+				 
 				$scope.SearchToAddCallback(result);
 			}
 		}
@@ -255,7 +269,10 @@
 	        <div class="angucomplete-searching" ng-show="!searching && (!results || results.length == 0)">No results found</div>
 	        <div  class="angucomplete-row" ng-repeat="result in results" ng-click="selectResult(result)" 
 	            ng-mouseover="hoverRow($index)" ng-class="{'angucomplete-selected-row': $index == currentIndex}">
-	            <div id="SearchResult_{{$index}}" class="angucomplete-title"  ng-bind="result.title"></div>
+	            <div id="SearchResult_{{$index}}" class="angucomplete-title">
+	            	{{result.title}}
+	            	<span class="pull-right" ng-if="result.info" style="color: #B7BEC6;">  >{{result.info}}</span>
+	            </div>
 	        </div>
 	    </div>
 	</div>

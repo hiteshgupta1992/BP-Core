@@ -337,7 +337,7 @@
 			            	$scope.ViewPartRelatedListModal.AlternateParts_sectionModel.alternatePartsChangesCount++;
 			            }, 10);
 	                    
-	                    Notification.success('{!JSENCODE($Label.Part_Saved_SucessFully)}');
+	                    Notification.success('{!JSENCODE($Label.Part_Saved_Successfully)}');
 	                    // Now focus to "Relation" field
 	                    angular.element("#Alternate_Parts_row" + initIndex).find("select").filter(':first').focus();
 					}
@@ -362,7 +362,7 @@
 			            	$scope.ViewPartRelatedListModal.AlternateParts_sectionModel.alternatePartsChangesCount++;
 			            }, 10);
 	                	
-	                	Notification.success('{!JSENCODE($Label.Part_Saved_SucessFully)}');
+	                	Notification.success('{!JSENCODE($Label.Part_Saved_Successfully)}');
 	                }
                 }, function(errorSearchResult) {
                 	Notification.error('{!JSENCODE($Label.Page_Server_Save_Error)}');
@@ -423,7 +423,7 @@
 				            }, 10);
 			            }
 			            
-	                	Notification.success('{!JSENCODE($Label.Part_Updated_SucessFully)}');
+	                	Notification.success('{!JSENCODE($Label.Part_Updated_Successfully)}');
 	                }, function(errorSearchResult) {
 	                	Notification.error('{!JSENCODE($Label.Page_Server_Save_Error)}');
 	                    //$scope.ViewPartRelatedListModal.PartRelatedInfo.AlternateParts = errorSearchResult;
@@ -523,7 +523,7 @@
 			            	$scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.taxExemptionsChangesCount++;
 			            }, 10);
 	                    
-	                    Notification.success('{!JSENCODE($Label.Tax_Exemption_Saved_SucessFully)}');
+	                    Notification.success('{!JSENCODE($Label.Tax_Exemption_Saved_Successfully)}');
 	                    // Now focus to "Relation" field
 	                    angular.element("#Tax_Exemptions_row0").focus();
 					}
@@ -584,8 +584,8 @@
 		            		setTimeout(function () {
 				            	$scope.ViewPartRelatedListModal.TaxExemptions_sectionModel.taxExemptionsChangesCount++;
 				            }, 10);
-			            }
-	                	Notification.success('{!JSENCODE($Label.Tax_Exemption_Updated_SucessFully)} Exeption record removed successfully.');
+			            } 
+	                	Notification.success('{!JSENCODE($Label.Tax_Exemption_Updated_Successfully)} Exeption record removed successfully.');
 	                }, function(errorSearchResult) {
 	                	Notification.error('{!JSENCODE($Label.Page_Server_Save_Error)}');
 	                    //$scope.ViewPartRelatedListModal.PartRelatedInfo.TaxExemptions = errorSearchResult;

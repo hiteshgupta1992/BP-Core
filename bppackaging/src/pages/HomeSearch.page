@@ -8,7 +8,7 @@
 <link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.newjqueryUICss)}" media="all" />
 <apex:includeScript value="{!$Resource.JqueryUI}"/>
 <apex:includeScript value="{!URLFOR($Resource.AngularResources, 'js/underscore-min.js') }" />
-<apex:includeScript value="{!URLFOR($Resource.AngularResources, 'js/jquery.mousewheel.js') }" />*
+<apex:includeScript value="{!URLFOR($Resource.AngularResources, 'js/jquery.mousewheel.js') }" />
 
 
 <c:NewViewCustomerStyle />
@@ -243,7 +243,7 @@
             }
             
             try{
-                $scope.HomeSearchGrid.searchResultPageSortAttrsJSON.PageSize = '{!JSENCODE(TEXT(Home_Search_Grid_Page_Size))}';  
+                $scope.HomeSearchGrid.searchResultPageSortAttrsJSON.PageSize = parseInt('{!JSENCODE(TEXT(Home_Search_Grid_Page_Size))}');  
             } catch (ex){}
         }
         $scope.HomeSearchGrid.setDefaultPageSortAttrs();
@@ -348,9 +348,10 @@
                         template : '<div class="dialogBox"><h2>Save Custom Filter</h2><br/>'
                                 + '<form ng-class=" { \'has-error\': HomeSearchGrid.isFilterNameError , \'\': !HomeSearchGrid.isFilterNameError }">'
                                 +
-
                                 '<span ng-hide="HomeSearchGrid.isHideRadioButton">'
-                                + '<input type="radio" ng-model="HomeSearchGrid.userChoice" value="Update"> Update Existing Filter </input>'
+                                + '<span ng-hide="HomeSearchGrid.iscommon">'
+                                + '<input type="radio" ng-model="HomeSearchGrid.userChoice" value="Update" ng-hide="HomeSearchGrid.iscommon"> Update Existing Filter </input>'
+                                + '</span>'
                                 + '<br/>'
                                 + '<input type="radio" ng-model="HomeSearchGrid.userChoice" value="Save"> Save as New Filter </input>'
                                 + '</span>'
@@ -392,8 +393,9 @@
             	}
 			}
 			if($scope.HomeSearchGrid.userChoice == 'Update'){
-				FilterId = $scope.HomeSearchGrid.popUpFilterId;
-				$scope.HomeSearchGrid.newFilterName = angular.copy($scope.HomeSearchGrid.popUpFilterName);
+				FilterId = angular.copy($scope.HomeSearchGrid.popUpFilterId);
+				$scope.HomeSearchGrid.newFilterName =  angular.copy($scope.HomeSearchGrid.popUpFilterName);
+				$scope.HomeSearchGrid.filterList.FilterType = 'Custom';
 			}
 			if($scope.HomeSearchGrid.isFilterRename || $scope.HomeSearchGrid.isFilterCopy){
 				FilterId = $scope.HomeSearchGrid.popUpFilterId;
@@ -512,8 +514,10 @@
         	$scope.HomeSearchGrid.displayGrid = false;
         	var FilterRecord;
         	$scope.HomeSearchGrid.currentActiveFilter = {Id : filterObj.Id, Name : filterObj.FilterLabel, Type : filterType };
-        	SideBarFactory.getFilterFields(filterObj.Id).then(function(successfulSearchResult) {
+        	setTimeout(function(){
+			SideBarFactory.getFilterFields(filterObj.Id).then(function(successfulSearchResult) {
               		debug(successfulSearchResult);
+              		debug('----------------------------')
               		FilterRecord = successfulSearchResult;
               		
               		
@@ -528,18 +532,16 @@
 		                $scope.HomeSearchGrid.formMaterData.SalesTaxList = successfulSearchResult.SalesTaxList;
 		                $scope.HomeSearchGrid.formMaterData.StatusValues = successfulSearchResult.StatusValues;
 		                debug($scope.HomeSearchGrid.filterFormJson.People_SalesTax);
-		                
-		                
 		                setTimeout(function(){
 							$scope.HomeSearchGrid.filterFormJson = FilterRecord.FieldFilterJson;
 	                        $scope.HomeSearchGrid.searchResultPageSortAttrsJSON = JSON.parse(FilterRecord.SortJson);
 	                        $scope.HomeSearchGrid.columns = JSON.parse(FilterRecord.DisplayHiddenColumn);
 	                        $scope.HomeSearchGrid.recentColumns = angular.copy(JSON.parse(FilterRecord.DisplayHiddenColumn));
 	                        $scope.HomeSearchGrid.formMaterData.AdditionalFields = JSON.parse(FilterRecord.AdditionalFieldJson);
-	                        
-	                         
-                            if(JSON.parse(FilterRecord.SummaryFieldsJSON) != undefined){
+	                        if(JSON.parse(FilterRecord.SummaryFieldsJSON) != undefined){
 		                       	$scope.HomeSearchGrid.summaryDisplayedColumns = JSON.parse(FilterRecord.SummaryFieldsJSON).visible;
+						        debug($scope.HomeSearchGrid.summaryDisplayedColumns);
+						        debug('$scope.HomeSearchGrid.summaryDisplayedColumns');
 						        $scope.HomeSearchGrid.summaryHiddenColumns = JSON.parse(FilterRecord.SummaryFieldsJSON).Hidden;
 						        $scope.HomeSearchGrid.copySummaryDisplayColumns = angular.copy($scope.HomeSearchGrid.summaryDisplayedColumns);
 						        $scope.HomeSearchGrid.copySummaryHiddenColumns = angular.copy($scope.HomeSearchGrid.summaryHiddenColumns);
@@ -554,18 +556,19 @@
 				        	$scope.HomeSearchGrid.outputResult = FilterRecord.ExportFileFormat;
 							$scope.HomeSearchGrid.groupNameResult = FilterRecord.ExportGroupField;
 							$scope.HomeSearchGrid.isReportMode = FilterRecord.IsReportOn;
-				        	
-							$scope.HomeSearchGrid.getFilteredRecords(false);
-						}, 0);
+				        	$scope.HomeSearchGrid.getFilteredRecords(false);
+						    
+						}, 1000);
 		            },
 		            function(errorSearchResult) {
 		                $scope.HomeSearchGrid.searchedResult = errorSearchResult;
 		                Notification.error("Some error occurred, please refresh the page");
 		            });
-              		
             }, function(errorSearchResult) {
                 $scope.HomeSearchGrid.filterList.FilterType = errorSearchResult;
             });
+          },1000);
+           
         }
         
         
@@ -804,7 +807,6 @@
         	var FieldLabel = Field.Label;
         	var RecordKey = Field.RecordKey;
         	var Type = Field.Type;
-        	
         	if(!$scope.HomeSearchGrid.isReportMode){
 	        	if(FieldApiName == null){
 	        		Notification.error("Sorting can't be applied on this column");
@@ -919,7 +921,9 @@
 					
 					setTimeout(function () {
 						angular.element('[data-toggle="tooltip"]').tooltip();
+						debug("1 hello"+$scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount);
 						$scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount++;
+						debug("1 hello1"+$scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount);
 						if ($scope.$root.$$phase != '$apply' && $scope.$root.$$phase != '$digest')
 							$scope.$apply();
 					}, 10);
@@ -1005,6 +1009,8 @@
                 debug('Pagination Json');
                 debug($scope.HomeSearchGrid.searchResultPageSortAttrsJSON);
                 
+                $scope.HomeSearchGrid.isReportMode = false;
+                
                 if(!$scope.HomeSearchGrid.isReportMode){
 	                HomeSearchFactory.getFilteredRecords(JSON.stringify($scope.HomeSearchGrid.filterFormJson), 
 	                                                    JSON.stringify($scope.HomeSearchGrid.searchResultPageSortAttrsJSON))
@@ -1019,7 +1025,9 @@
 	                    $scope.HomeSearchGrid.getGridSummary();
 	                    setTimeout(function () {
 	                    	angular.element('[data-toggle="tooltip"]').tooltip();
+	                    	debug("2 hello"+$scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount);
 	                        $scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount++;
+	                        debug("2 hello1"+$scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount);
 	                        if ($scope.$root.$$phase != '$apply' && $scope.$root.$$phase != '$digest')
 	                   			$scope.$apply();
 	                    }, 10);
@@ -1086,7 +1094,9 @@
 	            		$scope.HomeSearchGrid.searchCriteriaJson = reportResult.FilterLabelList;
 	            		setTimeout(function () {
 	                    	angular.element('[data-toggle="tooltip"]').tooltip();
+	                    	debug("3 hello"+$scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount);
 	                        $scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount++;
+	                        debug("3 hello1"+$scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount);
 	                        if ($scope.$root.$$phase != '$apply' && $scope.$root.$$phase != '$digest')
 	                   			$scope.$apply();
 	                    }, 10);
@@ -1159,7 +1169,7 @@
 		                        //$scope.HomeSearchGrid.recentColumns = angular.copy(JSON.parse($scope.HomeSearchGrid.columns.DisplayHiddenColumn));
 		                        $scope.HomeSearchGrid.formMaterData.AdditionalFields = JSON.parse(FilterRecord.AdditionalFieldJson);
 		                        
-		                         
+
                             if(JSON.parse(FilterRecord.SummaryFieldsJSON) != undefined){
 		                       	$scope.HomeSearchGrid.summaryDisplayedColumns = JSON.parse(FilterRecord.SummaryFieldsJSON).visible;
 						        $scope.HomeSearchGrid.summaryHiddenColumns = JSON.parse(FilterRecord.SummaryFieldsJSON).Hidden;
@@ -1190,7 +1200,9 @@
 			  
 			  setTimeout(function () {
                	angular.element('[data-toggle="tooltip"]').tooltip();
+               	debug("4 hello"+$scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount);
                    $scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount++;
+                   debug("4 hello1"+$scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount);
                    if ($scope.$root.$$phase != '$apply' && $scope.$root.$$phase != '$digest')
               			$scope.$apply();
                }, 10);
@@ -1215,6 +1227,8 @@
 			});
 			var DisplayedCols = [];
         	var HiddenCols = [];
+        	debug($scope.HomeSearchGrid.GridSummaryData);
+        	debug('$scope.HomeSearchGrid.GridSummaryData---------');
         	for(i=0; i< $scope.HomeSearchGrid.GridSummaryData.length; i++){
 	        	if($scope.HomeSearchGrid.GridSummaryData[i].Type == 'Number' || $scope.HomeSearchGrid.GridSummaryData[i].Type == 'Currency'){
 	        		if($scope.HomeSearchGrid.GridSummaryData[i].IsDisplayed ){
@@ -1359,7 +1373,11 @@
 		
 		
 		// Method to handle any updates in pagination controls
-		$scope.HomeSearchGrid.HSGrid_paginationControlsAction = function () {
+		$scope.HomeSearchGrid.HSGrid_paginationControlsAction = function (pageSizeParam) {
+			if(pageSizeParam != undefined) {
+				$scope.HomeSearchGrid.searchResultPageSortAttrsJSON.PageSize = pageSizeParam;
+			}
+			console.log("ABCD: " + $scope.HomeSearchGrid.searchResultPageSortAttrsJSON.PageSize);
 			if($scope.HomeSearchGrid.isReportMode){
 				$scope.HomeSearchGrid.SearchedResult = [];
 				var currentPage = $scope.HomeSearchGrid.searchResultPageSortAttrsJSON.CurrentPage;
@@ -1371,7 +1389,9 @@
 				}
 				setTimeout(function () {	
                 	angular.element('[data-toggle="tooltip"]').tooltip();
+                	debug("5 hello"+$scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount);
                     $scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount++;
+                    debug("5 hello1"+$scope.HomeSearchGrid.searchResultPageSortAttrsJSON.ChangesCount);
                     if ($scope.$root.$$phase != '$apply' && $scope.$root.$$phase != '$digest')
                			$scope.$apply();
                 }, 10);
@@ -1961,6 +1981,7 @@
 </script>
 <c:UserSearchComponent />
 <c:HomePageServices />
+
 
 <body data-ng-controller="searchTableController" data-ng-init="HomeSearchGrid.LoadGrid()" ng-cloak="ng-cloak">
     
@@ -2552,8 +2573,9 @@
 			                                    </span>
 			                                    <span ng-if="col.Type == 'Icon' && data[col.RecordKey] == 11"
 			                                    	data-toggle="tooltip" title="Vendor Receiving">
-			                                        <img src="https://cloud.githubusercontent.com/assets/11593748/6771103/40ccb170-d0ab-11e4-9f26-808d5fcaef11.png"  style="height: 26px;width: 26px;"/>
-			                                    </span>
+			                                        <!-- <img src="https://cloud.githubusercontent.com/assets/11593748/6771103/40ccb170-d0ab-11e4-9f26-808d5fcaef11.png"  style="height: 26px;width: 26px;"/> --> 
+			                                    	<img src="{!URLFOR($Resource.Images, 'Vendor_Receiving.png')}" style="height: 26px;width: 26px;"/>
+			                                    </span> 
 			                                    <span ng-if="col.Type == 'Icon' && data[col.RecordKey] == 12"
 			                                    	data-toggle="tooltip" title="Vendor Invoice">
 			                                        <i class="fa fa-file-text-o  Plr5 FC7 F18"></i>
@@ -2574,17 +2596,21 @@
 			                                    	data-toggle="tooltip" title="Sublet">
 			                                        <i class="fa fa-scribd Plr5 FC7 F18"></i>
 			                                    </span>
+			                                    <span ng-if="col.Type == 'Icon' && data[col.RecordKey] == 17"
+			                                    	data-toggle="tooltip" title="Customer Payment">
+			                                        <i class="fa fa-money Plr5 FC7 F18"></i>
+			                                    </span>
 			                                    
 			                                    
 			                                    <a href="{!$Page.newViewCustomer}?id={{data['Id']}}" target="_blank"
 			                                        ng-if="col.Type == 'Link' && data['Type'] == 1"> 
 			                                        <span>{{data[col.RecordKey]}}</span>
 			                                    </a>
-			                                    <a href="{!$Page.ViewVendor}?id={{data['Id']}}" target="_blank"
+			                                    <a href="{!$Page.NewViewVendor}?id={{data['Id']}}" target="_blank"
 			                                        ng-if="col.Type == 'Link' && data['Type'] == 2"> 
 			                                        <span>{{data[col.RecordKey]}}</span>
 			                                    </a>
-			                                    <a href="{!$Page.viewPart}?id={{data['Id']}}" target="_blank"
+			                                    <a href="{!$Page.newviewPart}?id={{data['Id']}}" target="_blank"
 			                                        ng-if="col.Type == 'Link' && data['Type'] == 3"> 
 			                                        <span>{{data[col.RecordKey]}}</span>
 			                                    </a>
@@ -2612,15 +2638,15 @@
 			                                        ng-if="col.Type == 'Link' && data['Type'] == 9"> 
 			                                        <span>{{data[col.RecordKey]}}</span>
 			                                    </a>
-			                                    <a href="{!$Page.VendorOrder}?id={{data['Id']}}" target="_blank"
+			                                    <a href="{!$Page.NewVendorOrder}?id={{data['Id']}}" target="_blank"
 			                                        ng-if="col.Type == 'Link' && data['Type'] == 10"> 
 			                                        <span>{{data[col.RecordKey]}}</span>
 			                                    </a>
-			                                    <a href="{!$Page.VendorOrderReceiving}?id={{data['Id']}}" target="_blank"
+			                                    <a href="{!$Page.NewVendorOrderReceiving}?id={{data['Id']}}" target="_blank"
 			                                        ng-if="col.Type == 'Link' && data['Type'] == 11"> 
 			                                        <span>{{data[col.RecordKey]}}</span>
 			                                    </a>
-			                                    <a href="{!$Page.VendorOrderInvoicing}?id={{data['Id']}}" target="_blank"
+			                                    <a href="{!$Page.NewVendorOrderInvoicing}?id={{data['Id']}}" target="_blank"
 			                                        ng-if="col.Type == 'Link' && data['Type'] == 12"> 
 			                                        <span>{{data[col.RecordKey]}}</span>
 			                                    </a>
@@ -2638,6 +2664,10 @@
 			                                    </a>
 			                                    <a href="#" target="_blank"
 			                                        ng-if="col.Type == 'Link' && data['Type'] == 16"> 
+			                                        <span>{{data[col.RecordKey]}}</span>
+			                                    </a>
+			                                    <a href="{!$Page.newCustomerOrder}?id={{data['Id']}}" target="_blank"
+			                                        ng-if="col.Type == 'Link' && data['Type'] == 17"> 
 			                                        <span>{{data[col.RecordKey]}}</span>
 			                                    </a>
 			                                    
@@ -2680,7 +2710,8 @@
 	                </div>
 					</div>
 					<div class="gridLoadingDiv" style="position: fixed; top: 32%; left: 40%;" ng-show="!HomeSearchGrid.displayGrid">
-                			<img src="https://www.criminalwatchdog.com/images/assets/loading.gif" style="width: 200px; height: 200px; margin-left: 40%; margin-top: 100px;"/>
+                			<!-- <img src="https://www.criminalwatchdog.com/images/assets/loading.gif" style="width: 200px; height: 200px; margin-left: 40%; margin-top: 100px;"/> -->
+                			<img src="{!URLFOR($Resource.Images, 'Home_Search_loading.gif')}" title="Please wait ..." style="width: 200px; height: 200px; margin-left: 40%; margin-top: 100px;"/>
                 	</div>	                             
             	</div>   
           <!-- center Div End here -->

@@ -3,7 +3,7 @@
 		function ajaxindicatorstart(text)
 			{
 				if(jQuery("#center-pane").find('#resultLoading').attr('id') != 'resultLoading'){
-				jQuery("#center-pane").append('<div id="resultLoading" style="display:none"><div><img src="https://tommoody.us/images/jul11/fuckkk.gif"><div>'+text+'</div></div><div class="bg"></div></div>');
+				jQuery("#center-pane").append('<div id="resultLoading" style="display:none"><div><img src="{!URLFOR($Resource.Images, "loading2.gif")}"/><<div>'+text+'</div></div><div class="bg"></div></div>');
 				}
 			
 				jQuery('#resultLoading').css({

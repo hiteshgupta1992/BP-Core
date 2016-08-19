@@ -10,8 +10,31 @@
         #AddEditLabour .controls1 {
             top: -45px;
         }
+        
+        .popupright .tabconainer .option_field .form_fields .WP {
+        	width: 82%;
+        }
+        
+        .popupright .tabconainer .option_field .controls .MTP	{
+        	margin-top: 12px;
+        }
+        
+        .popupright .tabconainer .option_field .Z_Index_P {
+        	z-index: 999 !important;
+        }
     </style>
-    
+    <!-- <script>
+    $(document).ready(function () {
+			setTimeout(function () {
+				$('[data-toggle="tooltip"]').tooltip({
+					placement : 'bottom',
+					z-index: 8
+				});
+			}, 1000);
+		});
+	   
+	 </script>
+	  -->
     <script>
         var addEditLabourModule= angular.module('addEditLabourModule', ['dir.priceInput', 'autocomplete', 'ui-notification'] );
         addEditLabourModule.controller('addEditLabourController', function ($scope, Notification, AddEditLabourService) {
@@ -19,7 +42,7 @@
             if($scope.AddEditLabour == undefined){
                 $scope.AddEditLabour = {};
             }
-            
+            $scope.AddEditLabour.tabIndexValue = 3000;
             $scope.AddEditLabour.isValidForm = true;
             $scope.AddEditLabour.LabourFormValidationModal = {};
             
@@ -31,6 +54,13 @@
                 LabourRate          : 'Labour Rate, Required if Fixed Rate selected',
                 LabourCategory      : 'Labour Category',
                 LabourTaxable       : 'Labour Taxable'
+            }
+            
+            $scope.AddEditLabour.adjustTabIndex = function(e){
+            	if(e.which == 9){
+            		$('#Code').focus();
+            		e.preventDefault();
+            	}
             }
             
             // Method to set default values for validation model
@@ -55,7 +85,7 @@
                     LabourRate : {
                         isError : false,
                         ErrorMessage : '',
-                        Type : 'MinValue',
+                        Type : 'MinimumValue,Rate',
                         Value : 0
                     }
                 };
@@ -65,7 +95,8 @@
                 LabourCategory : [
                     {
                         Field : "Type__c",
-                        Value : "Labour"
+                        Value : "Labour",
+                        FilterObject :"Category__c"
                     }
                 ]
             };
@@ -93,7 +124,7 @@
             });
             
             $scope.$on('EditLabourEvent',function(event, params) {
-                $scope.AddEditLabour.editLabour(params.labourRecord);
+                $scope.AddEditLabour.editLabour(angular.copy(params.labourRecord));
             });
             
             // Event listener when a record is selected from Search bar
@@ -158,6 +189,19 @@
             }
             
             $scope.AddEditLabour.loadDefaultLabourData = function() {
+            	AddEditLabourService.getApplicableTaxList().then(function(taxList){
+                	debug(taxList);
+                	$scope.AddEditLabour.IsTaxIncludingPricing = taxList.IsTaxIncludingPricing;
+                	$scope.AddEditLabour.TaxList = taxList.SalesTaxList;
+                	var defaultTaxIndex = _.findIndex(taxList.SalesTaxList, {IsDefault: true});
+                	if(defaultTaxIndex > -1){
+                		$scope.AddEditLabour.LabourRecord.ApplicableTaxId = $scope.AddEditLabour.TaxList[defaultTaxIndex].Id;
+                		$scope.AddEditLabour.Tax_Rate = $scope.AddEditLabour.TaxList[defaultTaxIndex].TaxRate;
+                	}
+                }, function(errorSearchResult) {
+                    //$scope.ViewCustomer.CustomerInfo = errorSearchResult;
+                });
+                
             	AddEditLabourService.getDefaultLabourData().then(function (labourInfo) {
 					if(labourInfo.LabourCategory != null && labourInfo.LabourCategory.Id != null && labourInfo.LabourCategory.Id != ""){
 						$scope.AddEditLabour.LabourRecord.LabourCategory = {Id : labourInfo.LabourCategory.Id, Name : labourInfo.LabourCategory.Name};
@@ -165,11 +209,20 @@
 						$scope.AddEditLabour.LabourRecord.LabourCategory = {Id : null, Name : ""};
 					}
 					$scope.AddEditLabour.LabourRecord.LabourTaxable = true;
+					$scope.AddEditLabour.LabourRecord.LabourRate = 0;
 					$scope.AddEditLabour.CategoryNameStr = $scope.AddEditLabour.LabourRecord.LabourCategory.Name;
 				}, function (errorSearchResult) {
 					responseData = errorSearchResult;
 					Notification.error("Some error occured while fetching the records. Please refresh the page and try again.");
 				});
+            }
+            
+            
+            $scope.AddEditLabour.changeApplicableTax = function(){
+            	var selectedTaxIndex = _.findIndex($scope.AddEditLabour.TaxList, {Id: $scope.AddEditLabour.LabourRecord.ApplicableTaxId});
+            	if(selectedTaxIndex > -1){
+            		$scope.AddEditLabour.Tax_Rate = $scope.AddEditLabour.TaxList[selectedTaxIndex].TaxRate;
+            	}
             }
             
 //             // Method to load all page data on load:
@@ -189,9 +242,29 @@
             
             // Method to populate form data
             $scope.AddEditLabour.LoadFormData = function(LabourRecord) {
+            	AddEditLabourService.getApplicableTaxList().then(function(taxList){
+                	debug(taxList);
+                	$scope.AddEditLabour.IsTaxIncludingPricing = taxList.IsTaxIncludingPricing;
+                	$scope.AddEditLabour.TaxList = taxList.SalesTaxList;
+                	var defaultTaxIndex = _.findIndex(taxList.SalesTaxList, {IsDefault: true});
+                	
                 $scope.AddEditLabour.LabourRecord = LabourRecord;
                 $scope.AddEditLabour.CategoryNameStr = $scope.AddEditLabour.LabourRecord.LabourCategory.Name;
+	                if($scope.AddEditLabour.LabourRecord.ApplicableTaxId != null){
+	                	var salesTaxIndex = _.findIndex(taxList.SalesTaxList, {Id: $scope.AddEditLabour.LabourRecord.ApplicableTaxId});
+	                	if(salesTaxIndex > -1){
+	                		$scope.AddEditLabour.Tax_Rate = taxList.SalesTaxList[salesTaxIndex].TaxRate;
+	                	}
+	                }
+	                if(defaultTaxIndex > -1 && $scope.AddEditLabour.LabourRecord.ApplicableTaxId == null){
+                		$scope.AddEditLabour.LabourRecord.ApplicableTaxId = $scope.AddEditLabour.TaxList[defaultTaxIndex].Id;
+                		$scope.AddEditLabour.Tax_Rate = $scope.AddEditLabour.TaxList[defaultTaxIndex].TaxRate;
+                	}
                 $scope.AddEditLabour.openPopup();
+                }, function(errorSearchResult) {
+                    //$scope.ViewCustomer.CustomerInfo = errorSearchResult;
+                });
+                
             }
             
             // On click of Save button, save form data and close popup
@@ -207,6 +280,9 @@
                 // By default set valid flag to true before starting validation
                 $scope.AddEditLabour.isValidForm = true;
                 
+                // get similar labour codes
+                $scope.AddEditLabour.getSimilarLabours('CODE');  
+                
                 // Validate form
                 $scope.AddEditLabour.validateForm();
                 
@@ -217,14 +293,17 @@
                     Notification.error('Please Review Error(s) before saving form');
                     return;
                 }
-                // Check if any Labour record with the same Code and Description already exists in database, if so then decline the operation 
+                 // Check if any Labour record with the same Code already exists in database, if so then show the error msg
                   for(var i=0; i<$scope.AddEditLabour.SimilarLabourRecords.length; i++){
-                    if($scope.AddEditLabour.SimilarLabourRecords[i].PriorityValue == 1){
+                    if($scope.AddEditLabour.SimilarLabourRecords[i].PriorityLevel == 1){
                         Notification.error('Similar Labour record already present.');
                         return;
                     }
                 }
                 
+                if($scope.AddEditLabour.LabourRecord.LabourRate == "" || $scope.AddEditLabour.LabourRecord.LabourRate == null) {
+               		$scope.AddEditLabour.LabourRecord.LabourRate = 0;
+               	}
              	 var labourRecords = [];
                  labourRecords.push($scope.AddEditLabour.LabourRecord);
                  $scope.AddEditLabour.SaveLabourData(labourRecords);
@@ -246,20 +325,20 @@
                        // If parent page has save callback method, then perform the method and close popup
                         if($scope.$parent.labourRecordSaveCallback != undefined){
                             $scope.$parent.labourRecordSaveCallback(labourId);
-                          //  Notification.success('Labour Saved SucessFully');
+                          //  Notification.success('Labour Saved Successfully');
                         }else{
-	                    	var child = window.open("{!$Page.viewLabour}?id="+labourId);
+	                    	var child = window.open("{!$Page.ViewLabour}?id="+labourId);
 	                    	if(child == undefined ){
                     			Notification.warning('Allow pop-ups from browser settings');
                     		} else {
                     			child.opener.focus(); 
                     		}  
                     	}
-                        Notification.success('Labour Saved SucessFully');
+                        Notification.success('Labour Saved Successfully');
                         
                         $scope.AddEditLabour.closePopup();
                     }, function(errorSearchResult) {
-                        Notification.error('Some error occurred. Please try again.');
+                        Notification.error(errorSearchResult);
                     });
                 }
             }
@@ -309,6 +388,16 @@
                 });
             }
             
+            $scope.AddEditLabour.numberOnly = function(e) {
+            	var k = e.which;
+            	debug(k);
+			    /* numeric inputs can come from the keypad or the numeric row at the top */
+			    if ( (k < 48 || k > 57) && (k < 96 || k > 105) && k != 8 && k != 110 && k != 190 && k != 9) {
+			        e.preventDefault();
+			        return false;
+			    }
+            }
+            
             // Validation method for a field with modelKey value
             $scope.AddEditLabour.validateFieldWithKey = function (modelKey) {
                 if($scope.AddEditLabour.LabourFormValidationModal[modelKey] == null){
@@ -317,8 +406,10 @@
                 var fieldValue = $scope.AddEditLabour.LabourRecord[modelKey];
                 var numericRegex = /^[0-9]*$/;
                 var validateType = $scope.AddEditLabour.LabourFormValidationModal[modelKey].Type;
-                
+                var minValue = $scope.AddEditLabour.LabourFormValidationModal[modelKey].Value;
+                var rateRegex = /^\d+(\.[0-9][0-9]?)?$/;
                 if (validateType.indexOf('Numeric') > -1) {
+                	debug("inside numeric");
                     if (fieldValue != '' && fieldValue != undefined && !numericRegex.test(fieldValue)) {
                         $scope.AddEditLabour.LabourFormValidationModal[modelKey].isError = true;
                         $scope.AddEditLabour.LabourFormValidationModal[modelKey].ErrorMessage = 'Invalid field Value';
@@ -327,6 +418,39 @@
                         $scope.AddEditLabour.LabourFormValidationModal[modelKey].ErrorMessage = '';
                     }
                 }
+                if (validateType.indexOf('Rate') > -1) {
+                	debug("inside Rate");
+                    if (fieldValue != '' && fieldValue != undefined && !rateRegex.test(fieldValue)) {
+                        $scope.AddEditLabour.LabourFormValidationModal[modelKey].isError = true;
+                        $scope.AddEditLabour.LabourFormValidationModal[modelKey].ErrorMessage = 'Please enter a valid decimal value with two decimal places';  
+                    } else {  
+                        $scope.AddEditLabour.LabourFormValidationModal[modelKey].isError = false;
+                        $scope.AddEditLabour.LabourFormValidationModal[modelKey].ErrorMessage = '';
+                    }  
+                }
+                if($scope.AddEditLabour.LabourRecord.LabourFixedRate == true) {
+                	fieldValue = fieldValue.toString();
+                	debug("inside fixed rate true"+fieldValue+"type of fieldValue"+typeof fieldValue);
+                	
+	                if (validateType.indexOf('MinimumValue') > -1) {
+	                    if (fieldValue != '' && fieldValue != undefined) {
+	                    	if(fieldValue <= minValue) {
+	                    		debug("less");
+	                    		$scope.AddEditLabour.LabourFormValidationModal[modelKey].isError = true;
+	                        	$scope.AddEditLabour.LabourFormValidationModal[modelKey].ErrorMessage = '{!JSENCODE($Label.Value_must_be_greater_than)} ' + minValue;
+	                    	} else {
+		                    	debug("greater");
+		                        $scope.AddEditLabour.LabourFormValidationModal[modelKey].isError = false;
+		                        $scope.AddEditLabour.LabourFormValidationModal[modelKey].ErrorMessage = '';
+	                    }
+	                        
+	                    } else {
+	                    	debug("no value");
+	                        $scope.AddEditLabour.LabourFormValidationModal[modelKey].isError = false;
+	                        $scope.AddEditLabour.LabourFormValidationModal[modelKey].ErrorMessage = '';
+	                    }
+	                }
+	            }
                 if (validateType.indexOf('Required') > -1) {
                     if(fieldValue == undefined || fieldValue == null || $scope.AddEditLabour.LabourRecord[modelKey] == ''){
                         $scope.AddEditLabour.LabourFormValidationModal[modelKey].isError = true;
@@ -399,7 +523,28 @@
                 });
                 return deferred.promise;
             }
-                    
+            
+            this.getApplicableTaxList = function()
+            {
+                    var deferred = $q.defer();
+                    Visualforce.remoting.Manager.invokeAction(
+                        '{!$RemoteAction.ViewLabourCtrl.getApplicableTaxList}',
+                        function (result, event) {
+                           if (event.type == 'exception') {
+                                deferred.reject(event.message);
+                            } else {
+                                var categoryRecord = decodeString(result);
+                                var find = '\'';
+                                var re = new RegExp(find, 'g');
+                                categoryRecord = categoryRecord.replace(re, '');
+                                deferred.resolve(JSON.parse(categoryRecord));
+                            }
+                        }, {
+                            escape : true
+                    });
+                    return deferred.promise;
+            }
+            
             this.getLabourDetails = function (labourId) {
             	labourId = encodeString(labourId);
                 var deferred = $q.defer();
@@ -476,11 +621,11 @@
         <div class="modal-dialog" ng-class="{'edit_modal-dialog' : AddEditLabour.IsEditMode == true}">
             <!-- Modal content-->
             <div class="modal-content col-md-12">
-                <div class="modal-body popup_container" style="height: 520px;">
-                    <div class="popupinside">
+                <div class="modal-body popup_container" style="height: 600px;">
+                    <div class="popupinside"> 
                         
                         <!-- popup left start here -->
-                        <div class="col-lg-4 col-md-4 popupleft" ng-show="AddEditLabour.IsEditMode == false" style="height: 490px;">
+                        <div class="col-lg-4 col-md-4 popupleft" ng-show="AddEditLabour.IsEditMode == false" style="height: 520px;">
                             <div class="popupleft_container" id="topsection">
                                 
                                 <h1 class="letpanel_heading">Existing Labours Like This</h1>
@@ -490,14 +635,14 @@
                                 
                                 <!-- Similar record 1st record -->
                                 <div class="goldbox col-lg-12 col-md-12" ng-repeat="SimilarLabourRecord in AddEditLabour.SimilarLabourRecords">
-                                    <div class="leftgoldbox">
+                                    <!-- <div class="leftgoldbox">
                                         <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
                                         <div class="star_container">
                                             <i class="fa fa-star" style="float: left;color: #B7BEC6;margin-top: 5px; font-size: 15px;"></i> 
                                             <i class="fa fa-star" style="float: left;color: #B7BEC6;margin-top: 5px; font-size: 15px;"></i> 
                                         </div>
-                                    </div>
-                                    <div class="rightgoldbox" id="CustomerSugesstionDiv">
+                                    </div> -->
+                                    <div class="rightgoldbox rightgoldboxML" id="CustomerSugesstionDiv" style="margin-left: 0px;">
                                         <div>
                                             <p class="cust_name">{{SimilarLabourRecord.LabourCode}}</p>
                                             <p>{{SimilarLabourRecord.LabourHours}} hrs @ ${{SimilarLabourRecord.LabourRate}}</p>
@@ -519,11 +664,11 @@
                                 <h1 class="right_panel_heading" ng-if="AddEditLabour.IsEditMode"> Edit Labour</h1>
 
                                 <div class="savecancle_btncntnr">
-                                    <button type="button" id="closemodal" class="btn btn-default grayBtn" ng-click="AddEditLabour.closePopup();" ng-attr-tabindex="{{AddEditLabour.tabIndexValue + 31}}">Cancel</button>
+                                    <button type="button" id="closemodal" class="btn btn-default grayBtn" ng-click="AddEditLabour.closePopup();" ng-attr-tabindex="{{AddEditLabour.tabIndexValue + 31}}" ng-keydown="AddEditLabour.adjustTabIndex($event);">Cancel</button>
                                     <button type="button" class="btn btn-default greenBtn" ng-click="AddEditLabour.SaveLabourForm();" ng-attr-tabindex="{{AddEditLabour.tabIndexValue + 30}}">Save</button>
                                 </div>
                             </div>
-                            
+                 
                             <div class="tabconainer">
                                 <form>
                                     <!-- START: Code field -->
@@ -534,7 +679,7 @@
                                             <p class="req-label">Code</p>
                                         </div>
                                         <div class="form_fields">
-                                            <div class="form-group large MB">
+                                            <div class="form-group MB WP">
                                                 <input type="text" class="form-control" id="Code" placeholder="Code" rel="LabourCode" maxlength="255"
                                                         ng-model="AddEditLabour.LabourRecord.LabourCode"
                                                         ng-disabled="AddEditLabour.IsEditMode"
@@ -543,10 +688,11 @@
                                                         data-toggle="tooltip" title="{{AddEditLabour.LabourFormValidationModal['LabourCode']['ErrorMessage']}}"
                                                         ng-attr-tabindex="{{AddEditLabour.tabIndexValue + 1}}"/>
                                             </div>
-                                            <div  class="controls1 controls" id="LabourCode">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip" title="{{AddEditLabour.helpText['LabourCode']}}"></i>
+                                            
+                                        </div>
+                                        <div  class="controls1 controls" id="LabourCode">
+                                                <i class="fa fa-question-circle MTP" data-toggle="tooltip" title="{{AddEditLabour.helpText['LabourCode']}}"></i>
                                                 <i class="fa fa-times" ng-click="AddEditLabour.LabourRecord.LabourCode = ''"></i>
-                                            </div>
                                         </div>
                                     </div>
                                     <!-- END: Code field -->
@@ -559,7 +705,7 @@
                                             <p class="req-label">Description</p>
                                         </div>
                                         <div class="form_fields">
-                                            <div class="form-group large MB">
+                                            <div class="form-group MB WP">
                                                 <input type="text" class="form-control" id="Description" placeholder="Description" rel="LabourDescription" maxlength="255"
                                                         ng-model="AddEditLabour.LabourRecord.LabourDescription" 
                                                         ng-blur="AddEditLabour.getSimilarLabours('DESCRIPTION'); AddEditLabour.validateFieldWithKey('LabourDescription');"
@@ -567,10 +713,11 @@
                                                         data-toggle="tooltip" title="{{AddEditLabour.LabourFormValidationModal['LabourDescription']['ErrorMessage']}}"
                                                         ng-attr-tabindex="{{AddEditLabour.tabIndexValue + 2}}"/>
                                             </div>
-                                            <div  class="controls1 controls" id="LabourDescription">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip" title="{{AddEditLabour.helpText['LabourDescription']}}"></i>
+                                            
+                                        </div>
+                                        <div  class="controls1 controls" id="LabourDescription">
+                                                <i class="fa fa-question-circle MTP" data-toggle="tooltip" title="{{AddEditLabour.helpText['LabourDescription']}}"></i>
                                                 <i class="fa fa-times" ng-click="AddEditLabour.LabourRecord.LabourDescription = ''"></i>
-                                            </div>
                                         </div>
                                     </div>
                                     <!-- END: Description field -->
@@ -596,10 +743,11 @@
                                                                   input-model = "AddEditLabour" 
                                                                   rel-value = "LabourHours"/>
                                             </div>
-                                            <div  class="controls1 controls" id="LabourHours">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip" title="{{AddEditLabour.helpText['LabourHours']}}"></i>
+                                            
+                                        </div>
+                                        <div  class="controls1 controls" id="LabourHours">
+                                                <i class="fa fa-question-circle MTP" data-toggle="tooltip" title="{{AddEditLabour.helpText['LabourHours']}}"></i>
                                                 <i class="fa fa-times" ng-click="AddEditLabour.LabourRecord.LabourHours = ''"></i>
-                                            </div>
                                         </div>
                                     </div>
                                     <!-- END: Hours field -->
@@ -623,9 +771,10 @@
                                                     </span>
                                                 </label>
                                             </div>
-                                            <div  class="controls1 controls" id="LabourFixedRate">
+                                           
+                                        </div>
+                                         <div  class="controls1 controls" id="LabourFixedRate">
                                                 <i class="fa fa-question-circle" data-toggle="tooltip" title="{{AddEditLabour.helpText['LabourFixedRate']}}"></i>
-                                            </div>
                                         </div>
                                     </div>
                                     <!-- END: Fixed Rate field -->
@@ -639,7 +788,7 @@
                                         </div>
                                         <div class="form_fields">
                                             <div class="form-group large MB">
-                                                <price-only-input id-value = "Rate"
+                                                <!-- <price-only-input id-value = "Rate"
                                                                   class-value = "form-control medium"
                                                                   place-holder-value = "{!JSENCODE($ObjectType.Labour_Code__c.fields.Rate__c.label)}"
                                                                   max-length = "15" 
@@ -649,12 +798,23 @@
                                                                   validation-modal = "AddEditLabour.LabourFormValidationModal"
                                                                   validation-modal-key = "LabourRate"
                                                                   input-model = "AddEditLabour" 
-                                                                  rel-value = "LabourRate"/>
+                                                                  rel-value = "LabourRate"/> -->
+                                                <input id="Rate" type="text" rel="LabourRate" class="form-control medium" 
+	                                                 ng-attr-tabindex="{{AddEditLabour.tabIndexValue + 5}}" ng-keydown="AddEditLabour.numberOnly($event)"
+	                                                 placeholder="Rate" ng-model="AddEditLabour.LabourRecord.LabourRate" ng-blur="AddEditLabour.validateFieldWithKey('LabourRate');"
+	                                                 ng-class="{'redborder' : AddEditLabour.LabourFormValidationModal['LabourRate']['isError'] == true}" 
+	                                                 data-toggle="tooltip" title="{{AddEditLabour.LabourFormValidationModal['LabourRate']['ErrorMessage']}}"
+	                                                 input-model = "AddEditLabour" rel-value = "LabourRate" />
+                                            	<div class="form-group pricefiled" id="msrpPretax"  style="padding: 6px;"
+	                                            	ng-if="AddEditLabour.IsTaxIncludingPricing && AddEditLabour.LabourRecord.LabourTaxable">
+	                                                <span class="T3">pretax =  {{AddEditLabour.LabourRecord.LabourRate/(1 + AddEditLabour.Tax_Rate/100) | currency}} </span>          
                                             </div>
-                                            <div  class="controls1 controls" id="LabourRate">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip" title="{{AddEditLabour.helpText['LabourRate']}}"></i>
+                                            </div>                                            
+                                            
+                                        </div>
+                                        <div  class="controls1 controls" id="LabourRate">
+                                                <i class="fa fa-question-circle MTP" data-toggle="tooltip" title="{{AddEditLabour.helpText['LabourRate']}}"></i>
                                                 <i class="fa fa-times" ng-click="AddEditLabour.LabourRecord.LabourRate = ''"></i>
-                                            </div>
                                         </div>
                                     </div>
                                     <!-- END: Rate field -->
@@ -666,11 +826,11 @@
                                             <span class="form_lable_icons text hiddenfield"> </span>
                                             <p>Category</p>
                                         </div>
-                                        <div class="form_fields angucomplete-overide-dropdown ">
-                                            <div class="form-group large MB">
+                                        <div class="form_fields angucomplete-overide-dropdown Z_Index_P">
+                                            <div class="form-group  MB WP">
                                                 <autocomplete id="Category"
                                                               tab-index ="{{AddEditLabour.tabIndexValue + 6}}" 
-                                                              rel-value="LabourCategory"
+                                                              rel-value="LabourCategory_P"
                                                               placeholder="{!$Label.Category_Object_Display_Label}" 
                                                               type="{!$Label.Category_Object_Display_Label}" 
                                                               titlefield="Name"
@@ -679,11 +839,16 @@
                                                               typesearchmodal="AddEditLabour.CategoryNameStr"
                                                               filter-param = "AddEditLabour.LabourFieldsFilter.LabourCategory"/>
                                             </div>
-                                            <div  class="controls1 controls" id="LabourCategory">
+                                            <div  class="controls1 controls" id="LabourCategory_P">
                                                 <i class="fa fa-question-circle" data-toggle="tooltip" title="{{AddEditLabour.helpText['LabourCategory']}}"></i>
                                                 <i class="fa fa-times" ng-click="AddEditLabour.CategoryNameStr = ''"></i>
-                                            </div>
                                         </div>
+                                        </div>
+                                        
+                                        <!-- <div  class="controls1 controls" id="LabourCategory_P">
+                                                <i class="fa fa-question-circle MTP" data-toggle="tooltip"  title="{{AddEditLabour.helpText['LabourCategory']}}"></i>
+                                                <i class="fa fa-times" ng-click="AddEditLabour.CategoryNameStr = ''"></i>
+                                       </div> -->
                                     </div>
                                     <!-- END: Category field -->
                                     
@@ -706,13 +871,36 @@
                                                     </span>
                                                 </label>
                                             </div>
-                                            <div  class="controls1 controls" id="LabourTaxable">
+                                           
+                                        </div>
+                                         <div  class="controls1 controls" id="LabourTaxable">
                                                 <i class="fa fa-question-circle" data-toggle="tooltip" title="{{AddEditLabour.helpText['LabourTaxable']}}"></i>
-                                            </div>
                                         </div>
                                     </div>
                                     <!-- END: Taxable field -->
                                     
+                                    <!-- START: Applicable Tax field -->
+                                    <div class="option_field" ng-show="AddEditLabour.LabourRecord.LabourTaxable == true">
+                                        <div class="lable_fields">
+                                            <span class="form_lable_icons text hiddenfield"> </span>
+                                            <p>Applicable Tax</p>
+                                        </div>
+                                        <div class="form_fields">
+                                            <div class="form-group large">
+                                                <select class="form-control" rel="applicabletax"
+                                             		ng-attr-tabindex="{{PartCompModal.tabIndexValue + 6}}"
+                                             		ng-model = "AddEditLabour.LabourRecord.ApplicableTaxId"
+                                             		ng-change = "AddEditLabour.changeApplicableTax()"
+                                             		ng-options="taxItem.Id as taxItem.Name for taxItem in AddEditLabour.TaxList"></select>
+                                            </div>
+                                            
+                                        </div>
+                                        <div  class="controls1 controls" id="applicabletax">
+                                                <i class="fa fa-question-circle" data-toggle="tooltip" title="Labour Applicable Tax"></i>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <!-- END: Applicable Tax field -->
                                     
                                     <!-- Active start -->
 									<div class="clearfix"></div>
@@ -734,11 +922,12 @@
 												</span>
 												</label>
 											</div>
-											<div class="controls1 controls" id="LabourStatus">
+											
+										</div>
+										<div class="controls1 controls" id="LabourStatus">
 												<i class="fa fa-question-circle" data-toggle="tooltip"
 													title="{{AddEditLabour.helpText['FeeActive']}}"></i>
-											</div>
-										</div>
+									   </div>
 									</div>
 									
 									<!-- Active end -->
@@ -761,4 +950,5 @@
         </div>
     </div>
     
+   
 </apex:component>

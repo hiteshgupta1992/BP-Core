@@ -265,8 +265,8 @@
            $scope.AddEditHourLog.clearAllData = function () {
             	$scope.AddEditHourLog.HourLogModel.WorkPerformedDate = $scope.AddEditHourLog.getCurrentDate();
             	
-                $scope.AddEditHourLog.HourLogModel.EmployeeName = "{!JSENCODE($User.FirstName)} {!JSENCODE($User.LastName)}";
-                $scope.AddEditHourLog.HourLogModel.EmployeeId = '{!JSENCODE($User.Id)}';
+                $scope.AddEditHourLog.HourLogModel.EmployeeName = "{!$User.FirstName} {!$User.LastName}";
+                $scope.AddEditHourLog.HourLogModel.EmployeeId = '{!$User.Id}';
                 $scope.AddEditHourLog.HourLogModel.Notes = '';
                 $scope.AddEditHourLog.HourLogModel.TimeSpent_D = 0;
                 $scope.AddEditHourLog.HourLogModel.TimeSpent_M = 0;
@@ -328,7 +328,7 @@
 	           		if($scope.$parent.logHourRecordSaveCallback != undefined){
 		               debug(hourLogList);
 					   $scope.$parent.logHourRecordSaveCallback(hourLogList, $scope.AddEditHourLog.HourLogModel.index);
-					   Notification.success('{!JSENCODE($Label.Label_Log)} {!JSENCODE($Label.Label_Hours)} {!JSENCODE($Label.Saved_Sucessfully)}');
+					   Notification.success('{!JSENCODE($Label.Label_Log)} {!JSENCODE($Label.Label_Hours)} {!JSENCODE($Label.Saved_Successfully)}');
 				 	} 
 	           		  	$scope.AddEditHourLog.closePopup();
 	            	}, 
@@ -337,7 +337,7 @@
                     }
            		);
            }
-          
+           
        $scope.AddEditHourLog.getSimilarFees = function(modelKey) {
        		var fieldValue = $scope.AddEditHourLog.feeModel[modelKey];
             $scope.AddEditHourLog.SimilarFee = {};
@@ -486,7 +486,7 @@
                                 deferred.resolve(JSON.parse(hourRecord));
                             }
                         }, {
-                            escape : true
+                            escape : ture
                     });
                     return deferred.promise;
             }

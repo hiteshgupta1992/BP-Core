@@ -46,9 +46,9 @@ public with sharing class RecentViewRecordsUtil {
     	if(AccessControl.ifObjectFieldIsAccessible('RecentlyViewed') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	List<String> objectSet = Constants.homeSearchObjectsOrderedList;
     	List<RecentlyViewed> recentlyViwedRecords = new List<RecentlyViewed>();
-    	 objectTypeSortDirection = BPUtility.escapeSingleQuotes(objectTypeSortDirection);
+    	
 		String query = 'SELECT Id FROM RecentlyViewed WHERE Type IN : objectSet ';
-		
+		objectTypeSortDirection = BPUtility.escapeSingleQuotes(objectTypeSortDirection);
 		if( objectTypeSortDirection != null ){
 			query += ' ORDER BY Type ' + objectTypeSortDirection + ', LastViewedDate DESC';
 		} else if( !isAnyFilterPresent ){
