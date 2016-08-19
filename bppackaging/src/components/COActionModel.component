@@ -208,8 +208,10 @@
         		if(successfulSearchResult.indexOf('{!JSENCODE($Label.SetAsCompleteErrorMessage)}') > -1){
         			Notification.error('{!JSENCODE($Label.SetAsCompleteErrorMessage)}');
         			$scope.COActionModal.closePopup();
-        		}
-        		else{
+        		} else if(successfulSearchResult.indexOf('{!$Label.SignedOutErrorMessage}') > -1){
+        			Notification.error('{!JSENCODE($Label.SignedOutErrorMessage)}');
+        			$scope.COActionModal.closePopup();
+        		}else{
 					$scope.COActionModal.closePopup();
 					$scope.$emit('Override_Status', { SOHeaderId : $scope.COActionModal.appLog.SOHeaderId } );
 				}

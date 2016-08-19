@@ -63,6 +63,18 @@ global with sharing class ViewLabourCtrl {
     }
     
     /**
+     * Name: getApplicableTaxList
+     * Desc: To get Labour Details on Edit Labour Pop Up window
+     * @param: 
+     * @return: String - JSON string of Part info. 
+    **/
+    @RemoteAction
+    global static String getApplicableTaxList() {
+        String defaultLaborTaxId = Configurations__c.getOrgDefaults().Default_Tax_on_Labor__c;
+        return BPUtility.getEncodedString(TaxUtility.getApplicableList(defaultLaborTaxId));
+    }
+    
+    /**
      * Name: saveLabour
      * Desc: To save Labour Record in database 
      * @param: (1) labourJSONString - String - JSON String of Labour Record
@@ -87,7 +99,11 @@ global with sharing class ViewLabourCtrl {
 	                                                            Rate__c = (labourObj.LabourRate != null) ? Decimal.valueOf(labourObj.LabourRate) : 0,
 	                                                            Taxable__c = (labourObj.LabourTaxable != null) ? labourObj.LabourTaxable : false
 	                                                        );
-	            
+	            if(labourRec.Taxable__c) {
+	            	labourRec.Applicable_Tax__c = labourObj.ApplicableTaxId;
+	            } else {
+	            	labourRec.Applicable_Tax__c = null;
+	            }
 	            if(labourObj.Id != null) {
 	                labourRec.Id = labourObj.Id;
 	            }
@@ -97,7 +113,13 @@ global with sharing class ViewLabourCtrl {
 	        if(labourRecordsToDML.size() > 0) {
 	        	if(AccessControl.ifObjectIsUpdateable('Labour_Code__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
 	        	if(AccessControl.ifObjectIsCreateable('Labour_Code__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
-	            upsert labourRecordsToDML;
+	            try{
+	            	upsert labourRecordsToDML;
+            	}catch(exception e){ 
+	        		if(e.getMessage().contains('duplicate value found: Code__c duplicates value')){
+	        			throw new BlackPurlException('This Code already exists, please enter unique code');
+	        		}
+	       		}
 	            return BPUtility.getEncodedString(labourRecordsToDML[0].Id);
 	        }
 	        return BPUtility.getEncodedString(null);
@@ -113,7 +135,7 @@ global with sharing class ViewLabourCtrl {
      * Desc: Method to return all similar labour records
      * @param:  (1) labourCode - String - Code value by which to search
      *          (2) labourDescription - String - Description value by which to search
-     * @return: String - JSON String
+     * @return: String - JSON String  
     **/
     @RemoteAction
     global static String getSimilarLabourRecords(String labourCode, String labourDescription){
@@ -126,7 +148,12 @@ global with sharing class ViewLabourCtrl {
 	        // Get list of similar labour code records
 	        List<Labour_Code__c> labourCodeRecords = SOQLUtil.getSimilarLabourRecords(labourCode, labourDescription);
 	        for(Labour_Code__c labourCodeRecord : labourCodeRecords){
-	            SimilarLabourRecords.add(new LabourRecord(labourCodeRecord));
+	            if(labourCodeRecord.Code__c.equalsIgnoreCase(labourCode)) {
+	        		SimilarLabourRecords.add(new LabourRecord(labourCodeRecord, 1));
+	        	}
+	        	else {
+	            	SimilarLabourRecords.add(new LabourRecord(labourCodeRecord, 2));
+	        	}
 	        }
 	        
 	        return BPUtility.getEncodedString(System.JSON.serialize(SimilarLabourRecords));

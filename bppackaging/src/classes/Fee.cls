@@ -14,6 +14,8 @@ public with sharing class Fee {
 	public Boolean IsTaxable;
 	public Boolean IsActive;
 	public String Id;
+	public String ApplicableTaxId;
+	public String ApplicableTaxName;
 	
 	public Fee() {
 		this.Price = 0.00;
@@ -29,6 +31,8 @@ public with sharing class Fee {
 		this.IsTaxable = feeRec.Taxable__c;
 		this.IsActive = feeRec.Active__c;
 		this.Id = feeRec.Id;
+		this.ApplicableTaxId = feeRec.Applicable_Tax__c;
+		this.ApplicableTaxName = feeRec.Applicable_Tax__r.Name__c;
 	}
 	
 	/**
@@ -45,7 +49,9 @@ public with sharing class Fee {
 													'Category__r.Name',
 													'Taxable__c',
 													'Active__c',
-													'(Select Id, CO_Header__c, CO_Header__r.Name, CO_Header__r.Customer__c, CO_Header__r.Customer__r.Name, CO_Header__r.Owner__c, CO_Header__r.Owner__r.Name, CO_Header__r.Order_status__c From CO_Line_Items__r WHERE Special_Order__c = false AND CO_Header__r.Order_status__c = \'Open\' )'
+													'(Select Id, CO_Header__c, CO_Header__r.Name, CO_Header__r.Customer__c, CO_Header__r.Customer__r.Name, CO_Header__r.Owner__c, CO_Header__r.Owner__r.Name, CO_Header__r.Order_status__c From CO_Line_Items__r WHERE Special_Order__c = false AND CO_Header__r.Order_status__c = \'Open\' )',
+													'Applicable_Tax__r.Name__c',
+													'Applicable_Tax__c'
 											};
 		return feeFields;
 	}

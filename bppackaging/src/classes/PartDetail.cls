@@ -108,13 +108,20 @@ public with sharing class PartDetail {
     //Special Order
     public Decimal SpecialOrder;
     
+    // IsOrderLot
+	public Boolean IsOrderLot;
+	
     // Last Sold
     public String LastSold;
     
     // Last Ordered
     public String LastOrdered;
     
+    // ApplicableTaxId
     public String ApplicableTaxId;
+    
+    // ApplicableTaxName
+	public String ApplicableTaxName;
     
     // Constructor
     public PartDetail(Part__c partRec){
@@ -165,7 +172,9 @@ public with sharing class PartDetail {
         } else if(partRec.Qty_On_Order__c > 0 ) {
             this.Status = 'On Order';
         } 
+        this.IsOrderLot = partRec.Is_OrderLot__c;
         this.ApplicableTaxId = partRec.Applicable_Tax__c;
+        this.ApplicableTaxName = (partRec.Applicable_Tax__c != null) ? partRec.Applicable_Tax__r.Name__c : null;
     }
     
     /**
@@ -210,12 +219,10 @@ public with sharing class PartDetail {
                                                     'Qty_On_Order__c',
                                                     'Qty_Committed__c',
                                                     'AvailableParts__c',
-                                                    'Applicable_Tax__c'
+                                                    'Applicable_Tax__c',
+                                                    'Applicable_Tax__r.Name__c',
+													'Is_OrderLot__c'
                                                 };
         return partFields;
     }
-    
-    
-    
-    
 }

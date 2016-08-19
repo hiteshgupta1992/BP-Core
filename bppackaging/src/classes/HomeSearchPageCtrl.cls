@@ -98,10 +98,10 @@ global with sharing class HomeSearchPageCtrl {
     global static String saveCustomFilterJSON(String customFilterLabel, String filterId, String customFilterJSONString, Boolean isDateFilterChanged){
     	customFilterLabel = BPUtility.getDecodedString(customFilterLabel);
         filterId = BPUtility.getDecodedString(filterId);
+        filterId = BPUtility.escapeSingleQuotes(filterId);
         customFilterJSONString = BPUtility.getDecodedString(customFilterJSONString);
         
     	Filter__c customFilter = new Filter__c();
-    	filterId= BPUtility.escapeSingleQuotes(filterId );
     	if(filterId != null) {
     		if(AccessControl.ifObjectFieldIsAccessible('Filter__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     		customFilter = [select Filter_Label__c, Filter_JSON__c, Custom__c from Filter__c where Id = :filterId];
@@ -128,9 +128,8 @@ global with sharing class HomeSearchPageCtrl {
     @RemoteAction
     global static String deleteCustomFilter(String filterId){
     	filterId = BPUtility.getDecodedString(filterId);
-        
+        filterId = BPUtility.escapeSingleQuotes(filterId);
     	if(AccessControl.ifObjectFieldIsAccessible('Filter__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	filterId= BPUtility.escapeSingleQuotes(filterId );
 		Filter__c filterRecToDelete = [select Id From Filter__c where Id = : filterId];
 		if(filterRecToDelete != null){
 			if(AccessControl.ifObjectIsDeletable('Filter__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
@@ -150,9 +149,8 @@ global with sharing class HomeSearchPageCtrl {
     global static String renameCustomFilter(String filterId, String filterNewName){
     	filterId = BPUtility.getDecodedString(filterId);
         filterNewName = BPUtility.getDecodedString(filterNewName);
-        
+        filterId = BPUtility.escapeSingleQuotes(filterId);
     	if(AccessControl.ifObjectFieldIsAccessible('Filter__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	filterId= BPUtility.escapeSingleQuotes(filterId );
 		Filter__c filterRec = [select Id From Filter__c where Id = : filterId];
 		if(filterRec != null){
 			if(AccessControl.ifObjectFieldIsUpdateable('Filter__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
@@ -173,10 +171,9 @@ global with sharing class HomeSearchPageCtrl {
     global static String copyCustomFilter(String filterId, String filterCopyName){
     	filterId = BPUtility.getDecodedString(filterId);
         filterCopyName = BPUtility.getDecodedString(filterCopyName);
-        
+        filterId = BPUtility.escapeSingleQuotes(filterId);
     	if(AccessControl.ifObjectFieldIsAccessible('Filter__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	if(AccessControl.ifObjectFieldIsCreateable('Filter__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
-    	filterId= BPUtility.escapeSingleQuotes(filterId );
 		Filter__c filterRec = [select Id, Filter_JSON__c From Filter__c where Id = : filterId];
 		Filter__c copyFilter = new Filter__c();
 		copyFilter.Filter_Label__c = filterCopyName;

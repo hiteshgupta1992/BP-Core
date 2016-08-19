@@ -10,7 +10,7 @@ global with sharing class ViewFeeCtrl {
 	public Decimal Related_List_Page_Size { get{return GeneralConfiguration.getRelatedListPageSize();} private set;}
 	
     /** 
-     * Name: getDefaultFeeData
+     * Name: getDefaultFeeData  
      * Desc: Get default data for new Fee records
      * @param:  (1)
      * @return: String - Fee JSON String.
@@ -22,7 +22,7 @@ global with sharing class ViewFeeCtrl {
             if(defaultFeeCategories.size() > 0) {
                 Category__c defaultCategory = defaultFeeCategories[0];
                 
-                Fee newFee = new Fee();
+                Fee newFee = new Fee();  
                 newFee.CategoryId = defaultCategory.Id;
                 newFee.CategoryName = defaultCategory.Name;
                 return BPUtility.getEncodedString(System.JSON.serialize(newFee));
@@ -33,6 +33,18 @@ global with sharing class ViewFeeCtrl {
         }
         
         return BPUtility.getEncodedString('{}');
+    }
+    
+    /**
+     * Name: getApplicableTaxList
+     * Desc: To get Labour Details on Edit Labour Pop Up window
+     * @param: 
+     * @return: String - JSON string of Part info. 
+    **/
+    @RemoteAction
+    global static String getApplicableTaxList() {
+        String defaultLaborTaxId = Configurations__c.getOrgDefaults().Default_Tax_on_Fee__c;
+        return BPUtility.getEncodedString(TaxUtility.getApplicableList(defaultLaborTaxId));
     }
     
     /**
@@ -166,6 +178,11 @@ global with sharing class ViewFeeCtrl {
         feeRec.Category__c = feeObj.CategoryId;
         feeRec.Taxable__c = feeObj.IsTaxable;
         feeRec.Active__c = feeObj.IsActive;
+        if(feeObj.IsTaxable) {
+        	feeRec.Applicable_Tax__c = feeObj.ApplicableTaxId;
+        } else {
+        	feeRec.Applicable_Tax__c = null;
+        }
         
         if(feeObj.Id != null) {
             feeRec.Id = feeObj.Id;

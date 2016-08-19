@@ -238,7 +238,6 @@ public with sharing class HomeSearchReportUtil {
 	    											uniqueValueFieldLastValue,
 	    											pageAndSortMapping
 	    										);
-	    	if(AccessControl.ifObjectFieldIsAccessible(objAPIName) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }									
 	    	System.debug('QUERYYYYYYY objAPIName: \n' + objQuery);
 	    	List<sObject> resultRecords = Database.query(objQuery);
 	    	resultRecordsMap.put(objAPIName, resultRecords);
@@ -253,7 +252,7 @@ public with sharing class HomeSearchReportUtil {
     											String uniqueValueFieldLastValue,
     											PaginationSorting pageAndSortMapping
     										) {
-    	if(AccessControl.ifObjectFieldIsAccessible(objName) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }										
+    	if(AccessControl.ifObjectFieldIsAccessible(objName) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }	
     	String query = 'SELECT ';
     	for(String fieldName : HomeSearchUtil.searchableObjectToFieldsMap.get(objName)) {
     		query += fieldName + ',';
@@ -278,8 +277,9 @@ public with sharing class HomeSearchReportUtil {
     		if(pageAndSortMapping.Sorting != null && pageAndSortMapping.Sorting.size() > 0) {
     			String sortClause = ' ORDER BY ';
     			for(PaginationSorting.SortAttrs sortAttr : pageAndSortMapping.Sorting) {
+    				//System.assert(false, '###################' +objName +'  -- '+ sortAttr.FieldName);
     				String sortFieldAPIName = getSortFieldNameForObject(objName, sortAttr.FieldName);
-    				if(sortFieldAPIName != null && sortFieldAPIName != 'Type') {
+    				if(sortFieldAPIName != null && sortFieldAPIName != '' && sortFieldAPIName != 'Type') {
     					sortClause += sortFieldAPIName + ' ' + sortAttr.SortDirection + ' NULLS LAST, ';
     				}
     			}
@@ -309,16 +309,27 @@ public with sharing class HomeSearchReportUtil {
 	private static String getSortFieldNameForObject(String objAPIName, String fieldLabel) {
 		String fieldAPIName;
 		if(fieldLabel != null 
-			&& HomeSearchUtil.searchableObjectToFieldsMap.containsKey(objAPIName) 
-			&& HomeSearchUtil.searchableObjectToFieldsMap.get(objAPIName).contains(fieldLabel)
-		){
-			fieldAPIName = fieldLabel;
-		} else if(fieldLabel != null 
-					&& HomeSearchUtil.obejctNameToMapOfSortLabelToAPIName.containsKey(objAPIName) 
-					&& HomeSearchUtil.obejctNameToMapOfSortLabelToAPIName.get(objAPIName).containsKey(fieldLabel)
-				) {
-			fieldAPIName = HomeSearchUtil.obejctNameToMapOfSortLabelToAPIName.get(objAPIName).get(fieldLabel);
-		}
+            && HomeSearchUtil.searchableObjectToFieldsMap.containsKey(objAPIName) 
+            && HomeSearchUtil.searchableObjectToFieldsMap.get(objAPIName).contains(fieldLabel)
+        ){
+            fieldAPIName = fieldLabel;
+        } else if(fieldLabel != null 
+                    && HomeSearchUtil.obejctNameToMapOfSortLabelToAPIName.containsKey(objAPIName) 
+                    && HomeSearchUtil.obejctNameToMapOfSortLabelToAPIName.get(objAPIName).containsKey(fieldLabel)
+                ) {
+            fieldAPIName = HomeSearchUtil.obejctNameToMapOfSortLabelToAPIName.get(objAPIName).get(fieldLabel);
+        } else if(fieldLabel != null 
+                    && HomeSearchUtil.obejctNameToMapOfSortLabelToAPIName.containsKey(CONSTANTS.NAMESPACE + objAPIName) 
+                    && HomeSearchUtil.obejctNameToMapOfSortLabelToAPIName.get(CONSTANTS.NAMESPACE + objAPIName).containsKey(fieldLabel)
+                ) {
+            fieldAPIName = HomeSearchUtil.obejctNameToMapOfSortLabelToAPIName.get(CONSTANTS.NAMESPACE + objAPIName).get(fieldLabel);
+        } else if(fieldLabel != null 
+                    && HomeSearchUtil.obejctNameToMapOfSortLabelToAPIName.containsKey(CONSTANTS.NAMESPACE + objAPIName) 
+                    && !HomeSearchUtil.obejctNameToMapOfSortLabelToAPIName.get(CONSTANTS.NAMESPACE + objAPIName).containsKey(fieldLabel)
+                ) {
+            fieldAPIName = '';
+        }
+		
 		//System.debug('@@@@ fieldAPIName: ' + fieldAPIName);
 		return (fieldAPIName != null) ? fieldAPIName : fieldLabel;
 	}

@@ -85,6 +85,7 @@ public with sharing class SOQLUtil {
             query += ' order by Name__c ASC ' ;
         }
         if(AccessControl.ifObjectFieldIsAccessible('Country__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Country__c> countries = Database.query(query);
         if(currentNoOfCountry != null && BlackPurlContentCtrl.isIncreaseCountriesMethodExecuted) {
             if(countries.size() + 5 < currentNoOfCountry ) {
@@ -142,7 +143,8 @@ public with sharing class SOQLUtil {
                             + ' WHERE ' + fieldName + ' != null'
                             + ' ORDER BY ' + fieldName
                             + ' LIMIT ' + (Limits.getLimitQueries()  - Limits.getQueryRows());
-            if(AccessControl.ifObjectFieldIsAccessible(sObjName) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+            if(AccessControl.ifObjectFieldIsAccessible(Constants.OBJ_TYPE_NAME_TO_OBJ_API_NAME_MAP.get(sObjName)) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
             sObjRecords = Database.query(query);
         }
         return sObjRecords;
@@ -157,7 +159,7 @@ public with sharing class SOQLUtil {
     **/ 
     public static List<sObject> getSObjRecords(String sObjName, String filterKey) {
     	sObjName = BPUtility.escapeSingleQuotes(sObjName);
-    	filterKey = BPUtility.escapeSingleQuotes(filterKey);
+        filterKey = BPUtility.escapeSingleQuotes(filterKey);
         List<sObject> sObjRecords = new List<sObject>();
         if( Constants.OBJ_TYPE_NAME_TO_OBJ_API_NAME_MAP.containsKey(sObjName) ){
             String query = 'SELECT ';
@@ -184,10 +186,10 @@ public with sharing class SOQLUtil {
                 query += ' WHERE ' + whereCondition;
                 query += ' AND ( ' + filterCondition + ')';
             } else {
-                query += ' WHERE ' + filterCondition; 
+                query += ' WHERE ' + filterCondition;
             }
             
-            query += ' ORDER BY ' + BPUtility.escapeSingleQuotes(Constants.OBJ_TO_ORDERBY_CLAUSE_MAP.get(sObjName));
+            query += ' ORDER BY ' + (Constants.OBJ_TO_ORDERBY_CLAUSE_MAP.get(sObjName));
             if(AccessControl.ifObjectFieldIsAccessible(sObjName) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             sObjRecords = Database.query(query);
         }
@@ -287,6 +289,7 @@ public with sharing class SOQLUtil {
 
         query += ' ORDER BY Name ASC LIMIT :remainingAccount';
         if(AccessControl.ifObjectFieldIsAccessible('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Account> remainingAccounts = Database.query(query);
         List<Account> accounts = new List<Account>();
         accounts.addAll(recentAccounts);
@@ -345,7 +348,7 @@ public with sharing class SOQLUtil {
                     isWhereClauseAddedInAggQuery = true;
                  }
             }
-
+			
             List<AggregateResult> accountAggResult = Database.query(query);
             BlackPurlContentCtrl.customersRetrived = String.valueOf(accountAggResult[0].get('expr0'));
         }
@@ -443,6 +446,7 @@ public with sharing class SOQLUtil {
             }
         }
         if(AccessControl.ifObjectFieldIsAccessible('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         Map<Id,Sobject> recAccountsMap = new Map<Id, Sobject>(Database.query(query));
         
         List<Sobject> recAccounts = new List<Sobject>();
@@ -671,10 +675,8 @@ public with sharing class SOQLUtil {
         for(Id PartId : recentPartIdList) {
             if(recPartsMap.containsKey(PartId)) {
                 recParts.add(recPartsMap.get(PartId));
-
             }
         }
-        
         return recParts;
     }
     
@@ -865,19 +867,20 @@ public with sharing class SOQLUtil {
         }
         query = query.substring(0, query.length()-2);
         query += ' FROM ' + Constants.NAMESPACE + 'Vendor_Order_Line_Item_Group__c ';
-        query += 'WHERE Part__c =: partId';
+        query += 'WHERE Part__c =: partId and Vendor_Order_Header__r.status__c !=\'Received\'';
         
         // Order by clause
         query += ' ORDER BY ';
         if(sortFieldMap != null && sortFieldMap.size() != 0){
             for(String sortKey : sortFieldMap.keySet()){
-                query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
+                query += sortKey + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
             }
             query = query.substring(0, query.length()-2);
         } else {
             query += ' LastModifiedDate Desc';
         }
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Vendor_Order_Line_Item_Group__c> partActiveOrders = Database.query(query);
         return partActiveOrders;
     }
@@ -911,6 +914,7 @@ public with sharing class SOQLUtil {
             query += ' LastModifiedDate Desc';
         }
         if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<CO_Line_Item__c> coliRecords = Database.query(query);
         return coliRecords;
     }
@@ -924,7 +928,7 @@ public with sharing class SOQLUtil {
     **/ 
     public static List<CO_Line_Item__c> getActiveOrdersForCustomer(Id customerId, Map<String, String> sortFieldMap) {
         String query;
-        query = 'SELECT '; 
+        query = 'SELECT ';
         for(String fieldName : ActiveOrder.getFieldsListUsedInCustomer()){
         	fieldName = BPUtility.escapeSingleQuotes(fieldName);
             query += fieldName + ', ';
@@ -937,14 +941,14 @@ public with sharing class SOQLUtil {
         query += ' ORDER BY ';
         if(sortFieldMap != null && sortFieldMap.size() != 0){
             for(String sortKey : sortFieldMap.keySet()){
-              query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
+                query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
             }
             query = query.substring(0, query.length()-2);
         } else {
             query += ' LastModifiedDate Desc';
         }
         if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<CO_Line_Item__c> customerActiveOrders = Database.query(query);
         return customerActiveOrders;
     }
@@ -965,21 +969,22 @@ public with sharing class SOQLUtil {
         }
         query = query.substring(0, query.length()-2);
         query += ' FROM ' + Constants.NAMESPACE + 'Vendor_Order_Header__c ';
-        query += 'WHERE Id IN :vohIdSet';
+        query += 'WHERE Id IN :vohIdSet and status__c != \'Received\'';
         
         // Order by clause
         query += ' ORDER BY ';
         if(sortFieldMap != null && sortFieldMap.size() != 0){
             for(String sortKey : sortFieldMap.keySet()){
-                 query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
+                query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
             }
             query = query.substring(0, query.length()-2);
         } else {
             query += ' LastModifiedDate Desc';
         }
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Vendor_Order_Header__c> partActiveOrders = Database.query(query);
+
         return partActiveOrders;
     }
     
@@ -999,7 +1004,7 @@ public with sharing class SOQLUtil {
         }
         query = query.substring(0, query.length()-2);
         query += ' FROM ' + Constants.NAMESPACE + 'CO_Header__c ';
-        query += 'WHERE Id IN: cohIdSet';
+        query += 'WHERE Id IN: cohIdSet and status__c = \'Open\'';
         
         // Order by clause
         query += ' ORDER BY ';
@@ -1012,7 +1017,7 @@ public with sharing class SOQLUtil {
             query += ' LastModifiedDate Desc';
         }
         if(AccessControl.ifObjectFieldIsAccessible('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<CO_Header__c> partActiveSalesOrders = Database.query(query);
         return partActiveSalesOrders;
     }
@@ -1039,13 +1044,14 @@ public with sharing class SOQLUtil {
         query += ' ORDER BY ';
         if(sortFieldMap != null && sortFieldMap.size() != 0){
             for(String sortKey : sortFieldMap.keySet()){
-                 query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
+                query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
             }
             query = query.substring(0, query.length()-2);
         } else {
             query += ' LastModifiedDate Desc';
         }
         if(AccessControl.ifObjectFieldIsAccessible('Labour_Code__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Labour_Code__c> labourRecords = Database.query(query);
         return labourRecords;
     }
@@ -1083,6 +1089,7 @@ public with sharing class SOQLUtil {
             }
         }
         if(AccessControl.ifObjectFieldIsAccessible('Labour_Code__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Labour_Code__c> labourRecords = Database.query(query);
         return labourRecords;
     }
@@ -1116,7 +1123,7 @@ public with sharing class SOQLUtil {
             query += ' LastModifiedDate Desc';
         }
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Vendor_Order_Header__c> vendorActiveOrders = Database.query(query);
         return vendorActiveOrders;
     }
@@ -1150,6 +1157,7 @@ public with sharing class SOQLUtil {
             query += 'LastModifiedDate Desc';
         }
         if(AccessControl.ifObjectFieldIsAccessible('PO_Type__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<PO_Type__c> poTypeRecords = Database.query(query);
         return poTypeRecords;
     }
@@ -1178,7 +1186,7 @@ public with sharing class SOQLUtil {
         query += ' ORDER BY Preferred__c Desc, ';
         if(sortFieldMap != null && sortFieldMap.size() != 0){
             for(String sortKey : sortFieldMap.keySet()){
-                 query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
+                query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
             }
             query = query.substring(0, query.length()-2);
         } else {
@@ -1218,6 +1226,7 @@ public with sharing class SOQLUtil {
             query += ' LastModifiedDate Desc';
         }
         if(AccessControl.ifObjectFieldIsAccessible('Part_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Part_Tax__c> partTaxesList = Database.query(query);
         return partTaxesList;
     }
@@ -1246,13 +1255,14 @@ public with sharing class SOQLUtil {
         query += ' ORDER BY ';
         if(sortFieldMap != null && sortFieldMap.size() != 0){
             for(String sortKey : sortFieldMap.keySet()){
-               query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
+                query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
             }
             query = query.substring(0, query.length()-2);
         } else {
             query += ' LastModifiedDate Desc';
         }
         if(AccessControl.ifObjectFieldIsAccessible('Contact') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Contact> contactsList = Database.query(query);
         return contactsList;
     }
@@ -1279,13 +1289,14 @@ public with sharing class SOQLUtil {
         query += ' ORDER BY ';
         if(sortFieldMap != null && sortFieldMap.size() != 0){
             for(String sortKey : sortFieldMap.keySet()){
-               query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
+                query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
             }
             query = query.substring(0, query.length()-2);
         } else {
             query += 'LastModifiedDate Desc';
         }
         if(AccessControl.ifObjectFieldIsAccessible('Product__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Product__c> vendorProductRecords = Database.query(query);
         return vendorProductRecords;
     }
@@ -1320,6 +1331,7 @@ public with sharing class SOQLUtil {
             query += 'Name asc';
         }
         if(AccessControl.ifObjectFieldIsAccessible('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<CO_Header__c> coHeaderRec = Database.query(query);
         return coHeaderRec;
     }
@@ -1540,8 +1552,8 @@ public with sharing class SOQLUtil {
      * @return: Unit Model records
     **/ 
     public static List<Sobject> getUnitModelsByUnitMakeId(String unitMakeId, Integer currentNoOfUnitModels, Integer dropDownNumber, Boolean isInactiveIncluded, String filterJSON) {
-        filterJSON = BPUtility.escapeSingleQuotes(filterJSON);
         unitMakeId = BPUtility.escapeSingleQuotes(unitMakeId);
+        filterJSON = BPUtility.escapeSingleQuotes(filterJSON);
         Map<String, String> filterFieldToSearchedStringMap = Utility.parseFilterJSON(filterJSON, Constants.UNIT_MODEL_LIST_JSON_TO_FIELDS_MAPPING);
         Map<String,String>  filterFieldToSeachedOperatorStringMap = Utility.parseFilterJSONOperator(filterJSON, Constants.UNIT_MODEL_LIST_JSON_TO_FIELDS_MAPPING);
         
@@ -1637,8 +1649,8 @@ public with sharing class SOQLUtil {
      * @return: Category List
     **/ 
     public static List<Sobject> getFilteredCategory(String searchingString, String fieldAPIName) {
+    	fieldAPIName = BPUtility.escapeSingleQuotes(fieldAPIName);
         searchingString = BPUtility.escapeSingleQuotes(searchingString);
-        fieldAPIName = BPUtility.escapeSingleQuotes(fieldAPIName);
         String query;
         query = 'SELECT '+ fieldAPIName + ' From Category__c Where '+ fieldAPIName +' Like \'' + searchingString +'%\'' ;
         if(AccessControl.ifObjectFieldIsAccessible('Category__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
@@ -1682,7 +1694,7 @@ public with sharing class SOQLUtil {
      * @return: Unit Make records
     **/ 
     public static List<Sobject> getFilteredUnitMakes(String searchingString, String fieldAPIName, Boolean isInactiveIncluded) {
-    	searchingString = BPUtility.escapeSingleQuotes(searchingString);
+        searchingString = BPUtility.escapeSingleQuotes(searchingString);
         fieldAPIName = BPUtility.escapeSingleQuotes(fieldAPIName);
         String query;
         query = 'SELECT '+ fieldAPIName + ' From Unit_Make__c Where '+ fieldAPIName +' Like \'' + searchingString +'%\'' ;
@@ -1702,14 +1714,14 @@ public with sharing class SOQLUtil {
     **/ 
     public static List<Sobject> getFilteredUnitModels(String unitMakeId, String searchingString, String fieldAPIName, Boolean isInactiveIncluded) {
         searchingString = BPUtility.escapeSingleQuotes(searchingString);
-        fieldAPIName = BPUtility.escapeSingleQuotes(fieldAPIName);
         unitMakeId = BPUtility.escapeSingleQuotes(unitMakeId);
+        fieldAPIName = BPUtility.escapeSingleQuotes(fieldAPIName);
         String query;
-        query = 'SELECT '+ fieldAPIName + ' From Unit_Model__c Where '+ fieldAPIName +' Like \'' + searchingString +'%\' AND Unit_Make__c = :unitMakeId';
+        query = 'SELECT '+ fieldAPIName + ' From Unit_Model__c Where '+ fieldAPIName +' Like \'' + searchingString +'%\' AND Unit_Make__c = :unitMakeId' ;
         if(AccessControl.ifObjectFieldIsAccessible('Unit_Model__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        List<Unit_Model__c> searchedUnitModels = Database.query(query);  
+        List<Unit_Model__c> searchedUnitModels = Database.query(query);
         return searchedUnitModels;
-    }  
+    }
     
     /**
      * Name: getRecentItems
@@ -1721,6 +1733,7 @@ public with sharing class SOQLUtil {
         String query;   
         query = 'SELECT Name FROM RecentlyViewed ';
         if(AccessControl.ifObjectFieldIsAccessible('RecentlyViewed') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<RecentlyViewed> recentItems = Database.query(query);
         return recentItems;
     }
@@ -1762,7 +1775,7 @@ public with sharing class SOQLUtil {
     **/ 
     public static void addApplicableTax(String salesTaxId, String salesTaxItemId) {
     	salesTaxId = BPUtility.escapeSingleQuotes(salesTaxId);
-        salesTaxItemId = BPUtility.escapeSingleQuotes(salesTaxItemId);
+    	salesTaxItemId = BPUtility.escapeSingleQuotes(salesTaxItemId);
         removeApplicableTax(salesTaxId, salesTaxItemId);
         Applicable_Taxes__c applicableTaxToInsert = new Applicable_Taxes__c(Sales_Tax__c = Id.valueOf(salesTaxId), Sales_Tax_Item__c = Id.valueOf(salesTaxItemId));     
         if(AccessControl.ifObjectFieldIsCreateable('Applicable_Taxes__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
@@ -1777,9 +1790,9 @@ public with sharing class SOQLUtil {
      * @return: 
     **/ 
     public static void removeApplicableTax(String salesTaxId, String salesTaxItemId) {
-    	salesTaxId = BPUtility.escapeSingleQuotes(salesTaxId);
-        salesTaxItemId = BPUtility.escapeSingleQuotes(salesTaxItemId);
         try {
+        	salesTaxId = BPUtility.escapeSingleQuotes(salesTaxId);
+        	salesTaxItemId = BPUtility.escapeSingleQuotes(salesTaxItemId);
             String query;
             query = 'SELECT Id From Applicable_Taxes__c where Sales_Tax__c = : SalesTaxId AND Sales_Tax_Item__c = : salesTaxItemId';
             if(AccessControl.ifObjectFieldIsAccessible('Applicable_Taxes__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
@@ -1864,6 +1877,7 @@ public with sharing class SOQLUtil {
         }
         return hasAccess;
     }   
+
     
     /** 
      * Name: getObjectIdByItsName
@@ -1874,7 +1888,7 @@ public with sharing class SOQLUtil {
     **/
     public static String getObjectIdByItsName(String recordName, String ObjectName) {
     	recordName = BPUtility.escapeSingleQuotes(recordName);
-        ObjectName = BPUtility.escapeSingleQuotes(ObjectName);
+    	ObjectName = BPUtility.escapeSingleQuotes(ObjectName);
         String query;
         String recordId;
         if(recordName != null) {
@@ -1980,6 +1994,7 @@ public with sharing class SOQLUtil {
         String query;
         query = 'SELECT '; 
         for(String fieldName : COHeader.fieldsList()){
+        	fieldName = BPUtility.escapeSingleQuotes(fieldName);
             query += fieldName + ', ';
         }
         query = query.substring(0, query.length()-2);
@@ -2006,13 +2021,18 @@ public with sharing class SOQLUtil {
         String query;   
         query = 'SELECT '; 
         for(String fieldsName : COLineItem.fieldsList()){
+        	fieldsName = BPUtility.escapeSingleQuotes(fieldsName);
             query += fieldsName + ', ';
         }
-        query = query.substring(0, query.length()-2);
+        
+        // Child Query
+        query += '(SELECT Sales_Tax_Item_Name__c, Tax_Rate__c FROM Individual_Taxes__r)';
+        
         query += ' FROM ' + Constants.NAMESPACE + 'CO_Line_Item__c ';
         if(coHeaderId != null) {
             query += 'WHERE CO_Header__c = :coHeaderId AND Service_Order_Line_Item__c = null ORDER BY CreatedDate';
         }
+        if(AccessControl.ifObjectFieldIsAccessible('Individual_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<CO_Line_Item__c> coLineItems = Database.query(query);
         return coLineItems;
@@ -2023,10 +2043,10 @@ public with sharing class SOQLUtil {
      * Desc: To get Customer Order Kit Header by Header Id
      * @param: (1) coHeaderId - Id - Customer Order Header Id 
      * @return: List<Sobject> - Customer Order Kit Header records
-    **/
+    **/ 
     public static List<Sobject> getCOKHByCOHeaderId(Id coHeaderId) {
         String query;    
-        query = 'SELECT '; 
+        query = 'SELECT ';  
         for(String fieldsName : COHeaderWrapper.getCOKHFieldsList()) {
         	fieldsName = BPUtility.escapeSingleQuotes(fieldsName);
             query += fieldsName + ', ';
@@ -2183,6 +2203,7 @@ public with sharing class SOQLUtil {
         } else {
         	coInvoiceHeaderRec = new CO_Invoice_Header__c();
         }
+
         return coInvoiceHeaderRec;
     }
     
@@ -2280,12 +2301,12 @@ public with sharing class SOQLUtil {
         query = 'SELECT '; 
         if(className == 'Customer' || className == null) {
             for(String fieldName : Customer.fieldsList()){
-            	fieldName = BPUtility.escapeSingleQuotes(fieldName);  
+            	fieldName = BPUtility.escapeSingleQuotes(fieldName);
                 query += fieldName + ', ';
             }
         } else if(className == 'CustomerDetail'){
             //for(String fieldName : CustomerDetail.fieldsList()){
-            //    query += fieldName + ', ';   
+            //    query += fieldName + ', ';
             //}
         }
         query = query.substring(0, query.length()-2);
@@ -2402,10 +2423,19 @@ public with sharing class SOQLUtil {
         query = query.substring(0, query.length()-2);
         query += ' FROM States__r ORDER BY Default__c DESC, Name__c ASC)';
         
+        query += ', ( SELECT ';
+        for(String fieldsName : Timezone.fieldsList()){
+        	fieldsName = BPUtility.escapeSingleQuotes(fieldsName);
+            query += fieldsName + ', ';
+        }
+        query = query.substring(0, query.length()-2);
+        query += ' FROM Timezones__r ORDER BY Time_Shift__c DESC)';
+        
         query += ' FROM Country__c ';
         query += ' LIMIT ' + getAvailableQueryRowsLimit();
         //system.assert(false, query);
         if(AccessControl.ifObjectFieldIsAccessible('State__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        if(AccessControl.ifObjectFieldIsAccessible('Timezone__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('Country__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Country__c> countryWrapperList = Database.query(query);
         return countryWrapperList;
@@ -2456,6 +2486,7 @@ public with sharing class SOQLUtil {
         }
         query += ' order by Default__c DESC, Active__c Desc, Name__c';
         if(AccessControl.ifObjectFieldIsAccessible('Sales_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Sales_Tax__c> salesTaxList = Database.query(query);
         return salesTaxList;
     }
@@ -2493,7 +2524,7 @@ public with sharing class SOQLUtil {
      * @return: List of Category records  
     **/
     public static List<Sobject> getCategoryById(String categoryType) {
-        categoryType = BPUtility.escapeSingleQuotes(categoryType);
+    	categoryType = BPUtility.escapeSingleQuotes(categoryType);
         String query;
         query = 'SELECT '; 
         for(String fieldsName : Category.fieldsList()){
@@ -2613,7 +2644,7 @@ public with sharing class SOQLUtil {
      * @return: List<Sobject> - customer owned unit records
      **/
     public static List<Sobject> getCOUListByCustomerId(String customerId) {
-        return getCOUListByFieldName('Account__c', customerId);
+        return getCOUListByFieldName('Account__c', BPUtility.escapeSingleQuotes(customerId));
     }
     
     
@@ -2692,7 +2723,7 @@ public with sharing class SOQLUtil {
         String query;   
         query = 'SELECT '; 
         for(String fieldAPIName : CustomerOwnedUnit.fieldsList()){
-            fieldAPIName = BPUtility.escapeSingleQuotes(fieldAPIName);
+        	fieldAPIName = BPUtility.escapeSingleQuotes(fieldAPIName);
             query += fieldAPIName + ', ';
         }
         query = query.substring(0, query.length()-2);
@@ -2772,8 +2803,7 @@ public with sharing class SOQLUtil {
      *				(4) isOnOrder - Boolean  - Order Status
      * @return: List<Sobject> - vendor order header records
     **/
-    public static List<Sobject> getVendorOrderHeaderRecords(String fieldName, String fieldValue, Map<String, String> sortFieldMap, Boolean isOnOrder) {
-    	 
+    public static List<Sobject> getVendorOrderHeaderRecords(String fieldName, String fieldValue, Map<String, String> sortFieldMap, Boolean isOnOrder) { 
     	fieldName = BPUtility.escapeSingleQuotes(fieldName);
     	fieldValue = BPUtility.escapeSingleQuotes(fieldValue);
         String query;   
@@ -2786,7 +2816,7 @@ public with sharing class SOQLUtil {
         
         // If field name is 'Vendor__c', then include child records for VOLIGroups also
         if(fieldName == 'Vendor__c'){
-            query += ', (SELECT ';
+            query += ', (SELECT '; 
             for(String fieldAPIName : VendorOrderLineItemGroup.fieldsList()){
             	fieldAPIName = BPUtility.escapeSingleQuotes(fieldAPIName);
                 query += fieldAPIName + ', ';
@@ -2811,7 +2841,11 @@ public with sharing class SOQLUtil {
             }
             query = query.substring(0, query.length() - 2);
         }
+        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        if(AccessControl.ifObjectFieldIsAccessible('In_Progress_VR__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Vendor_Order_Header__c> voHeaders = Database.query(query);
         return voHeaders;
     }
@@ -2869,7 +2903,6 @@ public with sharing class SOQLUtil {
     public static List<Sobject> getVOLineItem(String vendorId, String voHeaderId, Boolean isRequiredForCustomer) {
     	vendorId = BPUtility.escapeSingleQuotes(vendorId);
     	voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
-    	
         List<Id> lockedLineItemsIds = getLineItemIdsListForLockedVOHeader(voHeaderId);
         
         String query;   
@@ -2956,7 +2989,7 @@ public with sharing class SOQLUtil {
         boolean isWhereClauseAdded = false;
         if(fieldNameToFieldValueMap.size() > 0) {
             for(String fieldName : fieldNameToFieldValueMap.keySet()) {
-            	fieldName = BPUtility.escapeSingleQuotes(fieldName);    
+            	fieldName = BPUtility.escapeSingleQuotes(fieldName);
                 if(!isWhereClauseAdded) {
                     query += 'WHERE '+ fieldName + ' = \'' + BPUtility.escapeSingleQuotes(fieldNameToFieldValueMap.get(fieldName)) + '\'';
                     isWhereClauseAdded = true;
@@ -2964,7 +2997,7 @@ public with sharing class SOQLUtil {
                     if(fieldNameToFieldValueMap.get(fieldName) != null){
                         query += 'AND '+ fieldName + ' = \'' + BPUtility.escapeSingleQuotes(fieldNameToFieldValueMap.get(fieldName)) + '\'';
                     } else {
-                        query += 'AND '+ fieldName + ' = null';  
+                        query += 'AND '+ fieldName + ' = null';
                     }
                 }
             }
@@ -2996,12 +3029,21 @@ public with sharing class SOQLUtil {
         if(fieldNameToFieldValuesMap.size() > 0) {
             for(String fieldName : fieldNameToFieldValuesMap.keySet()) {
             	fieldName = BPUtility.escapeSingleQuotes(fieldName);
-                List<String> fieldValues = fieldNameToFieldValuesMap.get(fieldName);
-                if(!isWhereClauseAdded) {
-                    query += 'WHERE '+ fieldName + ' IN : fieldValues';
-                    isWhereClauseAdded = true;
-                } else {
-                    query += 'AND '+ fieldName + ' IN : fieldValues';
+            	
+                List<String> fieldValues = new List<String>();
+                for(String fieldValue : fieldNameToFieldValuesMap.get(fieldName)){
+                	if(fieldValue !=  null){
+                		fieldValues.add(BPUtility.escapeSingleQuotes(fieldValue));
+                	}
+                }
+                
+                if(fieldValues.size() > 0){
+	                if(!isWhereClauseAdded) {
+	                    query += 'WHERE '+ fieldName + ' IN : fieldValues';
+	                    isWhereClauseAdded = true;
+	                } else {
+	                    query += 'AND '+ fieldName + ' IN : fieldValues';
+	                }
                 }
             }
         }
@@ -3046,6 +3088,7 @@ public with sharing class SOQLUtil {
         query += ' Vendor_Receiving_Group__c = null ';
         query += ' ORDER BY CreatedDate';
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         //system.debug('@@@@' + query);
         List<Vendor_Order_Line_Item__c> voLineItems = Database.query(query);
         //system.assert(false, voLineItems);
@@ -3126,7 +3169,7 @@ public with sharing class SOQLUtil {
         if(fieldValue != null) {
             query += ' AND ' + fieldName + ' = :fieldValue ORDER BY LastModifiedDate Desc';
         }
-        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Vendor_Order_Line_Item_Group__c> voLineItemGroups = Database.query(query);
         return voLineItemGroups;
@@ -3348,6 +3391,7 @@ public with sharing class SOQLUtil {
         // Child Query
         query += '(SELECT '; 
         for(String fieldName : VendorInvoicingCtrl.vrGroupFieldsList()){
+        	fieldName = BPUtility.escapeSingleQuotes(fieldName);
             query += fieldName + ', ';
         }
         query = query.substring(0, query.length()-2);
@@ -3463,11 +3507,13 @@ public with sharing class SOQLUtil {
         query += ' ORDER BY CreatedDate';
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Invoicing_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Invoicing_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Vendor_Invoicing_Header__c> viHeaderList = Database.query(query);
         return viHeaderList;
     }
     
     public static List<Vendor_Receiving_Header__c> getVRHeaderList(String vrHeaderId) {
+    	vrHeaderId = BPUtility.escapeSingleQuotes(vrHeaderId);
         String query;
         query = 'SELECT '; 
         for(String fieldName : VendorInvoicingCtrl.voReceivingFieldsList()){
@@ -3591,11 +3637,12 @@ public with sharing class SOQLUtil {
         }
         query = query.substring(0, query.length()-2);
         query += ' FROM  Kit_Transaction_Type_Junctions__r )';
-        query += ' FROM ' + Constants.NAMESPACE + 'Kit_Header__c ';
+        query += ' FROM ' + Constants.NAMESPACE + 'Kit_Header__c '; 
         
         boolean isWhereClauseAdded = false;
         if(fieldNameToFieldValueMap.size() > 0) {
             for(String fieldName : fieldNameToFieldValueMap.keySet()) {
+            	fieldName = BPUtility.escapeSingleQuotes(fieldName);
                 if(!isWhereClauseAdded) {
                     query += 'WHERE '+ fieldName + ' = \'' + BPUtility.escapeSingleQuotes(fieldNameToFieldValueMap.get(fieldName)) + '\'';
                     isWhereClauseAdded = true;
@@ -3606,8 +3653,8 @@ public with sharing class SOQLUtil {
         }
         query += ' ORDER BY CreatedDate';
         if(AccessControl.ifObjectFieldIsAccessible('Kit_Transaction_Type_Junction__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        if(AccessControl.ifObjectFieldIsAccessible('Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('Kit_Header_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        if(AccessControl.ifObjectFieldIsAccessible('Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Kit_Header__c> kitHeaderList = Database.query(query);
         return kitHeaderList;
     }
@@ -3733,8 +3780,8 @@ public with sharing class SOQLUtil {
             }
         }
         query += ' ORDER BY CreatedDate';
-        if(AccessControl.ifObjectFieldIsAccessible('Fee__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        if(AccessControl.ifObjectFieldIsAccessible('Fee__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Fee__c> feeList = Database.query(query);
         return feeList;
     }
@@ -3761,7 +3808,7 @@ public with sharing class SOQLUtil {
         if(fieldNameToFieldValueMap.size() > 0) {
             for(String fieldName : fieldNameToFieldValueMap.keySet()) {
             	fieldName = BPUtility.escapeSingleQuotes(fieldName);
-				query += 'AND '+ fieldName + ' = \'' + fieldNameToFieldValueMap.get(fieldName) + '\'';
+				query += 'AND '+ fieldName + ' = \'' + BPUtility.escapeSingleQuotes(fieldNameToFieldValueMap.get(fieldName)) + '\'';
             }
         }
         query += ' ORDER BY CreatedDate';
@@ -3964,6 +4011,7 @@ public with sharing class SOQLUtil {
             query += 'WHERE ID IN : ttIds '; 
         } 
         query += ' order by Code__c';
+        if(AccessControl.ifObjectFieldIsAccessible('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('Transaction_Type__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Transaction_Type__c> ttList = Database.query(query);
         return ttList;
@@ -4009,8 +4057,8 @@ public with sharing class SOQLUtil {
         if(feeId != null) {
             query += 'WHERE Id =: feeId';
         }
-        if(AccessControl.ifObjectFieldIsAccessible('Fee__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        if(AccessControl.ifObjectFieldIsAccessible('Fee__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		List<Fee__c> feeList = Database.query(query);
 		return feeList;
 	}   
@@ -4069,8 +4117,8 @@ public with sharing class SOQLUtil {
      * @return: Service Order Kit Header Records
     **/
     public static List<Sobject> getActiveOrdersForKit(String sobjectId) {
+    	sobjectId = BPUtility.escapeSingleQuotes(sobjectId);
         String objectName = (Id.valueOf(sobjectId)).getSObjectType().getDescribe().getName();
-
         String query;
         query = 'SELECT Service_Order_Header__r.CO_Header__c, Service_Order_Header__r.CO_Header__r.Name, Service_Order_Header__r.CO_Header__r.Customer__r.Name, Service_Order_Header__r.CO_Header__r.Order_status__c, ';
         query += 'Service_Order_Header__r.CO_Header__r.Owner__r.Name FROM Service_Order_Kit_Header__c '; 
@@ -4276,6 +4324,7 @@ public with sharing class SOQLUtil {
         query += ' FROM App_Log__c ';
         query += 'WHERE Id = :appLogId';
         if(AccessControl.ifObjectFieldIsAccessible('App_Log__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<App_Log__c> appLogRec = Database.query(query);
         return appLogRec;
     }
@@ -4295,7 +4344,7 @@ public with sharing class SOQLUtil {
         }
         query = query.substring(0, query.length()-2);
         query += ' FROM Account ';
-        query += ' WHERE Claims_for_Service_Work__c = true AND Is_Vendor__c = true';
+        query += ' WHERE Claims_for_Service_Work__c = true AND Is_Vendor__c = true AND Active__c = true';
         query += ' ORDER BY Name';
         if(AccessControl.ifObjectFieldIsAccessible('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Account> providerList = Database.query(query);
@@ -4328,11 +4377,10 @@ public with sharing class SOQLUtil {
         query += 'WHERE Id = :soHeaderId';
         if(AccessControl.ifObjectFieldIsAccessible('CustomerApproval__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<Service_Order_Header__c> soHeaderRec = Database.query(query);
         return soHeaderRec;
     }
-    
-      
     
     
     public static List<Sobject> getRecordTypeId(String objectAPIName, String recordTypeDeveloperName) {
@@ -4368,6 +4416,7 @@ public with sharing class SOQLUtil {
         	query += 'AND Deductible_Status__c =: status';
         }
         if(AccessControl.ifObjectFieldIsAccessible('SO_Payment_Role__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
         List<SO_Payment_Role__c> soPaymentRoleRec = Database.query(query);
         return soPaymentRoleRec;
     }
@@ -4378,18 +4427,22 @@ public with sharing class SOQLUtil {
      * @param: (1) soHeaderId - Id - So Header Id
      * @return: List<Service_Order_Line_Item__c> - So Header  records
     **/
-    public static List<Service_Order_Line_Item__c> getServiceOrderLineItemBySoHeadeder(String soHeaderId){
+    public static List<Service_Order_Line_Item__c> getServiceOrderLineItemBySOHeader(String soHeaderId){
     	soHeaderId = BPUtility.escapeSingleQuotes(soHeaderId);
-    	String query;   
+    	  String query;   
         query = 'SELECT '; 
         for(String fieldsName : SOHeaderWrapper.getSOLineItemFieldsList()){
         	fieldsName = BPUtility.escapeSingleQuotes(fieldsName);
             query += fieldsName + ', ';
         }
-        query = query.substring(0, query.length()-2);
+        
+        // Child Query
+        query += '(SELECT Sales_Tax_Item_Name__c, Tax_Rate__c FROM Individual_Taxes__r)';
+        
         query += ' FROM Service_Order_Line_Item__c ';
         query += 'WHERE Service_Order_Header__c = : soHeaderId';
         if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		if(AccessControl.ifObjectFieldIsAccessible('Individual_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Service_Order_Line_Item__c> soLineItemRec = Database.query(query);
         return soLineItemRec;
     
@@ -4423,7 +4476,6 @@ public with sharing class SOQLUtil {
         query += 'WHERE Service_Order_Header__c = : soHeaderId'; 
         if(AccessControl.ifObjectFieldIsAccessible('Claim__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('Claim_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        
         List<Claim__c> claimRecList = Database.query(query);
         return claimRecList;
     
@@ -4463,7 +4515,7 @@ public with sharing class SOQLUtil {
         List<Part_FIFO_Bucket__c> partFIFOrecList = Database.query(query);
         return partFIFOrecList;
     
-    } 
+    }
    	
    	//part Fifo Bucket by partIdset 
     public static List<Part_FIFO_Bucket__c> getPartFIFOBucketByPartList(Set<Id> PartIdSet){
@@ -4475,12 +4527,131 @@ public with sharing class SOQLUtil {
         }
         query = query.substring(0, query.length()-2); 
         query += ' FROM Part_FIFO_Bucket__c ';
-        query += 'WHERE Is_FIFO_Bucket__c = true and  Remaining_Qty__c > 0  and Part__c IN : PartIdSet ';
+        query += 'WHERE Is_FIFO_Bucket__c = true AND Remaining_Qty__c > 0  and Part__c IN : PartIdSet ';
         query += ' order by CreatedDate Asc';
         
         if(AccessControl.ifObjectFieldIsAccessible('Part_FIFO_Bucket__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
        	// system.assert(false,query);
         List<Part_FIFO_Bucket__c> partFIFOrecList = Database.query(query);
         return partFIFOrecList;
+    } 	
+
+    
+     /**
+     * Name: getTaxExemptionList
+     * Desc: To get Part taxes with sales taxes information for a Part Id
+     * @param:  (1) vendorId - Id - Vendor Record Id
+      *          (2) sortFieldMap - Map<String, String> - Mapping of key -> Field and Value -> Sorting Type(ASC, Desc)    
+     * @return: Part Taxes records list
+    **/ 
+    public static List<Tax_Exemption__c> getTaxExemptionList(Id customerId, Map<String, String> sortFieldMap) {
+        String query;
+        query = 'SELECT ';
+        for(String fieldName : TaxExemptions.fieldsList()){
+        	fieldName = BPUtility.escapeSingleQuotes(fieldName);
+            query += fieldName + ', ';
+        }
+        query = query.substring(0, query.length()-2);
+        query += ' FROM ' + Constants.NAMESPACE + 'Tax_Exemption__c ';
+        query += 'WHERE Customer__c =: customerId';
+        
+        // Order by clause
+        query += ' ORDER BY ';
+        if(sortFieldMap != null && sortFieldMap.size() != 0){
+            for(String sortKey : sortFieldMap.keySet()){
+                query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
+            }
+            query = query.substring(0, query.length()-2);
+        } else {
+            query += ' LastModifiedDate Desc';
+        }
+        if(AccessControl.ifObjectFieldIsAccessible('Tax_Exemption__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        List<Tax_Exemption__c> taxExemptionList = Database.query(query);
+        return taxExemptionList;
+    }
+    
+     /**
+     * Name: getTaxExemptionList
+     * Desc: To get Part taxes with sales taxes information for a Part Id
+     * @param:  (1) vendorId - Id - Vendor Record Id
+     *          (2) sortFieldMap - Map<String, String> - Mapping of key -> Field and Value -> Sorting Type(ASC, Desc)    
+     * @return: Part Taxes records list
+    **/ 
+    public static List<Sales_Tax_Item__c> getAllSalesTaxItemWithExemptions(Id customerId, Map<String, String> fieldNameToFieldValueMap) {
+        String query;
+        query = 'SELECT Name__c, Rate__c, Forms_Label__c, ';
+        
+        // child Query - Tax Exemptions
+        query += '(SELECT Id, Customer__c from Tax_Exemptions__r WHERE Customer__c =: customerId)'; 
+        query += ' FROM ' + Constants.NAMESPACE + 'Sales_Tax_Item__c ';
+        query += ' WHERE Active__c = true';
+        
+        for(String fieldName : fieldNameToFieldValueMap.keySet()) {
+        	fieldName = BPUtility.escapeSingleQuotes(fieldName);
+            query += 'AND '+ fieldName + ' = \'' + BPUtility.escapeSingleQuotes(fieldNameToFieldValueMap.get(fieldName)) + '\'';
+        }
+        
+        if(AccessControl.ifObjectFieldIsAccessible('Sales_Tax_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        List<Sales_Tax_Item__c> salesTaxItemList = Database.query(query);
+        return salesTaxItemList;  
+    }
+    
+    /**
+     * Name: getBusinessProfileData
+     * Desc: To get business profile records from Database by executing query
+     * @param: (1) businessProfileIds - List<id> - Business profile Ids List 
+     * @return: List of Business profile records
+    **/
+    public static List<Business_Profile__c> getBusinessProfileData(List<id> businessProfileIds) {
+        String query;   
+        query = 'SELECT '; 
+        for(String fieldsName : UserSettingCtrl.BUSINESS_PROFILE_FIELDS_TO_JSON_MAPPING.get('Business_Profile__c')){
+        	fieldsName = BPUtility.escapeSingleQuotes(fieldsName);
+            query += fieldsName + ', ';
+        }
+        query = query.substring(0, query.length()-2);
+        query += ' FROM ' + Constants.NAMESPACE + 'Business_Profile__c ';
+        if(businessProfileIds.size() > 0) {
+            query += 'WHERE ID IN : businessProfileIds';
+        }
+        query += ' LIMIT 1';
+        if(AccessControl.ifObjectFieldIsAccessible('Business_Profile__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        List<Business_Profile__c> businessProfiles = Database.query(query);
+        return businessProfiles;
+    }
+
+  /** Added by ANkit
+     * Name: getPartActiveOrdersForPart
+     * Desc: To get Part Active Orders for a Part Id
+     * @param:  (1) vohIdSet - Set<Id>  - Set of Vendor Order header ids
+     *			(2) sortFieldMap - Map<String, String> - Mapping of key -> Field and Value -> Sorting Type(ASC, Desc)
+     			(3) partid - id of the part
+     * @return: Vendor Order header record list
+    **/  
+    public static List<Vendor_Order_Header__c> getPartActiveOrdersForPart(Set<Id> vohIdSet, Map<String, String> sortFieldMap,Id partId) {
+        String query;
+        query = 'SELECT ';
+        for(String fieldName : ActiveOrder.getActiveOrderfieldsListNew()){
+        	fieldName = BPUtility.escapeSingleQuotes(fieldName);
+            query += fieldName + ', ';
+        }
+        query = query.substring(0, query.length()-2);
+        query += ' FROM ' + Constants.NAMESPACE + 'Vendor_Order_Header__c ';
+        query += 'WHERE Id IN :vohIdSet';
+        
+        // Order by clause
+        query += ' ORDER BY ';
+        if(sortFieldMap != null && sortFieldMap.size() != 0){
+            for(String sortKey : sortFieldMap.keySet()){
+                query += BPUtility.escapeSingleQuotes(sortKey) + ' ' + BPUtility.escapeSingleQuotes(sortFieldMap.get(sortKey)) + ', ';
+            }
+            query = query.substring(0, query.length()-2);
+        } else {
+            query += ' LastModifiedDate Desc';
+        }
+        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        List<Vendor_Order_Header__c> partActiveOrders = Database.query(query);
+        return partActiveOrders;
     } 	
 }

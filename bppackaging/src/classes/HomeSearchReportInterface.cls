@@ -8,13 +8,13 @@
 public with sharing class HomeSearchReportInterface {
 	public static Set<String> validTextTypes = new Set<String>{'STRING', 'PICKLIST', 'URL', 'EMAIL'} ;//MULTIPICKLIST
 	public static Set<String> specialFields = new Set<String>{'Name'} ;
-		
+
 	public static Map<String,String> getWhereClauseForObjects(HomeSearchFilterWrapper filterWrapperObj){
 		Map<String, String> filterConditionMap = new map<String, String>();
-			
+
 		Map<String, List<HomeSearchFilterInterface.FieldFilter>> objNameToFieldFilterListMap = HomeSearchFilterInterface.getFilterList(filterWrapperObj);
 		Map<String, String> objNameToWhereClauseStringMap = new Map<String, String>();
-		
+
 		Set<String> objectSet = new Set<String>();
 		if(filterWrapperObj.Type.Objects.size() == 0 || (filterWrapperObj.Type.Objects.size() == 1 && filterWrapperObj.Type.Objects.contains(Label.Generic_Object_Label))) {
 			objectSet = HomeSearchUtil.displayObjectNameToTypeNumber.keySet();
@@ -96,11 +96,17 @@ public with sharing class HomeSearchReportInterface {
 		objAPIName = objAPIName.contains('__c') ? CONSTANTS.NAMESPACE+objAPIName : objAPIName;
 		List<Schema.SObjectField> sfieldList = schemaMap.get(objAPIName).getDescribe().fields.getMap().values();
 		for(Schema.SObjectField sField : sfieldList) {
-			if(specialFields.contains(sField.getDescribe().getName()) || (validTextTypes.contains(sfield.getDescribe().getType().Name()) && sfield.getDescribe().isUpdateable())) {
-				textFieldsList.add(sField.getDescribe().getName());
-			}
-		}
-		return textFieldsList;
+			if(objAPIName=='CO_Invoice_Header__c' &&  sField.getDescribe().getName() == 'Invoice_Number__c'  ){
+                textFieldsList.add(sField.getDescribe().getName());
+            }
+            if(specialFields.contains(sField.getDescribe().getName()) || (validTextTypes.contains(sfield.getDescribe().getType().Name()) && sfield.getDescribe().isUpdateable())) {
+                if(objAPIName=='CO_Invoice_Header__c' &&  sField.getDescribe().getName() == 'Name'){
+                    continue;
+                }
+                textFieldsList.add(sField.getDescribe().getName());
+            }
+        }
+        return textFieldsList;
 	}
 	
 	

@@ -182,7 +182,7 @@ private class ViewPartCtrlTest {
         coLineItem.Qty_Committed__c = 120 ;
         update coLineItem ;
         
-        List<CO_Line_Item__c> colineitemList = [select Part__c, Qty_Committed__c, Qty__c, Status__c, Sub_Total_Without_Tax__c, Sub_Total_With_Tax__c from CO_Line_Item__c limit 100];
+        List<CO_Line_Item__c> colineitemList = [select Part__c, Qty_Committed__c, Qty__c, Status__c, Sub_Total_Without_Tax__c, Sub_Total_With_Tax__c from CO_Line_Item__c];
         //system.assert(false, colineitemList);
         Test.startTest();
         String details = BPUtility.getDecodedString(CustomerOrderCtrl.getCOHeaderDetails(BPUtility.getEncodedString(coHeader.Id)));
@@ -261,7 +261,7 @@ private class ViewPartCtrlTest {
         String FIFOHistory = BPUtility.getDecodedString(ViewPartCtrl.getHistoryRecords(BPUtility.getEncodedString(part.Id), true ));
         List<PartFIFOBucket> partObjRec2 = (List<PartFIFOBucket>) System.JSON.deserialize(FIFOHistory, List<PartFIFOBucket>.class);
         //system.assert(false, partObjRec2);
-        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c, Average_Cost__c from Part__c limit 100];
+        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c, Average_Cost__c from Part__c];
         system.assertEquals(partList1[0].Average_Cost__c, 26.6666666666666666666666666666667);
 
     }
@@ -316,7 +316,7 @@ private class ViewPartCtrlTest {
         String FIFOHistory = BPUtility.getDecodedString(ViewPartCtrl.getHistoryRecords(BPUtility.getEncodedString(part.Id), true ));
         List<PartFIFOBucket> partObjRec2 = (List<PartFIFOBucket>) System.JSON.deserialize(FIFOHistory, List<PartFIFOBucket>.class);
         //system.assert(false, partObjRec2);
-        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c, Average_Cost__c from Part__c limit 100];
+        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c, Average_Cost__c from Part__c];
         system.assertEquals(partList1[0].Average_Cost__c, 26.6666666666666666666666666666667);
 
     }
@@ -373,7 +373,7 @@ private class ViewPartCtrlTest {
         //system.assert(false, partObjRec2[1].PartId);
         
         String adjustedcost = BPUtility.getDecodedString(ViewPartCtrl.saveAdjustedCostDetails(BPUtility.getEncodedString('{"VendorRecievingVendorName":null,"vendorInvoicingVendorName":null,"UniqueId":"VI-0001862","Type":null,"Total":800,"SourceName":"Vendor Invoice","RemainingQty":100,"Reference":"HyperMotar","QtyOut":0,"QtyIn":100,"PartName":"testfifoautomation","PartId":"'+partObjRec2[1].PartId+'","PartFIFOActivityLineItemList":[],"IsFiFoBucket":true,"FIFOBucketId":"'+partObjRec2[1].FIFOBucketId+'","CreatedDate":"Jun 20, 2016","Cost":40,"isEdit":true}'), 50, true));
-        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c, Average_Cost__c from Part__c limit 100];
+        List<Part__c> partList1 = [select Id, Part_Number__c, Qty_Committed__c, Qty_In_Stock__c, Qty_On_Order__c, Average_Cost__c from Part__c];
         system.assertEquals(partList1[0].Average_Cost__c, 40);
 
     }

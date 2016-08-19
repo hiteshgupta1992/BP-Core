@@ -437,7 +437,7 @@
                     if(prevDefaultCName.length > 0){
                         var confirmMsg = 'Country ';
                         if(currRowCVisible){
-                            confirmMsg += 'default will be changed from "' + escapeHTML(prevDefaultCName) + '" to "' + escapeHTML(currRowCName) + '".' + '\n';
+                            confirmMsg += 'default will be changed from "' + prevDefaultCName + '" to "' + currRowCName + '".' + '\n';
                         }else{
                         	confirmMsg += 'record will be marked as VISIBLE and set to DEFAULT.' + '\n';
                         }
@@ -498,7 +498,6 @@
                 if({!uniqueId}currentRowIndex == -1){
                     {!uniqueId}currentRowIndex = gridDataSource.view().length - 1;
                 }
-                
                 confirmAction("Confirm Update", confirmMsg, {!uniqueId}CountryDefaultConfirm);
             }
             
@@ -665,7 +664,7 @@
 	                    
 	                    if(prevDefaultSName.length > 0){
 	                        var confirmMsg = 'State ';
-	                            confirmMsg += 'default will be changed from "' + escapeHTML(prevDefaultSName) + '" to "' + escapeHTML(currRowSName) + '".' + '\n';
+	                            confirmMsg += 'default will be changed from "' + prevDefaultSName + '" to "' + currRowSName + '".' + '\n';
 	                        confirmMsg += 'Do you want to proceed ?';
 	                        {!uniqueId}alertAndUpdateDefault(currElem, confirmMsg, {!uniqueId}prevDefaultStateDataRowIdx, a);
 	                    }
@@ -707,7 +706,6 @@
 	                if({!uniqueId}currentSRowIndex == -1){
 	                    {!uniqueId}currentSRowIndex = gridDataSource.view().length - 1;
 	                }
-	                
 	                confirmAction("Confirm Update", confirmMsg, {!uniqueId}confirmStateDefaultUpdate);
 	            }
                 

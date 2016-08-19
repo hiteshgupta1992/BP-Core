@@ -700,7 +700,8 @@
                     return;
                 }
                 
-                var delConfirmMsg = "Are you sure that you want to delete record for " + escapeHTML(rowData.ST_Name) + "?";
+                var delConfirmMsg = "Are you sure that you want to delete record for " + rowData.ST_Name + "?";
+                delConfirmMsg = escapeHTML(delConfirmMsg);
                 confirmAction("Confirm Delete", delConfirmMsg, confirmDeleteSalesTaxRecord);
             }
             
@@ -1036,7 +1037,7 @@
                 if(category == null || category.trim().length == 0 || {!uniqueId}categoryDatasource == null) return '';
                 for (var idx = 0, length = {!uniqueId}categoryDatasource.length; idx < length; idx++) {
                     if ({!uniqueId}categoryDatasource[idx].Value === category) {
-                        return  escapeHTML({!uniqueId}categoryDatasource[idx].Name);
+                        return {!uniqueId}categoryDatasource[idx].Name;
                     }
                 }
             }

@@ -4,8 +4,7 @@
 	
 	
 	<apex:outputPanel id="customersGrid">
-		<h2>Page is deprecated.</h2>
-<!-- 		<c:CustomersList uniqueId="Customers_"/> -->
+		<c:CustomersList uniqueId="Customers_"/>
     </apex:outputPanel>
 	
 </apex:page>

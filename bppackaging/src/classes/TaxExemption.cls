@@ -39,9 +39,9 @@ global with sharing class TaxExemption {
      * @param:  (1) JSONString - String - JSON String 
      * @return: List of TaxExemption - Class Object
     **/
-    public static List<TaxExemption> parse(String json) {
+    /*public static List<TaxExemption> parse(String json) {
         return (List<TaxExemption>) System.JSON.deserialize(json, List<TaxExemption>.class);
-    }
+    }*/
     
     /**
      * Name: fieldsList
@@ -67,7 +67,7 @@ global with sharing class TaxExemption {
      *			(2)pageSortAttrsJSON - String - Page Sort Attributes
      * @return: List of TaxExemption - Class Object
     **/
-    public static List<TaxExemption> getAllTaxExemptionsForPart(Id partId, String pageSortAttrsJSON) {
+    /*public static List<TaxExemption> getAllTaxExemptionsForPart(Id partId, String pageSortAttrsJSON) {
     	RelatedListPaginationSorting pageSortAttrs = TaxExemption.parsePageAttrs(pageSortAttrsJSON);
 		
 		Map<String, String> sortFieldMap = new Map<String, String>();
@@ -86,7 +86,7 @@ global with sharing class TaxExemption {
         }
         
 		return taxExemptions;
-    }
+    }*/
     
     /**
      * Name: getPaginatedRecords
@@ -158,9 +158,9 @@ global with sharing class TaxExemption {
      * @param:  (1) JSONString - String - JSON String 
      * @return: RelatedListPaginationSorting - Class Object
     **/
-    public static RelatedListPaginationSorting parsePageAttrs(String json) {
+    /*public static RelatedListPaginationSorting parsePageAttrs(String json) {
         return (RelatedListPaginationSorting) System.JSON.deserialize(json, RelatedListPaginationSorting.class);
-    }
+    }*/
     
 	 /**
 	 * Name: RelatedListPaginationSorting

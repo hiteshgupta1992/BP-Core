@@ -27,7 +27,7 @@ public with sharing class COInvoiceHeader {
         	this.ClosedInvoiceDate = '';
         }
         this.InvoiceStatus = coInvoiceHeaderRec.Invoice_Status__c;
-        this.COInvoiceHeaderNumber = coInvoiceHeaderRec.Name;
+        this.COInvoiceHeaderNumber = (coInvoiceHeaderRec.Invoice_Number__c == null) ? '' : coInvoiceHeaderRec.Invoice_Number__c;
     }
     
     /**
@@ -51,7 +51,8 @@ public with sharing class COInvoiceHeader {
 		                                                        'Name', 
 		                                                        'CO_Header__c',
 		                                                        'Invoice_Date__c',
-		                                                        'Invoice_Status__c'
+		                                                        'Invoice_Status__c',
+		                                                        'Invoice_Number__c'
                                                		 	};
         return coInvoiceHeaderFields;
     }

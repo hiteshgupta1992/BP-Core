@@ -1,23 +1,48 @@
 <apex:page applyBodyTag="false" Controller="SOInfoPrintPreviewPDFCtrl" renderas="pdf">
 <head>
-<title>Print Preview</title>
-<link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.Printcss)}" media="print" />
-<link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.fontawsome, 'css/font-awesome.css')}" media="print"/>
+	<title>Print Preview</title>
+	<link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.Printcss)}" media="print" />
+	<link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.fontawsome, 'css/font-awesome.css')}" media="print"/>
 </head>
-	<div class="header" style="min-height: 1px;padding-right: 15px;padding-left: 15px;float : left !important;width : 100% !important;;margin-right: 10px !important;margin-left : -14px !important;padding :12px !important">
+			<div class="header" style="min-height: 1px;padding-right: 15px;padding-left: 15px;float : left !important;width : 100% !important;;margin-right: 10px !important;margin-left : -14px !important;padding :12px !important">
 						<div class="lightbox pull-left" style="width: 200px !important;border: 1px solid #ccc;border-radius: 5px !important;min-height: 90px !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;float: left !Important;padding : 5px !important;padding-top:10px !important">
 	                     	<p class="placeholderForLogo">Place holder for store Logo</p>
 	                     </div>
 	                     <div class="storeInfo " style="float: left !important;display :inline !important;width: 200px!important; min-height: 90px !important;padding :10px !important">
 	                     	<h3 class="col-md-12 M0 P0 text-center" style="text-align :center;display : inline!important;">{!$Organization.Name}</h3>
 	                     	<div class="width400" style="float:left !important;display:inline !important;">
-	                      	<label class="T7" style="font-family: 'Open Sans', sans-serif !important;font-weight: normal;text-transform: capitalize !important;font-size: 13px !important;	margin: 0.01em !important;color: #414449 !important;"><span style="font-weight: 100 !important;">{!$Organization.Street}, {!$Organization.City}</span></label>
+	                      	<label class="T7" style="font-family: 'Open Sans', sans-serif !important;font-weight: normal;text-transform: capitalize !important;font-size: 13px !important;	margin: 0.01em !important;color: #414449 !important;">
+	                      	<span style="font-weight: 100 !important;">
+	                      		<apex:outputtext id="organization_street"	rendered="{!$Organization.Street != ''}" styleClass="font-weight: 100 !important;">
+			                             {!$Organization.Street}
+	                      		</apex:outputtext>
+	                      		<apex:outputtext id="organization_comma_street_city" rendered="{!$Organization.Street != '' && $Organization.City != ''}" styleClass="font-family: 'Open Sans', sans-serif !important;font-weight: normal;text-transform: capitalize !important;font-size: 13px !important;	margin: 0.01em !important;color: #414449 !important;font-weight: 100 !important;">
+			                		,
+			                	</apex:outputtext>
+	                      		<apex:outputtext id="organization_city"	rendered="{!$Organization.City != ''}" styleClass="font-weight: 100 !important;">
+			                     		{!$Organization.City}
+			                     </apex:outputtext>
+			                     </span>
+	                      	</label>
 	                      	</div>
 	                     	<div class="width400" style="float:left !important;display : inline !important;">
-	                      	<label class="T7" style="font-family: 'Open Sans', sans-serif !important;font-weight: normal;text-transform: capitalize !important;font-size: 13px !important;	margin: 0.01em !important;color: #414449 !important;font-weight: 100 !important;">{!$Organization.State}, {!$Organization.Country}</label>
+	                      	<label class="T7" style="font-family: 'Open Sans', sans-serif !important;font-weight: normal;text-transform: capitalize !important;font-size: 13px !important;	margin: 0.01em !important;color: #414449 !important;font-weight: 100 !important;">
+	                      	<apex:outputtext id="organization_state" rendered="{!$Organization.State != ''}" styleClass="font-family: 'Open Sans', sans-serif !important;font-weight: normal;text-transform: capitalize !important;font-size: 13px !important;	margin: 0.01em !important;color: #414449 !important;font-weight: 100 !important;">
+			                    
+	                      	{!$Organization.State}
+	                      	</apex:outputtext>
+	                      	<apex:outputtext id="organization_comma_state_country" rendered="{!$Organization.State != '' && $Organization.Country != ''}" styleClass="font-family: 'Open Sans', sans-serif !important;font-weight: normal;text-transform: capitalize !important;font-size: 13px !important;	margin: 0.01em !important;color: #414449 !important;font-weight: 100 !important;">
+			                ,
+			                </apex:outputtext>
+	                      	<apex:outputtext id="organization_country" rendered="{!$Organization.Country != ''}" styleClass="font-family: 'Open Sans', sans-serif !important;font-weight: normal;text-transform: capitalize !important;font-size: 13px !important;	margin: 0.01em !important;color: #414449 !important;font-weight: 100 !important;">
+			                	 {!$Organization.Country}
+			                </apex:outputtext>	 
+	                      	</label>
 	                      	</div>
 	                     	<div class="width400" style="float:left !important;display:inline !important">
-	                      	<label class="T7" style="font-family: 'Open Sans', sans-serif !important;font-weight: normal;text-transform: capitalize !important;font-size: 13px !important;	margin: 0.01em !important;color: #414449 !important;font-weight: 100 !important;">{!$Organization.PostalCode}</label>
+	                     	<apex:outputtext id="organization_postalCode"	rendered="{!$Organization.PostalCode != ''}" styleClass="float:left !important;display:inline !important">
+			                	<label class="T7" style="font-family: 'Open Sans', sans-serif !important;font-weight: normal;text-transform: capitalize !important;font-size: 13px !important;	margin: 0.01em !important;color: #414449 !important;font-weight: 100 !important;">{!$Organization.PostalCode}</label>
+			                </apex:outputtext>	
 	                     	</div>
 	                     	<div class="width400" style="float:left !important;display:inline !important">
 	                     	<label class="T7" style="font-family: 'Open Sans', sans-serif !important;font-weight: normal;text-transform: capitalize !important;font-size: 13px !important;	margin: 0.01em !important;color: #414449 !important;font-weight: 100 !important;"></label>
@@ -186,50 +211,58 @@
 									<apex:repeat value="{!SOKHitem.SOKH.SOLIList}" var="Solitem">
 										<tr style="height:50px !important;background-color:{!IF(SOKHitem.SOKH.hasChildren == true,'#F6F7F9; !important', '')}">
 											<td class="text-center">{!Solitem.ItemDesc}</td>
+											
 											<td class="text-center" style="text-align : center">
-											<apex:outputtext value="{0, number, 0}">
-												<apex:param value="{!Solitem.QtyNeeded}"/>
-											</apex:outputtext>
-											</td>
-											<apex:outputtext rendered="{! !Solitem.IsLabour}">
-											<td class="text-center" style="text-align : center">
-												<apex:outputtext rendered="{! !Solitem.IsLabour}"  value="{0, number, 0}">
-											 		<apex:param value="{!Solitem.StockCommited}"/>
+												<apex:outputtext value="{0, number, 0}">
+													<apex:param value="{!Solitem.QtyNeeded}"/>
 												</apex:outputtext>
 											</td>
-											</apex:outputtext>
-											<apex:outputtext rendered="{! Solitem.IsLabour}">
-											<td class="text-center" style="text-align : center"></td>
-											</apex:outputtext>
+											
 											<apex:outputtext rendered="{! !Solitem.IsLabour}">
-											<td class="text-center" style="text-align : center">
-												<apex:outputtext rendered="{! !Solitem.IsLabour}" value="{0, number, 0}">
-												<apex:param value="{! Solitem.QtyOrder}"/>
-												</apex:outputtext>
-											</td>
+												<td class="text-center" style="text-align : center">
+													<apex:outputtext rendered="{!Solitem.IsPart}"  value="{0, number, 0}">
+												 		<apex:param value="{!Solitem.StockCommited}"/>
+													</apex:outputtext>
+												</td>
 											</apex:outputtext>
+											
 											<apex:outputtext rendered="{! Solitem.IsLabour}">
 												<td class="text-center" style="text-align : center"></td>
 											</apex:outputtext>
+											
 											<apex:outputtext rendered="{! !Solitem.IsLabour}">
-											<td class="text-center" style="text-align : center">{!Solitem.Status}</td>
+												<td class="text-center" style="text-align : center">
+													<apex:outputtext rendered="{!Solitem.IsPart}" value="{0, number, 0}">
+														<apex:param value="{! Solitem.QtyOrder}"/> 
+													</apex:outputtext>
+												</td>
+											</apex:outputtext>
+											
+											<apex:outputtext rendered="{! !Solitem.IsPart}">
+												<td class="text-center" style="text-align : center"></td>
+											</apex:outputtext>
+											
+											<apex:outputtext rendered="{!Solitem.IsPart}">
+												<td class="text-center" style="text-align : center">{!Solitem.Status}</td>
 											</apex:outputtext>
 												
 											<apex:outputtext rendered="{! Solitem.IsLabour}">
-												<td class="text-center" style="text-align : center"> Ready</td>
+												<td class="text-center" style="text-align : center"></td>
 											</apex:outputtext>
+											
 											<td class="text-center" style="text-align : center">
 												<apex:outputtext value="{0, number, $0.00}">
 													<apex:param value="{! Solitem.KitPrice }"/>
 												</apex:outputtext>
 											</td>
+											
 											<td class="text-center" style="text-align : center">
-											<apex:outputtext rendered="{!Solitem.SubTotal == null}" value="{0, number, $0.00}">
-												 <apex:param value="{! Solitem.KitPrice * Solitem.QtyNeeded}"/>
-											</apex:outputtext>	
-											<apex:outputtext rendered="{!Solitem.SubTotal != null}" value="{0, number, $0.00}">
-												<apex:param value="{!Solitem.SubTotal}"/>
-											</apex:outputtext>		
+												<apex:outputtext rendered="{!Solitem.SubTotal == null}" value="{0, number, $0.00}">
+													 <apex:param value="{! Solitem.KitPrice * Solitem.QtyNeeded}"/>
+												</apex:outputtext>	
+												<apex:outputtext rendered="{!Solitem.SubTotal != null}" value="{0, number, $0.00}">
+													<apex:param value="{!Solitem.SubTotal}"/>
+												</apex:outputtext>		
 											</td>
 										</tr>
 									</apex:repeat>
@@ -273,15 +306,29 @@
 									<label style="width: 65px !important;padding: 5px 0px 0px 0px !important;margin: 0px 10px !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;display: inline-block;max-width: 100%;margin-bottom: 5px;font-weight: bold;">SUBLET</label> <span class="T7  pull-right" style="width: 65px !important;padding: 5px 0px 0px 0px !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;font-family: 'Open Sans', sans-serif;font-weight: normal;text-transform: capitalize;font-size: 13px;margin: 0.01em;color: #414449;float: right;">${!printingInfoObj.Total_Sublet}</span>
 								</div>
 								<div style="width: 200px !important;float: left !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;">
-									<label style="width: 65px !important;padding: 5px 0px 0px 0px !important;margin: 0px 10px !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;display: inline-block;max-width: 100%;margin-bottom: 5px;font-weight: bold;">OTHER</label> <span class="T7  pull-right" style="width: 65px !important;padding: 5px 0px 0px 0px !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;font-family: 'Open Sans', sans-serif;font-weight: normal;text-transform: capitalize;font-size: 13px;margin: 0.01em;color: #414449;float: right;">${!printingInfoObj.Total_Other}</span>
+									<label style="width: 65px !important;padding: 5px 0px 0px 0px !important;margin: 0px 10px !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;display: inline-block;max-width: 100%;margin-bottom: 5px;font-weight: bold;">FEE</label> <span class="T7  pull-right" style="width: 65px !important;padding: 5px 0px 0px 0px !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;font-family: 'Open Sans', sans-serif;font-weight: normal;text-transform: capitalize;font-size: 13px;margin: 0.01em;color: #414449;float: right;">${!printingInfoObj.Total_Other}</span>
 								</div>
+								<!-- <apex:outputpanel rendered="!printingInfoObj.IsTaxIncludingPricing">
+									<apex:repeat value="{!printingInfoObj.SalesTaxList}" var="salesTaxItem">
+										<div style="width: 200px !important;float: left !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;">
+											<label style="width: 65px !important;padding: 5px 0px 0px 0px !important;margin: 0px 10px !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;display: inline-block;max-width: 100%;margin-bottom: 5px;font-weight: bold;">{!salesTaxItem.taxName}</label> <span class="T7  pull-right" style="width: 65px !important;padding: 5px 0px 0px 0px !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;font-family: 'Open Sans', sans-serif;font-weight: normal;text-transform: capitalize;font-size: 13px;margin: 0.01em;color: #414449;float: right;">${!salesTaxItem.taxValue}</span>
+										</div>
+									</apex:repeat>
+								</apex:outputpanel> -->
 								<div class="BB pull-right" style="border-bottom: 1px solid #000;width: 60px; margin-right: 5px;"></div>
 								<div style="width: 200px !important;float: left !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;">
 									<span class="T7  pull-right" style="width: 65px !important;padding: 5px 0px 0px 0px !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;font-family: 'Open Sans', sans-serif;font-weight: normal;text-transform: capitalize;font-size: 13px;margin: 0.01em;color: #414449;float: right;padding-bottom : 10px !important;">${!printingInfoObj.Total}</span>
 								</div>
+								<apex:outputpanel rendered="printingInfoObj.IsTaxIncludingPricing">
+									<apex:repeat value="{!printingInfoObj.SalesTaxList}" var="salesTaxItem">
+										<div style="width: 200px !important;float: left !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;">
+											<label style="width: 65px !important;padding: 5px 0px 0px 0px !important;margin: 0px 10px !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;display: inline-block;max-width: 100%;margin-bottom: 5px;font-weight: bold;">{!salesTaxItem.taxName}</label> <span class="T7  pull-right" style="width: 65px !important;padding: 5px 0px 0px 0px !important;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;font-family: 'Open Sans', sans-serif;font-weight: normal;text-transform: capitalize;font-size: 13px;margin: 0.01em;color: #414449;float: right;">${!salesTaxItem.taxValue}</span>
+										</div>
+									</apex:repeat>
+								</apex:outputpanel>
 							</div>
 					</div>
-				</div>
+				</div>  
 			</div>
 		</div>
 </apex:page>

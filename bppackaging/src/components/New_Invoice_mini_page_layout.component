@@ -485,9 +485,16 @@
                                                 <td  class="T7">{{invoiceitem.Item}}</td>
                                                 <td class="T7">{{invoiceitem.Qty}}</td>
                                                 <td class="T7">{{invoiceitem.QtyRequired}}</td>
-                                                <td class="T7">{{invoiceitem.Price | currency}}</td>
+                                                <td class="T7">
+                                                	{{invoiceitem.Price | currency}}
+                                                </td>
                                                 <td class="T7">{{invoiceitem.TaxAmount | currency}}</td>
-                                                <td class="T7">{{invoiceitem.Total | currency}}</td>
+                                                <td class="T7" ng-if="CustomerOrderModel.InvoiceDetailInfo.IsTaxIncludingPricing">
+                                                	{{invoiceitem.Total | currency}}
+                                                </td>
+                                                <td class="T7" ng-if="!CustomerOrderModel.InvoiceDetailInfo.IsTaxIncludingPricing">
+                                                	{{(invoiceitem.Total + invoiceitem.TaxAmount) | currency}}
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -502,7 +509,7 @@
                                     {{CustomerOrderModel.InvoiceDetailInfo.OverlayTotals.subTotal | currency}}
                                 </div>
                             </div>
-                            <div class="row sub_total_row">
+                            <div class="row sub_total_row" ng-if="!CustomerOrderModel.InvoiceDetailInfo.IsTaxIncludingPricing">
                                 <div class="col-md-8 text-right">
                                     <strong class="T3">{!$Label.Label_Tax}ES</strong>
                                 </div>
@@ -516,6 +523,14 @@
                                 </div>
                                 <div class="col-md-3 text-Left T7 Totalpay">
                                     {{CustomerOrderModel.InvoiceDetailInfo.OverlayTotals.payTotal | currency}}
+                                </div>
+                            </div>
+                            <div class="row sub_total_row" ng-if="CustomerOrderModel.InvoiceDetailInfo.IsTaxIncludingPricing">
+                                <div class="col-md-8 text-right">
+                                    <strong class="T3">{!$Label.Label_Tax}ES</strong>
+                                </div>
+                                <div class="col-md-3 text-Left T7">
+                                    {{CustomerOrderModel.InvoiceDetailInfo.OverlayTotals.Tax | currency}}
                                 </div>
                             </div>
                             <div class="borderLine"></div>

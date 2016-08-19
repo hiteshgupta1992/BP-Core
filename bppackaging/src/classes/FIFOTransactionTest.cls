@@ -4,9 +4,6 @@ private class FIFOTransactionTest {
      @testSetup
     private static void setupTestData() {
         TestUtil.createNameSpaceInGeneralConfig();
-        
-		List<General_Configurations__c> config = [SELECT Id FROM General_Configurations__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
-		System.assertNotEquals(0, config.size());
     }
     static testMethod void createFIFOBucketForPartTest() {
          Account vendor = TestUtil.createVendor(true, 'testvendor');
@@ -36,7 +33,7 @@ private class FIFOTransactionTest {
          Part__c partObject1 = TestUtil.createPart(true, '101', vendor.id, 'test1', categoryObject.id, 200, 200, 100, 20, 20);
          Part__c partObject2 = TestUtil.createPart(true, '102', vendor.id, 'test2', categoryObject.id, 201, 200, 100, 20, 20);
          Part__c partObject3 = TestUtil.createPart(true, '103', vendor.id, 'test3', categoryObject.id, 202, 100, 10, 2, 2);
-         List<Part__c> partList = [select Id, Qty_In_Stock__c, Qty_Committed__c, Last_Cost__c, Average_Cost__c, Qty_On_Order__c from Part__c Limit : 100]; 
+         List<Part__c> partList = [select Id, Qty_In_Stock__c, Qty_Committed__c, Last_Cost__c, Average_Cost__c, Qty_On_Order__c from Part__c]; 
          Vendor_Receiving_Header__c vendorReceiveingheaderObject = TestUtil.createVendorOrderReceiveHeader(true, vendor.Id, 'Stocked');
          Map<Id, Part__c> updateOnOrderIdtoPartMap = new Map<Id, Part__c>();
          for(part__c p : partList){
@@ -45,7 +42,7 @@ private class FIFOTransactionTest {
          Test.startTest();
          FIFOTransaction.createFIFOBucketForVendorReceiving(partList, vendorReceiveingheaderObject.id, updateOnOrderIdtoPartMap);
          Test.stopTest();
-         List<Part_FIFO_Bucket__c> partFIFOBucketList=[Select id from Part_FIFO_Bucket__c Limit : 100];
+         List<Part_FIFO_Bucket__c> partFIFOBucketList=[Select id from Part_FIFO_Bucket__c];
          System.assertEquals(6,partFIFOBucketList.size());
          
     }
@@ -68,7 +65,7 @@ private class FIFOTransactionTest {
         Test.startTest();
         FIFOTransaction.updateFIFOBucketForVendorInvoicing(vendorReceivingHeaderToPartMap, vendorInvoiceHeaderObject.id);
         Test.stopTest();
-        List<Part_FIFO_Bucket__c> partFIFOBucketList=[Select id from Part_FIFO_Bucket__c Limit : 100];
+        List<Part_FIFO_Bucket__c> partFIFOBucketList=[Select id from Part_FIFO_Bucket__c];
         System.assertEquals(6,partFIFOBucketList.size());
     }
     static testmethod void updatePartInStockTest(){
@@ -84,7 +81,7 @@ private class FIFOTransactionTest {
         List<String> partidList = new List<String>{partObject1.id,partObject2.id,partObject3.id};
         Test.startTest();
         FIFOTransaction.updatePartInStock(partidList);
-        List<Part_FIFO_Bucket__c> partFIFOBucketList=[Select id from Part_FIFO_Bucket__c Limit : 100];
+        List<Part_FIFO_Bucket__c> partFIFOBucketList=[Select id from Part_FIFO_Bucket__c];
         System.assertEquals(3,partFIFOBucketList.size());
         Test.stopTest();
     }

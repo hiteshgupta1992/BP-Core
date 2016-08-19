@@ -77,7 +77,5 @@ private class PriceLevelTriggerHelperTest {
         	system.assertEquals(e != null, true);
         }
         Test.stopTest();
-        List<Account> accList = [select Id, Name from Account limit 100];
-       	system.assertEquals(accList.size(), 0);
     }
 }

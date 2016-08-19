@@ -24,6 +24,5 @@ private class SalesTaxItemWrapperTest {
 
     static testMethod void myUnitTest() {
         // TO DO: implement unit test
-        System.assert(1 > 0, 'Test failed');
     }
 }

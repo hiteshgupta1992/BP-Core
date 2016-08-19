@@ -25,9 +25,6 @@ public with sharing class ApplicableTaxTriggerHelper {
      * @return: 
     **/
     public static void  updateRateFieldOnSalesTax() {
-    	if(AccessControl.ifObjectFieldIsAccessible('Sales_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	if(AccessControl.ifObjectFieldIsAccessible('Applicable_Taxes__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	
         Set<Id> salesTaxSet = new Set<Id>();
         
         Map<Id,Sales_Tax__c> mapOfST;
@@ -40,6 +37,9 @@ public with sharing class ApplicableTaxTriggerHelper {
                 salesTaxSet.add(appTax.Sales_Tax__c);
             }
         }
+        
+        if(AccessControl.ifObjectFieldIsAccessible('Sales_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        if(AccessControl.ifObjectFieldIsAccessible('Applicable_Taxes__r') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         
         mapOfST = new Map<Id,Sales_Tax__c>([Select Rate__c, 
                                                   (select Id, Sales_Tax_Item__c,

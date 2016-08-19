@@ -38,6 +38,9 @@ global with sharing class AlternatePart {
 	// Alternate part number
 	public String AlternatePartNumber;
 	
+	public Boolean isReplacedByPresentOnCurrentPart;
+	public Boolean isReplacedByPresentOnAlternatePart;
+	
 	public AlternatePart(Part_Alternates__c  partAlternate) {
 		this.Id					= partAlternate.Id;
         this.Relation			= partAlternate.Relation__c;
@@ -50,6 +53,16 @@ global with sharing class AlternatePart {
         this.Qty				= partAlternate.Alternate_Part_ID__r.AvailableParts__c;
         this.Retail				= partAlternate.Alternate_Part_ID__r.Retail_Price__c;
         this.AlternatePartNumber= partAlternate.Alternate_Part_ID__r.Part_Number__c;
+        
+        this.isReplacedByPresentOnCurrentPart = partAlternate.Part_ID__r.Is_Replaced_Part_Present__c;
+        if(this.isReplacedByPresentOnCurrentPart) {
+        	this.isReplacedByPresentOnCurrentPart = (this.Relation != 'Replaced By');
+        }
+        
+        this.isReplacedByPresentOnAlternatePart = partAlternate.Alternate_Part_ID__r.Is_Replaced_Part_Present__c;
+        if(this.isReplacedByPresentOnAlternatePart) {
+        	this.isReplacedByPresentOnAlternatePart = (this.Relation != 'Replaces');
+        }
         
         // Set Status Logic. Refer US - PA 004 - View Part - Left Sidebar
 		if(partAlternate.Alternate_Part_ID__r.Qty_In_Stock__c > 0 && partAlternate.Alternate_Part_ID__r.Qty_In_Stock__c > partAlternate.Alternate_Part_ID__r.Auto_reorder_Min__c && partAlternate.Alternate_Part_ID__r.Qty_On_Order__c == 0) {
@@ -187,7 +200,9 @@ global with sharing class AlternatePart {
 	                                                        'Alternate_Part_ID__r.Auto_reorder_Min__c',
 															'Alternate_Part_ID__r.Qty_On_Order__c',
 															'Alternate_Part_ID__r.Auto_reorder_Max__c',
+															'Alternate_Part_ID__r.Is_Replaced_Part_Present__c',
 	                                                        'Part_ID__c',
+	                                                        'Part_ID__r.Is_Replaced_Part_Present__c',
 	                                                        'Part_ID__r.Description__c',
 	                                                        'Part_ID__r.AvailableParts__c',
 	                                                        'Part_ID__r.Retail_Price__c',

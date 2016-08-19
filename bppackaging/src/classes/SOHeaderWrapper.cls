@@ -5,13 +5,13 @@
 * Description: Apex class which contains all JSON related oprations of Service Order
 **/
 public with sharing class SOHeaderWrapper {
-	
+
 	public List<SOWrapper> SOList;
 	public List<String> PinnedItemList;
 	public SO_KLI_Recalculation.Errorhandler error;
 	
     // List of CO Invoice Items
-    public List<COInvoiceItem> coInvoiceItemRecs;
+    public List<COInvoiceItem> coInvoiceItemRecs; 
     
     // List of CO Line Items
     public List<SpecialOrder> specialOrderList;
@@ -38,7 +38,6 @@ public with sharing class SOHeaderWrapper {
 		if(pinItems.size() > 0) {
 			this.PinnedItemList.addAll(pinItems);
 		}
-		
 		this.SOList = new List<SOWrapper>();
 		//system.assert(false, soHeaderRecList);
 		for(Service_Order_Header__c soHeaderRec : soHeaderRecList) {
@@ -47,7 +46,6 @@ public with sharing class SOHeaderWrapper {
 			} else {
 				this.SOList.add(new SOWrapper(soHeaderRec, new List<Service_Order_Kit_Header__c>()));
 			}
-            
         }
         
         Decimal deductibleTotal = 0;
@@ -67,15 +65,12 @@ public with sharing class SOHeaderWrapper {
         	}
         }
         
-        
         for(CO_Invoice_Header__c coInvoiceHeaderRecord : coInvoiceHeader) {
         	this.coInvoiceHeaderRec = new COInvoiceHeader(coInvoiceHeaderRecord);
         }
-        
         for(Vendor_Order_Line_Item__c specialOrderObj : specialOrderList) {
             this.specialOrderList.add(new SpecialOrder(specialOrderObj));
         }
-        
         this.error = (CustomerOrderCtrl.error != null) ? CustomerOrderCtrl.error : new SO_KLI_Recalculation.Errorhandler('200', 'Success');
 	}
 	
@@ -90,10 +85,8 @@ public with sharing class SOHeaderWrapper {
 		Integer day = Integer.valueOf(dateTimeList[0].split('/')[1]);
 		Integer month = Integer.valueOf(dateTimeList[0].split('/')[0]);
 		Integer year = Integer.valueOf(dateTimeList[0].split('/')[2]);
-		
 		Integer hour = Integer.valueOf(dateTimeList[1].split(':')[0]);
 		Integer min = Integer.valueOf(dateTimeList[1].split(':')[1]);
-		
 		if(hour == 12) {
 			hour -= 12;
 		}
@@ -161,7 +154,8 @@ public with sharing class SOHeaderWrapper {
 	                                                        'Kit_Unique_Name__c',
 	                                                        'Service_Order_Header__c',
 	                                                        'CreatedDate',
-	                                                        'Actual_Kit_Price__c'
+	                                                        'Actual_Kit_Price__c',
+	                                                        'Tax_amount__c'
                                                 };
         return soKitHeaderFields;
     }
@@ -196,6 +190,7 @@ public with sharing class SOHeaderWrapper {
 	                                                        'Qty_To_Order__c',
 	                                                        'Actual_Kit_Price__c',
 	                                                        'Tax__c',
+	                                                        'Tax_Percent__c',
 	                                                        'Labour_Tax_Amount__c',
 	                                                        'Kit_Price_With_Price_Level__c'
                                                 };
@@ -289,6 +284,19 @@ public with sharing class SOHeaderWrapper {
     }
     
     /**
+     * Name: getCOInvoiceItemList
+     * Desc: Method Which contains all the field list to be quried
+     * @param:  
+     * @return: List<String> - Fields List
+    **/
+ 	 public static List<String> getCOInvoiceItemList(){
+        List<String> coInvoiceItemList = new List<String>{ 'Id',
+                                                        'Invoice_Header_Status__c'
+                                                };
+        return coInvoiceItemList;
+    }
+    
+    /**
      * Name: getTTFieldsList
      * Desc: Method Which contains all the field list to be quried
      * @param:  
@@ -300,6 +308,8 @@ public with sharing class SOHeaderWrapper {
                                                 };
         return ttFields;
     }
+
+
 	public static List<String> getSOPaymentRoleFieldsList(){
 		List<String> soPaymentRoleFields = new List<String>{ 'Id',
 														'Total_Amount__c',
@@ -315,11 +325,11 @@ public with sharing class SOHeaderWrapper {
 		return soPaymentRoleFields;
 	}
 	/**
+
 	* Name: SOWrapper
 	* Description: Apex class which contains all JSON related oprations of Service Order
 	**/
 	public class SOWrapper {
-		
 		public SOHeader SOHeaderInfo;
 		public SOSignIn SOSignInRec;
 		public SOReview SOReviewRec;
@@ -345,11 +355,9 @@ public with sharing class SOHeaderWrapper {
 			this.CustomerApprovalList = new List<CustomerApproval>();
 			this.AttachmentList = new List<Attachments>();
 			this.DeductibleItem = new Deductible(soRec);
-			
 			if(soKitHeaderList == null) {
 				soKitHeaderList = new List<Service_Order_Kit_Header__c>();
 			}
-			
 			List<DateTime> sortedDateTimeList = new List<dateTime>();
 			Set<Id> soliIdSet = new Set<Id>();
 			for(Service_Order_Kit_Header__c soKHRec : soKitHeaderList) {
@@ -360,7 +368,6 @@ public with sharing class SOHeaderWrapper {
             		soliIdSet.add(soliRec.Id);
             	} 
 			}
-			
 			Integer lastIndexValue = 0;
 			system.debug('Sorting Started OF SOLIs -->>');
 			system.debug(sortedDateTimeList);
@@ -374,8 +381,6 @@ public with sharing class SOHeaderWrapper {
         					break;
         				}
         			}
-        			system.debug('lastIndexValue  ' + lastIndexValue);
-        			
         			if(this.SOGridItems.size() > lastIndexValue){
         				this.SOGridItems.add(lastIndexValue, new SOGrid(new Service_Order_Kit_Header__c(), new List<Service_Order_Line_Item__c>{soliRec}, false));
         				
@@ -390,8 +395,6 @@ public with sharing class SOHeaderWrapper {
         				this.SOGridItems.add(new SOGrid(new Service_Order_Kit_Header__c(), new List<Service_Order_Line_Item__c>{soliRec}, false));
         				lastIndexValue++;
         			}
-        			system.debug('lastIndexValue : ' +lastIndexValue + '\n\n\nSOGridItems : ' + SOGridItems);
-        			system.debug('sortedDateTimeList : ' + sortedDateTimeList);
         		}
         	}
         	
@@ -411,6 +414,7 @@ public with sharing class SOHeaderWrapper {
 	}
 	
 	/**
+
 	* Name: SOHeader
 	* Description: Apex class which contains all JSON related oprations of Service Order
 	**/
@@ -421,11 +425,9 @@ public with sharing class SOHeaderWrapper {
 		public List<String> ManualConcern;
 		public List<String> ManualCorrection; 
 		public List<String> ManualCause;
-		
 		public List<String> KitHeaderCause;
 		public List<String> KitHeaderConcern;
 		public List<String> KitHeaderCorrection;
-		
 		public String PromisedBy;
 		public String IsPromisedByAmPm;
 		public Decimal EstimatedHours;
@@ -443,6 +445,7 @@ public with sharing class SOHeaderWrapper {
 		public List<AvailableStatus> AvailableWorkStatusList;
 		public String ClaimStatus;
 		public List<AvailableStatus> AvailableClaimStatusList;
+		public String InvoiceStatus;
 		
 		/**
      	* Name: SOHeader
@@ -460,9 +463,7 @@ public with sharing class SOHeaderWrapper {
 			if(soHeaderRec.Customer_Owned_Unit__c != null) {
 				this.COUId = soHeaderRec.Customer_Owned_Unit__c;
 			}
-			
 			this.ProviderId = soHeaderRec.Provider__c;
-			
 			if(soHeaderRec.Category__c != null) {
 				this.CategoryName = soHeaderRec.Category__r.Name;
 				this.CategoryId = soHeaderRec.Category__c;
@@ -492,17 +493,14 @@ public with sharing class SOHeaderWrapper {
 			this.IsPromisedByAmPm = soHeaderRec.IsPromisedBy_AmPm__c;
 			this.Status = soHeaderRec.Status__c;
 			this.IsCompletedLinkShown = true;
-			
-			for(Service_Order_Line_Item__c soli : soHeaderRec.Service_Order_Line_Items__r) {
-				if(soli.Total__c != null) {
-					this.Total += soli.Total__c;
-					if(soli.Labour_Code__c != null) {
-						Decimal tax = soli.Labour_Tax_Amount__c;
-						this.Total += tax; 
-					} else if(soli.Tax__c != null) {
-						Decimal tax = soli.Total__c * soli.Tax__c / 100;
-						this.Total += tax;
+			for (Service_Order_Line_Item__c soli : soHeaderRec.Service_Order_Line_Items__r) {
+				if (soli.Total__c != null) {
+					if (soli.Tax_Percent__c == null) {
+						soli.Tax_Percent__c = 0;
 					}
+					this.Total += (soli.Total__c != null) ? soli.Total__c : 0;
+					this.Total += ((soli.Total__c * soli.Tax_Percent__c) / 100);
+					this.Total = this.Total.setScale(2);
 				}
 				if(soli.Qty_To_Order__c > 0) {
 					this.IsCompletedLinkShown = false;
@@ -510,9 +508,9 @@ public with sharing class SOHeaderWrapper {
 			}
 			
 			this.WorkStatus = soHeaderRec.Work_Status__c;
-			if(this.WorkStatus != null && CustomerOrderCtrl.workStatusToAvailableStatusMap.containsKey(this.WorkStatus)) {
+			if(this.WorkStatus != null && Constants.workStatusToAvailableStatusMap.containsKey(this.WorkStatus)) {
 				this.AvailableWorkStatusList = new List<AvailableStatus>();
-				for(String status : CustomerOrderCtrl.workStatusToAvailableStatusMap.get(this.WorkStatus)) {
+				for(String status : Constants.workStatusToAvailableStatusMap.get(this.WorkStatus)) {
             		this.AvailableWorkStatusList.add(new AvailableStatus(status));
             	}
 			} else {
@@ -520,29 +518,32 @@ public with sharing class SOHeaderWrapper {
 			}
 			
 			this.ClaimStatus = soHeaderRec.Claim_Status__c;
-			if(this.ClaimStatus != null && CustomerOrderCtrl.claimStatusToAvailableStatusMap.containsKey(this.ClaimStatus)) {
+			if(this.ClaimStatus != null && Constants.claimStatusToAvailableStatusMap.containsKey(this.ClaimStatus)) {
 				this.AvailableClaimStatusList = new List<AvailableStatus>();
-	            for(String status : CustomerOrderCtrl.claimStatusToAvailableStatusMap.get(this.ClaimStatus)) {
+	            for(String status : Constants.claimStatusToAvailableStatusMap.get(this.ClaimStatus)) {
 	            	this.AvailableClaimStatusList.add(new AvailableStatus(status));
 	            }
 			} else {
 				this.AvailableClaimStatusList = new List<AvailableStatus>();
 			}
 			
+			// Invoice Status based on CO Invoice Item of SOHeader
+			if(soHeaderRec.CO_Invoice_Items__r.size() > 0) {
+				this.InvoiceStatus = soHeaderRec.CO_Invoice_Items__r[0].Invoice_Header_Status__c;
+			}
 		}
 	}
 	
-	
-	
 	public class AvailableStatus {
     	public String AvailableStatus;
-    	public String StatusUniqueKey;
+    	public String StatusUniqueKey; 
     	
     	public AvailableStatus(String status) {
     		this.AvailableStatus = status;
     		this.StatusUniqueKey = (status != null) ? status.replaceAll(' ', '_') : null;
     	}
     }
+
 	/**
 	* Name: SOSignIn
 	* Description: Apex class service order sign in 
@@ -552,10 +553,7 @@ public with sharing class SOHeaderWrapper {
 		public Decimal Odometer;
 		
 		/**
-     	* Name: SOSignIn
      	* Desc: Constructor
-    	* @param:	(1)soHeaderRec -  Service_Order_Header__c - Service order header Record
-    	* @return: 
    		**/	
 		public SOSignIn(Service_Order_Header__c soHeaderRec) {
 			this.Id = soHeaderRec.Id;
@@ -625,7 +623,6 @@ public with sharing class SOHeaderWrapper {
 	public class SOKitHeader {
 		
 		public List<SOLineItem> SOLIList;
-		
 		public String ItemDescription;
 		public Boolean CanItSplit;
 		public String Code;
@@ -636,7 +633,7 @@ public with sharing class SOHeaderWrapper {
 		public Boolean IsFixedPrice; 
 		public Boolean hasChildren;
 		public Boolean isFixedKitHeaderSO;
-		
+		public Decimal taxAmount;
 		/**
      	* Name: SOKitHeader
      	* Desc: Constructor
@@ -646,15 +643,28 @@ public with sharing class SOHeaderWrapper {
     	* @return: 
    		**/
 		public SOKitHeader(Service_Order_Kit_Header__c soKitHeaderRec, List<Service_Order_Line_Item__c> soliList, Boolean hasChildren) {
+			Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
 			this.SOLIList = new List<SOLineItem>();
-			
+			this.taxAmount = soKitHeaderRec.Tax_Amount__c;
 			this.ItemDescription = soKitHeaderRec.Kit_Unique_Name__c;
 			this.CanItSplit = soKitHeaderRec.Can_Split__c;
 			this.IsServiceKit = soKitHeaderRec.Service_Kit__c;
 			this.Code = soKitHeaderRec.Code__c;
 			this.Id = soKitHeaderRec.Id;
-			this.isFixedKitHeaderSO = soKitHeaderRec.Is_Fixed_Kit_Header_SO__c;
-			this.FixedPrice = (soKitHeaderRec.Fixed_Price__c != null) ? soKitHeaderRec.Fixed_Price__c.SetScale(3) : soKitHeaderRec.Fixed_Price__c;
+			if (!isTaxIncludingPricing) {
+				this.FixedPrice = (soKitHeaderRec.Fixed_Price__c != null) ? soKitHeaderRec.Fixed_Price__c.SetScale(2) : soKitHeaderRec.Fixed_Price__c;
+			} else {
+				if (soKitHeaderRec.Fixed_Price__c == null) {
+					soKitHeaderRec.Fixed_Price__c = 0;
+				}
+				if (soKitHeaderRec.Tax_Amount__c == null) {
+					soKitHeaderRec.Tax_Amount__c = 0;
+				}
+				//system.assert(false,soKitHeaderRec);
+				this.FixedPrice = (soKitHeaderRec.Fixed_Price__c + soKitHeaderRec.Tax_Amount__c).setscale(2);
+			}
+			//this.isFixedKitHeaderSO = soKitHeaderRec.Is_Fixed_Kit_Header_SO__c;
+			
 			this.IsFixedPrice = soKitHeaderRec.Fixed_Price_Flag__c;
 			for(Service_Order_Line_Item__c soliRec : soliList) {
 				this.SOLIList.add(new SOLineItem(soliRec));
@@ -679,7 +689,6 @@ public with sharing class SOHeaderWrapper {
 		public Boolean IsFixedPrice;
 		public Decimal AvailablePart;
 		public String PartId;
-		
 		public Boolean IsPart;
 		public Boolean IsLabour;
 		public Boolean IsFee;
@@ -689,7 +698,7 @@ public with sharing class SOHeaderWrapper {
 		public String VendorId;
 		public String CoLineItem;
 		public Boolean isFixedKitHeaderLineItemSO;
-		
+		public Decimal Tax;
 		/**
      	* Name: SOLineItem
      	* Desc: Constructor
@@ -703,7 +712,13 @@ public with sharing class SOHeaderWrapper {
 			this.isFixedKitHeaderLineItemSO = soLineItemRec.Is_Fixed_Kit_LineItem_SO__c;
 			this.QtyNeeded = (soLineItemRec.Qty_Needed__c != null ) ? soLineItemRec.Qty_Needed__c : 0;
 			this.StockCommited = (soLineItemRec.Qty_Committed__c != null) ? soLineItemRec.Qty_Committed__c : 0;
-			
+			this.IsPart = (soLineItemRec.Part__c != null) ? true : false;
+			this.IsLabour = (soLineItemRec.Labour_Code__c != null) ? true : false;
+			this.IsFee = (soLineItemRec.Fee__c != null) ? true : false;
+
+			if (this.IsLabour || this.IsFee) {
+				this.StockCommited = this.QtyNeeded;
+			}
 			if(soLineItemRec.CO_Line_Item__r.Closed_CO_Invoice_link__c != null) {
 				this.Status = 'Invoiced'; 
 			} else {
@@ -726,9 +741,22 @@ public with sharing class SOHeaderWrapper {
 				this.QtyOrder = null;
 				this.StockCommited = null;
 			}
-			
-			this.KitPrice= (soLineItemRec.Kit_Price__c != null) ? soLineItemRec.Kit_Price__c.SetScale(3) : soLineItemRec.Kit_Price__c;
-			this.ReatilPrice = (soLineItemRec.Retail_Price__c != null) ? soLineItemRec.Retail_Price__c.SetScale(3) : soLineItemRec.Retail_Price__c;
+			this.Tax = soLineItemRec.Tax_Percent__c;
+            
+            Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
+            
+            if(isTaxIncludingPricing) {
+                if(this.Tax == null) {
+                    this.Tax = 0;
+                }
+                if(soLineItemRec.Kit_Price__c == null) {
+                    soLineItemRec.Kit_Price__c = 0;
+                }
+                this.KitPrice = (soLineItemRec.Kit_Price__c * (1 + (this.Tax / 100))).setScale(2);
+            } else {
+                this.KitPrice = (soLineItemRec.Kit_Price__c != null) ? soLineItemRec.Kit_Price__c.SetScale(2) : soLineItemRec.Kit_Price__c;
+            }
+            this.ReatilPrice = (soLineItemRec.Retail_Price__c != null) ? soLineItemRec.Retail_Price__c.SetScale(2) : soLineItemRec.Retail_Price__c;
 			this.IsFixedPrice = soLineItemRec.Fixed_Price__c;
 			this.PartId = soLineItemRec.Part__c;
 			this.AvailablePart = (soLineItemRec.Part__c != null) ? (soLineItemRec.Part__r.AvailableParts__c) : null;
@@ -737,10 +765,6 @@ public with sharing class SOHeaderWrapper {
 			this.IsFee = (soLineItemRec.Fee__c != null) ? true : false;
 			this.SOKitHeaderId = soLineItemRec.Service_Order_Kit_Header__c;
 			this.CoLineItem = (soLineItemRec.CO_Line_Item__c !=null) ? (soLineItemRec.CO_Line_Item__c ) : null;
-			
-			if(this.IsLabour) {
-				//this.KitPrice = this.KitPrice + soLineItemRec.Labour_Tax_Amount__c;
-			}
 		}
 	}
 	
@@ -884,7 +908,6 @@ public with sharing class SOHeaderWrapper {
 		}	
 	}
 	
-	
 	/**
 	* Name: TTType
 	* Description: Apex class Transation Type
@@ -933,10 +956,7 @@ public with sharing class SOHeaderWrapper {
 		}
 	}
 	
-	
-	
 	public class SpecialOrder {
-
 		public String Id;
 		public String PartId;
 		public String COLineItemId;
@@ -948,6 +968,7 @@ public with sharing class SOHeaderWrapper {
 	    public String ExpectedDelivery;
 	    public String ETA;
 	    public String VendorId;
+
     	
     	public SpecialOrder(Vendor_Order_Line_Item__c VendorOrderLineItemRec) {
     		this.Id = VendorOrderLineItemRec.Id;
@@ -960,14 +981,12 @@ public with sharing class SOHeaderWrapper {
     		}else{
     			this.Status = VendorOrderLineItemRec.Status__c;	
     		}
-    		
     		this.PONumber = VendorOrderLineItemRec.Vendor_Order_Header__r.Name;
     		this.POStatus = VendorOrderLineItemRec.Vendor_Order_Header__r.Status__c;
     		this.ExpectedDelivery = (VendorOrderLineItemRec.CO_Line_Item__r.Expected_Delivery_Date__c != null) ? 
     										DateTime.newInstance(VendorOrderLineItemRec.CO_Line_Item__r.Expected_Delivery_Date__c.year(), VendorOrderLineItemRec.CO_Line_Item__r.Expected_Delivery_Date__c.month(), VendorOrderLineItemRec.CO_Line_Item__r.Expected_Delivery_Date__c.day()).format('MM/dd/yyyy') 
     										: null;
     		this.ETA = null;
-    		
     		this.VendorId = (VendorOrderLineItemRec.Part__c != null) ? VendorOrderLineItemRec.Part__r.Vendor__c : null;
     	}
     }
@@ -978,8 +997,8 @@ public with sharing class SOHeaderWrapper {
     	public String DeductibleId;
     	public String SoHeaderId;
     	public String CoHeaderId;
-    	
-    	 public Deductible(Service_Order_Header__c soHeaderRec ){
+
+    	public Deductible(Service_Order_Header__c soHeaderRec ){
     	 	this.DeductibleAmount = 0;
     	 	for(SO_Payment_Role__c soPaymentRoleObj : soHeaderRec.SO_Payment_Roles__r ){
     	 		if(soPaymentRoleObj.RecordType.DeveloperName == 'Deductible'){

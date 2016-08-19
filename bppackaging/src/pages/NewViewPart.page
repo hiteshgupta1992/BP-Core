@@ -6,9 +6,11 @@
         <title>{!$Label.View_Part_Page_Title}</title>
         
         <c:Css_and_Js />
-        
-       <apex:includeScript value="{!URLFOR($Resource.AngularResources, 'js/googlemapapiv3.js') }" />
+
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+       <!-- <apex:includeScript value="{!URLFOR($Resource.AngularResources, 'js/googlemapapiv3.js') }" /> -->
         <apex:includeScript value="{!$Resource.AngularMap}"/>
+
         <apex:stylesheet value="{!URLFOR($Resource.angular_calender, 'mbdatepicker.css')}"/>    
         <apex:includeScript value="{!URLFOR($Resource.angular_calender, 'mbdatepicker.js')}"/>
         <apex:includeScript value="{!URLFOR($Resource.angular_calender, 'moment.js')}"/>
@@ -20,17 +22,17 @@
         <c:Customer_mini_page_layout />
         <c:NewViewPartRelatedListJS />
         <c:NewPartPopUpOnVendorOrder />
-        <!-- new -->
         <!-- <c:PageStyle />  ?? -->
-        <c:PartAdjustmentInStock />
-        <c:ModifyCostSource />
-        <c:NewPopupStyle />  <!-- ?? -->
-         <c:ModifyCostSummary />
+		<c:ModifyCostSummary />
         <c:ResolveOversold />
-        <c:NewVendorOrderStyle /> 
-        <!-- new -->
+		<c:ModifyCostSource />
+    	<c:PartAdjustmentInStock />
+        <c:NewPopupStyle />  
+        <c:NewVendorOrderStyle />
+        
+
         <style>
-            /* new */
+
             .costTrackingDropdown .ActionIcons{
                 margin-top:0px;
             }
@@ -45,7 +47,7 @@
             .fixedHeaderText .divider {
                 margin-top: 0px;
             }
-            /* new */
+
             .req-label:after {
                 content:" *";
                 color:red;
@@ -148,7 +150,7 @@
             .telemetry_Main {
                 border-top: 1px solid #ECF0F1;
                 margin-top: 24px;
-                padding-top:24px;/*new*/
+                padding-top:24px;
             }
             .cou_plus_icon {
                 margin-left: 10px;
@@ -582,6 +584,11 @@
                 .disabledModifyCostSummary a{
                     cursor: default;
                 }
+                
+               /*  Added by pooja */
+               .userNameblock_Part_ML5	{
+               	margin-left: 5px;
+               }
         </style>
           
         
@@ -590,8 +597,8 @@
      
     <script>
     
-        
-         var viewPart = angular.module(  'viewPart', 
+
+        var viewPart = angular.module(  'viewPart', 
                                             ['BPGlobalHeader', 'searchToAddModule', 'viewPartRelatedListModule', 'ngAnimate', 'ui-notification' , 'PartPopUpModule' ,'PartPopUpModuleOnLoad' , 'materialDatePicker','addPartAdjustModel','resolveOversoldModel', 'modifyCostSummaryModel','modifyCostSourceModel' ]
                                         );
                                         
@@ -600,8 +607,7 @@
                 $scope.ViewPart = {};
                 $scope.CustomerModal = {};
                 $scope.COUModal = {};
-                /*********************   new    **********************/
-                $scope.ViewPart.disableModifyCostSummary = false;
+				$scope.ViewPart.disableModifyCostSummary = false;
                 $scope.ViewPart.adjustPart = {};
                 $scope.ViewPart.adjustPart.showAdjustPreview = true;
                 $scope.ViewPart.adjustPart.isPreviewActive = true;
@@ -613,9 +619,9 @@
                 $scope.ViewPart.modifyCostSummaryModel = {};
                 $scope.ViewPart.modifyCostSummaryModel.showPreview = true;
                 $scope.ViewPart.adjustPart.SelectedInStock = 'select'
-                /*********************   new    **********************/
-                
-                
+
+
+
                 $scope.ViewPartRelatedListModal = {};
                 
                 $scope.SearchToadd = {};
@@ -624,24 +630,27 @@
                 $scope.PreferredObject = "Merchandise";
                 
                 
-                $scope.ViewPart.partId = "{!JSENCODE(URLENCODE($CurrentPage.parameters.id))}";  
+                $scope.ViewPart.partId = "{!JSENCODE(URLENCODE($CurrentPage.parameters.id))}";
+
                 
-                $scope.ViewPart.helpText = {    General         :   '{!JSENCODE($Label.General_Help_Text)}',
-                                                Stocking        :   '{!JSENCODE($Label.Stocking_Help_Text)}',
-                                                Statistics      :   '{!JSENCODE($Label.Statistics_Help_Text)}',
-                                                VitalStatistics :   '{!JSENCODE($Label.VitalStatistics_Help_Text)}',
-                                                Telemetry       :   '{!JSENCODE($Label.Telemetry_Help_Text)}',
-                                                Related         :   '{!JSENCODE($Label.Related_Help_Text)}',
-                                                ActiveOrders    :   '{!JSENCODE($Label.ActiveOrders_Help_Text)}',
-                                                ActiveSalesOrders:  '{!JSENCODE($Label.ActiveSalesOrders_Help_Text)}',
-                                                AlternateParts  :   '{!JSENCODE($Label.AlternateParts_Help_Text)}',
-                                                TaxExemptions   :   '{!JSENCODE($Label.TaxExemptions_Help_Text)}' ,
-                                                CostSummary     :   'Cost Summary' ,
-                                                CostDetails     :   'Cost Details'
+                $scope.ViewPart.helpText = {    General         :   '{!$Label.General_Help_Text}',
+                                                Stocking        :   '{!$Label.Stocking_Help_Text}',
+                                                Statistics      :   '{!$Label.Statistics_Help_Text}',
+                                                VitalStatistics :   '{!$Label.VitalStatistics_Help_Text}',
+                                                Telemetry       :   '{!$Label.Telemetry_Help_Text}',
+                                                Related         :   '{!$Label.Related_Help_Text}',
+                                                ActiveOrders    :   '{!$Label.ActiveOrders_Help_Text}',
+                                                ActiveSalesOrders   :   '{!$Label.ActiveSalesOrders_Help_Text}',
+                                                AlternateParts  :   '{!$Label.AlternateParts_Help_Text}',
+                                                TaxExemptions   :   '{!$Label.TaxExemptions_Help_Text}' ,
+                                                CostSummary     :   '{!$Label.CostSummary_Help_Text}' ,
+                                                CostDetails     :   '{!$Label.CostDetails_Help_Text}'
+
+
                                     };
                                     
          
-                 $scope.ViewPart.displaySections = {  
+                 $scope.ViewPart.displaySections = {
                 'Info' : true,
                 'Statistics' : true,
                 'Related' : true,
@@ -751,9 +760,11 @@
                         $scope.ViewPart.PartInfo = partInfo;
                         debug("part Ingp");
                         debug(partInfo);
-                        /************new ******************/
+
+
+
                         $scope.ViewPart.bindPartData(partInfo);
-                        /************new ******************/
+
                         $scope.ViewPart.ShowContent = true;
                         $scope.ViewPart.changeActiveButton('CurrentStock');
                         // resize left side panel   
@@ -761,22 +772,20 @@
                         
                         // View Part related list modals load
                         $scope.ViewPartRelatedListModal.PartRelatedInfo = partInfo.PartRelatedInfo;
-                        /* new */
+                        
+
                         $scope.ViewPart.PartInfo.PartFIFOBucketList = partInfo.PartFIFOBucketList;
 
-                        for(var i=0;i<$scope.ViewPart.PartInfo.PartFIFOBucketList.length;i++){
-                    	$scope.ViewPart.PartInfo.PartFIFOBucketList[i].isEdit = false;
-                    	debug($scope.ViewPart.PartInfo.PartFIFOBucketList.length==0 || $scope.ViewPart.PartInfo.PartFIFOBucketList[i].SourceName.replace(' ','') == 'VendorReceiving' || $scope.ViewPart.PartInfo.PartFIFOBucketList[i].RemainingQty == 0);
-							if($scope.ViewPart.PartInfo.PartFIFOBucketList.length==0 || $scope.ViewPart.PartInfo.PartFIFOBucketList[i].SourceName.replace(' ','') == 'VendorReceiving' || $scope.ViewPart.PartInfo.PartFIFOBucketList[i].RemainingQty == 0){
-	            				$scope.ViewPart.disableModifyCostSummary = true;
-	            			}
-                    	}
-                        /* new */
+                        
+                        
+
+
+
                         $scope.ViewPartRelatedListModal.PartId = $scope.ViewPart.partId;
                         $scope.ViewPartRelatedListModal.PartIsTaxable = $scope.ViewPart.PartInfo.PartDetailRec.IsTaxable;
                         $scope.ViewPartRelatedListModal.initModals();
                         $scope.SearchToAddCallback = $scope.ViewPartRelatedListModal.searchToAddCallback;
-                        //$scope.ViewPart.openpartpopupOnLoad($scope.ViewPart.partId);
+                        $scope.ViewPart.openpartpopupOnLoad($scope.ViewPart.partId);
                         $scope.ViewPart.isrefresh = false;
                         //$scope.ViewPart.loadChartData();
                     }, function(errorSearchResult) {
@@ -785,7 +794,7 @@
                     });
                 }
                 
-                /**********************  new    *********************/
+
                 $scope.ViewPart.bindPartData = function(partInfo){
                     $scope.ViewPart.PartInfo = partInfo;
                     $scope.ViewPart.ShowContent = true;
@@ -795,14 +804,12 @@
                     $scope.ViewPart.PartInfo.PartFIFOBucketList = partInfo.PartFIFOBucketList;
 
                     for(var i=0;i<$scope.ViewPart.PartInfo.PartFIFOBucketList.length;i++){
-                        $scope.ViewPart.PartInfo.PartFIFOBucketList[i].isEdit = false;
-                        if($scope.ViewPart.PartInfo.PartFIFOBucketList.length==0 || $scope.ViewPart.PartInfo.PartFIFOBucketList[i].SourceName == 'Vendor Receiving' || $scope.ViewPart.PartInfo.PartFIFOBucketList[i].RemainingQty == 0){
-                                $scope.ViewPart.disableModifyCostSummary = true
-                            }
-                            else{
-                                $scope.ViewPart.disableModifyCostSummary = false;
-                            }
-                    }
+	                    	$scope.ViewPart.PartInfo.PartFIFOBucketList[i].isEdit = false;
+	                    	debug($scope.ViewPart.PartInfo.PartFIFOBucketList.length==0 || $scope.ViewPart.PartInfo.PartFIFOBucketList[i].SourceName.replace(' ','') == 'VendorReceiving' || $scope.ViewPart.PartInfo.PartFIFOBucketList[i].RemainingQty == 0);
+							if($scope.ViewPart.PartInfo.PartFIFOBucketList.length==0 || $scope.ViewPart.PartInfo.PartFIFOBucketList[i].SourceName.replace(' ','') == 'VendorReceiving' || $scope.ViewPart.PartInfo.PartFIFOBucketList[i].RemainingQty == 0){
+	            				$scope.ViewPart.disableModifyCostSummary = true;
+	            			}
+                   	}
 
 
                     $scope.ViewPartRelatedListModal.PartId = $scope.ViewPart.partId;
@@ -815,7 +822,8 @@
 
 
                 } 
-                /**********************  new    *********************/
+                
+
                 // START: PART POPUP ATTRS AND METHODS
                 
                 // Modals for Add/Edit Part component
@@ -840,7 +848,7 @@
                             stockAdjsutmentList.push($scope.ViewPart.PartInfo.PartFIFOBucketList[i]);
                         }
                     }
-                    $scope.$broadcast('AdjustStockEvent', $scope.ViewPart.partId, stockAdjsutmentList);
+                    $scope.$broadcast('AdjustStockEvent', $scope.ViewPart.partId, stockAdjsutmentList,$scope.ViewPart.PartInfo.PartDetailRec);
 
 
                 }
@@ -857,6 +865,7 @@
                         }
                      }
                         debug('Hii');
+
                         debug($scope.ViewPart.OverSold);
                         if($scope.ViewPart.OverSold.length == 0){
                              Notification.error("No Line item is there please add line item");
@@ -868,7 +877,7 @@
 
                     } 
                     $scope.ViewPart.showHideRecords = function(){
-                $scope.ViewPart.toggle = !$scope.ViewPart.toggle;
+                	$scope.ViewPart.toggle = !$scope.ViewPart.toggle;
                     PartInfoService.showHideFifoRecords($scope.ViewPart.partId, $scope.ViewPart.toggle).then(function (successfulSearchResult) {
                     debug(successfulSearchResult);
                     $scope.ViewPart.PartInfo.PartFIFOBucketList = successfulSearchResult;
@@ -911,6 +920,8 @@
                             var fifobucket = $scope.ViewPart.PartInfo.PartFIFOBucketList[index];
                             debug(fifobucket);
                             debug('fifobucket');
+
+
                             if(fifobucket.isEdit == true){
                                 $scope.currentSelectedBucket = fifobucket;
                             }
@@ -976,7 +987,8 @@
                     $scope.ViewPart.toggle = false;
                  });
                  
-                 /* new */
+                 
+
                 // END: PART POPUP ATTRS AND METHODS
                 
                 // Set focus on search text box
@@ -996,6 +1008,7 @@
                  // part popup functions
                 $scope.ViewPart.openpartpopupOnLoad = function (partId) {
                      debug("load popup")
+
                        $scope.$broadcast('PartPopUpEventOnLoad',  partId);
                }
               /* $scope.ViewPart.hidePartPopUp =function(){
@@ -1006,6 +1019,7 @@
                 $scope.ViewPart.refreshViewPart = function(){
                         $scope.ViewPart.isrefresh = true;
                         $scope.ViewPart.loadPartInfo();
+                		$scope.ViewPart.toggle = false; 
                     }
              /*  
                $scope.VendorOrderModel.loadAllGridDetails = function() {
@@ -1047,6 +1061,7 @@
             //Load suggestion and items of a vender order
             $scope.VendorOrderModel.loadVendor = function () {
                 $scope.VendorOrderModel.voHeaderId = "{!JSENCODE(URLENCODE($CurrentPage.parameters.id))}" ? "{!JSENCODE(URLENCODE($CurrentPage.parameters.id))}" : null;
+
                 $scope.VendorOrderModel.setDefaultPageSortAttrs();
                 $scope.SearchToAddCallback = $scope.VendorOrderModel.searchToAddCallback;
                 
@@ -1075,6 +1090,7 @@
                         debug("replaced by id : "+partId);
                         $scope.$broadcast('PartPopUpEvent',  partId);
                         $scope.applyCssOnPartPopUp(event, '.PartPopupOnVenderOrder');
+
                      }, 1000);
                  }
                 
@@ -1083,11 +1099,12 @@
                      angular.element('.Vendor-Order-Part-Popup').hide();
                  }
                  
-                 /* new */
+                 
+
                  $scope.ViewPart.ShowMessage = function(){
                     Notification.error('First resolve the oversold situation by selecting the “Resolve Oversold” action');
                 }
-                 /* new */
+
          
          });
          
@@ -1097,16 +1114,22 @@
                     this.getPartInfo= function(partId)
                     {	
                    		partId = encodeString(partId);
+
                         var deferred = $q.defer();
                         Visualforce.remoting.Manager.invokeAction(
                             '{!$RemoteAction.ViewPartCtrl.getPartInfo}',
                                 partId,
+
                             function (result, event) {
                                if (event.type == 'exception') {
                                     deferred.reject(event.message);
                                 } else {
                                     var partInfo = decodeString(result);
                                     var find = '\'';
+
+
+
+
                                     var re = new RegExp(find, 'g');
                                     partInfo = partInfo.replace(re, '');
                                     deferred.resolve(JSON.parse(partInfo));
@@ -1114,11 +1137,16 @@
                             }, {
                                 escape : true
                         });
+
+
+
+
                         return deferred.promise;
                     }
                     this.showHideFifoRecords= function(partId, showHide)
                 	{
 	               		partId = encodeString(partId);
+
 	                     	var deferred = $q.defer();
 	                     	Visualforce.remoting.Manager.invokeAction(
 	                         '{!$RemoteAction.ViewPartCtrl.getHistoryRecords}',
@@ -1129,6 +1157,10 @@
 	                             } else {
 	                                 var partInfo = decodeString(result);
 	                                 var find = '\'';
+
+
+
+
 	                                 var re = new RegExp(find, 'g');
 	                                 partInfo = partInfo.replace(re, '');
 	                                 deferred.resolve(JSON.parse(partInfo));
@@ -1136,24 +1168,29 @@
 	                         }, {
 	                             escape : true
 	                     });
+
+
+
+
 	                     return deferred.promise;
                 	}
+
                 });
 
     </script>
     </head>
     
-        <body  ng-controller="viewPartController" ng-init="ViewPart.loadPartInfo()" ng-cloak="ng-cloak">
+             <body  ng-controller="viewPartController" ng-init="ViewPart.loadPartInfo()" ng-cloak="ng-cloak">
         <c:BPGlobalHeader />
         <div class="content">
             <div class="col-lg-2 col-md-2 sidePanel ">
                 <div class="sidepaneluserinfo row">
-                    <div class="userimg">
+                    <!-- <div class="userimg">
                         <div style="float:left;background-color: #373c40; border-radius: 5px; padding: 1px; margin-right: 5px;">
                                 <img  src="{!URLFOR($Resource.Images, 'star.png')}" style="height:35px; width:35px; padding: 5px;"/>
                         </div>
-                    </div>
-                    <div class="userNameblock">
+                    </div> -->
+                    <div class="userNameblock userNameblock_Part_ML5">
                         <p class="T3"> 
                        <!--  <span ng-show="ViewPart.CustomerInfo.CustomerInfo.Type == 'Individual'"> {{ViewPart.CustomerInfo.CustomerInfo.FirstName}} {{ViewPart.CustomerInfo.CustomerInfo.LastName}}</span> -->
                         <!-- <span ng-show="ViewPart.CustomerInfo.CustomerInfo.Type != 'Individual'"> {{ViewPart.PartInfo.PartDetailRec.VendorName}} </span> -->
@@ -1193,20 +1230,20 @@
     <!--                 <a class="subSectionLink row T10" href="#RelatedSection" ng-click="ViewPart.sidepanelLink($event)"> -->
     <!--                     <span class="alphabetLetter"></span>Active Orders</a> -->
                     <a class="row T10 subSectionLink" href="#VP_Active_Orders_block_heading_panel" ng-click="ViewPart.sidepanelLink($event, 'Related')">
-                        <span class="alphabetLetter"></span>{!$Label.Page_Section_ActiveOrder}</a>
+                        <span class="alphabetLetter"></span>{!$Label.Page_Section_Active_Vendor_Order}</a>  <!-- {!$Label.Page_Section_ActiveOrder} -->
                     <a class="row T10 subSectionLink" href="#VP_Active_Sales_Orders_block_heading_panel" ng-click="ViewPart.sidepanelLink($event, 'Related')">
                         <span class="alphabetLetter"></span>{!$Label.Active_Sales_Orders}</a>
                     <a class="row T10 subSectionLink" href="#VP_Alternate_Parts_block_heading_panel" ng-click="ViewPart.sidepanelLink($event, 'Related')">
                         <span class="alphabetLetter"></span>{!$Label.Page_Section_AlternateParts}</a>
-                    <a class="row T10 subSectionLink" href="#VP_Tax_Exemptions_block_heading_panel" ng-click="ViewPart.sidepanelLink($event, 'Related')">
+                    <!-- <a class="row T10 subSectionLink" href="#VP_Tax_Exemptions_block_heading_panel" ng-click="ViewPart.sidepanelLink($event, 'Related')">
                         <span class="alphabetLetter"></span>{!$Label.Page_Section_TaxExemptions}</a>
-                        
+                     -->    
                     <a class="row T10 mainSectionLink" ng-class="{'active' : ViewPart.activeSidepanelink =='#CostTrackingSection'}" 
-                        href="#CostTrackingSection" ng-click="ViewPart.sidepanelLink($event, 'CostTracking')" ><span class="alphabetLetter">D</span>Cost Tracking</a>
+                        href="#CostTrackingSection" ng-click="ViewPart.sidepanelLink($event, 'CostTracking')" ><span class="alphabetLetter">D</span>{!$Label.Page_Section_Cost_Tracking}</a>
                     <a class="row T10 subSectionLink" href="#Cost_Summary" ng-click="ViewPart.sidepanelLink($event, 'CostTracking')">
-                        <span class="alphabetLetter"></span>Cost Summary</a>
+                        <span class="alphabetLetter"></span>{!$Label.Page_Section_Cost_Summary}</a>
                     <a class="row T10 subSectionLink" href="#Cost_Details" ng-click="ViewPart.sidepanelLink($event, 'CostTracking')">
-                        <span class="alphabetLetter"></span>Cost Details</a>
+                        <span class="alphabetLetter"></span>{!$Label.Page_Section_Cost_Details}</a>
                     
                 </div>
                 
@@ -1227,12 +1264,12 @@
                         <span class="divider">|</span>
                         <span class="T2">A {!$Label.Page_Section_Info}</span>
                         </span>
-                          <span class="ActionIcons pull-left ">
+                         <!--  <span class="ActionIcons pull-left ">
                                <div class="dropdown selectDropdown checkboxDropdown">
-                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">Actions
+                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">{!$Label.Label_Actions}
                                   <span class="caret"></span></button>
                             </div>
-                        </span> 
+                        </span> --> 
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6" ng-show="ViewPart.activeSidepanelink =='#StatisticsSection'">
@@ -1249,12 +1286,12 @@
                         <span class="divider">|</span>
                         <span class="T2">B {!$Label.Page_Section_Statistics}</span>
                         </span>
-                          <span class="ActionIcons pull-left ">
+                          <!-- <span class="ActionIcons pull-left ">
                                <div class="dropdown selectDropdown checkboxDropdown">
-                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">Actions
+                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">{!$Label.Label_Actions}
                                   <span class="caret"></span></button>
                             </div>
-                        </span> 
+                        </span>  -->
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6" ng-show="ViewPart.activeSidepanelink =='#RelatedSection'">
@@ -1271,12 +1308,12 @@
                         <span class="divider">|</span>
                         <span class="T2">C {!$Label.Page_Section_Related}</span>
                         </span>
-                          <span class="ActionIcons pull-left ">
+                          <!-- <span class="ActionIcons pull-left ">
                                <div class="dropdown selectDropdown checkboxDropdown">
-                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">Actions
+                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">{!$Label.Label_Actions}
                                   <span class="caret"></span></button>
                             </div>
-                        </span> 
+                        </span>  -->
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6" ng-show="ViewPart.activeSidepanelink =='#CostTrackingSection'">
@@ -1291,22 +1328,22 @@
                             ng-Click="ViewPart.displaySections.CostTracking = false">
                         </i> 
                         <span class="divider">|</span>
-                        <span class="T2">D Cost Tracking</span>
+                        <span class="T2">D {!$Label.Page_Section_Cost_Tracking}</span>
                         <span class="ActionIcons pull-left ">
-                               <div class="dropdown selectDropdown checkboxDropdown">
-                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">Actions
+                               <div class="dropdown selectDropdown checkboxDropdown" id="costtrackingdiv">
+                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">{!$Label.Label_Actions}
                                   <span class="caret"></span></button>
                                   <ul class="dropdown-menu">
                                     <li ng-click = "ViewPart.showHideRecords()">
-                                        <a ng-if = "!ViewPart.toggle">Show History</a><a ng-if = "ViewPart.toggle">Hide History</a>
+                                        <a ng-if = "!ViewPart.toggle">{!$Label.Label_Show_History}</a><a ng-if = "ViewPart.toggle">{!$Label.Label_Hide_History}</a>
                                     </li>
-                                    <li ng-click = "ViewPart.adjustStock()" ng-if = "ViewPart.PartInfo.OversoldQty == 0"><a>Adjust In-Stock</a></li>
-                                    <li class = "modifyCostSummary" ng-if = "ViewPart.PartInfo.OversoldQty == 0" ng-click="!ViewPart.disableModifyCostSummary && ViewPart.openModifyCostSummaryPopup()"  ng-class="{'disabledModifyCostSummary' : ViewPart.disableModifyCostSummary}"> <a>Modify Cost Summary</a></li>
-                                    <li ng-click="ViewPart.openModifyCostSourcePopup()"  ng-if = "ViewPart.PartInfo.OversoldQty == 0" ng-class="{'mutedgray' : modifyCostSoourceeditMode}"><a>Modify Cost Source</a></li>
-                                    <li ng-click = "ViewPart.ShowMessage()" ng-if = "ViewPart.PartInfo.OversoldQty != 0"><a>Adjust In-Stock</a></li>
-                                    <li class = "modifyCostSummary"  ng-if = "ViewPart.PartInfo.OversoldQty != 0" ng-click="ViewPart.ShowMessage()"  ng-class="{'disabledModifyCostSummary' : ViewPart.disableModifyCostSummary}"> <a>Modify Cost Summary</a></li>
-                                    <li ng-click="ViewPart.ShowMessage()"  ng-if = "ViewPart.PartInfo.OversoldQty != 0" ng-class="{'mutedgray' : modifyCostSoourceeditMode}"><a>Modify Cost Source</a></li>
-                                    <li ng-click="ViewPart.openResolveOversoldPopup()"><a>Resolve  Oversold</a></li>
+                                    <li ng-click = "ViewPart.adjustStock()" ng-if = "ViewPart.PartInfo.OversoldQty == 0"><a>{!$Label.Adjust_In_Stock}</a></li>
+                                    <li class = "modifyCostSummary" ng-if = "ViewPart.PartInfo.OversoldQty == 0" ng-click="!ViewPart.disableModifyCostSummary && ViewPart.openModifyCostSummaryPopup()"  ng-class="{'disabledModifyCostSummary' : ViewPart.disableModifyCostSummary}"> <a>{!$Label.Modify_Cost_Summary}</a></li>
+                                    <li ng-click="ViewPart.openModifyCostSourcePopup()"  ng-if = "ViewPart.PartInfo.OversoldQty == 0" ng-class="{'mutedgray' : modifyCostSoourceeditMode}"><a>{!$Label.Modify_Cost_Source}</a></li>
+                                    <li ng-click = "ViewPart.ShowMessage()" ng-if = "ViewPart.PartInfo.OversoldQty != 0"><a>{!$Label.Adjust_In_Stock}</a></li>
+                                    <li class = "modifyCostSummary"  ng-if = "ViewPart.PartInfo.OversoldQty != 0" ng-click="ViewPart.ShowMessage()"  ng-class="{'disabledModifyCostSummary' : ViewPart.disableModifyCostSummary}"> <a>{!$Label.Modify_Cost_Summary}</a></li>
+                                    <li ng-click="ViewPart.ShowMessage()"  ng-if = "ViewPart.PartInfo.OversoldQty != 0" ng-class="{'mutedgray' : modifyCostSoourceeditMode}"><a>{!$Label.Modify_Cost_Source}</a></li>
+                                    <li ng-click="ViewPart.openResolveOversoldPopup()"><a>{!$Label.Resolve_Oversold}</a></li>
                                 </ul>
                             </div>
                         </span> 
@@ -1318,7 +1355,7 @@
                     <i class="fa fa-refresh fa-2x fa-fw"
                                     ng-class="{'fa-spin' : ViewPart.isrefresh}"
                                     ng-click="ViewPart.refreshViewPart();"></i></div>
-                    <button type="button" class="flatBtn" ng-click="ViewPart.editPart()">EDIT</button>
+                    <button type="button" class="flatBtn text-uppercase" ng-click="ViewPart.editPart()">{!$Label.Edit_Label}</button>
                     <div class="fa-icons pull-right">
                         <i class="fa fa-floppy-o"></i>
                         <i class="fa fa-cog"></i>
@@ -1332,15 +1369,16 @@
                                 </button>
                                 <button type="button" class="btn C5 dropdown-toggle caretBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="caret"></span>
-                                <span class="sr-only">Toggle Dropdown</span>
+                                <span class="sr-only">{!$Label.Label_Toggle_Dropdown}</span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#InfoSection" ng-click="ViewPart.dropDownItem($event, 'Info')">Info</a></li>
-                                    <li><a href="#StatisticsSection" ng-click="ViewPart.dropDownItem($event, 'Statistics')">Statistics</a></li>
-                                    <li><a href="#RelatedSection" ng-click="ViewPart.dropDownItem($event, 'Related')">Related</a></li>
-                                    <li><a href="#CostTrackingSection" ng-click="ViewPart.dropDownItem($event, 'Cost Tracking')">Cost Tracking</a></li>
+                                    <li><a href="#InfoSection" ng-click="ViewPart.dropDownItem($event, 'Info')">{!$Label.Page_Section_Info}</a></li>
+                                    <li><a href="#StatisticsSection" ng-click="ViewPart.dropDownItem($event, 'Statistics')">{!$Label.Page_Section_Statistics}</a></li>
+                                    <li><a href="#RelatedSection" ng-click="ViewPart.dropDownItem($event, 'Related')">{!$Label.Page_Section_Related}</a></li>
+                                    <li><a href="#CostTrackingSection" ng-click="ViewPart.dropDownItem($event, 'Cost Tracking')">{!$Label.Page_Section_Cost_Tracking}</a></li>
                                     <li role="separator" class="divider"></li>
-                                    <li><a href="#">ADVANCED SEARCH</a></li>
+                                    <li><a href="#" class="text-uppercase">{!$Label.Label_Advanced} {!$Label.Label_Search}</a></li>
+
                                 </ul>
                             </div>
                             <!-- /btn-group -->
@@ -1359,7 +1397,7 @@
                     <div id="Info_General">
                         <p class="actionRow T2">
                             <span class="sectionText">{!$Label.Page_Section_General}</span>
-                            <span class="actionText">Actions</span>
+                            <!-- <span class="actionText">{!$Label.Label_Actions}</span> -->
                             <span class="ActionIcons">
                             <i class="fa fa-question-circle" data-toggle="tooltip" title="{{ViewPart.helpText['General']}}"></i>
                             </span> 
@@ -1382,7 +1420,7 @@
                                     <div  class="row ">
                                         <div class="col-md-12 col-lg-12">
                                             <span class="T1">
-                                                {{ViewPart.PartInfo.PartDetailRec.Name}}
+                                                {{ViewPart.PartInfo.PartDetailRec.Description}}
                                             </span>
                                         </div>
                                     </div>
@@ -1393,7 +1431,7 @@
                             <div class="row">
                                 <div class="col-md-12 col-lg-12">
                                     <span>
-                                        <label class="T7" for="labelFirstName">Vendor : </label>
+                                        <label class="T7" for="labelFirstName">{!$label.Vendor_Object_Display_Label} : </label>
                                     </span>
                                     <span class="T7 ng-binding">
                                         {{ViewPart.PartInfo.PartDetailRec.VendorName}}
@@ -1417,8 +1455,8 @@
                                 <div class="col-md-5 col-lg-5 " >
                                     <div  class="row ">
                                         <div class="col-md-12 col-lg-12 Active_Button_row ">
-                                            <button class="form-control C10 T4 Active_Button round_btn" ng-if="ViewPart.PartInfo.PartDetailRec.Active == true">ACTIVE</button> 
-                                            <button class="form-control C9 T4 Active_Button round_btn" ng-if="ViewPart.PartInfo.PartDetailRec.Active ==false" >DEACTIVE</button>
+                                            <button class="form-control C10 T4 Active_Button round_btn text-uppercase" ng-if="ViewPart.PartInfo.PartDetailRec.Active == true">{!$label.Label_Active}</button> 
+                                            <button class="form-control C9 T4 Active_Button round_btn text-uppercase" ng-if="ViewPart.PartInfo.PartDetailRec.Active ==false" >{!$label.Label_Deactive}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1487,7 +1525,7 @@
                                         <span class="blue T3"><a href="{!$Page.BlackPurlHome}?pageName=CategoryMgmt" target = "_blank"> {{ViewPart.PartInfo.PartDetailRec.CategoryName}} </a></span>
                                     </div>
                                 </div>
-                                <div class="row">
+                                <!-- <div class="row">
                                     <div class="col-lg-5 col-md-5 part_general_column">
                                         <span>
                                             <label class="T7 " for="labelFirstName">{!$ObjectType.Part__c.fields.Superseded_By__c.Label}</label>
@@ -1496,7 +1534,9 @@
                                     <div  class="col-lg-7 col-md-7" >
                                         <span class="blue T3"><a ng-mouseover="ViewPart.openpartpopup($event, ViewPart.PartInfo.PartDetailRec.ReplacedById);" ng-mouseleave="ViewPart.hidePartPopUp();">{{ViewPart.PartInfo.PartDetailRec.ReplacedByName}} </a></span>
                                     </div>
-                                </div>
+
+                                </div> -->
+
                                 <div class="row">
                                     <div class="col-lg-5 col-md-5 part_general_column">
                                         <span>
@@ -1510,14 +1550,27 @@
                                     </div>
                                 </div>
                                 <div class="row">
+
                                     <div class="col-lg-5 col-md-5 part_general_column">
                                         <span>
                                             <label class="T7" for="labelFirstName">Description</label>
-                                            <!-- class="T7 label_favorite" -->
+                                            
+
                                         </span>
                                     </div>
                                      <div  class="col-lg-7 col-md-7" >
                                         <span class="blue T3">{{ViewPart.PartInfo.PartDetailRec.Description}}</span>
+                                    </div>
+                                </div>
+								<div class="row" ng-if="ViewPart.PartInfo.PartDetailRec.IsTaxable">
+                                    <div class="col-lg-5 col-md-5 part_general_column">
+                                        <span>
+                                            <label class="T7" for="labelFirstName">Applicable Tax</label>
+                                            <!-- class="T7 label_favorite" -->
+                                        </span>
+                                    </div>
+                                     <div  class="col-lg-7 col-md-7" >
+                                        <span class="blue T3">{{ViewPart.PartInfo.PartDetailRec.ApplicableTaxName}}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1551,7 +1604,7 @@
                     <div class = "viewPartStocking" id="Info_Stocking">
                             <p class="actionRow T2">
                                 <span class="sectionText">{!$Label.Page_Section_Stocking}</span>
-                                <span class="actionText">Actions</span>
+                                <!-- <span class="actionText">{!$Label.Label_Actions}</span> -->
                                 <span class="ActionIcons">
                                 <i class="fa fa-question-circle" data-toggle="tooltip" title="{{ViewPart.helpText['Stocking']}}"></i>
                                 </span> 
@@ -1560,11 +1613,11 @@
                                 <div class="stockButtons col-lg-12 col-md-12">
                                     <div class="row">
                                         <div class=" col-lg-2 col-md-2 " style="padding-left:10px ;text-align:center;cursor:pointer">
-                                            <div class="T4 round_btn" ng-class="{ C11: ViewPart.activeButton=='CurrentStock' ,  C5: ViewPart.activeButton=='Ordering'}" ng-click="ViewPart.changeActiveButton('CurrentStock')"> CURRENT STOCK </div>
+                                            <div class="T4 round_btn text-uppercase" ng-class="{ C11: ViewPart.activeButton=='CurrentStock' ,  C5: ViewPart.activeButton=='Ordering'}" ng-click="ViewPart.changeActiveButton('CurrentStock')"> {!$label.Label_Current_Stock} </div>
                                         </div>
                                        
                                         <div class=" col-lg-2 col-md-2 " style="padding-left:10px;text-align:center;cursor:pointer">
-                                            <div class="T4 round_btn " ng-class="{ C5: ViewPart.activeButton=='CurrentStock' ,  C11: ViewPart.activeButton=='Ordering'}" ng-click="ViewPart.changeActiveButton('Ordering')"> ORDERING </div>
+                                            <div class="T4 round_btn text-uppercase" ng-class="{ C5: ViewPart.activeButton=='CurrentStock' ,  C11: ViewPart.activeButton=='Ordering'}" ng-click="ViewPart.changeActiveButton('Ordering')"> {!$label.Label_Ordering} </div>
                                         </div>
                                         <div class="col-lg-8 col-md-8"></div>
                                     </div>
@@ -1681,12 +1734,12 @@
                         <span class="divider">|</span>
                         <span class="T2">B {!$Label.Page_Section_Statistics}</span>
                         </span>
-                          <span class="ActionIcons pull-left ">
+                          <!-- <span class="ActionIcons pull-left ">
                                <div class="dropdown selectDropdown checkboxDropdown">
-                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">Actions
+                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">{!$Label.Label_Actions}
                                   <span class="caret"></span></button>
                             </div>
-                        </span> 
+                        </span>  -->
                     </div>
                 </div>
             </div>
@@ -1694,20 +1747,21 @@
                 <div class="main_section row" ng-show="ViewPart.displaySections.Statistics">
                     <div id="Vital_Statistics" class="Vital_Statistics">
                         <p class="actionRow T2">
-                            <span class="sectionText">Vital Statistics</span>
-                            <span class="actionText">Actions</span>
+                            <span class="sectionText">{!$Label.Page_Section_VitalStatistics}</span> 
+
+                            <!-- <span class="actionText">{!$Label.Label_Actions}</span> -->
                             <span class="ActionIcons">
                             <i class="fa fa-question-circle" data-toggle="tooltip" title="{{ViewPart.helpText['VitalStatistics']}}"></i>
                             </span> 
                         </p>
                         <div class="row statistics_row">
-                                    <div style="height:84px ; float :left ; margin-left: 1%;" class="C7" >
+                                    <!-- <div style="height:84px ; float :left ; margin-left: 1%;" class="C7" >
                                             <div>
                                                 <div class="T4" style="width: 100%" >{!$Label.Count_Confidence}</div>
                                                 <div class="T13"  style="width: 100%">85%</div>
-                                                <!-- <div class="T13"  style="width: 100%" ng-show="ViewPart.CustomerInfo.OrdersLifetime == null" >0</div> -->
+                                                <div class="T13"  style="width: 100%" ng-show="ViewPart.CustomerInfo.OrdersLifetime == null" >0</div>
                                             </div> 
-                                    </div>
+                                    </div> -->
                                     <div  style="  height:84px ; float :left ; margin-left: 1%;" class="C7" >
                                             <div>
                                                 <div class="T4"  style="width: 100%">{!$Label.Sold_Lifetime}</div>
@@ -1749,8 +1803,8 @@
                     <div id="Telemetry_Statistics">
                         <div class="telemetry_Main hiddenElements">   <!-- hidden -->
                             <p class="actionRow T2 ">
-                                <span class="sectionText">Telemetry</span>
-                                <span class="actionText">Actions</span>
+                                <span class="sectionText">{!$Label.Page_Section_Telemetry}</span>
+                                <span class="actionText">{!$Label.Label_Actions}</span>
                                 <span class="ActionIcons">
                                 <i class="fa fa-question-circle" data-toggle="tooltip" title="{{ViewPart.helpText['Telemetry']}}"></i>
                                 </span> 
@@ -1772,14 +1826,14 @@
                             ng-Click="ViewPart.displaySections.Related = false">
                         </i> 
                         <span class="divider">|</span>
-                        <span class="T2">C Related</span>
+                        <span class="T2">C {!$Label.Page_Section_Related}</span>
                         </span>
-                          <span class="ActionIcons pull-left ">
+                          <!-- <span class="ActionIcons pull-left ">
                                <div class="dropdown selectDropdown checkboxDropdown">
-                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">Actions
+                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">{!$Label.Label_Actions}
                                   <span class="caret"></span></button>
                             </div>
-                        </span> 
+                        </span>  -->
                     </div>
                 </div>
             </div>
@@ -1799,40 +1853,42 @@
                             ng-Click="ViewPart.displaySections.CostTracking = false">
                         </i> 
                         <span class="divider">|</span>
-                        <span class="T2">D Cost Tracking</span>
+                        <span class="T2">D {!$Label.Page_Section_Cost_Tracking}</span>
                         </span>
                           <span class="ActionIcons pull-left ">
                                <div class="dropdown selectDropdown checkboxDropdown">
-                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">Actions
+                                  <button class="btn dropdown-toggle" type="button" data-toggle="dropdown" id="costtrackingMenu">{!$Label.Label_Actions}
                                   <span class="caret"></span></button>
                                   <ul class="dropdown-menu">
                                     <li ng-click = "ViewPart.showHideRecords()">
-                                        <a ng-if = "!ViewPart.toggle">Show History</a><a ng-if = "ViewPart.toggle">Hide History</a>
+                                        <a ng-if = "!ViewPart.toggle">{!$label.Label_Show_History}</a><a ng-if = "ViewPart.toggle">{!$label.Label_Hide_History}</a>
                                     </li>
-                                    <li ng-click = "ViewPart.adjustStock()" ng-if = "ViewPart.PartInfo.OversoldQty == 0"><a>Adjust In-Stock</a></li>
-                                    <li class = "modifyCostSummary" ng-if = "ViewPart.PartInfo.OversoldQty == 0" ng-click="!ViewPart.disableModifyCostSummary && ViewPart.openModifyCostSummaryPopup()"  ng-class="{'disabledModifyCostSummary' : ViewPart.disableModifyCostSummary}"> <a>Modify Cost Summary</a></li>
-                                    <li ng-click="ViewPart.openModifyCostSourcePopup()"  ng-if = "ViewPart.PartInfo.OversoldQty == 0" ng-class="{'mutedgray' : modifyCostSoourceeditMode}"><a>Modify Cost Source</a></li>
-                                    <li ng-click = "ViewPart.ShowMessage()" ng-if = "ViewPart.PartInfo.OversoldQty != 0"><a>Adjust In-Stock</a></li>
-                                    <li class = "modifyCostSummary"  ng-if = "ViewPart.PartInfo.OversoldQty != 0" ng-click="ViewPart.ShowMessage()"  ng-class="{'disabledModifyCostSummary' : ViewPart.disableModifyCostSummary}"> <a>Modify Cost Summary</a></li>
-                                    <li ng-click="ViewPart.ShowMessage()"  ng-if = "ViewPart.PartInfo.OversoldQty != 0" ng-class="{'mutedgray' : modifyCostSoourceeditMode}"><a>Modify Cost Source</a></li>
-                                    <li ng-click="ViewPart.openResolveOversoldPopup()"><a>Resolve  Oversold</a></li>
+                                    <li ng-click = "ViewPart.adjustStock()" ng-if = "ViewPart.PartInfo.OversoldQty == 0"><a>{!$Label.Adjust_In_Stock}</a></li>
+                                    <li class = "modifyCostSummary" ng-if = "ViewPart.PartInfo.OversoldQty == 0" ng-click="!ViewPart.disableModifyCostSummary && ViewPart.openModifyCostSummaryPopup()"  ng-class="{'disabledModifyCostSummary' : ViewPart.disableModifyCostSummary}"> <a>{!$Label.Modify_Cost_Summary}</a></li>
+                                    <li ng-click="ViewPart.openModifyCostSourcePopup()"  ng-if = "ViewPart.PartInfo.OversoldQty == 0" ng-class="{'mutedgray' : modifyCostSoourceeditMode}"><a>{!$Label.Modify_Cost_Source}</a></li>
+                                    <li ng-click = "ViewPart.ShowMessage()" ng-if = "ViewPart.PartInfo.OversoldQty != 0"><a>{!$Label.Adjust_In_Stock}</a></li>
+                                    <li class = "modifyCostSummary"  ng-if = "ViewPart.PartInfo.OversoldQty != 0" ng-click="ViewPart.ShowMessage()"  ng-class="{'disabledModifyCostSummary' : ViewPart.disableModifyCostSummary}"> <a>{!$Label.Modify_Cost_Summary}</a></li>
+                                    <li ng-click="ViewPart.ShowMessage()"  ng-if = "ViewPart.PartInfo.OversoldQty != 0" ng-class="{'mutedgray' : modifyCostSoourceeditMode}"><a>{!$Label.Modify_Cost_Source}</a></li>
+                                    <li ng-click="ViewPart.openResolveOversoldPopup()"><a>{!$Label.Resolve_Oversold}</a></li>
                                 </ul>
                             </div>
                         </span> 
                     </div>
-                </div> 
+                </div>
+
             </div>
             <div id="CostTrackingSection" >
                 <div class="main_section row" ng-show="ViewPart.displaySections.CostTracking">
                    <div id="Cost_Summary">
                         <p class="actionRow T2 ">
-                            <span class="sectionText">Cost Summary</span>
-                            <span class="actionText">Actions</span> 
+                            <span class="sectionText">{!$Label.Page_Section_Cost_Summary}</span>
+                            <!-- <span class="actionText">{!$Label.Label_Actions}</span> -->
                             <span class="ActionIcons">
                             <i class="fa fa-question-circle" data-toggle="tooltip" title="{{ViewPart.helpText['CostSummary']}}"></i>
                             </span> 
                         </p>
-                        <!-- new -->
+                        
+
                         <div class="row rowGeneral" >
                             <div class="col-md-4 col-lg-4 subsectionGeneral_rightonly">
                             
@@ -1840,7 +1896,8 @@
                                 <div class="row" ng-if = "ViewPart.PartInfo.OversoldQty != 0">
                                     <div class="col-lg-5 col-md-5  part_general_column">
                                         <span class="Requiredtd">    
-                                        Oversold Valuation
+                                        {!$Label.Oversold_Valuation}
+
                                         </span>
                                     </div>
                                     <div  class="col-lg-7 col-md-7 " >
@@ -1849,7 +1906,7 @@
                                 </div>
                                 <div class="row" ng-if = "ViewPart.PartInfo.OversoldQty != 0">
                                     <div class="col-lg-5 col-md-5 part_general_column"> 
-                                        <span class="Requiredtd">Oversold Qty
+                                        <span class="Requiredtd">{!$Label.Oversold_Qty}
                                         </span>
                                     </div>
                                     <div  class="col-lg-7 col-md-7" >
@@ -1859,7 +1916,7 @@
                                 <div class="row">
                                     <div class="col-lg-5 col-md-5 part_general_column">
                                         <span>    
-                                        <label class="T7 " for="labelFirstName">Total Valuation</label>
+                                        <label class="T7 " for="labelFirstName">{!$Label.Total_Valuation}</label>
                                         </span>
                                     </div>
                                     <div  class="col-lg-7 col-md-7" >
@@ -1869,7 +1926,7 @@
                                 <div class="row">
                                     <div class="col-lg-5 col-md-5 part_general_column">
                                         <span>
-                                            <label class="T7 " for="labelFirstName">Qty In Stock</label>
+                                            <label class="T7 " for="labelFirstName">{!$Label.Qty_In_Stock}</label>
                                         </span>
                                     </div>
                                     <div  class="col-lg-7 col-md-7" >
@@ -1879,7 +1936,7 @@
                                 <div class="row">
                                     <div class="col-lg-5 col-md-5 part_general_column">
                                         <span>
-                                            <label class="T7 " for="labelFirstName">Average Cost =</label>~
+                                            <label class="T7 " for="labelFirstName">{!$Label.Average_Cost} =</label>~
                                         </span>
                                     </div>
                                     <div  class="col-lg-7 col-md-7" >
@@ -1892,23 +1949,25 @@
                             </div>
                         </div>
                     
-                        <!-- new -->
+
                     </div>
                   
                     <div id="Cost_Details">
                         <div class="telemetry_Main">
                             <p class="actionRow T2 ">
-                                <span class="sectionText">Cost Details</span>
-                                <span class="actionText">Actions</span>
+                                <span class="sectionText">{!$Label.Page_Section_Cost_Details}</span>
+                                <!-- <span class="actionText">{!$Label.Label_Actions}</span> -->
                                 <span class="ActionIcons">
                                 <i class="fa fa-question-circle" data-toggle="tooltip" title="{{ViewPart.helpText['CostDetails']}}"></i>
                                 </span> 
                             </p>
-                            <!-- new -->
+                        
+
                         <div class="row rowCostDetails" > 
                                 
-                                
-                                <div class="main_section_vp row" id="CostTrackingSection_Cost_Details_Block" style="margin-left: -20px; margin-right: -20px;">
+                            
+
+                            <div class="main_section_vp row" id="CostTrackingSection_Cost_Details_Block" style="margin-left: -20px; margin-right: -20px;">
                                 <div class="gid_container T6" id="Cost_Details_Empty_Div" 
                                     ng-show="ViewPart.PartInfo.PartFIFOBucketList.length  == 0 && ViewPart.PartInfo.TotalFIFORecords > 0" style="padding-left: 36px;">
                                     Select “Show/Hide History” to see details
@@ -1922,10 +1981,10 @@
                                     <table class="table" id="VP_Cost_DetailsGrid">
                                         <col width="1%"  />
                                         <col width="4%"  />
-                                        <!-- <col width="20%" />
-                                        <col width="15%"  />
-                                        <col width="15%" />
-                                        <col width="44%"  /> -->
+
+
+
+
                                         <col width="12%" />
                                             <col width="9%"  />
                                             <col width="10%" />
@@ -1945,15 +2004,23 @@
                                                 <i class="fa fa-sort" ng-show="ViewPartRelatedListModal.ActiveOrders_sectionModel.sorting[0].sortDirection == ''"/>
                                                 {!$Label.PO_Object_Short_Display_Label}
                                             </th> -->
-                                            <th class="">Source</th>
-                                            <th class="text-center">Date</th>
-                                            <th class="">Id#</th>
-                                            <th class="">Reference</th>
-                                            <th class="text-center">Qty In</th>
-                                            <th class="text-center">Qty Out</th>
-                                            <th class="text-center">Remaining</th>
-                                            <th class="text-center">Cost</th>
-                                            <th class="text-center">Total</th>
+                                            <th class="">{!$label.Label_Source}</th>
+                                            <th class="text-center">{!$label.Label_Date}</th>
+                                            <th class="">{!$label.Label_Id}#</th>
+                                            <th class="">{!$label.Label_Reference}</th>
+                                            <th class="text-center">{!$label.Label_Qty_In}</th>
+                                            <th class="text-center">{!$label.Label_Qty_Out}</th>
+
+
+
+
+
+
+                                            <th class="text-center">{!$label.Label_Remaining}</th>
+                                            <th class="text-center">{!$label.Label_Cost}</th>
+                                            <th class="text-center">{!$label.Label_Total}</th>
+
+
                                             <th></th>
                                         </tr>
                                         <tbody ng-repeat="FifoBucket in ViewPart.PartInfo.PartFIFOBucketList " class="parentBody" ng-init="FifoBucketHeaderIndex = $index">
@@ -1965,7 +2032,7 @@
                                                         <i class="fa fa-list  Plr5 FC7 F18 first_icon"></i> 
                                                     </a>
                                                 </td>
-                                                <td id="VP_Active_Orders_block_grid_container_tbody_tr_td_2_{{$index}}" class="T7 " > {{FifoBucket.SourceName}} </td>
+                                                <td id="VP_Active_Orders_block_grid_container_tbody_tr_td_2_{{$index}}" class="T7 " >{{FifoBucket.SourceName}}</td>
                                                 <td id="VP_Active_Orders_block_grid_container_tbody_tr_td_3_{{$index}}" class="T7 text-center">{{FifoBucket.CreatedDate}}  </td>
                                                 <td id="VP_Active_Orders_block_grid_container_tbody_tr_td_4_{{$index}}" class="T7 "><a href= "javascript:void(0)">{{FifoBucket.UniqueId}}</a>    </td>
                                                 <td id="VP_Active_Orders_block_grid_container_tbody_tr_td_5_{{$index}}"  class="T7 ">{{FifoBucket.Reference}}   </td>
@@ -2024,7 +2091,7 @@
                                 </div>
                             </div>
  
-                        <!-- new -->
+
                         </div>
                     </div>
                 </div>

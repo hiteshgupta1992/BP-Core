@@ -244,7 +244,6 @@ global with sharing class KitLineItemtriggerHelper {
     	if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	if(AccessControl.ifObjectFieldIsAccessible('Kit_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	if(AccessControl.ifObjectFieldIsAccessible('Kit_Header_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	if(AccessControl.ifObjectFieldIsAccessible(objectName) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	query = 'SELECT Id, (SELECT Retail_Price__c FROM Kit_Header_Line_Items__r) FROM ' + objectName + ' WHERE Id IN : recordsId';
     	List<Sobject> sobjList = Database.query(query);
     	//system.assert(false, sobjList);

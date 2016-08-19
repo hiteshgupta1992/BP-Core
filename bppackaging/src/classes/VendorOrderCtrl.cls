@@ -251,8 +251,8 @@ global with sharing class VendorOrderCtrl {
             if(orderStatus == 'Locked'){
                 lockVOLineItems(voHeaderId);
             }
-            if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
+            if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             List<Vendor_Order_Header__c> voHeaderList = [select Id, Purchase_Order_Type__c, Status__c from Vendor_Order_Header__c where Id =:voHeaderId] ;
             if(voHeaderList.size() > 0) {
                 voHeaderList[0].Purchase_Order_Type__c = orderType;
@@ -276,8 +276,8 @@ global with sharing class VendorOrderCtrl {
     private static void lockVOLineItems(String voHeaderId) {
         VendorOrderHeader vendorOrderHeader = new VendorOrderHeader(voHeaderId);
         Id vendorId = vendorOrderHeader.VendorId;
-        if(AccessControl.ifObjectFieldIsAccessible('VO_Locked_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
+        if(AccessControl.ifObjectFieldIsAccessible('VO_Locked_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<VO_Locked_Line_Item__c> voLockedItemsList = [Select Id from VO_Locked_Line_Item__c where Vendor_Order_Header__c =: voHeaderId];
         if(voLockedItemsList.size() > 0){
             if(AccessControl.ifObjectIsDeletable('VO_Locked_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
@@ -399,7 +399,7 @@ global with sharing class VendorOrderCtrl {
             voHeaderRec.Id = voHeaderId;
             voHeaderRec.Vendor__c = vendorId;
             if(AccessControl.ifObjectFieldIsAccessible('PO_Type__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            List<PO_Type__c> vendorStandardPOTypes = [Select Id from PO_Type__c where IsDefault__c = true];
+            List<PO_Type__c> vendorStandardPOTypes = [Select Id from PO_Type__c where IsDefault__c = true AND Vendor__c =: vendorId];
             if(vendorStandardPOTypes.size() > 0){
                 voHeaderRec.Purchase_Order_Type__c = vendorStandardPOTypes[0].Id;
             }
@@ -518,10 +518,9 @@ global with sharing class VendorOrderCtrl {
         	itemsPageSortAttrsJSON = BPUtility.getDecodedString(itemsPageSortAttrsJSON);
         	customersPageSortAttrsJSON = BPUtility.getDecodedString(customersPageSortAttrsJSON);
         	stocksPageSortAttrsJSON = BPUtility.getDecodedString(stocksPageSortAttrsJSON);
-        	
+        	voLineItemGroupId = BPUtility.escapeSingleQuotes(voLineItemGroupId);
             if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            voLineItemGroupId = BPUtility.escapeSingleQuotes(voLineItemGroupId);
             List<Vendor_Order_Line_Item_Group__c> voliGroupList = [select Id, (select Vendor_Order_Header__c, Is_From_Search__c, Is_Excess__c from Vendor_Order_Line_Items__r) from Vendor_Order_Line_Item_Group__c where Id = :voLineItemGroupId];
             List<Vendor_Order_Line_Item__c> voliListToUpdate = new List<Vendor_Order_Line_Item__c>();
             
@@ -581,10 +580,9 @@ global with sharing class VendorOrderCtrl {
     	stocksPageSortAttrsJSON = BPUtility.getDecodedString(stocksPageSortAttrsJSON);
     	
         Savepoint sp = Database.setSavepoint();
-        
+        voLineItemGroupId = BPUtility.escapeSingleQuotes(voLineItemGroupId);
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        voLineItemGroupId = BPUtility.escapeSingleQuotes(voLineItemGroupId);
         List<Vendor_Order_Line_Item_Group__c> voliGroups = [select Id, (select Qty_Needed__c, Is_Excess__c, Is_required_For_Customer__c, Is_Service__c from Vendor_Order_Line_Items__r) 
                                                                 from Vendor_Order_Line_Item_Group__c where Id = :voLineItemGroupId];
         
@@ -596,10 +594,8 @@ global with sharing class VendorOrderCtrl {
                 }
             }
         }
-        
-        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         voLineItemId = BPUtility.escapeSingleQuotes(voLineItemId);
+        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Vendor_Order_Line_Item__c> voliRecList = [select Id, Part__c, Is_Service__c, Qty_Needed__c, Is_From_Search__c, CO_Line_Item__c, CO_Line_Item__r.Status__c, CO_Line_Item__r.VO_Number__c, CO_Line_Item__r.VO_Status__c, CO_Line_Item__r.Expected_Delivery_Date__c, Is_Excess__c, Is_required_For_Customer__c, Vendor_Order_Line_Item_Group__c from Vendor_Order_Line_Item__c Where Id =:voLineItemId];
         List<Part__c> partRecList = new List<Part__c>();
         
@@ -665,8 +661,8 @@ global with sharing class VendorOrderCtrl {
                 if(!(voliRecList[0].Is_required_For_Customer__c || voliRecList[0].Is_Service__c)) {
                     qtyToRemove += voliRecList[0].Qty_Needed__c;
                 }
-                if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
                 voLineItemGroupId = BPUtility.escapeSingleQuotes(voLineItemGroupId);
+                if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
                 List<Vendor_Order_Line_Item_Group__c> voligList = [select Part__c, Part__r.Qty_On_Order__c from Vendor_Order_Line_Item_Group__c where Id = :voLineItemGroupId];
                 if(voligList.size() > 0) {
                     Part__c partRec = new Part__c(Id = voligList[0].Part__c);
@@ -702,9 +698,9 @@ global with sharing class VendorOrderCtrl {
             if(AccessControl.ifObjectFieldIsUpdateable('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
             upsert voliGroupList;
         }
-        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         voLineItemGroupId = BPUtility.escapeSingleQuotes(voLineItemGroupId);
         voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
+        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Vendor_Order_Line_Item__c> excessLineItemList = [select Id, Is_Excess__c, Is_Service__c from Vendor_Order_Line_Item__c 
                                                                     Where Vendor_Order_Line_Item_Group__c =:voLineItemGroupId 
                                                                         AND Vendor_Order_Header__c =: voHeaderId 
@@ -735,7 +731,7 @@ global with sharing class VendorOrderCtrl {
         }
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-         voLineItemGroupId = BPUtility.escapeSingleQuotes(voLineItemGroupId);
+        voLineItemGroupId = BPUtility.escapeSingleQuotes(voLineItemGroupId);
         List<Vendor_Order_Line_Item_Group__c> voligList = [select Part__c, Part__r.Qty_On_Order__c, (select Qty_Needed__c, Is_Service__c, Is_required_For_Customer__c from Vendor_Order_Line_Items__r) 
                                                                         from Vendor_Order_Line_Item_Group__c where Id = :voLineItemGroupId];
         
@@ -928,9 +924,8 @@ global with sharing class VendorOrderCtrl {
             }
             partIdToOrderedQtyMap.put(voliGroupRec.Part__c, qtyOrdered);
         }
-        
-        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
+        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Vendor_Order_Header__c> voHeaderList = [select Id, Name, Status__c, Ordered_Date__c from Vendor_Order_Header__c where Id =:voHeaderId];
         
         if(coLineItemIdList.size() > 0) {
@@ -993,13 +988,12 @@ global with sharing class VendorOrderCtrl {
             }
             partIdToOrderedQtyMap.put(voliGroupRec.Part__c, qtyOrdered - alreadyOrderedQty);
         }
-        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
+        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Vendor_Order_Header__c> voHeaderList = [select Id, Name, Status__c, Ordered_Date__c from Vendor_Order_Header__c where Id =:voHeaderId];
         
         if(coLineItemIdList.size() > 0) {
             if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            
             List<CO_Line_Item__c> coLineItemList = [select Status__c, VO_Number__c, VO_Status__c, Expected_Delivery_Date__c from CO_Line_Item__c where Id IN : coLineItemIdList];
             for(CO_Line_Item__c coliRec : coLineItemList) {
                 coliRec.Status__c = 'Ordered';
@@ -1040,7 +1034,7 @@ global with sharing class VendorOrderCtrl {
     
     private static String insertSearchToAddLineItem(String partId, String vendorId, String voHeaderId) {
     	partId = BPUtility.escapeSingleQuotes(partId);
-    	vendorId = BPUtility.escapeSingleQuotes(vendorId);
+    	voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Vendor_Order_Line_Item_Group__c> voligList = [select Part__c, Part__r.Last_Cost__c, (select Id from Vendor_Order_Line_Items__r where Is_From_Search__c = true) 
@@ -1105,8 +1099,8 @@ global with sharing class VendorOrderCtrl {
         Savepoint sp = Database.setSavepoint();
         
         if(isFromSearchToAdd) {
+        	partId = BPUtility.escapeSingleQuotes(partId);
             if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-            if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             List<Vendor_Order_Line_Item__c> voLineItemsWithSimilarParts = [select Part__c, Part__r.Last_Cost__c, Vendor_Order_Line_Item_Group__c from Vendor_Order_Line_Item__c
                                                                                 where Part__c =: partId AND Vendor_Order_Line_Item_Group__c = null];
             
@@ -1237,9 +1231,8 @@ global with sharing class VendorOrderCtrl {
                 }
                 partIdToOrderedQtyMap.put(voliGroupList[0].Part__c, qtyOrdered);
             }
-            
-            if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             voHeaderId = BPUtility.escapeSingleQuotes(voHeaderId);
+            if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             List<Vendor_Order_Header__c> voHeaderList = [select Id, Name, Status__c, Ordered_Date__c from Vendor_Order_Header__c where Id =:voHeaderId];
             if(coLineItemIdList.size() > 0) {
                 if(AccessControl.ifObjectFieldIsAccessible('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }

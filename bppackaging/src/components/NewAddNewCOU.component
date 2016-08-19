@@ -123,11 +123,10 @@
                 debug('1233');
                 debug( $scope.$parent.CustomerModal);
                 $scope.COUModal.UnitMake = $scope.$parent.CustomerModal.CustomerMasterData.UnitMakeList;
-                $scope.COUModal.UnitModel.length = 0;
+                $scope.COUModal.UnitModel = [];
                 $scope.COUModal.UnitYearSelected = {};
                 $scope.COUModal.UnitMakeSelected = {};
                 $scope.COUModal.UnitModelSelected = {};
-                $scope.COUModal.UnitModel.length = 0;
                 
                 $scope.COUModal.ownedUnitRec = {};
                 $scope.COUModal.setDefaultValidationModel();
@@ -185,9 +184,10 @@
             
             // Method to set selected Make related value in Owned unit Year field value
             $scope.COUModal.changeUnitMake = function () {
-            	debug($scope.$parent.CustomerModal.CustomerMasterData);
                 $scope.COUModal.UnitModel = angular.copy($scope.$parent.CustomerModal.CustomerMasterData.UnitModelList[0].unitMakeNameToUnitModelMap[$scope.COUModal.UnitMakeSelected.UnitMakeName]);
                 $scope.COUModal.ownedUnitRec.Make = $scope.COUModal.UnitMakeSelected.Id;
+                $scope.COUModal.UnitModelSelected = {};
+                $scope.COUModal.ownedUnitRec.SubModelName = '';
             }
             
             // Method to set selected Model related value in Owned unit Year field value
@@ -301,7 +301,13 @@
                 if (validateType.indexOf('Numeric') > -1) {
                     if (fieldValue != '' && fieldValue != undefined && !numericRegex.test(fieldValue)) {
                         $scope.COUModal.COUFormValidationModal[modelKey].isError = true;
-                        $scope.COUModal.COUFormValidationModal[modelKey].ErrorMessage = '{!JSENCODE($Label.Label_Invalid)} ' + modelKey + ' {!JSENCODE($Label.Label_Value)}';
+                        if(fieldValue.indexOf(".") > -1) {
+                       		$scope.COUModal.COUFormValidationModal[modelKey].ErrorMessage='Mileage value should not contain decimal';//'{!JSENCODE($Label.Label_Invalid)} {!JSENCODE($Label.Label_Mileage)} {!JSENCODE($Label.Label_Value)}';
+                       }
+                       else {
+                       		$scope.COUModal.COUFormValidationModal[modelKey].ErrorMessage='Mileage value should be a number';//'{!JSENCODE($Label.Label_Invalid)} {!JSENCODE($Label.Label_Mileage)} {!JSENCODE($Label.Label_Value)}';
+                       }
+                        //$scope.COUModal.COUFormValidationModal[modelKey].ErrorMessage = '{!JSENCODE($Label.Label_Invalid)} ' + modelKey + ' {!JSENCODE($Label.Label_Value)}';
                     } else {
                         $scope.COUModal.COUFormValidationModal[modelKey].isError = false;
                         $scope.COUModal.COUFormValidationModal[modelKey].ErrorMessage = '';
@@ -460,14 +466,14 @@
                          </h1>
                          <i class="fa fa-question-circle helptip" style=" float:left; font-weight: bold; color: #B7BEC6;  margin-top: 20px; margin-bottom: 10px;   font-size: 20px;"></i>
                          <div class="goldbox exists col-lg-12 col-md-12" ng-repeat="SimilarCOU in  COUModal.SimilarCOU" ng-show="COUModal.SimilarCOU.length != 0">
-                            <div class="leftgoldbox">
+                            <!-- <div class="leftgoldbox">
                                 <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
                                 <div class="star_container">
                                     <i class="fa fa-star" style="float: left;color: #B7BEC6;margin-top: 5px;"></i> 
                                     <i class="fa fa-star" style="float: left;color: #B7BEC6;margin-top: 5px;"></i> 
                                 </div>
-                            </div>
-                            <div class="rightgoldbox type2">
+                            </div> -->
+                            <div class="rightgoldbox rightgoldboxML type2" style="margin-left: 0px;">
                                 <p class="cust_name address">
                                     {{SimilarCOU.ModelName}}<br />
                                     {!$Label.Label_Last} {!$Label.Label_Mileage}: {{SimilarCOU.Mileage}} km <br />
@@ -492,9 +498,10 @@
                          <form>
                             <div class="option_field">
                                <div class="lable_fields">
-                                  <span class="form_lable_icons text">
+                                  <!-- <span class="form_lable_icons text">
                                   100
-                                  </span>
+                                  </span> -->
+                                  <span class="form_lable_icons text" style="background: none;"></span>
                                   <p>{!$Label.Customer_Owned_Unit_Object_Display_Label}</p>
                                </div>
                                <div class="form_fields">

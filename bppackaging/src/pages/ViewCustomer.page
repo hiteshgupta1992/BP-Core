@@ -12,7 +12,7 @@
     <!-- Scripts -->
     
     <c:Css_and_Js ></c:Css_and_Js>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <apex:includeScript value="{!URLFOR($Resource.AngularResources, 'js/googlemapapiv3.js') }" />
     <apex:includeScript value="{!$Resource.AngularMap}"/>
     <apex:includeScript value="{!$Resource.niceScroll}"/>
     
@@ -941,7 +941,7 @@
                 <div class="col-lg-2 col-md-2 col-sm-2 sidepanel" id="workflow-sidepanel">
                     <div class="row customerAvatar leftpanelrow handCursor" >
                         <h2>
-                            <img src="{!URLFOR($Resource.Images, 'gold.png')}" />
+                            <img src="{!URLFOR($Resource.Images, 'gold.png')}"/>
                         </h2>
                         <i class="fa fa-star"></i>
                         <i class="fa fa-star"></i>

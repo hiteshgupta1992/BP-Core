@@ -17,9 +17,6 @@ private class HomeSearchRecentRecordsTest {
             if(obj.getSObjectType() == acc.getSObjectType())
                 System.assertEquals('Test Customer', obj.get(Schema.Account.Name));         
         }
-        
-        List<Account> accList = [select Id, Name from Account limit 100];
-       	system.assertEquals(accList.size(), 1);
     }
     
     static testMethod void testGetOrgBlankSearchResults_TypeInDescOrder(){
@@ -38,8 +35,5 @@ private class HomeSearchRecentRecordsTest {
             if(obj.getSObjectType() == testCategory.getSObjectType())
                 System.assertEquals('Test Category', obj.get(Schema.Category__c.Name));         
         }
-        
-        List<Account> accList = [select Id, Name from Account limit 100];
-       	system.assertEquals(accList.size(), 0);
     }
 }

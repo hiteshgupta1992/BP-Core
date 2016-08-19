@@ -12,7 +12,7 @@
         }
         
         .form-control {
-            width: 100%;
+            width: 100%; 
         }
         
         .bg_container {
@@ -339,6 +339,12 @@
             width: 180px;
             margin-left: 30px;
         }
+        
+        /* Added by richa */
+        .popup_container .popupleft .goldbox .rightgoldboxML {
+            margin-left: 0px;
+        }
+        /* Added by richa */
         
         .popup_container .popupleft .goldbox .rightgoldbox.type2 {
             width: 60%;
@@ -705,9 +711,20 @@
             transition: height .5s;
             display : block !important;
         }
+        .disableHomeSmsChkBx{
+        	pointer-events: none;
+        }
         /* .popupright .tabconainer .option_field .MT21{
             margin-top: 21px;
-        } */       
+
+        } */ 
+        .popupinside .popupright .tabconainer form .MT25{
+			margin-top: 25px;
+		}      
+		.reqForBusiness {
+			width: 30%;
+   			float: right;
+		}
         </style>
         
     
@@ -755,6 +772,7 @@
                               
                               $scope.$on('AddCustomerEvent', function () {    
                                      debug('AddNewCustomer');   
+
                                      $scope.CustomerModal.addNewCustomer();
   
                                });
@@ -763,6 +781,7 @@
                                   
                             $scope.$on('LoadMasterData',function(){
                                  debug('Load'); 
+
                                  $scope.CustomerModal.initUnit = {Year:null, Make:null,Model:null, SubModel:null,VIN:'',Plate:'',Mileage:null,Color:''};
                                  $scope.CustomerModal.loadCustomerMasterData();
                             });
@@ -771,12 +790,14 @@
                             $scope.$on('EditCustomerEvent',function(event, customerId)
                             {
                                 debug(customerId);
+
                                 $scope.CustomerModal.editCustomer(customerId);
                             });   
                             
                              $scope.$on('EditCustomerRelatedEvent',function(event, customerId)
                             {
                                 debug(customerId);
+
                                 $scope.CustomerModal.editCustomer(customerId);
                             }); 
                             
@@ -790,8 +811,10 @@
                                 var targetEle = angular.element('#' + event + index);
                                 var scrolledTop = -($('.modal-content').offset().top - 30);
                                 //debug(targetEle);
+
                                 var elementWidth = targetEle.width();
                                 debug(targetEle);
+
                                 debug(targetEle.offset().top);
                                 /*if(targetEle.width() > targetEle.parent().width()){
                                     elementWidth = targetEle.parent().width() - 15;
@@ -890,6 +913,7 @@
                                                 addEditCustomerService.editCustomerDetails(customerId)
                                                       .then(function (CustomerData) {
                                                         debug(CustomerData)
+
                                                          $scope.CustomerModal.IsEditMode = true;
                                                         $scope.CustomerModal.CustomerInfo=CustomerData[0]
                                                          $scope.CustomerModal.SetCustomerFormDefault();
@@ -907,6 +931,7 @@
                                 $scope.CustomerModal.ClearAlldata =function()
                                 {
                                                 
+
                                                 $scope.CustomerModal.Country=$scope.CustomerModal.CustomerMasterData.CountryList;
                                                 $scope.CustomerModal.ShippingCountry=$scope.CustomerModal.CustomerMasterData.CountryList;
                                                 $scope.CustomerModal.PriceLevel=$scope.CustomerModal.CustomerMasterData.PriceLevelList;
@@ -952,26 +977,32 @@
                                                 JobTitle : {isPrimary: false, label: '{!JSENCODE($Label.Job_Title)}', fieldId:'jobTitle', displayType: 'Individual'},
                                                 VIPLevel : {isPrimary: false, label: '{!JSENCODE($Label.VIP_Level)}', displayType: 'Both'},
                                                 PriceLevel : {isPrimary: false, label: '{!JSENCODE($Label.Label_Price_Level)}', fieldId:'priceLevelDropDown', displayType: 'Both'},
-                                                TaxLevel : {isPrimary: false, label: '{!JSENCODE($Label.Label_Tax_Level)}', fieldId:'taxLevel', displayType: 'Both'},
-                                                IsVendor : {isPrimary: false, label: '{!JSENCODE($Label.Vendor_Object_Display_Label)}', fieldId:'vendorDropDown', displayType: 'Both'},
+                                                
+												IsVendor : {isPrimary: false, label: '{!JSENCODE($Label.Vendor_Object_Display_Label)}', fieldId:'vendorDropDown', displayType: 'Both'},
                                                 Active:{isPrimary: false, label: '{!JSENCODE($Label.Label_Active)}', displayType: 'Both'}
                                             } 
                                             
+
+
                                             
                                             $scope.CustomerModal.CustomerValidation = {
-                                            FirstName: {isError : false, ErrorMessage:'', Type:'required,Maxlength,Minlength', Maxlength: 80, Minlength: 2},
-                                            LastName : {isError : false, ErrorMessage:'', Type:'required,Maxlength,Minlength', Maxlength: 80, Minlength: 2},
+                                            FirstName: {isError : false, ErrorMessage:'', Type:'firstName,required,Maxlength,Minlength', Maxlength: 80, Minlength: 2},
+                                            LastName : {isError : false, ErrorMessage:'', Type:'lastName,required,Maxlength,Minlength', Maxlength: 80, Minlength: 2},
                                             BusinessName: {isError : false, ErrorMessage:'', Type:'required,Maxlength,Minlength', Maxlength: 80, Minlength: 2},
                                             HomeEmail : {isError : false, ErrorMessage:'', Type:'email'},
                                             WorkEmail : {isError : false, ErrorMessage:'', Type:'email'},
                                             OtherEmail : {isError : false, ErrorMessage:'', Type:'email'},
                                             HomeNumber : {isError : false, ErrorMessage:'',  Type:'phone,Maxlength,Minlength', Maxlength: 10, Minlength: 10},
                                             WorkNumber : {isError : false, ErrorMessage:'',  Type:'phone,Maxlength,Minlength', Maxlength: 10, Minlength: 10},
-                                            OtherPhone : {isError : false, ErrorMessage:'',  Type:'phone,Maxlength,Minlength', Maxlength: 10, Minlength: 10}
+                                            OtherPhone : {isError : false, ErrorMessage:'',  Type:'phone,Maxlength,Minlength', Maxlength: 10, Minlength: 10},
+                                            BillingPostalCode : {isError : false, ErrorMessage:'',  Type:'PostalCode,Maxlength', Maxlength: 10},
+                                            ShippingPostalCode : {isError : false, ErrorMessage:'',  Type:'PostalCode,Maxlength', Maxlength: 10}
                                          }
+
                                  
                                          $scope.CustomerModal.CustomerValidationCOU = [{
-                                                                                        VIN:{isError : false, ErrorMessage:'',Type:'VIN'},
+                                                                                        VIN:{isError : false, ErrorMessage:'',Type:'VIN,Required'},
+
                                                                                         Mileage:{isError : false, ErrorMessage:'' ,Type:'Numeric'},
                                                                                         Make :{isError : false, ErrorMessage:'' ,Type:'Required'},
                                                                                         Model :{isError : false, ErrorMessage:'' ,Type:'Required'}
@@ -1026,6 +1057,7 @@
                         
                         $scope.CustomerModal.SetCustomerFormDefault = function()
                         {                   debug(' $scope.CustomerModal.SetCustomerFormDefault line : 1027');
+
                                             //clear Cou Data on Edit
                                             
                                             
@@ -1059,21 +1091,28 @@
                                                             {
                                                                $scope.CustomerModal.SelectedCountry=$scope.CustomerModal.CustomerMasterData.CountryList[i];
 
+
+
+
                                                             }
+
                                                     }
                                                     
                                                  $scope.CustomerModal.State= $scope.CustomerModal.CustomerMasterData.StateList[0].countryNameToStateMap[$scope.CustomerModal.SelectedCountry.CountryName];
 
                                                  
                                                  for(i=0;i < $scope.CustomerModal.State.length ; i++)
+
                                                     {           
                                                             if($scope.CustomerModal.State[i].StateName == $scope.CustomerModal.CustomerInfo.BillingState )
                                                             {
                                                                $scope.CustomerModal.SelectedState=$scope.CustomerModal.State[i];
 
                                                             }
+
                                                     }
                                                     // need to exprore more
+
                                            if($scope.CustomerModal.CustomerInfo.IsBothAddressSame)
                                             {
                                                 angular.element("#sameAsBA").addClass("chked");
@@ -1083,9 +1122,13 @@
                                             else
                                             {
                                                 debug('False');
+
+
+
                                                 /* angular.element("#sameAsBA").removeClass("chked");
                                                 angular.element("#billingaddress").slideDown(); */
                                          
+
                                                     for(i=0;i < $scope.CustomerModal.CustomerMasterData.CountryList.length ; i++)
                                                        {            
 
@@ -1159,7 +1202,7 @@
 
 
                                                         }   
-                                                        $scope.CustomerModal.AdditionalFieldsInfo['TaxLevel'].isPrimary=true;       
+                                                        //$scope.CustomerModal.AdditionalFieldsInfo['TaxLevel'].isPrimary=true;       
                                             }
 
                                             //vedor
@@ -1224,6 +1267,7 @@
                         {
                             
                                 $scope.selectedObject.coHeaderId = "{!JSENCODE(URLENCODE($CurrentPage.parameters.id))}";
+
                                 if($scope.selectedObject.coHeaderId == undefined){
                                     $scope.selectedObject.coHeaderId = '';
                                 }
@@ -1252,6 +1296,7 @@
                                 debug(targetId) ;                         
 
 
+
                             angular.element('.controls').hide();
                             angular.element('#'+targetId).show();
     
@@ -1270,6 +1315,7 @@
                          $scope.CustomerModal.ClearAndRemoveField = function(fieldrel, targetIdToFocus) {
                              var fieldsToClearOrRemove = $scope.CustomerModal.ManageIconCustomerDetails[0][fieldrel];
                              debug(fieldrel);
+
                              
                              if(fieldsToClearOrRemove.isPrimary == true) {
                                  for(i=0; i < fieldsToClearOrRemove.value.length;i++) {
@@ -1302,6 +1348,7 @@
                                         $scope.CustomerModal.CustomerInfo[key] = "";
                                      }else if(fieldsToClearOrRemove.value[i].fieldType == 'boolean'){
                                         debug('type boolean');
+
                                         $scope.CustomerModal.CustomerInfo[key] = false;
                                      }else if(fieldsToClearOrRemove.value[i].fieldType == 'lookup'){
                                         $scope.CustomerModal.CustomerInfo[key] = null;
@@ -1343,6 +1390,7 @@
                           {         
 
                                     //debug(fieldId);
+
                                     if(index==0){
 
                                         var fieldsToClearOrRemove = $scope.CustomerModal.ManageIconCustomerDetails[0][fieldrel];
@@ -1359,6 +1407,7 @@
                                                 } else if(fieldsToClearOrRemove.value[i].fieldType == 'boolean'){
                                                     $scope.CustomerModal.CustumerUnitModal[0][key]= false;
                                                 }else if(fieldsToClearOrRemove.value[i].fieldType == 'lookup'){
+                                                
                                                     $scope.CustomerModal.CustumerUnitModal[0][key] = null;
 
 
@@ -1369,6 +1418,7 @@
                                                     
                                                 }
                                                 debug('Hello ' + key);
+
                                             }
                                         angular.element('#'+ fieldId).focus();
                                         }
@@ -1410,6 +1460,7 @@
 
 
 
+
                                                                     SimilarCustomerJson['BusinessName']="";
                                                                     SimilarCustomerJson['WorkEmail']="";
                                                                     SimilarCustomerJson['WorkNumber']="";
@@ -1431,6 +1482,7 @@
 
 
                                                                 debug(SimilarCustomerJson);
+
                                                                 //debug($scope.CustomerModal.CustomerInfo);
                                                                 
                                                                 
@@ -1439,6 +1491,7 @@
                                 addEditCustomerService.getOtherSimilarCustomer(JSON.stringify(SimilarCustomerJson))
                                           .then(function (SimilarCustomer) {
                                                 //debug(SimilarCustomer);
+
                                                 $scope.CustomerModal.SimilarCustomers = SimilarCustomer;
                                                   
                                  },
@@ -1460,6 +1513,7 @@
                                           .then(function (SimilarCOU) {
 
                                                  //debug(SimilarCOU) ;
+
 
                                                 $scope.CustomerModal.SimilarCOU = SimilarCOU;
                                                 //debug($scope.CustomerModal.SimilarCOU); 
@@ -1487,7 +1541,10 @@
                             var ErrorMessage = '';
                             var phoneRegEx = /^([0-9\(\)\/\+ \-]*)$/;
                             var emailRegEx = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-                            
+                            var postalCodeRegEx = /^[a-zA-Z\d\s\-]+$/;
+                            var nameRegEx = /^[a-zA-Z\d\s]+$/;
+                            console.log("customer info json");
+                            	console.log($scope.CustomerModal.CustomerInfo);
                                     var validateType = validationObj.Type; 
                                     //debug('validateType=  '+validateType);
                                     if(validateType.indexOf('Minlength') > -1){
@@ -1504,6 +1561,22 @@
                                         }
                                     }
                                     
+                                    if(validateType.indexOf('firstName') > -1){
+                                        if($scope.CustomerModal.CustomerInfo[modelKey] != undefined && $scope.CustomerModal.CustomerInfo[modelKey]!= '' && !nameRegEx.test($scope.CustomerModal.CustomerInfo[modelKey])){
+                                            isError = true;
+                                            ErrorMessage = '{!JSENCODE($Label.Label_Invalid)} {!JSENCODE($Label.Label_First)} {!JSENCODE($Label.Label_Name)}';
+
+                                        }
+                                    }
+                                    
+                                    if(validateType.indexOf('lastName') > -1){
+                                        if($scope.CustomerModal.CustomerInfo[modelKey] != undefined && $scope.CustomerModal.CustomerInfo[modelKey]!= '' && !nameRegEx.test($scope.CustomerModal.CustomerInfo[modelKey])){
+                                            isError = true;
+                                            ErrorMessage = '{!JSENCODE($Label.Label_Invalid)} {!JSENCODE($Label.Label_Last)} {!JSENCODE($Label.Label_Name)}';
+
+                                        }
+                                    }
+                                    
                                     if(validateType.indexOf('phone') > -1){
                                         if($scope.CustomerModal.CustomerInfo[modelKey] != undefined && $scope.CustomerModal.CustomerInfo[modelKey]!= '' && !phoneRegEx.test($scope.CustomerModal.CustomerInfo[modelKey])){
                                             isError = true;
@@ -1514,11 +1587,23 @@
 
                                     if(validateType.indexOf('email') > -1){
                                         debug('validating email');
+
                                         if($scope.CustomerModal.CustomerInfo[modelKey] != undefined && $scope.CustomerModal.CustomerInfo[modelKey]!= '' && !emailRegEx.test($scope.CustomerModal.CustomerInfo[modelKey])){
                                             isError = true;
                                             ErrorMessage = '{!JSENCODE($Label.Label_Invalid)} {!JSENCODE($Label.Label_Email)}';
 
                                         }
+                                    }
+                                    
+                                    if(validateType.indexOf('PostalCode') > -1){
+                                        debug('validating postal code');
+
+                                        if($scope.CustomerModal.CustomerInfo[modelKey] != undefined && $scope.CustomerModal.CustomerInfo[modelKey]!= '' && !postalCodeRegEx.test($scope.CustomerModal.CustomerInfo[modelKey])){
+                                            isError = true;
+                                            ErrorMessage = '{!JSENCODE($Label.Label_Invalid)} {!JSENCODE($Label.Label_Postal)}';
+
+                                        }
+                                        debug(isError);
                                     }
 
                                     if(validateType.indexOf('required') > -1){
@@ -1547,54 +1632,131 @@
                                 var numericRegex = /^[0-9]*$/;
                                 
                                  var ValidateType=$scope.CustomerModal.CustomerValidationCOU[index][modelKey].Type;
-                                 if(ValidateType.indexOf('VIN') > -1){
+                                 
+                                if(ValidateType.indexOf('VIN') > -1){
 
-                                        if( fieldValue !='' && fieldValue != undefined)
-                                        {
-                                            result=$scope.CustomerModal.validateVin(fieldValue);
-                                           
-                                        }
-                                        else
-                                        {
-                                            result=true;    
-                                        }
-                                        
-                                         if(result==false)
-                                            {
+                                       if( fieldValue !='' && fieldValue != undefined)
 
-                                                 $scope.CustomerModal.CustomerValidationCOU[index][modelKey].isError=true;
-                                                 $scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage='{!JSENCODE($Label.Label_Invalid)} Vin No';
-                                                    
-                                            } else {
-                                                 $scope.CustomerModal.CustomerValidationCOU[index][modelKey].isError=false;
-                                                 $scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage='';
-                                            }
+                                       {
+                                           result=$scope.CustomerModal.validateVin(fieldValue);
 
 
-                                 }
-                                 if(ValidateType.indexOf('Numeric') > -1){
-                                        if( fieldValue !='' && fieldValue != undefined && !numericRegex.test(fieldValue))
-                                        {       
-                                              $scope.CustomerModal.CustomerValidationCOU[index][modelKey].isError=true;
-                                              $scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage='{!JSENCODE($Label.Label_Invalid)} {!JSENCODE($Label.Label_Milage)} {!JSENCODE($Label.Label_Value)}';
-                                        } else {
-                                             $scope.CustomerModal.CustomerValidationCOU[index][modelKey].isError=false;
-                                              $scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage='';
-                                        }
-                                 }
-                                if(ValidateType.indexOf('Required') > -1){
-                                        debug($scope.CustomerModal.CustumerUnitModal[index]);
-                                        debug(fieldValue);
-                                        if( fieldValue == undefined || fieldValue == '' || fieldValue == null)
-                                        {     
-                                            debug('Error true');
-                                              $scope.CustomerModal.CustomerValidationCOU[index][modelKey].isError = true;
-                                              $scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage = 'Field is Required';
-                                        } else { 
-                                             $scope.CustomerModal.CustomerValidationCOU[index][modelKey].isError = false;
-                                              $scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage = '';
-                                        }
-                                 }
+
+
+
+
+
+
+
+                                          
+                                       }
+                                       else
+                                       {
+                                           result=true;    
+                                       }
+                                       
+                                        if(result==false)
+                                           {
+
+                                                $scope.CustomerModal.CustomerValidationCOU[index][modelKey].isError=true;
+                                                $scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage='{!JSENCODE($Label.Label_Invalid)} Vin No';
+
+
+                                                   
+                                           } else {
+                                                $scope.CustomerModal.CustomerValidationCOU[index][modelKey].isError=false;
+                                                $scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage='';
+
+                                           }
+
+
+
+                                }
+                                if(ValidateType.indexOf('Numeric') > -1){
+                               
+                                       if( fieldValue !='' && fieldValue != null && fieldValue != undefined && !numericRegex.test(fieldValue))
+
+                                       {      
+                                             $scope.CustomerModal.CustomerValidationCOU[index][modelKey].isError=true;
+                                             if(fieldValue.indexOf(".") > -1) {
+                                             	$scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage='Mileage value should not contain decimal';//'{!JSENCODE($Label.Label_Invalid)} {!JSENCODE($Label.Label_Mileage)} {!JSENCODE($Label.Label_Value)}';
+                                             }
+                                             else {
+                                             	$scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage='Mileage value should be a number';//'{!JSENCODE($Label.Label_Invalid)} {!JSENCODE($Label.Label_Mileage)} {!JSENCODE($Label.Label_Value)}';
+                                             }
+                                             
+
+                                       } else {
+                                       
+                                            $scope.CustomerModal.CustomerValidationCOU[index][modelKey].isError=false;
+                                             $scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage='';
+
+
+                                       }
+                                }
+                               if($scope.CustomerModal.CustumerUnitModal[index]['VIN'] != null && $scope.CustomerModal.CustumerUnitModal[index]['VIN'] != '' && $scope.CustomerModal.CustumerUnitModal[index]['VIN'] != undefined) { 
+	                               if(ValidateType.indexOf('Required') > -1){
+	                                       debug($scope.CustomerModal.CustumerUnitModal[index]);
+
+	                                       debug(fieldValue);
+	                                       if( fieldValue == undefined || fieldValue == '' || fieldValue == null)
+
+
+	                                       {     
+	                                           debug('Error true');
+	                                             $scope.CustomerModal.CustomerValidationCOU[index][modelKey].isError = true;
+	                                             $scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage = 'Field is Required';
+
+
+
+
+
+
+
+
+
+
+
+
+
+	                                       } else { 
+
+
+
+
+	                                            $scope.CustomerModal.CustomerValidationCOU[index][modelKey].isError = false;
+	                                             $scope.CustomerModal.CustomerValidationCOU[index][modelKey].ErrorMessage = '';
+
+
+
+	                                       }
+	                                }
+	                           }
+	                             
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                                  debug($scope.CustomerModal.CustomerValidationCOU);
 
 
@@ -1656,7 +1818,8 @@
 
 
                               for(var i = 0; i < upperCaseVin.length; i++) {
-                                // alert('adding ' + letterMap[vin[i]] + ' * ' + weights[i] + ' to ' + products);
+
+
                                 products += letterMap[upperCaseVin[i]] * weights[i];
                               }
 
@@ -1760,7 +1923,7 @@
                                 var unit = {Year:null, Make:null,Model:null, SubModel:null,VIN:'',Plate:'',Mileage:null,Color:''};
                                 $scope.CustomerModal.CustumerUnitModal.push(unit);
                                 var validation = {
-                                                    VIN:{isError : false, ErrorMessage:'',Type:'VIN'},
+                                                    VIN:{isError : false, ErrorMessage:'',Type:'VIN,Required'},
                                                     Mileage:{isError : false, ErrorMessage:'' ,Type:'Numeric'},
                                                     Make :{isError : false, ErrorMessage:'' ,Type:'Required'},
                                                     Model :{isError : false, ErrorMessage:'' ,Type:'Required'}
@@ -1873,7 +2036,10 @@
                         
                                 $scope.CustomerModal.UnitModel[index]=  $scope.CustomerModal.CustomerMasterData.UnitModelList[0].unitMakeNameToUnitModelMap[$scope.CustomerModal.UnitMakeSelected[index].UnitMakeName];
                                 $scope.CustomerModal.CustumerUnitModal[index].Make=$scope.CustomerModal.UnitMakeSelected[index].Id;
-                                
+
+                                $scope.CustomerModal.UnitModelSelected[index] = {};
+                				$scope.CustomerModal.CustumerUnitModal[index].SubModel = '';
+
 
                         }
                         
@@ -2079,6 +2245,7 @@
 
 
                         $scope.CustomerModal.changeBillingCountry = function(){
+
                             $scope.CustomerModal.State = $scope.CustomerModal.CustomerMasterData.StateList[0].countryNameToStateMap[$scope.CustomerModal.SelectedCountry.CountryName];
                             $scope.CustomerModal.SelectedState = $scope.CustomerModal.State[0];
                         }
@@ -2111,6 +2278,9 @@
                         {
                             debug("Entered in same as billing address func");
                             //set Default Country                                   
+
+
+
                               $scope.CustomerModal.CustomerInfo.IsBothAddressSame=($scope.CustomerModal.CustomerInfo.IsBothAddressSame == true) ? false : true;
                               $scope.CustomerModal.CustomerInfo.ShippingStreet1=$scope.CustomerModal.CustomerInfo.BillingStreet1;
                               $scope.CustomerModal.CustomerInfo.ShippingStreet2=$scope.CustomerModal.CustomerInfo.BillingStreet2;
@@ -2122,6 +2292,11 @@
                               $scope.CustomerModal.ShippingState =  $scope.CustomerModal.State;
                               $scope.CustomerModal.SelectedShippingState=$scope.CustomerModal.SelectedState;
                               debug($scope.CustomerModal.CustomerInfo.IsBothAddressSame);
+
+
+
+
+
 
                         }
                         
@@ -2135,6 +2310,7 @@
                         $scope.CustomerModal.SaveCustomer= function()
                         {
                         debug('Start');
+
                         debug($scope.CustomerModal.BirthdaySelected);
                            debug($scope.CustomerModal.CustomerInfo);
 
@@ -2167,6 +2343,7 @@
                                     var validationObj = $scope.CustomerModal.CustomerValidation[key];
                                     if(validationObj.isError == true) {
                                         debug('error Present in ' + key);
+
                                         return;
                                     }
                                 }
@@ -2187,6 +2364,7 @@
                             
                             for(var i=0; i<$scope.CustomerModal.CustumerUnitModal.length; i++){
                                 debug('COU');
+
                                 debug(angular.toJson($scope.CustomerModal.CustumerUnitModal[i]) === angular.toJson($scope.CustomerModal.initUnit));
                                 if(angular.toJson($scope.CustomerModal.CustumerUnitModal[i]) != angular.toJson($scope.CustomerModal.initUnit)){
                                     var validateObj = $scope.CustomerModal.CustomerValidationCOU[i];
@@ -2292,17 +2470,18 @@
                             
                             
                             $scope.CustomerModal.CustomerInfo.BillingCountry = $scope.CustomerModal.SelectedCountry['CountryName'];
-                            if($scope.CustomerModal.SelectedState != null) {
-                                $scope.CustomerModal.CustomerInfo.BillingState = $scope.CustomerModal.SelectedState['StateName'];
-                            }
+
+                            $scope.CustomerModal.CustomerInfo.BillingState = $scope.CustomerModal.SelectedState['StateName'];
+
+                            
                             if($scope.CustomerModal.CustomerInfo.IsBothAddressSame != true ) {
                                 $scope.CustomerModal.CustomerInfo.ShippingCountry = $scope.CustomerModal.SelectedShippingCountry['CountryName'];
                                 $scope.CustomerModal.CustomerInfo.ShippingState = $scope.CustomerModal.SelectedShippingState['StateName'];
                             } else {
                                 $scope.CustomerModal.CustomerInfo.ShippingCountry =$scope.CustomerModal.SelectedCountry['CountryName'];
-                                if($scope.CustomerModal.SelectedState != null) {
-                                    $scope.CustomerModal.CustomerInfo.ShippingState =  $scope.CustomerModal.SelectedState['StateName'];
-                                }
+
+                                $scope.CustomerModal.CustomerInfo.ShippingState =  $scope.CustomerModal.SelectedState['StateName'];
+
                             }
 
                             if($scope.CustomerModal.AdditionalFieldsInfo['PriceLevel'].isPrimary == true) {
@@ -2312,13 +2491,14 @@
                             { 
                                 $scope.CustomerModal.CustomerInfo.PriceLevelId = null;
                             }
-                            if($scope.CustomerModal.AdditionalFieldsInfo['TaxLevel'].isPrimary == true) {
+                            /*if($scope.CustomerModal.AdditionalFieldsInfo['TaxLevel'].isPrimary == true) {
 
                                 $scope.CustomerModal.CustomerInfo.SalesTaxId = $scope.CustomerModal.SelectedSalesTax.Id;
                             }
                             else{
                                     $scope.CustomerModal.CustomerInfo.SalesTaxId=null;
-                            }
+                            }*/
+
                             if( $scope.CustomerModal.AdditionalFieldsInfo['IsVendor'].isPrimary == true && $scope.CustomerModal.CustomerInfo['IsVendor']==true ){
                                 $scope.CustomerModal.CustomerInfo.PurchaseTaxId = $scope.CustomerModal.VendorSelectedSalesTax.Id;
                             }
@@ -2327,14 +2507,20 @@
                                  $scope.CustomerModal.CustomerInfo.PurchaseTaxId = null 
                             }
                             
+                            for(var i=0; i<$scope.CustomerModal.CustumerUnitModal.length;i++){
+								if($scope.CustomerModal.CustumerUnitModal[i].Mileage == '' || $scope.CustomerModal.CustumerUnitModal[i].Mileage == undefined ||$scope.CustomerModal.CustumerUnitModal[i].Mileage == null){
+									$scope.CustomerModal.CustumerUnitModal[i].Mileage = 0;
+								}
+                            }
                             
                             var deferred = $q.defer();
                              deferred.promise
                             .then
                             (function(result){
-                                
-                                return  addEditCustomerService.saveCustomer(angular.toJson($scope.CustomerModal.CustomerInfo),angular.toJson($scope.CustomerModal.CustumerUnitModal));
                                  debug(result);
+                                 debug('result');
+                                return  addEditCustomerService.saveCustomer(angular.toJson($scope.CustomerModal.CustomerInfo),angular.toJson($scope.CustomerModal.CustumerUnitModal));
+                            
                                  
                             })
                             .then
@@ -2343,6 +2529,7 @@
                                      var currentPageName = '{!$CurrentPage.Name}';
                                      if((currentPageName == 'CustomerOrder' || currentPageName == 'NewCustomerOrder')){
                                            $scope.selectedObject.coHeaderId = "{!JSENCODE(URLENCODE($CurrentPage.parameters.id))}";
+
                                            if( $scope.selectedObject.coHeaderId == undefined){
                                                 $scope.selectedObject.coHeaderId = '';
                                                 debug('---'+$scope.selectedObject.coHeaderId + '  ---- 00 ')
@@ -2370,7 +2557,7 @@
                                       }
                                      
                                     angular.element('#pop').modal('hide');
-                                    Notification.success('{!JSENCODE($Label.Customer_Object_Display_Label)} {!JSENCODE($Label.Saved_Sucessfully)}');
+                                    Notification.success('{!JSENCODE($Label.Customer_Object_Display_Label)} {!JSENCODE($Label.Saved_Successfully)}');
                                     return 'Sucess';
                             });
                             
@@ -2435,6 +2622,7 @@
                                 return true;
                             }
                         }
+
             });
             
             
@@ -2452,11 +2640,13 @@
                         function (result, event) {
                            if (event.type == 'exception') {
                                 deferred.reject(event.message);
+
                             } else {
     
 
 
                                 var SimilarCustomer = decodeString(result);
+
                                 var find = '\'';
 
                                 var re = new RegExp(find, 'g');
@@ -2465,6 +2655,7 @@
                             }
                         }, {
                             escape : true
+
                     });
 
 
@@ -2485,11 +2676,13 @@
                         function (result, event) {
                            if (event.type == 'exception') {
                                 deferred.reject(event.message);
+
                             } else {
     
 
 
                                 var SimilarCOU = decodeString(result);
+
                                 var find = '\'';
 
                                 var re = new RegExp(find, 'g');
@@ -2498,6 +2691,7 @@
                             }
                         }, {
                             escape : true
+
                     });
 
 
@@ -2515,6 +2709,7 @@
                         function (result, event) {
                            if (event.type == 'exception') {
                                 deferred.reject(event.message);
+
                             } else {
     
 
@@ -2528,6 +2723,7 @@
                             }
                         }, {
                             escape : true
+
                     });
 
 
@@ -2548,23 +2744,25 @@
                 {
                     CustomerJson = encodeString(CustomerJson);
                     CouJson = encodeString(CouJson);
+
                     var deferred = $q.defer();
                     Visualforce.remoting.Manager.invokeAction(
                         '{!$RemoteAction.CustomerOrderCtrl.saveCustomer }',CustomerJson,CouJson,
                         function (result, event) {
                            if (event.type == 'exception') {
                                 deferred.reject(event.message);
+
                             } else {
     
-
-
                                 var SaveResult = decodeString(result);
+
                                
                                 deferred.resolve(JSON.parse(SaveResult));
                                 
                             }
                         }, {
                             escape : true
+
                     });
 
 
@@ -2580,6 +2778,7 @@
                 {
                     coHeaderId = encodeString(coHeaderId);
                     CustomerId = encodeString(CustomerId);
+
                     var deferred = $q.defer();
                         debug('coHeaderId'+coHeaderId);
                         debug('CustomerId'+CustomerId);
@@ -2589,8 +2788,10 @@
                                 if (event.type == 'exception') {
                                 //showPopupNotification(event.message, "error");
                                 deferred.reject(event.message);
+
                                 } else {
                                 var responseData = decodeString(result);
+
                                 var find = '\'';
                                 var re = new RegExp(find, 'g');
                                 responseData = responseData.replace(re, '');
@@ -2600,6 +2801,7 @@
                             }, 
                             {
                                 escape : true
+
                             });
                             
                             return deferred.promise;
@@ -2611,6 +2813,7 @@
                         customerId = encodeString(customerId);
                         var deferred = $q.defer();
                       debug(customerId);
+
                         
                         Visualforce.remoting.Manager.invokeAction(
                             '{!$RemoteAction.CustomerOrderCtrl.getCustomer}',
@@ -2618,16 +2821,21 @@
                             function (result, event) {
                                if (event.type == 'exception') {
                                     deferred.reject(event.message);
+
                                 } else {
                                     var customer = decodeString(result);
+
+
                                     var find = '\'';
                                     var re = new RegExp(find, 'g');
                                     customer = customer.replace(re, '');
                                     debug(customer);
+
                                     deferred.resolve(JSON.parse(customer));
                                 }
                             }, {
                                 escape : true
+
                         });
                         return deferred.promise;
 
@@ -2691,14 +2899,14 @@
                                     style="float: left; font-weight: bold; color: #B7BEC6; margin-top: 20px; margin-bottom: 10px; font-size: 20px;"></i>
                                 <div class="goldbox col-lg-12 col-md-12"
                                     ng-repeat="SimilarCustomer in CustomerModal.SimilarCustomers">
-                                    <div class="leftgoldbox">
+                                   <!--  <div class="leftgoldbox">
                                         <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
                                         <div class="star_container">
                                             <i class="fa fa-star" style="float: left;color: #B7BEC6;margin-top: 5px; font-size: 15px;"></i> 
                                             <i class="fa fa-star" style="float: left;color: #B7BEC6;margin-top: 5px; font-size: 15px;"></i> 
                                         </div>
-                                    </div>
-                                    <div class="rightgoldbox" id="CustomerSugesstionDiv{{$index}}"
+                                    </div> -->
+                                    <div class="rightgoldbox rightgoldboxML" id="CustomerSugesstionDiv{{$index}}" style="margin-left: 0px;"
                                         ng-mouseover="CustomerModal.showInfoOverlay('CustomerSugesstionDiv',$index)"
                                         ng-mouseleave="CustomerModal.hideCustomerInfoOverlay();">
                                         <div ng-show="SimilarCustomer.Type == 'Individual'">
@@ -2792,7 +3000,9 @@
                                     <div class="option_field"
                                         ng-show="CustomerModal.CustomerInfo.Type == 'Individual'">
                                         <div class="lable_fields">
-                                            <span class="form_lable_icons"> <i class="fa fa-star"></i>
+                                            <!-- <span class="form_lable_icons"> <i class="fa fa-star"></i>
+                                            </span> -->
+                                            <span class="form_lable_icons" style="background: none;">
                                             </span>
                                             <p>{!$Label.Label_Name}</p>
                                         </div>
@@ -2805,58 +3015,85 @@
                                                     ng-blur="CustomerModal.validateForm('FirstName'); CustomerModal.getOtherSimilarCustomer()"
                                                     placeholder="{!$Label.Label_First} {!$Label.Label_Name}" rel="Name"
                                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 1}}"
-                                                    data-toggle="tooltip"
                                                     title="{{CustomerModal.CustomerValidation['FirstName']['ErrorMessage'] }}" />
                                             </div>
                                             
                                             <div class="form-group" style="float: right;">
                                                 <label for="required" class="FC9">* {!$Label.Indicates_Required_Fields}</label>
                                             </div>
-                                            
-                                            <div class="controls1 controls" id="Name">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Provide First Name of customer"></i> <i
-                                                    class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveField('FnameLname', 'txtFirstName')"></i>
-                                            </div>
-                                            
-                                            <div class="clearfix"></div>
-                                            
-                                            <div class="form-group">
-                                                <label for="labelLastName"><span class="FC9">*</span> {!$Label.Label_Last} {!$Label.Label_Name}</label> <input
-                                                    type="text" class="form-control " id="txtLastName"
-                                                    ng-model="CustomerModal.CustomerInfo.LastName"
-                                                    ng-class="{'redborder' : CustomerModal.CustomerValidation['LastName']['isError'] == true}"
-                                                    ng-blur="CustomerModal.validateForm('LastName'); CustomerModal.getOtherSimilarCustomer()"
-                                                    placeholder="{!$Label.Label_Last} {!$Label.Label_Name}" rel="Nickname"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 2}}"
-                                                    data-toggle="tooltip"
-                                                    title="{{CustomerModal.CustomerValidation['LastName']['ErrorMessage'] }}" />
-                                            </div>
-                                            
+                                        </div>
+                                        <div class="controls MT25" id="Name">
 
-                                            <div class="form-group">
-                                                <label for="exampleInputPassword1">{!$Label.Label_Nick} {!$Label.Label_Name}</label> <input
-                                                    type="text" class="form-control " id="nickName"
-                                                    ng-model="CustomerModal.CustomerInfo.Nickname"
-                                                    placeholder="{!$Label.Label_Nick} {!$Label.Label_Name}" rel="Nickname"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 3}}" />
-                                            </div>
-                                            <div class="controls1 controls" id="Nickname">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="You can add a Nick Name for your customer"></i> <i
-                                                    class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveField('NickName','nickName')"></i>
-                                            </div>
+                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+                                                title="Provide First Name of customer"></i> <i
+                                                class="fa fa-times"
+
+                                                ng-click="CustomerModal.ClearAndRemoveField('FnameLname', 'txtFirstName')"></i>
+                                        </div>
+
+                                        <div class="clearfix"></div>
+                                        <div class="form_fields" style="margin: 4px 0 8px 0;">    
+
+	                                        <div class="form-group">
+	                                            <label for="labelLastName"><span class="FC9">*</span> {!$Label.Label_Last} {!$Label.Label_Name}</label> <input
+	                                                type="text" class="form-control " id="txtLastName"
+	                                                ng-model="CustomerModal.CustomerInfo.LastName"
+	                                                ng-class="{'redborder' : CustomerModal.CustomerValidation['LastName']['isError'] == true}"
+	                                                ng-blur="CustomerModal.validateForm('LastName'); CustomerModal.getOtherSimilarCustomer()"
+	                                                placeholder="{!$Label.Label_Last} {!$Label.Label_Name}" rel="Nickname"
+	                                                ng-attr-tabindex="{{CustomerModal.tabIndexValue + 2}}"
+	                                                title="{{CustomerModal.CustomerValidation['LastName']['ErrorMessage'] }}" />
+	                                        </div>
+	                                            
+	
+	                                        <div class="form-group">
+	                                            <label for="exampleInputPassword1">{!$Label.Label_Nick} {!$Label.Label_Name}</label> <input
+	                                                type="text" class="form-control " id="nickName"
+	                                                ng-model="CustomerModal.CustomerInfo.Nickname"
+	                                                placeholder="{!$Label.Label_Nick} {!$Label.Label_Name}" rel="Nickname"
+	                                                ng-attr-tabindex="{{CustomerModal.tabIndexValue + 3}}" />
+
+	                                        </div>
+	                                    </div>
+                                        <div class="controls MT25" id="Nickname">
+                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+                                                title="Add Last Name and Nick Name for your customer"></i> <i
+
+                                                class="fa fa-times"
+                                                ng-click="CustomerModal.ClearAndRemoveField('NickName','nickName')"></i>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                                         </div>
                                     </div>
+                                    
                                     <div class="clearfix"></div>
                                     <div class="option_field"
                                         ng-show="CustomerModal.CustomerInfo.Type == 'Business'">
+                                        <div class="clearfix"></div>
+	                                    <div class="reqForBusiness">
+	                                        <label class="FC9 " for="required">* Indicates required fields</label>
+	                                    </div>
+	                                    <div class="clearfix"></div>
                                         <div class="lable_fields">
-                                            <span class="form_lable_icons"> <i class="fa fa-star"></i>
+                                            <!-- <span class="form_lable_icons"> <i class="fa fa-star"></i>
+                                            </span> -->
+                                            <span class="form_lable_icons" style="background: none;">
                                             </span>
-                                            <p>{!$Label.Label_Company} {!$Label.Label_Name}</p>
+                                            <p>{!$Label.Label_Company} {!$Label.Label_Name} <span class="FC9">*</span></p>
                                         </div>
                                         <div class="form_fields" style="margin: 4px 0 8px 0;">
                                             <div class="form-group large">
@@ -2865,7 +3102,6 @@
                                                     placeholder="{!$Label.Label_Company} Name" rel="BusinessName"
                                                     ng-class="{'redborder' : CustomerModal.CustomerValidation['BusinessName']['isError'] == true}"
                                                     ng-blur="CustomerModal.validateForm('BusinessName'); CustomerModal.getOtherSimilarCustomer();"
-                                                    data-toggle="tooltip"
                                                     title="{{CustomerModal.CustomerValidation['BusinessName']['ErrorMessage'] }} "
                                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 1}}" />
                                             </div>
@@ -2891,7 +3127,8 @@
                                     <div class="option_field"
                                         ng-show="CustomerModal.CustomerInfo.Type == 'Individual'">
                                         <div class="lable_fields">
-                                            <span class="form_lable_icons text"> 100 </span>
+                                            <!-- <span class="form_lable_icons text"> 100 </span> -->
+                                            <span class="form_lable_icons text" style="background: none;">  </span>
                                             <p>{!$Label.Label_Home} {!$Label.Label_Email}</p>
                                         </div>
                                         <div class="form_fields">
@@ -2901,7 +3138,6 @@
                                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 4}}"
                                                     ng-blur="CustomerModal.getOtherSimilarCustomer(); CustomerModal.validateForm('HomeEmail');"
                                                     id="homeEmail" placeholder="{!$Label.Label_Home} {!$Label.Label_Email}" rel="HomeEmail"
-                                                    data-toggle="tooltip"
                                                     title="{{CustomerModal.CustomerValidation['HomeEmail']['ErrorMessage'] }}"
                                                     ng-class="{'redborder' : CustomerModal.CustomerValidation['HomeEmail']['isError'] == true}" />
                                                 <a href="#" class="bookmarklink"> <i class="fa fa-star"
@@ -2923,7 +3159,8 @@
                                     <div class="option_field"
                                         ng-show="CustomerModal.CustomerInfo.Type == 'Business'">
                                         <div class="lable_fields">
-                                            <span class="form_lable_icons text"> 100 </span>
+                                            <!-- <span class="form_lable_icons text"> 100 </span> -->
+                                            <span class="form_lable_icons text" style="background: none;">  </span>
                                             <p>{!$Label.Label_Work} {!$Label.Label_Email}</p>
                                         </div>
                                         <div class="form_fields">
@@ -2934,7 +3171,6 @@
                                                     ng-blur="CustomerModal.getOtherSimilarCustomer(); CustomerModal.validateForm('WorkEmail');"
                                                     id="workEmail" placeholder="{!$Label.Label_Work} {!$Label.Label_Email}" rel="WorkEmail"
                                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 5}}"
-                                                    data-toggle="tooltip"
                                                     title="{{CustomerModal.CustomerValidation['WorkEmail']['ErrorMessage'] }}" />
                                                 <a href="#" class="bookmarklink"> <i class="fa fa-star"
                                                     ng-class="CustomerModal.CustomerInfo.PreferredEmail == 'WorkEmail'?' yellow' : 'FC5'"
@@ -2955,7 +3191,8 @@
                                         ng-show="CustomerModal.AdditionalFieldsInfo.OtherEmail.isPrimary">
 
                                         <div class="lable_fields">
-                                            <span class="form_lable_icons text"> 100 </span>
+                                            <!-- <span class="form_lable_icons text"> 100 </span> -->
+                                            <span class="form_lable_icons text" style="background: none;">  </span>
 
                                             <p>{!$Label.Other_Email}</p>
                                         </div>
@@ -2967,7 +3204,6 @@
                                                     ng-blur="CustomerModal.getOtherSimilarCustomer(); CustomerModal.validateForm('OtherEmail');"
                                                     id="otherEmail" placeholder="{!$Label.Other_Email}" rel="OtherEmail"
                                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 6}}"
-                                                    data-toggle="tooltip"
                                                     title="{{CustomerModal.CustomerValidation['OtherEmail']['ErrorMessage'] }}" />
                                                 <a href="#" class="bookmarklink"> <i class="fa fa-star"
                                                     ng-class="CustomerModal.CustomerInfo.PreferredEmail == 'OtherEmail' ? ' yellow' : 'FC5'"
@@ -2988,28 +3224,29 @@
                                     <div class="option_field"
                                         ng-show="CustomerModal.CustomerInfo.Type == 'Individual'">
                                         <div class="lable_fields">
-                                            <span class="form_lable_icons text"> 100 </span>
+                                            <!-- <span class="form_lable_icons text"> 100 </span> -->
+                                            <span class="form_lable_icons text" style="background: none;">  </span>
                                             <p>{!$Label.Label_Home} {!$Label.Label_Phone}</p>
                                         </div>
                                         <div class="form_fields">
                                             <div class="form-group medium">
-                                                <input type="text" class="form-control" id="homePhone"
+                                                <input type="text" class="form-control" id="homePhone" maxlength="10"
                                                     ng-model="CustomerModal.CustomerInfo.HomeNumber"
                                                     ng-class="{'redborder' : CustomerModal.CustomerValidation['HomeNumber']['isError'] == true}"
                                                     ng-blur="CustomerModal.getOtherSimilarCustomer(); CustomerModal.validateForm('HomeNumber');"
                                                     placeholder="{!$Label.Label_Home} {!$Label.Label_Phone}" rel="HomeNumber"
                                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 7}}"
-                                                    data-toggle="tooltip"
                                                     title="{{CustomerModal.CustomerValidation['HomeNumber']['ErrorMessage'] }}" />
                                                 <a href="#" class="bookmarklink"> <i class="fa fa-star"
                                                     ng-class="CustomerModal.CustomerInfo.PreferredPhone == 'HomeNumber' ? ' yellow' : 'FC5'"
                                                     ng-click="CustomerModal.markFavourite('PreferredPhone','HomeNumber');"></i>
                                                 </a>
                                             </div>
-                                            <div class="form-group small">
+                                            <div class="form-group small" ng-class="{'disableHomeSmsChkBx' : CustomerModal.CustomerValidation['HomeNumber']['isError'] || CustomerModal.CustomerInfo.HomeNumber == null || CustomerModal.CustomerInfo.HomeNumber == undefined || CustomerModal.CustomerInfo.HomeNumber == ''}">
+
                                                 <label class="checkbox smschkbox"> <span
                                                     class="chk_tick"
-                                                    ng-class="{'chked' : CustomerModal.CustomerInfo.HomeNumberSMS == true}"
+                                                    ng-class="{'chked' : CustomerModal.CustomerInfo.HomeNumberSMS==true}"
                                                     ng-click="CustomerModal.markSMS('HomeNumberSMS');">
                                                         <i class="fa fa-check-square chksqure"></i>
                                                 </span>
@@ -3035,18 +3272,18 @@
                                     <div class="option_field"
                                         ng-show="CustomerModal.CustomerInfo.Type == 'Business'">
                                         <div class="lable_fields">
-                                            <span class="form_lable_icons text"> 100 </span>
+                                            <!-- <span class="form_lable_icons text"> 100 </span> -->
+                                            <span class="form_lable_icons text" style="background: none;">  </span>
                                             <p>{!$Label.Label_Work} {!$Label.Label_Phone}</p>
                                         </div>
                                         <div class="form_fields">
                                             <div class="form-group medium">
-                                                <input type="text" class="form-control" id="workPhone"
+                                                <input type="text" class="form-control" id="workPhone" maxlength="10"
                                                     ng-model="CustomerModal.CustomerInfo.WorkNumber"
                                                     ng-class="{'redborder' : CustomerModal.CustomerValidation['WorkNumber']['isError'] == true}"
                                                     ng-blur="CustomerModal.getOtherSimilarCustomer(); CustomerModal.validateForm('WorkNumber');"
-                                                    placeholder="{!$Label.Label_Home} {!$Label.Label_Phone}" rel="WorkNumber"
+                                                    placeholder="{!$Label.Label_Work} {!$Label.Label_Phone}" rel="WorkNumber"
                                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 9}}"
-                                                    data-toggle="tooltip"
                                                     title="{{CustomerModal.CustomerValidation['WorkNumber']['ErrorMessage'] }}" />
                                                 <a href="#" class="bookmarklink"> <i class="fa fa-star"
                                                     ng-class="CustomerModal.CustomerInfo.PreferredPhone == 'WorkNumber'?' yellow' : 'FC5'"
@@ -3082,18 +3319,18 @@
                                     <div class="option_field"
                                         ng-show="CustomerModal.AdditionalFieldsInfo.OtherPhone.isPrimary">
                                         <div class="lable_fields">
-                                            <span class="form_lable_icons text"> 100 </span>
+                                            <!-- <span class="form_lable_icons text"> 100 </span> -->
+                                            <span class="form_lable_icons text" style="background: none;"></span>
                                             <p>{!$Label.Other_Phone}</p>
                                         </div>
                                         <div class="form_fields">
                                             <div class="form-group medium">
-                                                <input type="text" class="form-control" id="otherPhoneId"
+                                                <input type="text" class="form-control" id="otherPhoneId" maxlength="10"
                                                     ng-model="CustomerModal.CustomerInfo.OtherPhone"
                                                     ng-class="{'redborder' : CustomerModal.CustomerValidation['OtherPhone']['isError'] == true}"
                                                     ng-blur="CustomerModal.getOtherSimilarCustomer(); CustomerModal.validateForm('OtherPhone');"
                                                     placeholder="{!$Label.Other_Phone}" rel="OtherNumber"
                                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 10.1}}"
-                                                    data-toggle="tooltip"
                                                     title="{{CustomerModal.CustomerValidation['OtherPhone']['ErrorMessage'] }}" />
                                                 <a href="#" class="bookmarklink"> <i class="fa fa-star"
                                                     ng-class="CustomerModal.CustomerInfo.PreferredPhone == 'OtherPhone' ? ' yellow' : 'FC5'"
@@ -3129,7 +3366,8 @@
                                     <div class="clearfix"></div>
                                     <div class="option_field">
                                         <div class="lable_fields">
-                                            <span class="form_lable_icons text"> 100 </span>
+                                            <!-- <span class="form_lable_icons text"> 100 </span> -->
+                                            <span class="form_lable_icons text" style="background: none;"></span>
                                             <p>{!$Label.Label_Billing} {!$Label.Label_Address}</p>
                                         </div>
                                         <div class="form_fields">
@@ -3140,95 +3378,117 @@
                                                     ng-blur="CustomerModal.getOtherSimilarCustomer()"
                                                     id="billingAddress1"
                                                     placeholder="Apartment / Suite / Office address"
-                                                    rel="BillingAddLine1"
+                                                    rel="BillingAddressLine1"
                                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 11}}" />
 
-                                            </div>
-                                            <div class="controls1 controls" id="BillingAddLine1">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Apartment, suite, unit, building, floor, etc"></i> <i
-                                                    class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveField('BillingAddLine1', 'billingAddress1')"></i>
-                                            </div>
-                                            <div class="form-group large">
-                                                <label for="exampleInputEmail1">{!$Label.Label_Address} {!$Label.Label_Line}2</label> <input
-                                                    type="text" class="form-control"
-                                                    ng-model="CustomerModal.CustomerInfo.BillingStreet2"
-                                                    id="billingAddress2" placeholder="Street Address"
-                                                    rel="BillingAddLine2"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 12}}" />
-
-                                            </div>
-                                            <div class="controls1 controls" id="BillingAddLine2">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Street address, P.O. box, {!$Label.Label_Company} name, c/o"></i> <i
-                                                    class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveField('BillingAddLine2', 'billingAddress2')"></i>
-                                            </div>
-                                           
-                                           
-                                           
-                                           
-                                           <div class="form-group half">
-                                                <label for="exampleInputEmail1">{!$Label.Label_City}</label> <input
-                                                    type="text" class="form-control" id="billingCity"
-                                                    ng-model="CustomerModal.CustomerInfo.BillingCity"
-                                                    placeholder="{!$Label.Label_City}" rel="CountryState"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 13}}" />
-
-                                            </div>
-                                           
-                                            <div class="form-group half">
-                                                <label for="exampleInputEmail1">{!$Label.Label_State}</label> <select
-                                                    class="form-control" rel="CountryState" id="billingState"
-                                                    ng-model="CustomerModal.SelectedState"
-                                                    ng-options="state  as state.StateName for state in CustomerModal.State track by state.Id"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 14}}">
-                                                </select>
-
-                                            </div>
-                                            <div class="controls1 controls" id="CountryState">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Select Country and State"></i> <i
-                                                    class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveField('CountryState','billingCity')"></i>
-                                            </div>
 
 
-
-
-        
-                                            
-                                             <div class="form-group half">
-                                                <label for="exampleInputEmail1">{!$Label.Label_Country}</label>
-                                                <select class="form-control" rel="CityPostal" id="billingCountry"
-                                                    ng-model="CustomerModal.SelectedCountry"
-                                                    ng-options="country as country.CountryName for country in CustomerModal.Country track by country.Id"
-                                                    ng-change="CustomerModal.changeBillingCountry()"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 15}}">
-                                                </select>
-                                            </div>
-                                            
-                                            <div class="form-group half">
-                                                <label for="exampleInputEmail1">{!$Label.Label_Postal}</label> <input
-                                                    type="text" class="form-control" id="exampleInputEmail1"
-                                                    ng-model="CustomerModal.CustomerInfo.BillingPostalCode"
-                                                    placeholder="{!$Label.Label_Postal}" rel="CityPostal"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 16}}" />
-
-                                            </div>
-                                            <div class="controls1 controls" id="CityPostal">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Add City and Postal Code"></i> <i
-                                                    class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveField('CityPostal','billingCountry')"></i>
                                             </div>
                                         </div>
+                                        <div class="controls MT25" id="BillingAddressLine1">
+
+
+                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+                                                title="Apartment, suite, unit, building, floor, etc"></i> 
+                                            <i class="fa fa-times" ng-click="CustomerModal.ClearAndRemoveField('BillingAddLine1', 'billingAddress1')"></i>
+
+                                        </div>
+                                        <div class="option_field">
+											<div class="lable_fields">
+												
+												<p></p>
+											</div>
+	                                        <div class="form_fields">
+	                                            <div class="form-group large">
+	                                                <label for="exampleInputEmail1">{!$Label.Label_Address} {!$Label.Label_Line}2</label> <input
+	                                                    type="text" class="form-control"
+	                                                    ng-model="CustomerModal.CustomerInfo.BillingStreet2"
+	                                                    id="billingAddress2" placeholder="Street Address"
+	                                                    rel="BillingAddressLine2"
+	                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 12}}" />
+	
+	                                            </div>
+	                                        </div>
+	                                        <div class="controls MT25" id="BillingAddressLine2">
+	                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+	                                                title="Street address, P.O. box, {!$Label.Label_Company} name, c/o"></i> <i
+	                                                class="fa fa-times"
+	                                                ng-click="CustomerModal.ClearAndRemoveField('BillingAddLine2', 'billingAddress2')"></i>
+	                                        </div>
+	                                    </div>
+	                                    <div class="option_field">
+											<div class="lable_fields">
+												
+												<p></p>
+											</div>
+	                                        <div class="form_fields">
+	                                           <div class="form-group half">
+	                                                <label for="exampleInputEmail1">{!$Label.Label_City}</label> <input
+	                                                    type="text" class="form-control" id="billingCity"
+	                                                    ng-model="CustomerModal.CustomerInfo.BillingCity"
+	                                                    placeholder="{!$Label.Label_City}" rel="CountryState"
+	                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 13}}" />
+	
+	                                            </div>
+	                                           
+	                                            <div class="form-group half">
+	                                                <label for="exampleInputEmail1">{!$Label.Label_State}</label> <select
+	                                                    class="form-control" rel="CountryState" id="billingState"
+	                                                    ng-model="CustomerModal.SelectedState"
+	                                                    ng-options="state  as state.StateName for state in CustomerModal.State track by state.Id"
+	                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 14}}">
+	                                                </select>
+	
+	                                            </div>
+	                                        </div>
+	                                        <div class="controls MT25" id="CountryState">
+	                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+	                                                title="Select City and State"></i> <i
+	                                                class="fa fa-times"
+	                                                ng-click="CustomerModal.ClearAndRemoveField('CountryState','billingCity')"></i>
+	                                        </div>
+	                                    </div>
+	                                    <div class="option_field">
+											<div class="lable_fields">
+												
+												<p></p>
+											</div>
+	                                        <div class="form_fields">
+	                                             <div class="form-group half">
+	                                                <label for="exampleInputEmail1">{!$Label.Label_Country}</label>
+	                                                <select class="form-control" rel="CityPostal" id="billingCountry"
+	                                                    ng-model="CustomerModal.SelectedCountry"
+	                                                    ng-options="country as country.CountryName for country in CustomerModal.Country track by country.Id"
+	                                                    ng-change="CustomerModal.changeBillingCountry()"
+	                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 15}}">
+	                                                </select>
+	                                            </div>
+	                                            
+	                                            <div class="form-group half">
+	                                                <label for="exampleInputEmail1">{!$Label.Label_Postal}</label> <input
+	                                                    type="text" class="form-control" id="exampleInputEmail1" maxlength="10"
+	                                                    ng-blur="CustomerModal.validateForm('BillingPostalCode');"
+	                                                    ng-class="{'redborder' : CustomerModal.CustomerValidation['BillingPostalCode']['isError'] == true}"
+	                                                    ng-model="CustomerModal.CustomerInfo.BillingPostalCode"
+	                                                    placeholder="{!$Label.Label_Postal}" rel="CityPostal"
+                                                    	title="{{CustomerModal.CustomerValidation['BillingPostalCode']['ErrorMessage'] }}"
+	                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 16}}" />
+	
+	                                            </div>
+	                                        </div>
+	                                        <div class="controls MT25" id="CityPostal">
+	                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+	                                                title="Add Country and Postal Code"></i> <i
+	                                                class="fa fa-times"
+	                                                ng-click="CustomerModal.ClearAndRemoveField('CityPostal','billingCountry')"></i>
+	                                        </div>
+	                                 	</div>
 
                                     </div>
                                     <div class="clearfix"></div>
                                     <div class="option_field">
                                         <div class="lable_fields chkbox">
+                                        	<span class="form_lable_icons text" style="background: none;">  </span><!-- added by richa -->
                                             <p>{!$Label.Label_Shipping} {!$Label.Label_Address}</p>
                                         </div>
                                         <div class="form_fields">
@@ -3243,7 +3503,136 @@
 
                                     </div>
                                     <div class="clearfix"></div>
-                                    <div class="option_field pull-left" id="billingaddress" ng-class="{'sameBillineAddress': CustomerModal.CustomerInfo.IsBothAddressSame, 'differentBillingAddress': !CustomerModal.CustomerInfo.IsBothAddressSame }">
+                                    
+                                    
+                                    
+                                     <div id="shippingAddress" ng-class="{'sameBillineAddress': CustomerModal.CustomerInfo.IsBothAddressSame, 'differentBillingAddress': !CustomerModal.CustomerInfo.IsBothAddressSame }">
+	                                    <div class="option_field">
+	                                    	<div class="lable_fields">
+	                                            <!-- <span class="form_lable_icons text"> 100 </span> -->
+	                                            <span class="form_lable_icons text" style="background: none;"> </span>
+	                                            <p>{!$Label.Label_Shipping} {!$Label.Label_Address}</p>
+	                                        </div>
+	                                        
+	                                        <div class="form_fields">
+	                                            <div class="form-group large">
+	                                                <label for="exampleInputEmail1">{!$Label.Label_Address} {!$Label.Label_Line}1</label> <input
+	                                                    type="text" class="form-control"
+	                                                    ng-model="CustomerModal.CustomerInfo.ShippingStreet1"
+	                                                    id="shippingAddress1"
+	                                                    placeholder="Apartment / Suite number"
+	                                                    rel="ShippingAddressLine1"
+	                                                    ng-attr-tabindex="{{CustomerModal.CustomerInfo.IsBothAddressSame ? -1 : CustomerModal.tabIndexValue + 18}}" />
+	                                            </div>	
+	                                        </div>
+	                                        <div class="controls MT25" id="ShippingAddressLine1">
+	                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+	                                                title="Apartment / Suite number"></i> 
+	                                            <i class="fa fa-times" ng-click="CustomerModal.ClearAndRemoveField('ShippingAddLine1', 'shippingAddress1')"></i>
+	                                        </div>
+	                                        
+	                                        <div class="option_field">
+	                                        	<div class="lable_fields">
+													<p></p>
+												</div>
+												
+												<div class="form_fields">
+		                                            <div class="form-group large">
+		                                                <label for="exampleInputEmail1">{!$Label.Label_Address} {!$Label.Label_Line}2</label> <input
+		                                                    type="text" class="form-control"
+		                                                    ng-model="CustomerModal.CustomerInfo.ShippingStreet2"
+		                                                    id="shippingAddress2" placeholder="Street Address"
+		                                                    rel="ShippingAddressLine2"
+		                                                    ng-attr-tabindex="{{CustomerModal.CustomerInfo.IsBothAddressSame ? -1 : CustomerModal.tabIndexValue + 19}}" />
+		
+		                                            </div>
+		                                        </div>
+		                                        <div class="controls MT25" id="ShippingAddressLine2">
+		                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+		                                                title="Street"></i> <i
+		                                                class="fa fa-times"
+		                                                ng-click="CustomerModal.ClearAndRemoveField('ShippingAddLine2', 'shippingAddress2')"></i>
+		                                        </div>
+	                                        </div>
+	                                        
+	                                        <div class="option_field">
+	                                        	<div class="lable_fields">
+													<p></p>
+												</div>
+												
+												<div class="form_fields">
+		                                           <div class="form-group half">
+		                                                <label for="exampleInputEmail1">{!$Label.Label_City}</label> <input
+		                                                    type="text" class="form-control" ng-model="CustomerModal.CustomerInfo.ShippingCity"
+		                                                    id="shippingCity" placeholder="{!$Label.Label_City}"
+		                                                    rel="CountryStateShipping"
+		                                                    ng-attr-tabindex="{{CustomerModal.CustomerInfo.IsBothAddressSame ? -1 : CustomerModal.tabIndexValue + 20}}" />
+		
+		                                            </div>
+		                                           
+		                                            <div class="form-group half">
+		                                                <label for="exampleInputEmail1">{!$Label.Label_State}</label> <select
+		                                                    class="form-control" id="shippingState"
+		                                                    rel="CountryStateShipping"
+		                                                    ng-model="CustomerModal.SelectedShippingState"
+		                                                    ng-options="state  as state.StateName for state in CustomerModal.ShippingState track by state.Id"
+		                                                    ng-attr-tabindex="{{CustomerModal.CustomerInfo.IsBothAddressSame ? -1 : CustomerModal.tabIndexValue + 21}}">
+		                                                </select>
+		
+		                                            </div>
+		                                        </div>
+	                                        	<div class="controls MT25" id="CountryStateShipping">
+		                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+		                                                title="Select City and State"></i> <i
+		                                                class="fa fa-times"
+		                                                ng-click="CustomerModal.ClearAndRemoveField('ShippingCountryState', 'shippingCity')"></i>
+		                                        </div>
+	                                        </div>
+	                                        
+	                                        <div class="option_field">
+	                                        	<div class="lable_fields">
+													<p></p>
+												</div>
+												
+												<div class="form_fields">
+		                                             <div class="form-group half">
+		                                                <label for="exampleInputEmail1">{!$Label.Label_Country}</label>
+		                                                <select class="form-control" rel="CityPostalShipping"
+			                                                    ng-model="CustomerModal.SelectedShippingCountry"
+			                                                    id="shippingCountry"
+			                                                    ng-options="country as country.CountryName for country in CustomerModal.ShippingCountry track by country.Id"
+			                                                    ng-change="CustomerModal.changeShippingCountry()"
+			                                                    ng-attr-tabindex="{{CustomerModal.CustomerInfo.IsBothAddressSame ? -1 : CustomerModal.tabIndexValue + 22}}">
+		                                                </select>
+		                                            </div>
+		                                            
+		                                            <div class="form-group half">
+		                                                <label for="exampleInputEmail1">{!$Label.Label_Postal}</label> <input
+                                                    type="text" class="form-control" maxlength="10"
+                                                    ng-blur="CustomerModal.validateForm('ShippingPostalCode');"
+                                                    ng-class="{'redborder' : CustomerModal.CustomerValidation['ShippingPostalCode']['isError'] == true}"
+                                                    ng-model="CustomerModal.CustomerInfo.ShippingPostalCode"
+                                                    id="exampleInputEmail1" placeholder="{!$Label.Label_Postal}"
+                                                    title="{{CustomerModal.CustomerValidation['ShippingPostalCode']['ErrorMessage'] }}"
+                                                    rel="CityPostalShipping"
+                                                    ng-attr-tabindex="{{CustomerModal.CustomerInfo.IsBothAddressSame ? -1 : CustomerModal.tabIndexValue + 23}}" />
+													<!--  ng-attr-tabindex="{{CustomerModal.tabIndexValue + 23}}" -->
+		                                            </div>
+		                                        </div>
+		                                        <div class="controls MT25" id="CityPostalShipping">
+		                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+		                                                title="Add Country and Postal Code"></i> <i
+		                                                class="fa fa-times"
+		                                                ng-click="CustomerModal.ClearAndRemoveField('CityPostalShipping', 'shippingCountry')"></i>
+		                                        </div>
+	                                        </div>
+                                        
+	                                    </div>
+	                                </div>
+                                    
+                                    
+                                    
+                                    <!-- <div class="option_field pull-left" id="billingaddress" ng-class="{'sameBillineAddress': CustomerModal.CustomerInfo.IsBothAddressSame, 'differentBillingAddress': !CustomerModal.CustomerInfo.IsBothAddressSame }">
                                         <div class="lable_fields">
                                             <span class="form_lable_icons text"> 100 </span>
                                             <p>{!$Label.Label_Shipping} {!$Label.Label_Address}</p>
@@ -3255,11 +3644,11 @@
                                                     ng-model="CustomerModal.CustomerInfo.ShippingStreet1"
                                                     id="shippingAddress1"
                                                     placeholder="Apartment / Suite number"
-                                                    rel="ShippingAddLine1"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 18}}" />
-
-                                            </div>
-                                            <div class="controls1 controls" id="ShippingAddLine1">
+                                                    rel="ShippingAddressLine1"
+                                                    ng-attr-tabindex="{{CustomerModal.CustomerInfo.IsBothAddressSame ? -1 : CustomerModal.tabIndexValue + 18}}" />
+                                            		<!-- ng-attr-tabindex="{{CustomerModal.tabIndexValue + 18}}" -->
+                                            <!-- </div>
+                                            <div class="controls1 controls" id="ShippingAddressLine1">
                                                 <i class="fa fa-question-circle" data-toggle="tooltip"
                                                     title="Apartment / Suite number"></i> <i
                                                     class="fa fa-times"
@@ -3271,11 +3660,13 @@
                                                     type="text" class="form-control"
                                                     ng-model="CustomerModal.CustomerInfo.ShippingStreet2"
                                                     id="shippingAddress2" placeholder="Street Address"
-                                                    rel="ShippingAddLine2"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 19}}" />
+                                                    rel="ShippingAddressLine2"
+                                                    ng-attr-tabindex="{{CustomerModal.CustomerInfo.IsBothAddressSame ? -1 : CustomerModal.tabIndexValue + 19}}" />
+                                                    
+                                                    <!-- ng-attr-tabindex="{{CustomerModal.tabIndexValue + 19}}" -->
 
-                                            </div>
-                                            <div class="controls1 controls" id="ShippingAddLine2">
+                                            <!--</div>
+                                            <div class="controls1 controls" id="ShippingAddressLine2">
                                                 <i class="fa fa-question-circle" data-toggle="tooltip"
                                                     title="Street"></i> <i class="fa fa-times"
                                                     ng-click="CustomerModal.ClearAndRemoveField('ShippingAddLine2', 'shippingAddress2')"></i>
@@ -3290,23 +3681,23 @@
                                                     ng-model="CustomerModal.CustomerInfo.ShippingCity"
                                                     id="shippingCity" placeholder="{!$Label.Label_City}"
                                                     rel="CountryStateShipping"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 20}}" />
-
-                                            </div>
+                                                   ng-attr-tabindex="{{CustomerModal.CustomerInfo.IsBothAddressSame ? -1 : CustomerModal.tabIndexValue + 20}}" />
+													<!--  ng-attr-tabindex="{{CustomerModal.tabIndexValue + 20}}" /> -->
+                                            <!--</div>
                                             
                                             <div class="form-group half">
                                                 <label for="exampleInputEmail1">{!$Label.Label_State}</label> <select
                                                     class="form-control" rel="CountryStateShipping"
                                                     ng-model="CustomerModal.SelectedShippingState"
                                                     ng-options="state  as state.StateName for state in CustomerModal.ShippingState track by state.Id"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 21}}">
+                                                    ng-attr-tabindex="{{CustomerModal.CustomerInfo.IsBothAddressSame ? -1 : CustomerModal.tabIndexValue + 21}}">
                                                 </select>
 
-
-                                            </div>
+												<!-- ng-attr-tabindex="{{CustomerModal.tabIndexValue + 21}}"> -->
+                                            <!--</div>
                                             <div class="controls1 controls" id="CountryStateShipping">
                                                 <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Select Country and State"></i> <i
+                                                    title="Select City and State"></i> <i
                                                     class="fa fa-times"
                                                     ng-click="CustomerModal.ClearAndRemoveField('ShippingCountryState', 'shippingCity')"></i>
 
@@ -3323,34 +3714,40 @@
                                                     id="shippingCountry"
                                                     ng-options="country as country.CountryName for country in CustomerModal.ShippingCountry track by country.Id"
                                                     ng-change="CustomerModal.changeShippingCountry()"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 22}}">
-                                                </select>
+                                                    ng-attr-tabindex="{{CustomerModal.CustomerInfo.IsBothAddressSame ? -1 : CustomerModal.tabIndexValue + 22}}">
+                                                    
+                                                    <!-- ng-attr-tabindex="{{CustomerModal.tabIndexValue + 22}}" -->
+                                               <!-- </select>
                                             </div>
                                             <div class="form-group half">
                                                 <label for="exampleInputEmail1">{!$Label.Label_Postal}</label> <input
-                                                    type="text" class="form-control"
+                                                    type="text" class="form-control" maxlength="10"
+                                                    ng-blur="CustomerModal.validateForm('ZipPostalCode');"
+                                                    ng-class="{'redborder' : CustomerModal.CustomerValidation['ZipPostalCode']['isError'] == true}"
                                                     ng-model="CustomerModal.CustomerInfo.ShippingPostalCode"
                                                     id="exampleInputEmail1" placeholder="{!$Label.Label_Postal}"
+                                                    title="{{CustomerModal.CustomerValidation['ZipPostalCode']['ErrorMessage'] }}"
                                                     rel="CityPostalShipping"
-                                                    ng-attr-tabindex="{{CustomerModal.tabIndexValue + 23}}" />
-
-                                            </div>
+                                                    ng-attr-tabindex="{{CustomerModal.CustomerInfo.IsBothAddressSame ? -1 : CustomerModal.tabIndexValue + 23}}" />
+													<!--  ng-attr-tabindex="{{CustomerModal.tabIndexValue + 23}}" -->
+                                           <!-- </div>
                                             <div class="controls1 controls" id="CityPostalShipping">
                                                 <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Add City and Postal Code"></i> <i
+                                                    title="Add Country and Postal Code"></i> <i
                                                     class="fa fa-times"
                                                     ng-click="CustomerModal.ClearAndRemoveField('CityPostalShipping', 'shippingCountry')"></i>
 
                                             </div>
                                         </div>
 
-                                    </div>
-                                    <div class="clearfix"></div>
+                                    </div>-->
+                                    <div class="clearfix"></div>  
                                     <div class="option_field"
                                         ng-show="CustomerModal.AdditionalFieldsInfo.Birthdate.isPrimary && CustomerModal.CustomerInfo.Type == 'Individual'">
                                         <div class="lable_fields">
-                                            <p>{!$Label.Label_Birthday}</p>
-                                        </div>
+                                        	<span class="form_lable_icons text" style="background: none;">  </span><!-- Added by richa -->
+                                            <p>{!$Label.Label_Birthday}</p>  
+                                        </div>  
                                         <div class="form_fields">
                                             <div class="form-group half" style="width: 24%">
                                                 <select class="form-control" rel="BirthdayIcon"
@@ -3401,6 +3798,7 @@
                                     <div class="option_field"
                                         ng-show="CustomerModal.AdditionalFieldsInfo.FacebookLink.isPrimary">
                                         <div class="lable_fields">
+                                        	<span class="form_lable_icons text" style="background: none;">  </span><!-- Added by richa -->
                                             <p>{!$Label.Label_Facebook}</p>
                                         </div>
                                         <div class="form_fields">
@@ -3410,7 +3808,7 @@
                                                     ng-blur="CustomerModal.getOtherSimilarCustomer()"
                                                     id="facebookLink" placeholder="{!$Label.Label_Facebook}" rel="FacebookIcon"
                                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 27}}" />
-                                                <a href="#" class="bookmarklink"> <i
+                                                <a href="" class="bookmarklink"> <i
                                                     class="fa fa-facebook-square" style="color: #45619D;"></i>
                                                 </a>
                                             </div>
@@ -3426,6 +3824,7 @@
                                     <div class="option_field"
                                         ng-show="CustomerModal.AdditionalFieldsInfo.TwitterLink.isPrimary">
                                         <div class="lable_fields">
+                                        	<span class="form_lable_icons text" style="background: none;">  </span><!-- Added by richa -->
                                             <p>{!$Label.Label_Twitter}</p>
                                         </div>
                                         <div class="form_fields">
@@ -3435,7 +3834,7 @@
                                                     ng-blur="CustomerModal.getOtherSimilarCustomer()"
                                                     id="twitterLink" placeholder="{!$Label.Label_Twitter}" rel="TwitterIcon"
                                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 28}}" />
-                                                <a href="#" class="bookmarklink"> <i
+                                                <a href="" class="bookmarklink"> <i
                                                     class="fa fa-twitter-square" style="color: #52A7E7;"></i>
                                                 </a>
                                             </div>
@@ -3450,6 +3849,7 @@
                                     <div class="option_field"
                                         ng-show="CustomerModal.AdditionalFieldsInfo.LinkedInLink.isPrimary">
                                         <div class="lable_fields">
+                                        	<span class="form_lable_icons text" style="background: none;">  </span><!-- Added by richa -->
                                             <p>{!$Label.Label_LinkedIn}</p>
                                         </div>
                                         <div class="form_fields">
@@ -3459,7 +3859,7 @@
                                                     ng-blur="CustomerModal.getOtherSimilarCustomer()"
                                                     id="LinkedinLink" placeholder="{!$Label.Label_LinkedIn}" rel="LinkedInIcon"
                                                     ng-attr-tabindex="{{CustomerModal.tabIndexValue + 29}}" />
-                                                <a href="#" class="bookmarklink"> <i
+                                                <a href="" class="bookmarklink"> <i
                                                     class="fa fa-linkedin" style="color: #52A7E7;"></i>
 
                                                 </a>
@@ -3476,6 +3876,7 @@
                                     <div class="option_field"
                                         ng-show="CustomerModal.AdditionalFieldsInfo.Company.isPrimary && CustomerModal.CustomerInfo.Type == 'Individual'">
                                         <div class="lable_fields">
+                                        	<span class="form_lable_icons text" style="background: none;">  </span><!-- Added by richa -->
                                             <p>{!$Label.Label_Company}</p>
                                         </div>
                                         <div class="form_fields">
@@ -3497,6 +3898,7 @@
                                     <div class="option_field"
                                         ng-show="CustomerModal.AdditionalFieldsInfo.JobTitle.isPrimary && CustomerModal.CustomerInfo.Type == 'Individual'">
                                         <div class="lable_fields">
+                                        	<span class="form_lable_icons text" style="background: none;">  </span><!-- Added by richa -->
                                             <p>{!$Label.Job_Title}</p>
                                         </div>
                                         <div class="form_fields">
@@ -3553,14 +3955,14 @@
                                     style="float: left; font-weight: bold; color: #B7BEC6; margin-top: 20px; margin-bottom: 10px; font-size: 20px;"></i>
                                 <div class="goldbox exists col-lg-12 col-md-12"
                                     ng-repeat="SimilarCOU in  CustomerModal.SimilarCOU">
-                                    <div class="leftgoldbox">
+                                    <!-- <div class="leftgoldbox">
                                         <img class="starimg" src="{!URLFOR($Resource.Images, 'star.png')}" />
                                         <div class="star_container">
                                             <i class="fa fa-star" style="float: left;color: #B7BEC6;margin-top: 5px;"></i> 
                                             <i class="fa fa-star" style="float: left;color: #B7BEC6;margin-top: 5px;"></i> 
                                         </div>
-                                    </div>
-                                    <div class="rightgoldbox type2">
+                                    </div> -->
+                                    <div class="rightgoldbox rightgoldboxML type2" style="margin-left: 0px;">
                                         <p class="cust_name address">
                                             {{SimilarCOU.ModelName}}<br />
                                             {!$Label.Label_Last} {!$Label.Label_Mileage}: {{SimilarCOU.Mileage}} {!$Label.Label_Mileage_Measure} <br />
@@ -3584,7 +3986,8 @@
                                         ng-show="CustomerModal.IsEditMode == false">
 
                                         <div class="lable_fields">
-                                            <span class="form_lable_icons text"> 100 </span>
+                                            <!-- <span class="form_lable_icons text"> 100 </span> -->
+                                            <span class="form_lable_icons text" style="background: none;"> </span>
                                             <p>{!$Label.Customer_Owned_Unit_Object_Display_Label}</p>
                                         </div>
                                         <div class="form_fields">
@@ -3594,165 +3997,196 @@
                                                 <label for="exampleInputEmail1">{!$Label.Label_VIN}</label> <input
                                                     type="text" class="form-control" ng-model="unit.VIN"
                                                     id="vinId{{$index}}" placeholder="{!$Label.Label_VIN}"
-                                                    ng-focus="CustomerModal.OnFocus($index==0 ? 'customerUnitMainVin' : 'CustomerUnitOptional'+$index)"
+                                                    ng-focus="CustomerModal.OnFocus('CustomerUnitOptionalVIN'+$index)"
                                                     ng-blur="CustomerModal.OnBlurVin(unit.VIN); CustomerModal.ValidateCou($index,'VIN');"
                                                     rel="{{$index==0 ? 'customerUnitMainVin' : 'CustomerUnitOptional'+$index}}"
                                                     ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 37}}"
                                                     ng-class="{'redborder' : CustomerModal.CustomerValidationCOU[$index]['VIN'].isError == true}"
-                                                    data-toggle="tooltip"
                                                     title="{{CustomerModal.CustomerValidationCOU[$index]['VIN'].ErrorMessage}}" />
-
-
-                                            </div>
-                                            <div class="controls1 controls"
-                                                id="{{$index==0 ? 'customerUnitMainVin' : 'CustomerUnitOptional'+$index}}">
-                                                <i class="fa fa-question-circle" ng-if="$index == 0"
-                                                    data-toggle="tooltip"
-                                                    title="Add Vehicle Identification Number of the Unit"></i>
-                                                <i class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveSectionField($index,'CustomerUnitModelVin', 'vinId')"></i>
-                                            </div>
-
-                                            <div class="form-group half">
-                                                <label for="exampleInputEmail1">{!$Label.Label_Year}</label> <select
-                                                    class="form-control" placeholder="Year"
-                                                    ng-focus="CustomerModal.OnFocus($index==0 ? 'customerUnitMainyearMake' : 'CustomerUnitOptional'+$index)"
-                                                    ng-blur="CustomerModal.OnBlur($index==0 ? 'customerUnitMainyearMake' : 'CustomerUnitOptional'+$index)"
-                                                    id="customerUnitYearMakeId"
-                                                    ng-model="CustomerModal.UnitYearSelected[$index]"
-                                                    ng-change="CustomerModal.changeUnitYear($index)"
-                                                    rel="{{$index==0 ? 'customerUnitMainyearMake' : 'CustomerUnitOptional'+$index}}"
-                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 37}}"
-                                                    ng-options="i as i.modelyear for i in CustomerModal.ModelYears track by i.modelyear">
-
-
-                                                </select>
-
-                                            </div>
-
-
-                                            <div class="form-group half">
-                                                <label for="exampleInputEmail1">{!$Label.Make_Object_Display_Label}</label> <select
-                                                    class="form-control"
-                                                    ng-model="CustomerModal.UnitMakeSelected[$index]"
-                                                    ng-focus="CustomerModal.OnFocus($index==0 ? 'customerUnitMainyearMake' : 'CustomerUnitOptional'+$index)"
-                                                    ng-blur="CustomerModal.OnBlur($index==0 ? 'customerUnitMainyearMake' : 'CustomerUnitOptional'+$index);
-                                                            CustomerModal.ValidateCou($index,'Make');"
-                                                    rel="{{$index==0 ? 'customerUnitMainyearMake' : 'CustomerUnitOptional'+$index}}"
-                                                    ng-options="make as make.UnitMakeName for make in CustomerModal.UnitMake track by make.Id"
-                                                    ng-change="CustomerModal.changeUnitMake($index)"
-                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 39}}"
-                                                    ng-class="{'redborder' : CustomerModal.CustomerValidationCOU[$index]['Make'].isError == true}"
-                                                    data-toggle="tooltip"
-                                                    title="{{CustomerModal.CustomerValidationCOU[$index]['Make'].ErrorMessage}}" >
-                                                    <option selected="selected">{!$Label.Label_Select}</option>
-
-                                                </select>
-
-                                            </div>
-                                            <div class="controls1 controls" id="customerUnitMainyearMake">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Select Year and Make of the Unit"
-                                                    ng-if="$index == 0"></i> <i class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveSectionField($index,'CustomerUnitYearMake', 'customerUnitYearMakeId')"></i>
-                                            </div>
-                                            <div class="form-group half">
-                                                <label for="exampleInputEmail1">{!$Label.Model_Object_Display_Label}</label> <select
-                                                    class="form-control"
-                                                    ng-model="CustomerModal.UnitModelSelected[$index]"
-                                                    ng-focus="CustomerModal.OnFocus($index==0 ? 'customerUnitMainModel' : 'CustomerUnitOptional'+$index)"
-                                                    id="customerUnitModelId"
-                                                    ng-blur="CustomerModal.OnBlur($index==0 ? 'customerUnitMainModel' : 'CustomerUnitOptional'+$index);
-                                                            CustomerModal.ValidateCou($index,'Model');"
-                                                    rel="{{$index==0 ? 'customerUnitMainModel' : 'CustomerUnitOptional'+$index}}"
-                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 40}}"
-                                                    ng-options="model as model.UnitModelName for model in CustomerModal.UnitModel[$index] track by model.Id"
-                                                    ng-change="CustomerModal.changeUnitmodel($index)"
-                                                    ng-class="{'redborder' : CustomerModal.CustomerValidationCOU[$index]['Model'].isError == true}"
-                                                    data-toggle="tooltip"
-                                                    title="{{CustomerModal.CustomerValidationCOU[$index]['Model'].ErrorMessage}}" >
-
-                                                </select>
-
-
-                                            </div>
-                                            <div class="form-group half">
-                                                <label for="exampleInputEmail1">{!$Label.Sub_Model_Object_Display_Label}</label> <input
-                                                    type="text" class="form-control" ng-disabled="true"
-                                                    ng-model="CustomerModal.UnitModelSelected[$index].SubModelName"
-                                                    id="exampleInputEmail1" placeholder="{!$Label.Sub_Model_Object_Display_Label}"
-                                                    ng-focus="CustomerModal.OnFocus($index==0 ? 'customerUnitMainModel' : 'CustomerUnitOptional'+$index)"
-                                                    ng-blur="CustomerModal.OnBlur($index==0 ? 'customerUnitMainModel' : 'CustomerUnitOptional'+$index)"
-                                                    rel="{{$index==0 ? 'customerUnitMainModel' : 'CustomerUnitOptional'+$index}}"
-                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 41}}" />
-
-
-
-
-
-
-                                            </div>
-                                            <div class="controls1 controls" ng-if="$index == 0"
-                                                id="customerUnitMainModel">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Select Model and Sub-Model of the Unit"></i> <i
-                                                    class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveSectionField($index,'CustomerUnitModelSubModel', 'customerUnitModelId')"></i>
-                                            </div>
-                                            <div class="form-group large">
-                                                <label for="exampleInputEmail1">{!$Label.Label_License} {!$Label.Label_Plate}</label> <input
-                                                    type="text" class="form-control" ng-model="unit.Plate"
-                                                    id="plateId" placeholder="{!$Label.Label_License} {!$Label.Label_Plate}"
-                                                    ng-focus="CustomerModal.OnFocus($index==0 ? 'customerUnitMainLisense' : 'CustomerUnitOptional'+$index)"
-                                                    ng-blur="CustomerModal.OnBlur($index==0 ? 'customerUnitMainLisense' : 'CustomerUnitOptional'+$index)"
-                                                    rel="{{$index==0 ? 'customerUnitMainLisense' : 'CustomerUnitOptional'+$index}}"
-                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 42}}" />
-
-                                            </div>
-                                            <div class="controls1 controls" ng-if="$index == 0"
-                                                id="customerUnitMainLisense">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Add License PLate Number of the Unit"></i> <i
-                                                    class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveSectionField($index,'CustomerUnitLicensePlate', 'plateId')"></i>
-                                            </div>
-                                            <div class="form-group large">
-                                                <label for="exampleInputEmail1">{!$Label.Label_Mileage}</label> <input
-                                                    type="text" class="form-control" ng-model="unit.Mileage"
-                                                    id="mileageId" placeholder="{!$Label.Label_Mileage}"
-                                                    ng-focus="CustomerModal.OnFocus($index==0 ? 'customerUnitMainMilage' : 'CustomerUnitOptional'+$index)"
-                                                    ng-blur="CustomerModal.ValidateCou($index,'Mileage'); CustomerModal.OnBlur($index==0 ? 'customerUnitMainMilage' : 'CustomerUnitOptional'+$index);"
-                                                    rel="{{$index==0 ? 'customerUnitMainMilage' : 'CustomerUnitOptional'+$index}}"
-                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 43}}"
-                                                    ng-class="{'redborder' : CustomerModal.CustomerValidationCOU[$index]['Mileage'].isError == true}"
-                                                    data-toggle="tooltip"
-                                                    title="{{CustomerModal.CustomerValidationCOU[$index]['Mileage'].ErrorMessage}}" />
-
-                                            </div>
-                                            <div class="controls1 controls" ng-if="$index == 0"
-                                                id="customerUnitMainMilage">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Add Mileage of the Unit"></i> <i class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveSectionField($index,'CustomerUnitMilage', 'mileageId')"></i>
-                                            </div>
-                                            <div class="form-group large">
-                                                <label for="exampleInputEmail1">{!$Label.Label_Color}</label> <input
-                                                    type="text" class="form-control" ng-model="unit.Color"
-                                                    id="colorId" placeholder="{!$Label.Label_Color}"
-                                                    ng-focus="CustomerModal.OnFocus($index==0 ? 'customerUnitMainColor' : 'CustomerUnitOptional'+$index)"
-                                                    ng-blur="CustomerModal.OnBlur($index==0 ? 'customerUnitMainColor' : 'CustomerUnitOptional'+$index)"
-                                                    rel="{{$index==0 ? 'customerUnitMainColor' : 'CustomerUnitOptional'+$index}}"
-                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 44}}" />
-
-                                            </div>
-                                            <div class="controls1 controls" ng-if="$index == 0"
-                                                id="customerUnitMainColor">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Add Color of the Unit" ng-if="$index == 0"></i> <i
-                                                    class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveSectionField($index,'customerUnitColor', 'colorId')"></i>
                                             </div>
                                         </div>
+                                        <div class="controls MT25"
+                                            id="{{'CustomerUnitOptionalVIN'+$index}}">
+                                            <i class="fa fa-question-circle" 
+                                                data-toggle="tooltip"
+                                                title="Add Vehicle Identification Number of the Unit"></i>
+                                            <i class="fa fa-times"
+                                                ng-click="CustomerModal.ClearAndRemoveSectionField($index,'CustomerUnitModelVin', 'vinId')"></i>
+                                        </div>
+                                         <div class="option_field">
+											<div class="lable_fields">
+												
+												<p></p>
+											</div>
+	                                        <div class="form_fields">
+	
+	                                            <div class="form-group half">
+	                                                <label for="exampleInputEmail1">{!$Label.Label_Year}</label> <select
+	                                                    class="form-control" placeholder="Year"
+	                                                    ng-focus="CustomerModal.OnFocus('CustomerUnitOptionalYearMake'+$index)"
+	                                                    ng-blur="CustomerModal.OnBlur('CustomerUnitOptionalYearMake'+$index)"
+	                                                    id="customerUnitYearMakeId"
+	                                                    ng-model="CustomerModal.UnitYearSelected[$index]"
+	                                                    ng-change="CustomerModal.changeUnitYear($index)"
+	                                                    rel="{{$index==0 ? 'customerUnitMainyearMake' : 'CustomerUnitOptional'+$index}}"
+	                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 37}}"
+	                                                    ng-options="i as i.modelyear for i in CustomerModal.ModelYears track by i.modelyear">
+	
+	
+	                                                </select>
+	
+	                                            </div>
+	
+	
+	                                            <div class="form-group half">
+	                                                <label for="exampleInputEmail1">{!$Label.Make_Object_Display_Label}</label> <select
+	                                                    class="form-control"
+	                                                    ng-model="CustomerModal.UnitMakeSelected[$index]"
+	                                                    ng-focus="CustomerModal.OnFocus('CustomerUnitOptionalYearMake'+$index)"
+	                                                    ng-blur="CustomerModal.OnBlur('CustomerUnitOptionalYearMake'+$index);
+	                                                            CustomerModal.ValidateCou($index,'Make');"
+	                                                    rel="{{$index==0 ? 'customerUnitMainyearMake' : 'CustomerUnitOptional'+$index}}"
+	                                                    ng-options="make as make.UnitMakeName for make in CustomerModal.UnitMake track by make.Id"
+	                                                    ng-change="CustomerModal.changeUnitMake($index)"
+	                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 39}}"
+	                                                    ng-class="{'redborder' : CustomerModal.CustomerValidationCOU[$index]['Make'].isError == true}"
+	                                                    title="{{CustomerModal.CustomerValidationCOU[$index]['Make'].ErrorMessage}}" >
+	                                                    <option selected="selected">{!$Label.Label_Select}</option>
+	
+	                                                </select>
+	
+	                                            </div>
+	                                        </div>
+	                                        <div class="controls MT25" 
+	                                        	id="{{'CustomerUnitOptionalYearMake'+$index}}">
+	                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+	                                                title="Select Year and Make of the Unit"></i> 
+                                                <i class="fa fa-times" ng-if="$index == 0"
+	                                                ng-click="CustomerModal.ClearAndRemoveSectionField($index,'CustomerUnitYearMake', 'customerUnitYearMakeId')"></i>
+	                                        </div>
+	                                    </div>
+	                                     <div class="option_field">
+											<div class="lable_fields">
+												
+												<p></p>
+											</div>
+	                                        <div class="form_fields">
+	                                            <div class="form-group half">
+	                                                <label for="exampleInputEmail1">{!$Label.Model_Object_Display_Label}</label> <select
+	                                                    class="form-control"
+	                                                    ng-model="CustomerModal.UnitModelSelected[$index]"
+	                                                    ng-focus="CustomerModal.OnFocus('CustomerUnitOptionalModelSubModel'+$index)"
+	                                                    id="customerUnitModelId"
+	                                                    ng-blur="CustomerModal.OnBlur('CustomerUnitOptionalModelSubModel'+$index);
+	                                                            CustomerModal.ValidateCou($index,'Model');"
+	                                                    rel="{{$index==0 ? 'customerUnitMainModel' : 'CustomerUnitOptional'+$index}}"
+	                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 40}}"
+	                                                    ng-options="model as model.UnitModelName for model in CustomerModal.UnitModel[$index] track by model.Id"
+	                                                    ng-change="CustomerModal.changeUnitmodel($index)"
+	                                                    ng-class="{'redborder' : CustomerModal.CustomerValidationCOU[$index]['Model'].isError == true}"
+	                                                    title="{{CustomerModal.CustomerValidationCOU[$index]['Model'].ErrorMessage}}" >
+	
+	                                                </select>
+	
+	
+	                                            </div>
+	                                            <div class="form-group half">
+	                                                <label for="exampleInputEmail1">{!$Label.Sub_Model_Object_Display_Label}</label> <input
+	                                                    type="text" class="form-control" ng-disabled="true"
+	                                                    ng-model="CustomerModal.UnitModelSelected[$index].SubModelName"
+	                                                    id="exampleInputEmail1" placeholder="{!$Label.Sub_Model_Object_Display_Label}"
+	                                                    ng-focus="CustomerModal.OnFocus('CustomerUnitOptionalModelSubModel'+$index)"
+	                                                    ng-blur="CustomerModal.OnBlur('CustomerUnitOptionalModelSubModel'+$index)"
+	                                                    rel="{{$index==0 ? 'customerUnitMainModel' : 'CustomerUnitOptional'+$index}}"
+	                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 41}}" />
+	
+	                                            </div>
+	                                        </div>
+	                                        <div class="controls MT25" 
+	                                            id="{{'CustomerUnitOptionalModelSubModel'+$index}}">
+	                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+	                                                title="Select Model and Sub-Model of the Unit"></i> 
+                                                <i class="fa fa-times" ng-if="$index == 0"
+	                                                ng-click="CustomerModal.ClearAndRemoveSectionField($index,'CustomerUnitModelSubModel', 'customerUnitModelId')"></i>
+	                                        </div>
+	                                    </div>
+	                                     <div class="option_field">
+											<div class="lable_fields">
+												
+												<p></p>
+											</div>
+	                                        <div class="form_fields">
+	                                            <div class="form-group large">
+	                                                <label for="exampleInputEmail1">{!$Label.Label_License} {!$Label.Label_Plate}</label> <input
+	                                                    type="text" class="form-control" ng-model="unit.Plate"
+	                                                    id="plateId" placeholder="{!$Label.Label_License} {!$Label.Label_Plate}"
+	                                                    ng-focus="CustomerModal.OnFocus('CustomerUnitOptionalLicense'+$index)"
+	                                                    ng-blur="CustomerModal.OnBlur('CustomerUnitOptionalLicense'+$index)"
+	                                                    rel="{{$index==0 ? 'customerUnitMainLisense' : 'CustomerUnitOptional'+$index}}"
+	                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 42}}" />
+	
+	                                            </div>
+	                                        </div>
+	                                        <div class="controls MT25" 
+	                                            id="{{'CustomerUnitOptionalLicense'+$index}}">
+	                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+	                                                title="Add License PLate Number of the Unit"></i> 
+                                                <i class="fa fa-times" ng-if="$index == 0"
+	                                                ng-click="CustomerModal.ClearAndRemoveSectionField($index,'CustomerUnitLicensePlate', 'plateId')"></i>
+	                                        </div>
+	                                    </div>
+	                                     <div class="option_field">
+											<div class="lable_fields">
+												
+												<p></p>
+											</div>
+	                                        <div class="form_fields">
+	                                            <div class="form-group large">
+	                                                <label for="exampleInputEmail1">{!$Label.Label_Mileage}</label> <input
+	                                                    type="text" class="form-control" ng-model="unit.Mileage"
+	                                                    id="mileageId" placeholder="{!$Label.Label_Mileage}"
+	                                                    ng-focus="CustomerModal.OnFocus('CustomerUnitOptionalMilage'+$index)"
+	                                                    ng-blur="CustomerModal.ValidateCou($index,'Mileage'); CustomerModal.OnBlur('CustomerUnitOptionalMilage'+$index);"
+	                                                    rel="{{$index==0 ? 'customerUnitMainMilage' : 'CustomerUnitOptional'+$index}}"
+	                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 43}}"
+	                                                    ng-class="{'redborder' : CustomerModal.CustomerValidationCOU[$index]['Mileage'].isError == true}"
+	                                                    title="{{CustomerModal.CustomerValidationCOU[$index]['Mileage'].ErrorMessage}}" />
+	
+	                                            </div>
+	                                        </div>
+	                                        <div class="controls MT25" 
+	                                            id="{{'CustomerUnitOptionalMilage'+$index}}">
+	                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+	                                                title="Add Mileage of the Unit"></i> 
+                                                <i class="fa fa-times" ng-if="$index == 0"
+	                                                ng-click="CustomerModal.ClearAndRemoveSectionField($index,'CustomerUnitMilage', 'mileageId')"></i>
+	                                        </div>
+	                                    </div>
+	                                     <div class="option_field">
+											<div class="lable_fields">
+												
+												<p></p>
+											</div>
+	                                        <div class="form_fields">
+	                                            <div class="form-group large">
+	                                                <label for="exampleInputEmail1">{!$Label.Label_Color}</label> <input
+	                                                    type="text" class="form-control" ng-model="unit.Color"
+	                                                    id="colorId" placeholder="{!$Label.Label_Color}"
+	                                                    ng-focus="CustomerModal.OnFocus('CustomerUnitOptionalColor'+$index)"
+	                                                    ng-blur="CustomerModal.OnBlur('CustomerUnitOptionalColor'+$index)"
+	                                                    rel="{{$index==0 ? 'customerUnitMainColor' : 'CustomerUnitOptional'+$index}}"
+	                                                    ng-attr-tabindex="{{($index * 8) + CustomerModal.tabIndexValue + 44}}" />
+	
+	                                            </div>
+	                                        </div>
+	                                        <div class="controls MT25" 
+	                                            id="{{'CustomerUnitOptionalColor'+$index}}">
+	                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+	                                                title="Add Color of the Unit"></i> <i
+	                                                class="fa fa-times" ng-if="$index == 0"
+	                                                ng-click="CustomerModal.ClearAndRemoveSectionField($index,'customerUnitColor', 'colorId')"></i>
+	                                        </div>
+	                                    </div>
                                     </div>
 
                                     <div class="clearfix"></div>
@@ -3760,6 +4194,7 @@
                                         ng-show="CustomerModal.AdditionalFieldsInfo.PriceLevel.isPrimary">
 
                                         <div class="lable_fields">
+                                        	<span class="form_lable_icons text" style="background: none;">  </span><!-- added by richa -->
                                             <p>{!$Label.Label_Price_Level}</p>
 
 
@@ -3777,12 +4212,6 @@
                                                 </select>
                                             </div>
 
-                                            <div class="controls" id="PriceLevelIcon">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Add {!$Label.Label_Price_Level} of the Customer"></i> <i
-                                                    class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveField('PriceLevel')"></i>
-                                            </div>
 
 
 
@@ -3790,10 +4219,30 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+                                            
+                                        </div>
+
+                                        <div class="controls" id="PriceLevelIcon">
+                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+                                                title="Add {!$Label.Label_Price_Level} of the Customer"></i> <i
+                                                class="fa fa-times"
+                                                ng-click="CustomerModal.ClearAndRemoveField('PriceLevel')"></i>
                                         </div>
                                     </div>
 
 
+									<!--
                                     <div class="clearfix"></div>
                                     <div class="option_field"
                                         ng-show="CustomerModal.AdditionalFieldsInfo.TaxLevel.isPrimary">
@@ -3813,15 +4262,25 @@
 
                                                 </select>
                                             </div>
-
-                                            <div class="controls" id="TaxLevelIcon">
-                                                <i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    title="Add {!$Label.Label_Tax_Level} for the Customer"></i> <i
-                                                    class="fa fa-times"
-                                                    ng-click="CustomerModal.ClearAndRemoveField('TaxLevel')"></i>
-                                            </div>
+                                            
                                         </div>
-                                    </div>
+
+                                        <div class="controls" id="TaxLevelIcon">
+                                            <i class="fa fa-question-circle" data-toggle="tooltip"
+                                                title="Add {!$Label.Label_Tax_Level} for the Customer"></i> <i
+
+                                                class="fa fa-times"
+                                                ng-click="CustomerModal.ClearAndRemoveField('TaxLevel')"></i>
+
+
+
+
+
+
+
+                                        </div>
+                                    </div> -->
+
 
 
 
@@ -3916,7 +4375,8 @@
             // This replace if conditional.
         }); 
         /*$("#sameAsBA").click(function(){
-                alert($(this).hasClass("chked"));
+
+
                 if($(this).hasClass("chked") == true){
                     $(this).removeClass("chked");
                     $("#billingaddress").removeClass("hideit");
@@ -3929,7 +4389,9 @@
                     $("#topsection").height($("#topsection").height() - 252);
                 }
         })*/
-        
+
+          
+
         $('.controls').hide();  
         $(".form-control").focus(function(){
             $('.controls').hide();  

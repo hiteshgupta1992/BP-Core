@@ -199,12 +199,14 @@
             
              // Load document click bindings
             $(document).on('click', function (event) {
+            
                 {!uniqueId}unitMake_DocOnClikcBindings(event);
             });
             
             $("#{!uniqueId}unitMake_Add_Button", {!uniqueId}unitMakeGrid.element).on("click", function (event) {
                 {!uniqueId}unitMakeGridAddButtonClickEvent();
                 event.stopPropagation();
+                event.preventDefault();
             });
             
             // Remove detail row "DELETE" button click handler
@@ -289,7 +291,6 @@
         var {!uniqueId}FilterKeys = [];
         
         var categoryPickListValues = decodeString('{!CategoryPicklistValues}');
-        categoryPickListValues = JSON.parse(categoryPickListValues);
         
         /**
          * Name: initUnitMakesTabPanel
@@ -334,7 +335,7 @@
                         var find = '\'';
                         var re = new RegExp(find, 'g');
                         unitMake = unitMake.replace(re,'');
-                        //console.log('More  ' + unitMake);
+                        debug('More  ' + unitMake);
                         unitMake = JSON.parse(unitMake);
                         if(unitMake.length < 21) {
                             $("#{!uniqueId}MoreLink").addClass("linkDisable");
@@ -342,7 +343,7 @@
                         if(unitMake.length > 0) {
                             $("#{!uniqueId}FewerLink").removeClass("linkDisable");
                         }
-                        //console.log('outside pushing for ' + {!uniqueId}unitMakeGrid.dataSource.view().length);
+                        debug('outside pushing for ' + {!uniqueId}unitMakeGrid.dataSource.view().length);
                         
                         var sorts = {!uniqueId}unitMakeGrid.dataSource.sort();
                         {!uniqueId}unitMakeGrid.dataSource.filter({});
@@ -350,7 +351,7 @@
 
                         for(var i = 0; i < 20 ; i++){
                             if(unitMake[i] != null) {
-                                //console.log('Inside pushing for ' + {!uniqueId}unitMakeGrid.dataSource.view().length);
+                                debug('Inside pushing for ' + {!uniqueId}unitMakeGrid.dataSource.view().length);
                                 {!uniqueId}unitMakeGrid.dataSource.view().push(unitMake[i]);
                             }
                         }
@@ -417,7 +418,7 @@
             var unitMakeGridDataSource = new kendo.data.DataSource({
                 transport: {
                     read: function (options) {
-                        
+                        console.log(options);
                         // make AJAX request to the remote service
                         Visualforce.remoting.Manager.invokeAction( '{!$RemoteAction.BlackPurlContentCtrl.getJSONForUnitMakes}',
                                                                     +dropDownNumber , 20, isInactiveIncluded, encodeString({!uniqueId}FilterJsonData),
@@ -429,7 +430,7 @@
                                     var find = '\'';
                                     var re = new RegExp(find, 'g');
                                     unitMake = unitMake.replace(re,'');
-                                    //console.log(unitMake);
+                                    debug(unitMake);
                                     unitMake = JSON.parse(unitMake);
                                     if(unitMake.length==0) {
                                         {!uniqueId}showPopupNotification('No records found ','info');
@@ -449,6 +450,7 @@
                         );
                     },
                     create:function(e) {
+                   		e.success(e.data);
                         return false;
                     },
                     update:function(e) {
@@ -574,7 +576,8 @@
                     mode: "inline",
                     confirmation: false,
                     update: false
-                }
+                } 
+               
             });
             
             // Called to bind auto-complete to filter
@@ -619,7 +622,7 @@
             $(element).parent().closest("div").find("button[type='submit']").on('click',function() {                            
                 var keyValue = $('#'+ elementId).val();
                 {!uniqueId}setFilterKeys(columnName,'startswith', keyValue);
-                //console.log({!uniqueId}FilterJsonData);
+                debug({!uniqueId}FilterJsonData);
                 {!uniqueId}BindGridData();
             });
 
@@ -734,6 +737,7 @@
         
         // Method: click bindings for document click
         function {!uniqueId}unitMake_DocOnClikcBindings(event){
+        	
             var isSuccessfullySaved = {!uniqueId}validateAndSaveRow();
         }
         
@@ -751,7 +755,7 @@
                                 var re = new RegExp(find, 'g');
 
                                 dataArray = dataArray.replace(re,'');
-                                //console.log(dataArray);
+                                debug(dataArray);
                                 dataArray = JSON.parse(dataArray);
                                 
                                 $("#{!uniqueId}grid").data("kendoGrid").dataSource.data(dataArray);
@@ -823,35 +827,47 @@
         
         function {!uniqueId}unitMakeGridAddButtonClickEvent(){
             if({!uniqueId}unitMakeGrid.tbody.children().hasClass("k-grid-edit-row")) {
+            	debug('44444444');
                 {!uniqueId}validateAndSaveRow();
             } else {
                 {!uniqueId}unitMakeGrid.dataSource.filter({});
-                {!uniqueId}addNewDataRow(null);
+                debug('55555555');
+                {!uniqueId}addNewDataRow();
+                //{!uniqueId}validateAndSaveRow();
             }
         }
         
         function {!uniqueId}addNewDataRow(){
+        	debug("addNewDataRow....")
             var dataSource = {!uniqueId}unitMakeGrid.dataSource;
+            var Data =  dataSource.data();
+            
             var total = dataSource.data().length;
             if(total > 0) {
-                {!uniqueId}unitMakeGrid.dataSource.sort(null);
-            }
-           
-            dataSource.insert(total, {
-                "Unit_Make_Id": "",
-                "Unit_Make_Name" : "" ,
-                "Unit_Make_VIN_Code" : "",
-                "Unit_Make_Active" : true
-            });
-            dataSource.page(dataSource.totalPages());
+            	debug("addNewDataRow total....")
+                //{!uniqueId}unitMakeGrid.dataSource.sort(null);
+            }   
             
+          	var newvalue ={ "Unit_Make_Id": "",
+	                	"Unit_Make_Name" : "" ,
+	                	"Unit_Make_VIN_Code" : "",
+	                	"Unit_Make_Active" : true
+	                }   
+	       
+	       dataSource.add(newvalue)
+             
+            debug({!uniqueId}unitMakeGrid.tbody.children().last())
             var newRowToAdd = {!uniqueId}unitMakeGrid.tbody.children().last();
-            
+           
             {!uniqueId}unitMakeGrid.editRow(newRowToAdd);
-            
-            {!uniqueId}toggleUnitMakeToolbarButtons(this, true);
-            {!uniqueId}toggleSelectedRowClass(newRowToAdd);
-            
+            //debug(dataSource.data().dirty=true);
+           		
+           {!uniqueId}toggleUnitMakeToolbarButtons(this, true);
+            debug(dataSource.data().length);
+            if( dataSource.data().length > 1){ 
+            	{!uniqueId}toggleSelectedRowClass(newRowToAdd);
+            }
+          	debug(dataSource.data());
         }
         
         // Validate and Save row
@@ -1019,7 +1035,7 @@
             }
             
             unitMakeIdToTabIndexMap[selectedRowData.Unit_Make_Id] = unitMakesGridTabPanel.tabGroup[0].children.length;
-            openUnitModelTab(selectedRowData.Unit_Make_Id, escapeHTML(selectedRowData.Unit_Make_Name));
+            openUnitModelTab(selectedRowData.Unit_Make_Id, selectedRowData.Unit_Make_Name);
             
         }
         
@@ -1081,14 +1097,12 @@
                        if (event.type == 'exception') {
                            {!uniqueId}showPopupNotification(event.message, "error");
                        } else {
-                       		//console.log('hitesh 10');
                            var unitModel = decodeString(result);
                            var find = '\'';
                            var re = new RegExp(find, 'g');
                            unitModel = unitModel.replace(re,'');
-                           //console.log(unitModel);
+                           debug(unitModel);
                            unitModel = JSON.parse(unitModel);
-                       	   //console.log('hitesh 11');
                            callback(unitModel);
                            if(unitModel.length==0) {
                                {!uniqueId}showPopupNotification('No records found ','info');
@@ -1111,7 +1125,7 @@
                         var find = '\'';
                         var re = new RegExp(find, 'g');
                         unitModel = unitModel.replace(re,'');
-                        //console.log('More  ' + unitModel);
+                        debug('More  ' + unitModel);
                         unitModel = JSON.parse(unitModel);
                         incresedUnitModelCallback(unitModel);
                     }
@@ -1174,8 +1188,8 @@
         
         // Refresh the grid:
         function {!uniqueId}refreshGrid(){
-            {!uniqueId}unitMakeGrid.dataSource.read();
             {!uniqueId}unitMakeGrid.refresh();
+            {!uniqueId}unitMakeGrid.dataSource.read();
             {!uniqueId}toggleUnitMakeToolbarButtons(this, false);
         }
         

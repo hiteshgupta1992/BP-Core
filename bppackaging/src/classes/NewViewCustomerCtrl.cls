@@ -6,7 +6,7 @@
 **/
 global with sharing class NewViewCustomerCtrl {
 
-
+ 
     
     public Decimal Related_List_Page_Size { get{return GeneralConfiguration.getRelatedListPageSize();} private set;}
     public boolean Load_New_UI {get{return GeneralConfiguration.isLoadNewUI();} private set;}
@@ -18,7 +18,7 @@ global with sharing class NewViewCustomerCtrl {
      * @param: (1) customerId - String - Id of Customer 
      * @return: String - JSON string of Customer info. 
     **/
-    @RemoteAction
+    @RemoteAction 
     global static String getCustomerInfo(String customerId, String COUPageSortAttrsJSON, String ActiveOrdersPageSortAttrsJSON, String customersPageSortAttrsJSON, String contactsPageSortAttrsJSON) {
         customerId = BPUtility.getDecodedString(customerId);
         COUPageSortAttrsJSON = BPUtility.getDecodedString(COUPageSortAttrsJSON);
@@ -35,6 +35,7 @@ global with sharing class NewViewCustomerCtrl {
         Integer TotalCOURecords;
         Integer TotalActiveSalesOrderRecords;
         Integer TotalContactRecords;
+        Integer TotalTaxExemptionRecord;
         
         List<Account> customers = SOQLUtil.getCustomer(customerId, 'Customer');
         
@@ -55,14 +56,21 @@ global with sharing class NewViewCustomerCtrl {
         TotalContactRecords = customerContactList.size();
         customerContactList = TaxExemption.getPaginatedRecords(customerContactList, contactsPageSortAttrs.CurrentPage, contactsPageSortAttrs.PageSize);
         
-        String JSONString = '{}';
+        List<Tax_Exemption__c> taxExemptionList = SOQLUtil.getTaxExemptionList(customerId, new Map<String, String>());
+        TotalTaxExemptionRecord = taxExemptionList.size();
+        
+        List<Business_Profile__c> businessProfileList = SOQLUtil.getBusinessProfileData(new List<Id>());
+        
+        String JSONString = '{}'; 
         CustomerDetail customerDetailRec;
         if(customers.size() > 0) {
-            customerDetailRec = new CustomerDetail(customers[0], relatedCustomerRecList, accountIdToRelationMap, COUList, ActiveSalesOrdersList, customerContactList, getLastVisitOrderByCustomerId(customerId));
+            customerDetailRec = new CustomerDetail(customers[0], relatedCustomerRecList, accountIdToRelationMap, COUList, ActiveSalesOrdersList, 
+            						customerContactList, getLastVisitOrderByCustomerId(customerId), taxExemptionList, businessProfileList);
             customerDetailRec.TotalCustomerRecords = TotalCustomerRecords;
             customerDetailRec.TotalCOURecords = TotalCOURecords;
             customerDetailRec.TotalActiveSalesOrderRecords = TotalActiveSalesOrderRecords;
             customerDetailRec.TotalContactRecords = TotalContactRecords;
+            customerDetailRec.TotalTaxExemptionRecords = TotalTaxExemptionRecord;
             
             JSONString = System.JSON.serialize(customerDetailRec);
         }
@@ -266,6 +274,9 @@ global with sharing class NewViewCustomerCtrl {
         for(People__c peopleRec : childRelatedCustomerList) {
             if(peopleRec.Relationship__c == 'Employee') {
                 peopleRec.Relationship__c = 'Employer';
+                
+            } else if(peopleRec.Relationship__c == 'Employer') {
+                peopleRec.Relationship__c = 'Employee';
             } 
             accountIdToRelationMap.put(peopleRec.Parent_Customer1__c, peopleRec.Relationship__c);
         }
@@ -285,17 +296,16 @@ global with sharing class NewViewCustomerCtrl {
         
         List<RelatedCustomer> relatedCustomerObjList = RelatedCustomer.parse(relatedCustomerString);
         List<Account> relatedCustomerListToUpsert = new List<Account>();
-        List<People__c> peopleRecToInsert = new List<People__c>(); 
-        if(relatedCustomerObjList.size() > 0) {
-        	RelatedCustomer relatedCustomerObj = relatedCustomerObjList[0];  
-        	Account relatedCustomerRec = new Account();
+        List<People__c> peopleRecToInsert = new List<People__c>();
+        for(RelatedCustomer relatedCustomerObj : relatedCustomerObjList) {
+            Account relatedCustomerRec = new Account();
             relatedCustomerRec.Id = relatedCustomerObj.Id;
             if(AccessControl.ifObjectFieldIsAccessible('People__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
             List<People__c> peopleList = [select Id from People__c Where (Parent_Customer1__c = :relatedCustomerObj.ParentCustomer AND Parent_Customer2__c = :relatedCustomerObj.Id) OR 
-                                                                         (Parent_Customer2__c = :relatedCustomerObj.ParentCustomer AND Parent_Customer1__c = :relatedCustomerObj.Id)]; 
+                                                                        (Parent_Customer2__c = :relatedCustomerObj.ParentCustomer AND Parent_Customer1__c = :relatedCustomerObj.Id)]; 
             if(relatedCustomerObj.Relation != null && relatedCustomerObj.Relation != '') {
                 People__c peopleRec = new People__c();
-                if(peopleList.size() > 0) { 
+                if(peopleList.size() > 0) {
                     peopleRec.Id = peopleList[0].Id;
                 }
                 peopleRec.Parent_Customer1__c = relatedCustomerObj.ParentCustomer;
@@ -495,7 +505,6 @@ global with sharing class NewViewCustomerCtrl {
         customerId = BPUtility.getDecodedString(customerId);
         recordId = BPUtility.getDecodedString(recordId);
         contactsPageSortAttrsJSON = BPUtility.getDecodedString(contactsPageSortAttrsJSON);
-        
         List<Sobject> sobjectListToDel = SOQLUtil.getReocrdByGivenId(recordId);
         if(sobjectListToDel.size() > 0) {
             if(AccessControl.ifObjectIsDeletable(sobjectListToDel[0]) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
@@ -523,6 +532,117 @@ global with sharing class NewViewCustomerCtrl {
         }
         return getCOUListByCustomerId(BPUtility.getEncodedString(customerId), BPUtility.getEncodedString(COUPageSortAttrsJSON));
     }
+    
+    /**
+     * Name: getAllActiveSalesTax
+     * Desc: get all active sales tax list used for tax exemption edit box
+     * @param: (1) customerId - String - Id of Customer 
+     * @return: String - JSON string of Sales Tax. 
+    **/
+    @RemoteAction
+    global static String getAllActiveSalesTax(String customerId) {
+    	customerId = BPUtility.getDecodedString(customerId);
+    	
+        List<Sales_Tax_Item__c> salesTaxItemList = SOQLUtil.getAllSalesTaxItemWithExemptions(customerId, new Map<String, String>());
+        List<TaxExemptions> taxExemptionsList = new List<TaxExemptions>();  
+        Map<Id, List<String>> salesTaxItemIdToAppliesToList = getAppliesToList(salesTaxItemList);
+        
+        for(Sales_Tax_Item__c salesTaxItemRec : salesTaxItemList) {
+        	taxExemptionsList.add(new TaxExemptions(salesTaxItemRec, salesTaxItemIdToAppliesToList.get(salesTaxItemRec.Id)));
+        }
+        return BPUtility.getEncodedString(system.JSON.serialize(taxExemptionsList));
+    } 
+    
+    public static Map<Id, List<String>> getAppliesToList(List<Sales_Tax_Item__c> salesTaxItemList) {
+    	Set<Id> salesTaxItemIdSet = new Set<Id>();
+     	for(Sales_Tax_Item__c salesTaxItemRec : salesTaxItemList) {
+    		salesTaxItemIdSet.add(salesTaxItemRec.Id);
+    	}
+    	
+    	if(salesTaxItemIdSet.size() == 0) {
+    		return new Map<Id, List<String>>();
+    	}
+    	if(AccessControl.ifObjectFieldIsAccessible('Applicable_Taxes__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	Map<Id, List<String>> salesTaxItemIdToAppliesToList = new Map<Id, List<String>>(); 
+    	List<Applicable_Taxes__c> appTaxList = [select Sales_Tax_Item__c, Sales_Tax__c, Sales_Tax__r.Name__c from Applicable_Taxes__c
+    												where Sales_Tax_Item__c IN: salesTaxItemIdSet];
+    	
+    	for(Applicable_Taxes__c appTaxRec : appTaxList) {
+    		if(appTaxRec.Sales_Tax__c != null) {
+	    		List<String> appliesToList;
+	    		if(!salesTaxItemIdToAppliesToList.containsKey(appTaxRec.Sales_Tax_Item__c)) {
+	    			salesTaxItemIdToAppliesToList.put(appTaxRec.Sales_Tax_Item__c, new List<String>());
+	    		}
+    			salesTaxItemIdToAppliesToList.get(appTaxRec.Sales_Tax_Item__c).add(appTaxRec.Sales_Tax__r.Name__c);
+	    	}
+    	}
+    	return salesTaxItemIdToAppliesToList;
+    } 
+    
+    /**
+     * Name: saveTaxExeptionList
+     * Desc: save tax exemption records
+     * @param: (1) customerId - String - Id of Customer 
+     * @return: String - JSON string of Sales Tax. 
+    **/
+    @RemoteAction
+    global static String saveTaxExeptionList(String customerId, String taxExemptionJSONString, String taxExemptionPageSortAttrsJSON) {
+    	customerId = BPUtility.getDecodedString(customerId);
+    	taxExemptionJSONString = BPUtility.getDecodedString(taxExemptionJSONString);
+    	taxExemptionPageSortAttrsJSON = BPUtility.getDecodedString(taxExemptionPageSortAttrsJSON);
+    	
+        List<Tax_Exemption__c> taxExemptionListToInsert = new List<Tax_Exemption__c>();
+        List<Tax_Exemption__c> taxExemptionListToDelete = new List<Tax_Exemption__c>();
+        
+        if(AccessControl.ifObjectFieldIsCreateable('Tax_Exemption__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
+        
+        PaginationSorting taxExemptionPageSortAttrs = parsePageAttrs(taxExemptionPageSortAttrsJSON);
+        
+        List<TaxExemptions> taxExemptionObjList = (List<TaxExemptions>) System.JSON.deserialize(taxExemptionJSONString, List<TaxExemptions>.class);
+        for(TaxExemptions taxExemptionObj : taxExemptionObjList) {
+        	Tax_Exemption__c taxExemptionRec = new Tax_Exemption__c();
+        	if(taxExemptionObj.IsSelected && taxExemptionObj.TaxExemptionId == null) {
+   				taxExemptionRec.Customer__c = customerId;
+   				taxExemptionRec.Sales_Tax_Item__c = taxExemptionObj.SalesTaxItemId;
+   				taxExemptionListToInsert.add(taxExemptionRec);
+        	} else if(!taxExemptionObj.IsSelected && taxExemptionObj.TaxExemptionId != null){
+        		taxExemptionRec.Id = taxExemptionObj.TaxExemptionId;
+        		taxExemptionListToDelete.add(taxExemptionRec);
+        	}
+        }
+        
+        if(taxExemptionListToInsert.size() > 0) {
+        	insert taxExemptionListToInsert;
+        }
+        
+        if(taxExemptionListToDelete.size() > 0) {
+        	if(AccessControl.ifObjectIsDeletable('Tax_Exemption__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
+        	delete taxExemptionListToDelete;
+        }
+        
+        // Get all JSON List
+        List<Tax_Exemption__c> taxExemptionList = SOQLUtil.getTaxExemptionList(customerId, new Map<String, String>());
+        Integer TotalTaxExemptionRecords = taxExemptionList.size(); 
+        taxExemptionList = TaxExemption.getPaginatedRecords(taxExemptionList, taxExemptionPageSortAttrs.CurrentPage, taxExemptionPageSortAttrs.PageSize);
+        taxExemptionObjList = new List<TaxExemptions>();
+        Map<Id, List<String>> salesTaxItemIdToAppliesToList = CustomerDetail.getAppliesToList(taxExemptionList);
+        for(Tax_Exemption__c taxExemptionRec : taxExemptionList) {
+    		taxExemptionObjList.add(new TaxExemptions(taxExemptionRec, salesTaxItemIdToAppliesToList.get(taxExemptionRec.Sales_Tax_Item__c)));
+    	}
+        return BPUtility.getEncodedString(system.JSON.serialize(new TaxExemptionJSONWrapper(TotalTaxExemptionRecords, taxExemptionObjList)));
+    }
+    
+    
+    public class TaxExemptionJSONWrapper {
+        public Integer TotalTaxExemptionRecords;
+        public List<TaxExemptions> TaxExemptionList;
+        
+        public TaxExemptionJSONWrapper(Integer TotalTaxExemptionRecords, List<TaxExemptions> TaxExemptionList){
+            this.TotalTaxExemptionRecords = TotalTaxExemptionRecords;
+            this.TaxExemptionList = TaxExemptionList;
+        }
+    }
+    
     
     /**
      * Name: parsePageAttrs

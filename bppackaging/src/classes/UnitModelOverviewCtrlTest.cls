@@ -32,7 +32,7 @@ private class UnitModelOverviewCtrlTest {
         
        // System.assertEquals(true, categoryNameString.length() > 0);
         
-        List<Customer_Page_Size__c> customerPageSizeList = [select User__c, Drop_Down_Number__c from Customer_Page_Size__c limit 100];
+        List<Customer_Page_Size__c> customerPageSizeList = [select User__c, Drop_Down_Number__c from Customer_Page_Size__c ];
         System.assertEquals(null, customerPageSizeList[0].Drop_Down_Number__c);
         Test.stopTest();
         
@@ -41,7 +41,7 @@ private class UnitModelOverviewCtrlTest {
         
         uMOCtrl.setCustomerCustomSetting();
        
-        customerPageSizeList = [select User__c, Drop_Down_Number__c from Customer_Page_Size__c limit 100];
+        customerPageSizeList = [select User__c, Drop_Down_Number__c from Customer_Page_Size__c ];
         System.assertEquals(20, customerPageSizeList[1].Drop_Down_Number__c);
     }
 }

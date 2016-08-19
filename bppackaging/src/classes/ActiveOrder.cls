@@ -123,6 +123,23 @@ global with sharing class ActiveOrder {
         return activeOrderfieldsList;
     }
     
+     /** Added by Ankit
+     * Name: fieldsList
+     * Desc: Method Which contains all the field list to be quried
+     * @param:  
+     * @return: List<String> - Fields List
+    **/
+    public static List<String> getActiveOrderfieldsListNew(){
+        List<String> activeOrderfieldsList = new List<String>{	'Id',
+			                                                   	'(Select Need__c, Unreceived_Qty__c, Part__r.Last_Cost__c, Received_Qty__c, Cost__c from Vendor_Order_Line_Item_Groups__r where Part__c = : partId)',
+			                                                   	'Vendor__c',
+			                                                   	'Status__c',
+			                                                   	'Name',
+			                                                   	'Expected_Date__c'
+			                                               	};
+        return activeOrderfieldsList;
+    }
+    
     /**
      * Name: getAllActiveOrdersForPart
      * Desc: Get all related Active Orders for a part record
@@ -134,7 +151,7 @@ global with sharing class ActiveOrder {
 		
 		Map<String, String> sortFieldMap = new Map<String, String>();
     	if(pageSortAttrs.sorting != null && pageSortAttrs.sorting[0].sortDirection.length() != 0){
-    		sortFieldMap.put('Vendor_Order_Header__r.Name', pageSortAttrs.sorting[0].sortDirection);
+    		sortFieldMap.put('Name', pageSortAttrs.sorting[0].sortDirection);
     	}
 		
 		List<ActiveOrder> activeOrders = new List<ActiveOrder>();
@@ -144,7 +161,7 @@ global with sharing class ActiveOrder {
 			vohIdSet.add(vog.Vendor_Order_Header__c);
 		}
 		
-		List<Vendor_Order_Header__c> activeOrdersList = TaxExemption.getPaginatedRecords(SOQLUtil.getPartActiveOrdersForPart(vohIdSet, sortFieldMap),
+		List<Vendor_Order_Header__c> activeOrdersList = TaxExemption.getPaginatedRecords(SOQLUtil.getPartActiveOrdersForPart(vohIdSet, sortFieldMap,partId),
 																							pageSortAttrs.activeOrdersCurrentPage, 
 							    															pageSortAttrs.activeOrdersPageSize 
 																						);
@@ -171,7 +188,7 @@ global with sharing class ActiveOrder {
 		
 		Map<String, String> sortFieldMap = new Map<String, String>();
     	if(pageSortAttrs.sorting != null && pageSortAttrs.sorting[0].sortDirection.length() != 0){
-    		sortFieldMap.put('Vendor_Order_Header__r.Name', pageSortAttrs.sorting[0].sortDirection);
+    		sortFieldMap.put('Name', pageSortAttrs.sorting[0].sortDirection);
     	}
 		
 		List<ActiveOrder> activeOrders = new List<ActiveOrder>();

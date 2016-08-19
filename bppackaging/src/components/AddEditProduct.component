@@ -1,6 +1,6 @@
 <apex:component controller="ViewVendorRelatedListCtrl">
 	<!-- Include Styles for component here -->
-	<c:AddEditParts_Styles UID="AddNewProduct" />
+	<c:AddEditPartsStyles UID="AddNewProduct" />
 
 	<!-- Include required directives -->
 	<!-- Directive for price fields -->
@@ -58,7 +58,8 @@
 				                SubletCategory : [
 				                    {
 				                        Field : "Type__c",
-				                        Value : "Sublet"
+				                        Value : "Sublet",
+                       					FilterObject :"Category__c"
 				                    }
 				                ]
 				            };

@@ -31,7 +31,7 @@ public with sharing class COInvoicePayment {
     public COInvoicePayment(CO_Invoice_Payment__c  coInvoicePaymentRec) { 
         this.COInvoiceHeaderId = coInvoicePaymentRec.CO_Invoice_Header__c;
         this.COInvoicePaymentId = coInvoicePaymentRec.Id;
-        this.Amount = coInvoicePaymentRec.Amount__c;
+        this.Amount = (coInvoicePaymentRec.Amount__c != null) ? coInvoicePaymentRec.Amount__c.setScale(2) : 0.00;
         this.COInvoicePaymentNumber = coInvoicePaymentRec.Name;
         this.ReverseLink = coInvoicePaymentRec.Reverse_Link__c;
         this.PaymentMethod = coInvoicePaymentRec.Payment_Method__c;

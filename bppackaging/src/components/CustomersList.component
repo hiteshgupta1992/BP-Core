@@ -811,8 +811,6 @@
         	customerIdG = customerId;
         	if(IsselectedTabModified){
 	        	var actionConfirmMsg = "There are some changes not saved in the form. Do you want to continue?";
-	            
-	            actionConfirmMsg = escapeHTML(actionConfirmMsg);
 	            confirmActionCustomized("Confirm Action", actionConfirmMsg, removeSelectedTabCallBack, "{!JSENCODE($Label.Tab_Leave_Confirm_box_Yes_text)}", "{!JSENCODE($Label.Tab_Leave_Confirm_box_No_text)}");
 	        }else{
 	        	removeSelectedTabCallBack(true);

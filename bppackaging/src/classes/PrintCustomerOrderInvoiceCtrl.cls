@@ -62,12 +62,13 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
         coHeaderId = BPUtility.getDecodedString(coHeaderId);
     	List<CO_Line_Item__c> coLineItems = SOQLUtil.getCOLineItemByCOHeaderId(coHeaderId);
         List<CO_Kit_Header__c> coKitHeaders = SOQLUtil.getCOKHByCOHeaderId(coHeaderId);
+        List<CO_Header__c> coHeadersList = getCustomerOrderDetails(coHeaderId);
         List<COHeaderWrapper.COKitHeader> COKHList = COHeaderWrapper.getCOLineItemsList(coLineItems, coKitHeaders);
         if(coLineItems == null) {
             coLineItems = new List<CO_Line_Item__c>();
         }
         
-        Decimal total = 0;
+        Decimal subtotal = 0;
         Decimal salesTax = 0;
         Decimal priceOverrides = 0;
         
@@ -75,9 +76,10 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
         Decimal total_Laobur = 0;
         Decimal total_Sublet = 0;
         Decimal total_Fee = 0;
-        
-        Decimal australianMarketTaxRate = (Australian_Market__c.getInstance().get('Sales_Tax_Rate__c') != null) ? 
-                                                Decimal.valueOf(String.valueOf(Australian_Market__c.getInstance().get('Sales_Tax_Rate__c'))) : 0;
+        Map<String, Decimal> salesTaxNameToTaxValue = new Map<String, Decimal>();            
+            //Decimal australianMarketTaxRate = (Australian_Market__c.getInstance().get(Constants.NAMESPACE + 'Sales_Tax_Rate__c') != null) ? 
+                                                //Decimal.valueOf(String.valueOf(Australian_Market__c.getInstance().get(Constants.NAMESPACE + 'Sales_Tax_Rate__c'))) : 0;
+        Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
         
         for(CO_Line_Item__c coLineItemRec : coLineItems) {
             coLineItemRec.Qty__c = (coLineItemRec.Qty__c == null) ? 0 : coLineItemRec.Qty__c;
@@ -85,27 +87,61 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
             coLineItemRec.Retail__c = (coLineItemRec.Retail__c == null) ? 0 : coLineItemRec.Retail__c;
             coLineItemRec.Tax__c = (coLineItemRec.Tax__c == null) ? 0 : coLineItemRec.Tax__c;
             
-            if(isAustralianMarket) {
-                total += coLineItemRec.Qty__c * coLineItemRec.Price__c;
-                salesTax += coLineItemRec.Qty__c * (coLineItemRec.Price__c - (coLineItemRec.Price__c / (1 + australianMarketTaxRate)));
-                priceOverrides += coLineItemRec.Qty__c * (coLineItemRec.Retail__c - coLineItemRec.Price__c);
-            } else {
-                total += coLineItemRec.Qty__c * coLineItemRec.Price__c;
+            for(Individual_Tax__c individualTaxRec : coLineItemRec.Individual_Taxes__r) {
+            	Decimal taxValue;
+            	if(salesTaxNameToTaxValue.containsKey(individualTaxRec.Sales_Tax_Item_Name__c)) {
+            		taxValue = salesTaxNameToTaxValue.get(individualTaxRec.Sales_Tax_Item_Name__c);
+            	} else {
+            		taxValue = 0;
+            	}
+            	taxValue += (individualTaxRec.Tax_Rate__c * coLineItemRec.Qty__c * coLineItemRec.Price__c) / 100;
+            	salesTaxNameToTaxValue.put(individualTaxRec.Sales_Tax_Item_Name__c, taxValue);
+            }
+            
+            if(coLineItemRec.Kit_Price_With_Price_Level__c == null  ){
+                coLineItemRec.Kit_Price_With_Price_Level__c = coLineItemRec.Price__c;
+            }
+            if(coLineItemRec.CO_Kit_Header__c != null ){
+                priceOverrides += coLineItemRec.Qty__c * (coLineItemRec.Price__c - coLineItemRec.Kit_Price_With_Price_Level__c);
+            }else If(coLineItemRec.CO_Kit_Header__c == null ){
+                priceOverrides += coLineItemRec.Qty__c * (coLineItemRec.Price__c - coLineItemRec.Actual_Kit_Price__c);
+            }
+            
+            if(!isTaxIncludingPricing) {
+                if(coLineItemRec.Part__c != null) {
+                    total_Part += coLineItemRec.Qty__c * coLineItemRec.Price__c;
+                }
+                if(coLineItemRec.Fee__c != null) {
+                    total_Fee += coLineItemRec.Qty__c * coLineItemRec.Price__c;
+                }
+                subtotal += coLineItemRec.Qty__c * coLineItemRec.Price__c;
                 salesTax += (coLineItemRec.Qty__c * coLineItemRec.Price__c * coLineItemRec.Tax__c) / 100;
-                priceOverrides += coLineItemRec.Qty__c * (coLineItemRec.Retail__c - coLineItemRec.Price__c);
-            }
-            if(coLineItemRec.Part__c != null) {
-                total_Part += coLineItemRec.Qty__c * coLineItemRec.Price__c;
-            }
-            if(coLineItemRec.Fee__c != null) {
-                total_Fee += coLineItemRec.Qty__c * coLineItemRec.Price__c;
+            } else {
+            	if(coLineItemRec.Price__c == null) {
+            		coLineItemRec.Price__c = 0;
+            	}
+            	if(coLineItemRec.Tax__c == null) {
+            		coLineItemRec.Tax__c = 0;
+            	}
+            	if(coLineItemRec.Part__c != null) {
+                    total_Part += (coLineItemRec.Qty__c * coLineItemRec.Price__c) + 
+                    			((coLineItemRec.Qty__c * coLineItemRec.Price__c * coLineItemRec.Tax__c) / 100);
+                }
+                if(coLineItemRec.Fee__c != null) {
+                    total_Fee += (coLineItemRec.Qty__c * coLineItemRec.Price__c) + 
+                    			((coLineItemRec.Qty__c * coLineItemRec.Price__c * coLineItemRec.Tax__c) / 100);
+                }
+                subtotal += coLineItemRec.Sub_Total_With_Tax__c;
             }
         }
-        
+        List<CustomerMerchandies> cusRec =  new  List<CustomerMerchandies>();
+        for(CO_Header__c coHeaderRec : coHeadersList ){
+        	cusRec.add(new CustomerMerchandies(coHeaderRec) );
+        }
         
         COMerchandiseDetail COMerchandiseDetailObj;
         if(coLineItems.size() > 0) {
-            COMerchandiseDetailObj = new COMerchandiseDetail(COKHList, total, salesTax, priceOverrides, total_Part, total_Laobur, total_Sublet, total_Fee);
+            COMerchandiseDetailObj = new COMerchandiseDetail(COKHList, subtotal, salesTax, priceOverrides, total_Part, total_Laobur, total_Sublet, total_Fee, salesTaxNameToTaxValue, cusRec);
         }
         System.debug(COMerchandiseDetailObj);
         return BPUtility.getEncodedString(System.JSON.serialize(COMerchandiseDetailObj));
@@ -121,13 +157,14 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
         public List<TransactionDetail> Transactions;
         public List<MerchandiseDetail> Merchandises;
         public List<ServiceDetail> Services;
+        public Boolean IsTaxIncludingPricing;
         
         public CustomerOrderInvoiceDetail(CO_Invoice_Header__c coInvoiceHeader,
                                     List<CO_Header__c> coHeadersList, 
                                     List<Service_Order_Header__c> soHeadersList
                                 ) {
             this.COInvoice = new COInvoiceDetail(coInvoiceHeader);
-            
+            this.IsTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
             this.Transactions = new List<TransactionDetail>();
             if(coHeadersList != null) {
                 for(CO_Header__c coHeader : coHeadersList) {
@@ -147,7 +184,9 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
             if(coHeadersList != null) {
                 for(CO_Header__c coHeader : coHeadersList) {
                     if(coHeader.CO_Line_Items__r.size() > 0) {
-                        this.Merchandises.add(new MerchandiseDetail(COInvoice, coHeader));
+                    	for(CO_Line_Item__c coliRec : coHeader.CO_Line_Items__r) {
+                    		this.Merchandises.add(new MerchandiseDetail(COInvoice, coliRec));
+                    	}
                     }
                 }
             }
@@ -158,6 +197,7 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
                     this.Services.add(new ServiceDetail(COInvoice, soHeader));
                 }
             }
+            
             coInvoice.Total = coInvoice.SubTotal + coInvoice.SalesTax;
         }
     }
@@ -258,6 +298,24 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
         }
     }
     
+     public static List<CO_Header__c> getCustomerOrderDetails(Id CoheaderId) {
+     	 List<CO_Header__c> coHeaderRec = [SELECT Id, 
+                                                        Name,
+                                                        Status__c,
+                                                        CreatedDate,
+                                                        CreatedBy.Name,
+                                                       	Customer__c,
+                                                        Customer__r.Name,
+                                                       	Customer__r.BillingStreet,
+                                                        Customer__r.BillingCity,
+                                                        Customer__r.BillingState,
+                                                        Customer__r.BillingPostalCode,
+                                                        Customer__r.BillingCountry
+                                                        from CO_Header__c WHERE Id =: CoheaderId
+                                       ];
+     	return coHeaderRec;
+     }
+    
     /**
      * Name: MerchandiseDetail
      * Description: Wrapper class
@@ -270,34 +328,60 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
         public decimal Price;
         public decimal Total;
         
-        public MerchandiseDetail(COInvoiceDetail coInvoice, CO_Header__c coHeader) {
-            if(coHeader != null && coHeader.CO_Line_Items__r != null) {
-                for(CO_Line_Item__c coli : coHeader.CO_Line_Items__r) {
-                    if(coli.Fee__c != null) {
-                        // Fee
-                        Type    = PrintCustomerOrderInvoiceCtrl.merchandiseNameToType.get('Fee');
-                        coInvoice.TotalFees += coli.Sub_Total_Without_Tax__c;
-                    } else if(coli.Part__c != null) {
-                        // Part
-                        Type    = PrintCustomerOrderInvoiceCtrl.merchandiseNameToType.get('Part');
-                        coInvoice.TotalParts += coli.Sub_Total_Without_Tax__c;
-                    } else {
-                        // Labour
-                        Type    = PrintCustomerOrderInvoiceCtrl.merchandiseNameToType.get('Labour');
-                        coInvoice.TotalLabour += coli.Sub_Total_Without_Tax__c;
-                    }
-                    
-                    ItemDesc    = coli.Item_ID__c;
-                    Qty         = coli.Qty__c;
-                    Price       = coli.Price__c;
-                    Total       = coli.Sub_Total_Without_Tax__c;
-                    
-                    // Calculations for Invoice
-                    coInvoice.SalesTax += coli.Tax_Amount__c;
-                    coInvoice.SubTotal += this.Total;
-                    coInvoice.MerchandiseTotal += this.Total;
+        public MerchandiseDetail(COInvoiceDetail coInvoice, CO_Line_Item__c coli) {
+        	ItemDesc    = coli.Item_ID__c;
+            Qty         = coli.Qty__c;
+            Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
+            if(coli.Tax__c == null) {
+        		coli.Tax__c = 0;
+        	}
+        	if(coli.Price__c == null) {
+        		coli.Price__c = 0;
+        	}
+            	
+            if(coli.Fee__c != null) {
+                // Fee
+                Type    = PrintCustomerOrderInvoiceCtrl.merchandiseNameToType.get('Fee');
+                if(!isTaxIncludingPricing) {
+                	coInvoice.TotalFees += coli.Sub_Total_Without_Tax__c;
+                } else {
+                	Decimal taxAmount = (coli.Price__c * coli.Tax__c / 100);
+            		coInvoice.TotalFees += (coli.Price__c + taxAmount).setScale(2);
+                }
+            } else if(coli.Part__c != null) {
+                // Part
+                Type    = PrintCustomerOrderInvoiceCtrl.merchandiseNameToType.get('Part');
+                if(!isTaxIncludingPricing) {
+                	coInvoice.TotalParts += coli.Sub_Total_Without_Tax__c;
+                } else {
+                	Decimal taxAmount = (coli.Price__c * coli.Tax__c / 100);
+            		coInvoice.TotalParts += (coli.Price__c + taxAmount).setScale(2);
+                }
+            } else {
+                // Labour
+                Type    = PrintCustomerOrderInvoiceCtrl.merchandiseNameToType.get('Labour');
+                if(!isTaxIncludingPricing) {
+                	coInvoice.TotalLabour += coli.Sub_Total_Without_Tax__c;
+                } else {
+                	Decimal taxAmount = (coli.Price__c * coli.Tax__c / 100);
+            		coInvoice.TotalLabour += (coli.Price__c + taxAmount).setScale(2);
                 }
             }
+            
+            if(isTaxIncludingPricing) {
+            	Decimal taxAmount = (coli.Price__c * coli.Tax__c / 100);
+            	Price = (coli.Price__c + taxAmount).setScale(2);
+            	Total = Price * Qty;
+            } else {
+            	Price = coli.Price__c;
+            	Total = coli.Sub_Total_Without_Tax__c;
+            }
+            
+            
+            // Calculations for Invoice
+            coInvoice.SalesTax += coli.Tax_Amount__c;
+            coInvoice.SubTotal += this.Total;
+            coInvoice.MerchandiseTotal += this.Total;
         }
     }
     
@@ -333,13 +417,19 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
                               + ' ' + soHeader.Customer_Owned_Unit__r.Unit_Make__r.Name
                               + ' ' + soHeader.Customer_Owned_Unit__r.Unit_Model__r.Name__c;
             }
-            
+            Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
             // Service Line Items
             ServiceItems = new List<ServiceItemsDetail>();
             if(soHeader != null && soHeader.Service_Order_Line_Items__r != null) {
                 for(Service_Order_Line_Item__c soli : soHeader.Service_Order_Line_Items__r) {
                     ServiceItems.add(new ServiceItemsDetail(coInvoice, soli));
-                    Total += soli.Total__c; // + soli.Tax_Amount__c;
+                    if(isTaxIncludingPricing) {
+		            	Decimal taxAmount = (soli.Kit_Price__c * soli.Tax_Percent__c / 100);
+		            	decimal Price = (soli.Kit_Price__c + taxAmount).setScale(2);
+		            	this.Total += Price * soli.Qty_Needed__c;
+		            } else {
+		            	this.Total += soli.Kit_Price__c * soli.Qty_Needed__c;
+		            }
                 }
             }
         }
@@ -358,27 +448,52 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
         public decimal Total;
         
         public ServiceItemsDetail(COInvoiceDetail coInvoice, Service_Order_Line_Item__c soli) {
+        	Qty         = soli.Qty_Needed__c;
+        	Boolean isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
+        	if(soli.Tax_Percent__c == null) {
+        		soli.Tax_Percent__c = 0;
+        	}
             if(soli.Fee__c != null) {
                 // Fee
                 Type    = PrintCustomerOrderInvoiceCtrl.merchandiseNameToType.get('Fee');
-                coInvoice.TotalFees += soli.Total__c;
+                if(!isTaxIncludingPricing) {
+                	coInvoice.TotalFees += soli.Kit_Price__c;
+                } else {
+                	Decimal taxAmount = (soli.Kit_Price__c * soli.Tax_Percent__c / 100);
+            		coInvoice.TotalFees += (soli.Kit_Price__c + taxAmount).setScale(2);
+                }
             } else if(soli.Part__c != null) {
                 // Part
                 Type    = PrintCustomerOrderInvoiceCtrl.merchandiseNameToType.get('Part');
-                coInvoice.TotalParts += soli.Total__c;
+            	if(!isTaxIncludingPricing) {
+                	coInvoice.TotalParts += soli.Kit_Price__c;
+                } else {
+                	Decimal taxAmount = (soli.Kit_Price__c * soli.Tax_Percent__c / 100);
+            		coInvoice.TotalParts += (soli.Kit_Price__c + taxAmount).setScale(2);
+                }
             } else {
                 // Labour
                 Type    = PrintCustomerOrderInvoiceCtrl.merchandiseNameToType.get('Labour');
-                coInvoice.TotalLabour += soli.Total__c;
+                if(!isTaxIncludingPricing) {
+                	coInvoice.TotalLabour += soli.Kit_Price__c;
+                } else {
+                	Decimal taxAmount = (soli.Kit_Price__c * soli.Tax_Percent__c / 100);
+            		coInvoice.TotalLabour += (soli.Kit_Price__c + taxAmount).setScale(2);
+                }
             }
             
             ItemDesc    = soli.Item_Desc__c;
-            Qty         = soli.Qty_Needed__c;
-            Price       = soli.Kit_Price__c;
-            Total       = soli.Total__c;
+            if(isTaxIncludingPricing) {
+            	Decimal taxAmount = (soli.Kit_Price__c * soli.Tax_Percent__c / 100);
+            	Price = (soli.Kit_Price__c + taxAmount).setScale(2);
+            	Total = Price * Qty;
+            } else {
+            	Price = soli.Kit_Price__c;
+            	Total = soli.Kit_Price__c * Qty;
+            }
             
             // Calculations for Invoice
-            coInvoice.SalesTax += soli.Tax_Amount__c;
+            coInvoice.SalesTax += (soli.Kit_Price__c * soli.Tax_Percent__c / 100);
             coInvoice.SubTotal += this.Total;
         }
     }
@@ -439,6 +554,7 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
                                             Part__c, Fee__c, 
                                             Qty__c, Price__c, 
                                             Sub_Total_Without_Tax__c, 
+                                            Tax__c,
                                             Tax_Amount__c 
                                             FROM CO_Line_Items__r 
                                             WHERE Price__c != 0 
@@ -457,6 +573,7 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
         List<Service_Order_Header__c> soHeadersList;
          if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
           if(AccessControl.ifObjectFieldIsAccessible('Service_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+          if(AccessControl.ifObjectFieldIsAccessible('Customer_Owned_Unit__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(coIdsList != null && coIdsList.size() > 0) {
             soHeadersList = [SELECT Id, 
                                     Name__c,
@@ -479,6 +596,7 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
                                             Qty_Needed__c, 
                                             Total__c, 
                                             Fee__c, 
+                                            Tax_Percent__c,
                                             Tax_Amount__c 
                                             FROM Service_Order_Line_Items__r
                                     )
@@ -502,15 +620,44 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
         
         public GridTotal gridTotal {get; set;}
         
-        public COMerchandiseDetail(List<COHeaderWrapper.COKitHeader> COKHList, Decimal total, Decimal salesTax, Decimal priceOverrides, 
-                                            Decimal total_Part, Decimal total_Laobur, Decimal total_Sublet, Decimal total_Fee){
+        public List<CustomerMerchandies> custmerMercRec = new  List<CustomerMerchandies>();
+        
+        public COMerchandiseDetail(List<COHeaderWrapper.COKitHeader> COKHList, Decimal subtotal, Decimal salesTax, Decimal priceOverrides, 
+                                            Decimal total_Part, Decimal total_Laobur, Decimal total_Sublet, Decimal total_Fee,
+                                            Map<String, Decimal> salesTaxNameToTaxValue, List<CustomerMerchandies> custmerMercRec){
             this.COKHList = COKHList;
-            this.gridTotal = new GridTotal(total, salesTax, priceOverrides, total_Part, total_Laobur, total_Sublet, total_Fee);
+            this.gridTotal = new GridTotal(subtotal, salesTax, priceOverrides, total_Part, total_Laobur, total_Sublet, total_Fee, salesTaxNameToTaxValue);
+            this.custmerMercRec =  custmerMercRec; 
         }
     }
     
+    public class CustomerMerchandies {
+        public String StoreCityProv;
+        public String StorePostal;
+        public String StoreBusinessNumber;
+        public String StoreWebsite;
+        
+        public String CustomerName;
+        public String CustomerAddress;
+        public String CustomerAddress2;
+        public String CustomerCityProv;
+        public String CustomerPostal;
+        
+       	public CustomerMerchandies(CO_Header__c coHeaderRec) {
+         	if(coHeaderRec != null) {
+                CustomerName        = coHeaderRec.Customer__r.Name;
+                CustomerAddress     = coHeaderRec.Customer__r.BillingStreet;
+                CustomerAddress2    = coHeaderRec.Customer__r.BillingCountry;
+                CustomerCityProv    = coHeaderRec.Customer__r.BillingCity;
+                CustomerCityProv    = (CustomerCityProv != null && CustomerCityProv != '') ? (CustomerCityProv + '/' + coHeaderRec.Customer__r.BillingState) : coHeaderRec.Customer__r.BillingState;
+                CustomerPostal      = coHeaderRec.Customer__r.BillingPostalCode;
+                
+            }
+        }
+        
+    }
     public class GridTotal {
-        public Decimal Total;
+        public Decimal SubTotal;
         public Decimal SalesTax;
         public Decimal PriceOverrides;
         
@@ -518,10 +665,11 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
         public Decimal Total_Laobur;
         public Decimal Total_Sublet;
         public Decimal Total_Fee;
+        public List<IndividualTax> SalesTaxList;
         
-        public GridTotal(Decimal total, Decimal salesTax, Decimal priceOverride, 
-                          Decimal total_Part, Decimal total_Laobur, Decimal total_Sublet, Decimal total_Other) {
-            this.Total = total.setScale(2);
+        public GridTotal(Decimal subtotal, Decimal salesTax, Decimal priceOverride, 
+                          Decimal total_Part, Decimal total_Laobur, Decimal total_Sublet, Decimal total_Other,Map<String, Decimal> salesTaxNameToTaxValue){
+            this.SubTotal = Subtotal.setScale(2);		                           
             this.SalesTax = salesTax.setScale(2);
             this.PriceOverrides = priceOverride.setScale(2);
             
@@ -529,6 +677,19 @@ global with sharing class PrintCustomerOrderInvoiceCtrl {
             this.Total_Laobur = total_Laobur.setScale(2);
             this.Total_Sublet = total_Sublet.setScale(2);
             this.Total_Fee = total_Other.setScale(2);
+            this.SalesTaxList = new List<IndividualTax>();
+    		for(String taxName : salesTaxNameToTaxValue.keySet()) {
+    			this.SalesTaxList.add(new IndividualTax(taxName, salesTaxNameToTaxValue.get(taxName)));	
+    		}
         }
+    }
+    public class IndividualTax {
+    	public String TaxName;
+    	public Decimal TaxValue;
+    	
+    	public IndividualTax(String taxName, Decimal taxValue) {
+    		this.TaxName = taxName;
+    		this.TaxValue = (taxValue != null) ? taxValue.setScale(2) : 0;
+    	}
     }
 }

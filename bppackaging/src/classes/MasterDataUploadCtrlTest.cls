@@ -4,9 +4,6 @@ private class MasterDataUploadCtrlTest {
     @testSetup
     private static void setupTestData() {
         TestUtil.createNameSpaceInGeneralConfig();
-        
-		List<General_Configurations__c> config = [SELECT Id FROM General_Configurations__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
-		System.assertNotEquals(0, config.size());
     }
     
     static testMethod void testGetTemplateUrl(){
@@ -28,7 +25,7 @@ private class MasterDataUploadCtrlTest {
         String templateJSON = JSON.serialize(categoryList);
         
         MasterDataUploadCtrl.insertCSVRecord(BPUtility.getEncodedString(templateJSON),BPUtility.getEncodedString('Category Template'));
-        List<Category__c> insertedCategoryList = [select id from Category__c Limit 100];
+        List<Category__c> insertedCategoryList = [select id from Category__c];
         System.assertEquals(insertedCategoryList.size(), 1);
     }
     
@@ -45,7 +42,7 @@ private class MasterDataUploadCtrlTest {
         String templateJSON = JSON.serialize(priceLevelList);
         
         MasterDataUploadCtrl.insertCSVRecord(BPUtility.getEncodedString(templateJSON),BPUtility.getEncodedString('Price Level Template'));
-        List<Price_Level__c> insertedPriceLevelList = [select id from Price_Level__c Limit 100];
+        List<Price_Level__c> insertedPriceLevelList = [select id from Price_Level__c];
         System.assertEquals(insertedPriceLevelList.size(), 1);
     }
     
@@ -64,7 +61,7 @@ private class MasterDataUploadCtrlTest {
         String templateJSON = JSON.serialize(unitMakeList);
         
         MasterDataUploadCtrl.insertCSVRecord(BPUtility.getEncodedString(templateJSON),BPUtility.getEncodedString('Make Model Template'));
-        List<Unit_Make__c> insertedUnitMakeList = [select id from Unit_Make__c Limit 100];
+        List<Unit_Make__c> insertedUnitMakeList = [select id from Unit_Make__c];
         System.assertEquals(insertedUnitMakeList.size(), 1);
     }
     
@@ -81,7 +78,7 @@ private class MasterDataUploadCtrlTest {
         String templateJSON = JSON.serialize(salesTaxList);
         
         MasterDataUploadCtrl.insertCSVRecord(BPUtility.getEncodedString(templateJSON),BPUtility.getEncodedString('Sales Tax Template'));
-        List<Sales_Tax__c> insertedsalesTaxList = [select id from Sales_Tax__c Limit 100];
+        List<Sales_Tax__c> insertedsalesTaxList = [select id from Sales_Tax__c];
         System.assertEquals(insertedsalesTaxList.size(), 1);
     }
     
@@ -102,7 +99,7 @@ private class MasterDataUploadCtrlTest {
         String templateJSON = JSON.serialize(salesTaxItemList);
         
         MasterDataUploadCtrl.insertCSVRecord(BPUtility.getEncodedString(templateJSON),BPUtility.getEncodedString('Sales Tax Item Template'));
-        List<Sales_Tax_Item__c> insertedSalesTaxItemList = [select id from Sales_Tax_Item__c Limit 100];
+        List<Sales_Tax_Item__c> insertedSalesTaxItemList = [select id from Sales_Tax_Item__c];
         System.assertEquals(insertedSalesTaxItemList.size(), 1);
     }
     
@@ -120,7 +117,7 @@ private class MasterDataUploadCtrlTest {
         String templateJSON = JSON.serialize(countryList);
         
         MasterDataUploadCtrl.insertCSVRecord(BPUtility.getEncodedString(templateJSON),BPUtility.getEncodedString('Country State Template'));
-        List<Country__c> insertedCountryList = [select id from Country__c Limit 100];
+        List<Country__c> insertedCountryList = [select id from Country__c];
         System.assertEquals(insertedCountryList.size(), 1);
     }
 }

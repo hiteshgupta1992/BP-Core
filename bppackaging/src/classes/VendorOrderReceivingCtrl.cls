@@ -38,6 +38,7 @@ global with sharing class VendorOrderReceivingCtrl {
 	    	vrHeader.Status__c = 'In Progress';
 	    	
 	    	try{
+            	if(AccessControl.ifObjectIsCreateable('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
 	    		if(AccessControl.ifObjectIsUpdateable('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
 	    		upsert vrHeader;
 	    		
@@ -158,7 +159,7 @@ global with sharing class VendorOrderReceivingCtrl {
 			inProgressVRRec.Vendor_Receiving_Header__c = vorId;
 			
 			try{
-				if(AccessControl.ifObjectIsCreateable('In_Progress_VR__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
+				if(AccessControl.ifObjectIsCreateable('In_Progress_VR__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);} 
 	    		insert inProgressVRRec;
 	    	} catch(Exception e){
 	    		return BPUtility.getEncodedString('false');
@@ -261,9 +262,9 @@ global with sharing class VendorOrderReceivingCtrl {
     		vendorOrdersPageSortAttrsJSON = BPUtility.getDecodedString(vendorOrdersPageSortAttrsJSON);
     		groupItemsPageSortAttrsJSON = BPUtility.getDecodedString(groupItemsPageSortAttrsJSON);
     		outstandingVOGPageSortAttrsJSON = BPUtility.getDecodedString(outstandingVOGPageSortAttrsJSON);
-    		partId = BPUtility.escapeSingleQuotes(partId);
     		vorId = BPUtility.escapeSingleQuotes(vorId);
-    		
+    		partId = BPUtility.escapeSingleQuotes(partId);
+    		vendorId = BPUtility.escapeSingleQuotes(vendorId);
 	    	List<Vendor_Order_Line_Item__c> voLineItems = SOQLUtil.getVOLineItemsForGivenPartAndVendorReceiving(partId, vorId);
 	    	if(voLineItems.size() == 0 && isFromSearchToAdd) {
 	    		if(AccessControl.ifObjectIsAccessible('Vendor_Order_Line_Item__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
@@ -279,7 +280,7 @@ global with sharing class VendorOrderReceivingCtrl {
 			    	
 	    			VendorOrderReceiving voReceiving = new VendorOrderReceiving(vorId, null, null, vendorOrdersPageSortAttrs, groupItemsPageSortAttrs, outstandingVOGPageSortAttrs);
 	    			voReceiving.isFoundPartInOtherVOHeader = true;
-	    			return System.JSON.serialize(voReceiving);
+	    			return BPUtility.getEncodedString(System.JSON.serialize(voReceiving));
 	    		} else {
 	    			addToItemSubsectionAfterConfimation(BPUtility.getEncodedString(vorId),BPUtility.getEncodedString(partId), true, BPUtility.getEncodedString(vendorOrdersPageSortAttrsJSON),BPUtility.getEncodedString(groupItemsPageSortAttrsJSON),BPUtility.getEncodedString(outstandingVOGPageSortAttrsJSON));
 	    		} 
@@ -309,16 +310,19 @@ global with sharing class VendorOrderReceivingCtrl {
     @RemoteAction
     global static String addToItemSubsectionAfterConfimation(String vorId, String partId, Boolean isStockExcessGenerated, String vendorOrdersPageSortAttrsJSON, String groupItemsPageSortAttrsJSON, String outstandingVOGPageSortAttrsJSON) {
     	try{
+    		if(AccessControl.ifObjectFieldIsUpdateable('Vendor_Receiving_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+    		if(AccessControl.ifObjectFieldIsAccessible('Vendor_Receiving_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    		if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    		
     		vorId = BPUtility.getDecodedString(vorId);
     		partId = BPUtility.getDecodedString(partId);
     		vendorOrdersPageSortAttrsJSON = BPUtility.getDecodedString(vendorOrdersPageSortAttrsJSON);
     		groupItemsPageSortAttrsJSON = BPUtility.getDecodedString(groupItemsPageSortAttrsJSON);
     		outstandingVOGPageSortAttrsJSON = BPUtility.getDecodedString(outstandingVOGPageSortAttrsJSON);
-    		if(AccessControl.ifObjectFieldIsUpdateable('Vendor_Receiving_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-    		if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Group__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
-    		if(AccessControl.ifObjectIsAccessible('Part__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
-    		List<Vendor_Receiving_Group__c> vrGroupList = [select Id, Part__r.Packaged_Part__c, Part__r.Package_Qty__c from Vendor_Receiving_Group__c where Part__c = :partId AND Vendor_Receiving_Header__c = :vorId];
-    	
+    		partId = BPUtility.escapeSingleQuotes(partId);
+    		vorId = BPUtility.escapeSingleQuotes(vorId);
+    		List<Vendor_Receiving_Group__c> vrGroupList = [select Id,Part__r.Last_Cost__c ,Part__r.Packaged_Part__c, Part__r.Package_Qty__c from Vendor_Receiving_Group__c where Part__c = :partId AND Vendor_Receiving_Header__c = :vorId];
+    		List<Part__c> PartList = [select Last_Cost__c ,Packaged_Part__c,Package_Qty__c from Part__c where ID = :partId ];
 	    	Vendor_Receiving_Group__c vrGroupRec = new Vendor_Receiving_Group__c();
 	    	if(vrGroupList.size() > 0) {
 	    		vrGroupRec.Id = vrGroupList[0].Id;
@@ -332,7 +336,7 @@ global with sharing class VendorOrderReceivingCtrl {
 	    	}
 	    	
 	    	if(vrGroupRec.Id == null) {
-	    		if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Group__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
+	    		//if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Group__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
 	    		if(AccessControl.ifObjectIsCreateable('Vendor_Receiving_Group__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
 	    		insert vrGroupRec;
 	    	}
@@ -420,15 +424,16 @@ global with sharing class VendorOrderReceivingCtrl {
     @RemoteAction 
     global static String updateItemsSection(String vorId, String partId, String vrGroupId, Decimal qty, Decimal cost, String vendorOrdersPageSortAttrsJSON, String groupItemsPageSortAttrsJSON, String outstandingVOGPageSortAttrsJSON){
     	try{
-    		if(AccessControl.ifObjectIsDeletable('Vendor_Receiving_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
     		if(AccessControl.ifObjectFieldIsUpdateable('Vendor_Receiving_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+    		if(AccessControl.ifObjectIsDeletable('Vendor_Receiving_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
+    		
     		vorId = BPUtility.getDecodedString(vorId);
     		partId = BPUtility.getDecodedString(partId);
     		vrGroupId = BPUtility.getDecodedString(vrGroupId);
     		vendorOrdersPageSortAttrsJSON = BPUtility.getDecodedString(vendorOrdersPageSortAttrsJSON);
     		groupItemsPageSortAttrsJSON = BPUtility.getDecodedString(groupItemsPageSortAttrsJSON);
     		outstandingVOGPageSortAttrsJSON = BPUtility.getDecodedString(outstandingVOGPageSortAttrsJSON);
-    		if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    		
     		if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Group__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
     		vrGroupId = BPUtility.escapeSingleQuotes(vrGroupId);
     		List<Vendor_Receiving_Group__c> vrGroupList = [select Id, Part__r.Packaged_Part__c, Part__r.Package_Qty__c from Vendor_Receiving_Group__c where Id = :vrGroupId];
@@ -532,21 +537,22 @@ global with sharing class VendorOrderReceivingCtrl {
     **/
     @RemoteAction 
     global static String addAllLineItemsToItemSubsection(String vorId, String voHeaderId, String voGroupId, String vendorOrdersPageSortAttrsJSON, String groupItemsPageSortAttrsJSON, String outstandingVOGPageSortAttrsJSON){
-    	if(AccessControl.ifObjectFieldIsUpdateable('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-    	if(AccessControl.ifObjectFieldIsUpdateable('Vendor_Receiving_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
     	try{
+    		if(AccessControl.ifObjectFieldIsUpdateable('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+    		if(AccessControl.ifObjectFieldIsUpdateable('Vendor_Receiving_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+    		
     		vorId = BPUtility.getDecodedString(vorId);
     		voHeaderId = BPUtility.getDecodedString(voHeaderId);
     		voGroupId = BPUtility.getDecodedString(voGroupId);
     		vendorOrdersPageSortAttrsJSON = BPUtility.getDecodedString(vendorOrdersPageSortAttrsJSON);
     		groupItemsPageSortAttrsJSON = BPUtility.getDecodedString(groupItemsPageSortAttrsJSON);
     		outstandingVOGPageSortAttrsJSON = BPUtility.getDecodedString(outstandingVOGPageSortAttrsJSON);
-    		vorId = BPUtility.escapeSingleQuotes(vorId);
     		
     		List<Vendor_Order_Line_Item__c> voLineItems = new List<Vendor_Order_Line_Item__c>();
 	    	if(vorId != null) {
 	    		if(AccessControl.ifObjectIsAccessible('In_Progress_VR__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
 	    		if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
+	    		vorId = BPUtility.escapeSingleQuotes(vorId);
 	    		List<In_Progress_VR__c> inProgressVRList = [select Vendor_Order_Header__c from In_Progress_VR__c Where Vendor_Receiving_Header__c =: vorId AND Vendor_Receiving_Header__r.Status__c = 'In Progress'];
 	    		
 	    		List<String> voHeaderIdList = new List<String>();
@@ -570,7 +576,7 @@ global with sharing class VendorOrderReceivingCtrl {
 	    	}
 	    	
 	    	if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Group__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
-
+			vorId = BPUtility.escapeSingleQuotes(vorId);
 	    	List<Vendor_Receiving_Group__c> vrGroupList = [select Id, Part__c from Vendor_Receiving_Group__c where Vendor_Receiving_Header__c = :vorId];
 	    	
 	    	//Savepoint sp = Database.setSavepoint();
@@ -784,15 +790,15 @@ global with sharing class VendorOrderReceivingCtrl {
         	if(AccessControl.ifObjectIsAccessible('Service_Order_Line_Item__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
         	if(AccessControl.ifObjectIsAccessible('CO_Line_Item__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
         	if(AccessControl.ifObjectIsUpdateable('Vendor_Order_Line_Item__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
-	        if(AccessControl.ifObjectFieldIsCreateable('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
-	        if(AccessControl.ifObjectFieldIsCreateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
-	        if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-	        if(AccessControl.ifObjectFieldIsAccessible('Vendor_Order_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        	if(AccessControl.ifObjectIsUpdateable('CO_Line_Item__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
+        	if(AccessControl.ifObjectFieldIsCreateable('Vendor_Order_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
+        	if(AccessControl.ifObjectFieldIsCreateable('CO_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
+        	
 	        Vendor_Receiving_Header__c vrHeaderRec = new Vendor_Receiving_Header__c(Id = vrHeaderId);
 	        vrHeaderRec.Status__c = 'Stocked';
 	        vrHeaderRec.Finalized_Date__c = Date.today();
 	        if(vrHeaderId != null) {
-	        	if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
+	        	//if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
 	       		if(AccessControl.ifObjectIsUpdateable('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE);}
 	        	update vrHeaderRec;
 	        }
@@ -825,12 +831,12 @@ global with sharing class VendorOrderReceivingCtrl {
 	        		//bucketPartRec.Qty_In_Stock__c += voliRecord.Received__c;
 	        	}
 	        	partRec.Qty_On_Order__c = vrGroupRec.Part__r.Qty_On_Order__c - receiviedStockQty;
-
+	        	bucketPartRec.Qty_On_Order__c = vrGroupRec.Part__r.Qty_On_Order__c - receiviedStockQty;
 	        	if(partRec.Qty_On_Order__c < 0) {
 	        		partRec.Qty_On_Order__c = 0;
-
+	        		bucketPartRec.Qty_On_Order__c =0;
 	        	}
-	        	partRec.Qty_In_Stock__c = vrGroupRec.Part__r.Qty_In_Stock__c + vrGroupRec.Recieved__c;
+	        	partRec.Qty_In_Stock__c = vrGroupRec.Recieved__c;
 	        	
 
 
@@ -970,7 +976,7 @@ global with sharing class VendorOrderReceivingCtrl {
 	        //system.assert(false, co);
 	        
 	      
-	        List<Service_Order_Line_Item__c> soli = [select Name, Service_Order_Header__c from Service_Order_Line_Item__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
+	        List<Service_Order_Line_Item__c> soli = [select Name, Service_Order_Header__c from Service_Order_Line_Item__c];
 	        
 	        if(vogIdToCOLIListMap.size() > 0) {
 		        for(List<CO_Line_Item__c> coliList : vogIdToCOLIListMap.values()) {
@@ -1232,8 +1238,9 @@ global with sharing class VendorOrderReceivingCtrl {
     global static String deleteVendorOrderRecieving(String vorId){
     	try{ 
     		vorId = BPUtility.getDecodedString(vorId);
-    		if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
     		vorId = BPUtility.escapeSingleQuotes(vorId);
+    		if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
+    		if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Group__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
     		List<Vendor_Receiving_Header__c> vorHeaderRecList = [Select Status__c, In_Progress_VI__c, (Select Id From Vendor_Receiving_Groups__r) From Vendor_Receiving_Header__c  where ID =: vorId  ];
 
     		if(((vorHeaderRecList[0].Status__c != 'Invoiced ') && (vorHeaderRecList[0].Status__c != 'Stocked '))&&((vorHeaderRecList[0].In_Progress_VI__c == null)&&(vorHeaderRecList[0].Vendor_Receiving_Groups__r.size() == 0))){
@@ -1442,7 +1449,10 @@ global with sharing class VendorOrderReceivingCtrl {
 		        VendorOrderLineItemWrapper.sortFieldMap = sortFieldMap;
 		        
 	    		for(In_Progress_VR__c inProgressVrRec : inProgressVRList){
-	    			selectedVOHeaderIdList.add(inProgressVrRec.Vendor_Order_Header__c);
+	    			if(inProgressVrRec.Vendor_Receiving_Header__c ==  vorId ){
+	    				selectedVOHeaderIdList.add(inProgressVrRec.Vendor_Order_Header__c);	
+	    			}
+	    			
 	    		}
 		    	List<Vendor_Order_Line_Item_Group__c> voLineItemGroupList = SOQLUtil.getVOLIGroupsWithItems('Vendor_Order_Header__r.Vendor__c', VOR_Header.VendorId, selectedVOHeaderIdList);
 		    	Map<Id, List<Vendor_Order_Line_Item__c>> partIdToListOfVOLIRecMap = new Map<Id, List<Vendor_Order_Line_Item__c>>();
@@ -1547,8 +1557,8 @@ global with sharing class VendorOrderReceivingCtrl {
 	     * @return: Map<Id, List<String>>
 	    **/
 	    private void populateVIHistoryList(String vorId){
-	    	if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
 	    	vorId = BPUtility.escapeSingleQuotes(vorId);
+	    	if(AccessControl.ifObjectIsAccessible('Vendor_Receiving_Header__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}
 	    	List<Vendor_Receiving_Header__c> vrHeaderList = [select In_Progress_VI__c from Vendor_Receiving_Header__c where Id =: vorId];
 	    	if(vrHeaderList.size() > 0 && vrHeaderList[0].In_Progress_VI__c != null) {
 	    		List<Vendor_Invoicing_Header__c> viHeaderList = SOQLUtil.getVIHeaderDetailsByFieldName(new Map<String, String>{'Id' => vrHeaderList[0].In_Progress_VI__c});
@@ -1640,6 +1650,7 @@ global with sharing class VendorOrderReceivingCtrl {
     			this.TotalLineItems += 1;
     			this.TotalCost += viGroupRec.VI_SubTotal__c;
     		}
+    		this.TotalCost = this.TotalCost.setScale(2);
     		this.Status = viHeaderRec.Status__c;
         }
     }

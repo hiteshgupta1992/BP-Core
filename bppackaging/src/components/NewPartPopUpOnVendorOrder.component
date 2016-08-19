@@ -1,5 +1,5 @@
 <apex:component Controller="VendorOrderReceivingCtrl">
-<c:NewViewCustomerStyle />
+<!-- <c:NewViewCustomerStyle /> -->
 
         <style>
               .Vendor-Order-Part-Popup{
@@ -83,7 +83,7 @@
               .my-legend a {
                 color: #777;
                 }
-                /* change by DK*/
+               
                .closeBtn{
                   height: 32px;
                 }
@@ -319,7 +319,7 @@
                 .Vendor-Order-Part-Popup .row{
                 	margin: 0;
                 }
-                /* change by DK*/
+                
         </style>
         <script>
             $(document).ready(function () {
@@ -340,17 +340,18 @@
               
             
 	        var PartPopUpModule = angular.module('PartPopUpModule', []);
-	        PartPopUpModule.controller("newPartCtrl", function($scope, $q,  partOrderReceivingService,$window ) {
+	        PartPopUpModule.controller("newPartCtrl1", function($scope, $q,  partOrderReceivingService,$window ) {
 	            if($scope. PartPopUp == undefined){
 	                $scope.PartPopUp = {};
 	                 $scope.PartPopUp.partModel={};
 	            }
 	       $scope.$on('PartPopUpEvent', function(event, partId) {  
+	       		debug('part popup on hover');
 	            $scope.PartPopUp.partModel={};
 	            jsonRectangles={};
 	            $scope.PartPopUp.loadData(partId);
 	            angular.element('.partPopUp-flyout').scrollTop = 0;  
-	       });
+	       }); 
             
            
 	       $scope.PartPopUp.loadData = function(partId){
@@ -365,94 +366,212 @@
 	                });
 	           }
 	     $scope.PartPopUp.loadChart=function(){
-	            d3.selectAll("svg").remove();
+	     		$scope.PartPopUp.partModel.isZeroTotalValue = false
+	            d3.selectAll(".PartPopupOnVenderOrder svg").remove();
 	            debug($scope.PartPopUp.partModel);
 	            var commited = $scope.PartPopUp.partModel.QtyCommited;  
 	            var available=$scope.PartPopUp.partModel.QtyAvailable;
 	            var onorder=$scope.PartPopUp.partModel.QtyOnOrder;
+	            var instocktotal= $scope.PartPopUp.partModel.QtyCommited + $scope.PartPopUp.partModel.QtyAvailable;
+	            var total_instock= commited + available;
+	            
+	            var max = 0;
+                if(commited < 0){
+                	if(Math.abs(commited)>max)
+                		max = Math.abs(commited);
+                }
+                if(available < 0){
+                	if(Math.abs(available)>max)
+                		max = Math.abs(available);
+                }
+                if(onorder < 0){
+                	if(Math.abs(onorder)>max)
+                		max = Math.abs(onorder);
+                }
+                if(total_instock < 0){
+                	if(Math.abs(total_instock)>max)
+                		max = Math.abs(total_instock);
+                }
+                available = available + max;
+                commited = commited + max;
+                onorder = onorder + max;
+                total_instock = total_instock + max;
+                
+                debug(" Final available"+available);
+                debug(" Final commited"+commited);
+                debug(" Final onorder"+onorder);
+                debug(" Final total_instock"+total_instock);
+                 
 	            var jsonRectangles = [{  "color" : "#414449" , "commited": commited  },
 	                                   {  "color" : "#727983" , "available" : available  },
 	                                   {  "color" : "#939CA9" , "onorder" : onorder}];
 	            var total_value = jsonRectangles[0].commited + jsonRectangles[1].available + jsonRectangles[2].onorder ;
-	            jsonRectangles[0].commited = ((jsonRectangles[0].commited)/total_value)*100
-	            jsonRectangles[1].available = ((jsonRectangles[1].available)/total_value)*100
-	            jsonRectangles[2].onorder  = ((jsonRectangles[2].onorder)/total_value)*100
-	            var total_instock= jsonRectangles[0].commited + jsonRectangles[1].available;
-	            var ft1=(580*jsonRectangles[0].commited)/100; 
-	            var ft2= (580*jsonRectangles[1].available)/100;
-	            var ft3= (580*jsonRectangles[2].onorder)/100;
-	            debug(ft1);
-	            var commitedName= "COMMITED:" + $scope.PartPopUp.partModel.QtyCommited;
-	            var availablename= "AVAILABLE:" + $scope.PartPopUp.partModel.QtyAvailable
-	            var onordername= "ON ORDER:" + $scope.PartPopUp.partModel.QtyOnOrder;
-	            var instocktotal= $scope.PartPopUp.partModel.QtyCommited + $scope.PartPopUp.partModel.QtyAvailable;
-	            var inStock = "INSTOCK:" + instocktotal;
-	            var instock_tringle=(580*total_instock)/100;
-	            var jsonRectangles1 = [{ "color" : "#71BF3E" , "commited": total_instock }];
+	            debug("total_value : "+total_value);
+                if(total_value != 0) {
+		            jsonRectangles[0].commited = ((jsonRectangles[0].commited)/total_value)*100
+		            jsonRectangles[1].available = ((jsonRectangles[1].available)/total_value)*100
+		            jsonRectangles[2].onorder  = ((jsonRectangles[2].onorder)/total_value)*100
+		            
+		            var ft1=(580*jsonRectangles[0].commited)/100; 
+		            var ft2= (580*jsonRectangles[1].available)/100;
+		            var ft3= (580*jsonRectangles[2].onorder)/100;
+		            debug(ft1);
+		            var commitedName= "COMMITED:" ;
+		            var availablename= "AVAILABLE:" ;
+		            var onordername= "ON ORDER:" ;
+	            
+		            var inStock = "INSTOCK:" ;
+		            var instock_tringle=ft1+ft2;
+		            var jsonRectangles1 = [{ "color" : "#71BF3E" , "commited": instock_tringle }];
 			
-		/* text node */
-		        var textsvg=d3.select('#wrapper')
-                                .append('svg')
-                                .data(jsonRectangles)
-                                .attr({'width':580 + "px",'height':30 + "px"});
-                               		
-                               		 if(jsonRectangles[0].commited>0){
-			                               	 textsvg.append("text")
-			                                .attr("dx", function (d,i) {
-			                                		var p;
-			                                		if(ft1<140)
-			                                		{
-			                                		p=0;
-			                                		}
-			                                		else
-			                                		{
-			                                		debug(ft1)
-			                                		p=(ft1/2)-70;
-			                                		}
-			                                		return p;
-			                                 })
-			                                .attr("dy", 30) 
-			                                .style('fill', "#414449")
-			                                .text(function(d) { return commitedName});
-		                             }
+					/* text node */
+					        var textsvg=d3.select('#wrapper')
+			                                .append('svg')
+			                                .data(jsonRectangles)
+			                                .attr({'width':580 + "px",'height':45 + "px"}); 
+			                               		
+			                               		 if(jsonRectangles[0].commited>=0)
+			                               		 {
+                 
+				
+                 /* displaying name */
+                 textsvg.append("text").attr("dx", function (d,i) {
+                                                    var p;
+                                                    if(ft1<100)
+                                                    {
+                                                    	p=0;
+                                                    } else if((580-ft1)>500){
+                                                    	p = 450;
+                                                    } else
+                                                    {
+	                                                    debug(ft1);
+	                                                    p=(ft1/2)-50;
+                                                    }
+                                                    return p; 
+                                             })
+                                            .attr("dy", 25) 
+                                            .style('fill', "#414449")
+                                            .text(function(d) { return commitedName });
+                                            
+                       /* displaying quantity */                    
+                                           textsvg.append("text").attr("dx", function (d,i) {
+							                                                   var p;
+							                                                    if(ft1<100)
+							                                                    {
+							                                                    	p=0;
+							                                                    } else if((580-ft1)>500){
+							                                                    	p = 450;
+							                                                    } else
+							                                                    {
+								                                                    debug(ft1);
+								                                                    p=(ft1/2)-50;
+							                                                    }
+							                                                    return (p+85); 
+							                                             })
+														                 .attr("dy", 25)
+														                 .attr("font-weight", "bold")
+														                 .style('fill', "#414449")
+														                 .text( function (d) { return $scope.PartPopUp.partModel.QtyCommited });
+                                     	
+                                     }
                                 
-                                    if(jsonRectangles[1].available>0){
-		                                    textsvg.append("text")
-		                                    .attr("dx", function (d,i) {
-			                                		var p;
-			                                		if(ft2<140)
-			                                		{
-			                                		p=(ft1 + (ft2/2))-90;
-			                                		}
-			                                		else
-			                                		{
-			                                		p=(ft1 + (ft2/2))-70;
-			                                		}
-			                                		return p;
-			                                 })
-		                                    .attr("dy", 30)
-		                                    .style('fill', "#727983")
-		                                    .text(function(d) { return availablename});
-		                             }
+                                    if(jsonRectangles[1].available>=0)
+                                    {
+                                    
+                                    /* displaying name */  
+                                            textsvg.append("text")
+                                            .attr("dx", function (d,i) {
+                                                   if((ft2<=50) && (ft1>530))
+                                                    {
+                                                    	p = 450;
+                                                    } 
+                                                    else if((ft1<=530)&&(ft1>50)){
+                                                    	p=ft1 + (ft2/2)-50;
+                                                    }
+                                                    else if((ft2<=100) && (ft1<50)){
+                                                    	p=0;
+                                                    }
+                                                    else
+                                                    {
+                                                    	p=ft1 + (ft2/2)-50;
+                                                    } 
+                                                    return p;  
+                                             })
+                                            .attr("dy", 45)
+                                            .style('fill', "#727983")
+                                            .text(function(d) { return availablename});
+                                            
+                                            /* displaying quantity */                    
+                                           textsvg.append("text").attr("dx", function (d,i) {
+                                           										var p;
+							                                                  if((ft2<=50) && (ft1>530))
+							                                                    {
+							                                                    	p = 450;
+							                                                    } 
+							                                                    else if((ft1<=530)&&(ft1>50)){
+							                                                    	p=ft1 + (ft2/2)-50;
+							                                                    }
+							                                                    else if((ft2<=100) && (ft1<50)){
+							                                                    	p=0;
+							                                                    }
+							                                                    else
+							                                                    {
+							                                                    	p=ft1 + (ft2/2)-50;
+							                                                    } 
+							                                                    return (p+80); 
+							                                             })
+														                 .attr("dy", 45)
+														                 .attr("font-weight", "bold")
+														                 .style('fill', "#727983")
+														                 .text( function (d) { return $scope.PartPopUp.partModel.QtyAvailable });
+                                     	
+                                     }
                                 
-                                    if(jsonRectangles[2].onorder>0){
-	                                        textsvg.append("text")
-	                                         .attr("dx", function (d,i) {
-			                                		var p;
-			                                		if(ft3<140)
-			                                		{
-			                                		p=(ft1 + ft2 + (ft3/2))-90;
-			                                		}
-			                                		else
-			                                		{
-			                                		p=(ft1 + ft2 + (ft3/2))-70;
-			                                		}
-			                                		return p;
-			                                 })
-	                                        .attr("dy", 30)
-	                                        .style('fill', "#939CA9")
-	                                        .text(function(d) { return onordername});
-	                                }
+                                    if(jsonRectangles[2].onorder>=0)
+                                    {
+                                    
+                                    /* displaying name */    
+                                            textsvg.append("text")
+                                             .attr("dx", function (d,i) {
+                                                    if((ft1+ft2)>=480)
+                                                    {
+                                                    	p = 450;debug("if 1");
+                                                    } 
+                                                    else if(((ft1+ft2)<480)&&((ft1+ft2)>50)){
+                                                    	p=ft1 + ft2 + (ft3/2)-50;debug("if 2");
+                                                    }
+                                                    else if((ft1+ft2)<=50){
+                                                    	p=ft1 + ft2 + (ft3/2)-50;
+                                                    	debug("if 3");
+                                                    }
+                                                    return p; 
+                                             })
+                                            .attr("dy", 30)  
+                                            .style('fill', "#939CA9")
+                                            .text(function(d) { return onordername});
+                                            
+                                         /* displaying quantity */                    
+                                           textsvg.append("text").attr("dx", function (d,i) {
+                                           									var p;
+							                                                  if((ft1+ft2)>=480)
+							                                                    {
+							                                                    	p = 450;debug("if 1");
+							                                                    } 
+							                                                    else if(((ft1+ft2)<480)&&((ft1+ft2)>50)){
+							                                                    	p=ft1 + ft2 + (ft3/2)-50;debug("if 2");
+							                                                    }
+							                                                    else if((ft1+ft2)<=50){
+							                                                   		p=ft1 + ft2 + (ft3/2)-50;
+							                                                    	debug("if 3");
+							                                                    }
+							                                                    return (p+85); 
+							                                             })
+														                 .attr("dy", 30)
+														                 .attr("font-weight", "bold")
+														                 .style('fill', "#939CA9")
+														                 .text( function (d) { return $scope.PartPopUp.partModel.QtyOnOrder });
+                                     	
+                                    }
                                 
                 /* text node */                
                                 
@@ -460,37 +579,44 @@
                          
                      var svg = d3.select('#wrapper')
                                .append('svg')
-                               .attr({'width':580 + "px",'height':30 + "px"});
+                               .attr({'width':580 + "px",'height':25 + "px"}); 
                                 
-                                if(jsonRectangles[0].commited>0){
-		                                var arc = d3.svg.symbol().type('triangle-up')
-		                                		  .size(function(d){ return scale(d); });
-		                                var data = [.5];
-		                                var scale = d3.scale.linear()
-		                                            .domain([1,8])
-		                                            .range([100,580]);
-		                                var group = svg.append('g')
-		                                            .attr('transform','translate('+ ft1/2   +','+ 10 +')');
-		                                var line = group.selectAll('path')
-		                                        .data(data)
-		                                        .enter()
-		                                        .append('path')
-		                                        .attr('d',arc)
-		                                        .attr('stroke','#FFF')
-		                                        .style("fill","#414449")
-		                                        .attr('stroke-width',1)
-		                                        .attr('transform',function(d,i){ return "translate("+(i*38)+","+(10)+")"; });
-		                         }
+                                if(jsonRectangles[0].commited >= 0)
+                                {
+                                        var arc = d3.svg.symbol().type('triangle-up')
+                                                  .size(function(d){ return scale(d); });
+                                        var data = [.5];
+                                        var scale = d3.scale.linear()
+                                                    .domain([1,8])
+                                                    .range([100,580]);
+                                        var group = svg.append('g');
+                                        
+                                        if(ft1!=0)
+                                        	group.attr('transform','translate('+ ft1/2  +','+ 10 +')'); 
+                                        else
+                                        	group.attr('transform','translate('+ (ft1/2+5) +','+ 10 +')');
+                                        	
+                                        var line = group.selectAll('path')
+                                                .data(data)
+                                                .enter()
+                                                .append('path')
+                                                .attr('d',arc)
+                                                .attr('stroke','#FFF')
+                                                .style("fill","#414449")
+                                                .attr('stroke-width',1)
+                                                .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });
+                                 }
                             
-                                if(jsonRectangles[1].available>0){
-                                       	var arc = d3.svg.symbol().type('triangle-up')
+                                if(jsonRectangles[1].available>=0)
+                                {
+                                        var arc = d3.svg.symbol().type('triangle-up')
                                                   .size(function(d){ return scale(d); });
                                         var data = [.5];
                                         var scale = d3.scale.linear()
                                                     .domain([1,8])
                                                     .range([100,580]);
                                         var group = svg.append('g')
-                                                   .attr('transform','translate('+ (ft1 + (ft2/2))   +','+ 10 +')');
+                                                   .attr('transform','translate('+ (ft1 + (ft2/2)) +','+ 10 +')');
                                         var line = group.selectAll('path')
                                                     .data(data)
                                                     .enter()
@@ -499,29 +625,34 @@
                                                     .attr('stroke','#FFF')
                                                     .style("fill","#727983")
                                                     .attr('stroke-width',1)
-                                                    .attr('transform',function(d,i){ return "translate("+(i*38)+","+(10)+")"; });
-                                    }	
+                                                    .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });
+                                    }   
                                     
-                                    if(jsonRectangles[2].onorder>0)
+                                    if(jsonRectangles[2].onorder>=0)
                                     {
-	                                      var arc = d3.svg.symbol().type('triangle-up')
-	                                                .size(function(d){ return scale(d); });
-	                                            var data = [.5];
-	                                            var scale = d3.scale.linear()
-	                                                        .domain([1,8])
-	                                                        .range([100,580]);
-	                                            var group = svg.append('g')
-	                                                        .attr('transform','translate('+ (ft1 + ft2 + (ft3/2))   +','+ 10 +')');
-	                                            var line = group.selectAll('path')
-	                                                    .data(data)
-	                                                    .enter()
-	                                                    .append('path')
-	                                                    .attr('d',arc)
-	                                                    .attr('stroke','#FFF')
-	                                                    .style("fill","#939CA9")
-	                                                    .attr('stroke-width',1)
-	                                                    .attr('transform',function(d,i){ return "translate("+(i*38)+","+(10)+")"; });
-	                                    }
+                                          var arc = d3.svg.symbol().type('triangle-up')
+                                                    .size(function(d){ return scale(d); });
+                                                var data = [.5];
+                                                var scale = d3.scale.linear()
+                                                            .domain([1,8])
+                                                            .range([100,580]);
+                                                var group = svg.append('g');
+                                                
+                                                if(ft3!=0)
+			                                    	group.attr('transform','translate('+ (ft1 + ft2 + (ft3/2))  +','+ 10 +')');
+			                                    else
+			                                    	group.attr('transform','translate('+ (ft1 + ft2 + (ft3/2) - 5)  +','+ 10 +')'); 
+			                                    	
+                                                var line = group.selectAll('path')
+                                                        .data(data)
+                                                        .enter()
+                                                        .append('path')
+                                                        .attr('d',arc)
+                                                        .attr('stroke','#FFF')
+                                                        .style("fill","#939CA9")
+                                                        .attr('stroke-width',1)
+                                                        .attr('transform',function(d,i){ return "translate("+(i*38)+","+(5)+")"; });
+                                        }
                                      /* Tringle  node */   
                                      
                                       /* rectangle  node */   
@@ -552,6 +683,13 @@
 		                                                             {
 		                                                             	 d.x= (((jsonRectangles[i-2].commited)*580)/100) + (((jsonRectangles[i-1].available)*580)/100);
 		                                                             }
+                                                                      if(i==3)
+                                                                     {
+                                                                         d.x= (((jsonRectangles[i-3].commited)*580)/100) + (((jsonRectangles
+
+[i-2].available)*580)/100) + (((jsonRectangles[i-1].onorder)*580)/100);
+                                                                     }
+                                                                      
 		                                                             	 return d.x;
 	                                                            })
 	                                                             .attr("y", function (d) { return 10; })
@@ -609,7 +747,7 @@
                                                         .domain([1,8])
                                                         .range([100,580]);
                                             var group = svg.append('g')
-                                                    .attr('transform','translate('+ (instock_tringle)/2   +','+ 10 +')');
+                                                    .attr('transform','translate('+ ((instock_tringle)/2) +','+ 10 +')');
                                             var line = group.selectAll('path')
                                                     .data(data)
                                                     .enter()
@@ -624,12 +762,51 @@
 		                                                .data(jsonRectangles)
 		                                                .attr("class","instocktext")
 		                                                .attr({'width':580 + "px",'height':30 + "px"});
-	                                                    textsvg.append("text")
-	                                                    .attr("dx", ((instock_tringle)/2)-30)
-	                                                    .attr("dy", 30)
-	                                                    .style('fill', "#71BF3E")
-	                                                    .text(function(d) { return inStock});
+	                                       	                                       
+                                          if(instock_tringle>=0)
+                                          {
+                                            /* displaying text */  
+                                            textsvg.append("text")
+                                             .attr("dx", function (d,i) {
+                                                    var p;
+                                                   	// error
+                                                    if(instock_tringle < 60)
+                                                    {
+                                                    	p=0;
+                                                    }else
+                                                    {
+	                                                    debug(instock_tringle);
+	                                                    p=((instock_tringle)/2)-40;
+                                                    }
+                                                    return p;
+                                             })
+                                            .attr("dy", 30)  
+                                            .style('fill', "#71BF3E")
+                                            .text(function(d) { return inStock});
                                             
+                                             /* displaying quantity */                    
+                                           textsvg.append("text").attr("dx", function (d,i) {
+                                           									var p;
+							                                                  if(instock_tringle<60)
+							                                                    {
+							                                                    	p=0;
+							                                                    }else
+							                                                    {
+								                                                    debug(instock_tringle);
+								                                                    p=((instock_tringle)/2)-40;
+							                                                    }
+							                                                    return (p+70); 
+							                                             })
+														                 .attr("dy", 30)
+														                 .attr("font-weight", "bold")
+														                 .style('fill', "#71BF3E")
+														                 .text( function (d) { return instocktotal });
+                                     	
+                                    } 
+                 }
+	               else{
+	                	$scope.PartPopUp.partModel.isZeroTotalValue = true;
+	               }   
             }
             
         });
@@ -648,9 +825,6 @@
                             deferred.reject(event.message);
                         } else {
                             var partRec = decodeString(result);
-                            var find = '\'';
-                            var re = new RegExp(find, 'g');
-                            partRec = partRec.replace(re, '');
                             deferred.resolve(JSON.parse(partRec));
                         }
                     }, {
@@ -663,7 +837,7 @@
                 
         </script>
         
-        <div class="Vendor-Order-Part-Popup PartPopupOnVenderOrder"  ng-controller="newPartCtrl" id="PartInfoPopupOnVenderOrder" >
+        <div class="Vendor-Order-Part-Popup PartPopupOnVenderOrder"  ng-controller="newPartCtrl1" id="PartInfoPopupOnVenderOrder" >
             <div>
                 <div class="row overlay-header">
                     <div class="col-lg-6 col-md-6">
@@ -672,7 +846,7 @@
                     <div>
                         <div class="row pull-right">
                             <div class="savecancle_btncntnr">
-                                <a href="{!$Page.viewPart}?id={{PartPopUp.partModel.Id}}" target="_blank" class="btn btn-default grayBtn">View</a>
+                                <a href="NewViewPart?id={{PartPopUp.partModel.Id}}" target="_blank" class="btn btn-default grayBtn">{!$Label.View_Label}</a>
                                 <button class="btn btn-default grayBtn closeBtn"><i class="fa fa-times"></i></button>
                             </div> 
                         </div>
@@ -682,10 +856,13 @@
                 <div class="row clearfix" style="height:20px;">
                 </div>  
                     <div class="vendorOrder-flyout partPopUp-flyout">
-                     <div id="wrapper">
+                    	<div ng-if="!PartPopUp.partModel.isZeroTotalValue" class="widgetAvailable">
+	                     	<div id="wrapper">
+	                        </div>
+	                        <div id="wrapper1">
+	                        </div>
                         </div>
-                        <div id="wrapper1">
-                        </div>
+                    	<div ng-if="PartPopUp.partModel.isZeroTotalValue" class="widgetUnAvailable T6">There is no inventory for this part</div>
                         <div style="width: 97%;">
                             <div class="gid_container_Customer M20" >
                                 <table class="table" >
@@ -695,25 +872,25 @@
                                     <col width="20%"  />  
                                     <col width="10%"  />
                                     <tr  class="tableHeader T3 C2">
-                                      <th class="T3">Location</th>
-                                      <th class="T3">Packaged Indicator</th>
-                                      <th class="T3">Category</th>
-                                      <th class="T3" >Retail</th>
-                                      <th class="T3">Cost</th>
+                                      <th class="T3 text-center">{!$Label.Label_Location}</th>
+                                      <th class="T3 text-center">{!$Label.Label_Packaged_Indicator}</th>
+                                      <th class="T3 text-center">{!$Label.Category_Object_Display_Label}</th>
+                                      <th class="T3 text-center" >{!$Label.Label_Retail}</th>
+                                      <th class="T3 text-center">{!$Label.Label_Cost}</th>
                                     </tr>
                                   <tbody >
                                       <tr class="clickable_row" id="row1" rel="owned_unit_row{{$index}}_edit">
-                                          <td  class="T8">
+                                          <td  class="T8 text-center">
                                           {{PartPopUp.partModel.Location}}
                                           </td>
-                                          <td  class="T8"  >
+                                          <td  class="T8 text-center"  >
                                             {{PartPopUp.partModel.IsPackagedPart}}
                                           </td>
-                                          <td  class="T8">
+                                          <td  class="T8 text-center">
                                             {{PartPopUp.partModel.CategoryName}}
                                           </td>
-                                          <td  class="T8">{{PartPopUp.partModel.Retail}} </td>
-                                           <td  class="T8">{{PartPopUp.partModel.Cost}} </td>
+                                          <td  class="T8 text-center">{{PartPopUp.partModel.Retail}} </td>
+                                           <td  class="T8 text-center">{{PartPopUp.partModel.Cost}} </td>
                                       </tr>
                                   </tbody>
                                 </table>
@@ -721,38 +898,49 @@
                              
                              <div class="gid_container_Customer" >
                                 <table class="table" >
+                                    <col width="15%"  />
+                                    <col width="15%"  />
+                                    <col width="20%"  />
+                                    <col width="20%"  />
                                     <col width="30%"  />
-                                    <col width="15%"  />
-                                    <col width="20%"  />
-                                    <col width="20%"  />
-                                    <col width="15%"  />
                                     <tr  class="tableHeader T3 C2">
-                                      <th class="T3">Order in  Lots of</th>
-                                      <th class="T3">Packaged</th>
-                                      <th class="T3">Item Cost</th>
-                                      <th class="T3">Package Cost </th>
-                                      <th class="T3">Profitability</th>
+                                      <th class="T3 text-center">{!$Label.Order_In_Lots_Of}</th>
+                                      <th class="T3 text-center">{!$ObjectType.Part__c.fields.Package_Qty__c.Label}</th>
+                                      <th class="T3 text-center">{!$Label.Label_Cost}({!$Label.Label_Item})</th>
+                                      <th class="T3 text-center">{!$Label.Label_Cost}({!$Label.Label_Package})</th>
+                                      <th class="T3 text-center">{!$Label.Profitability_Label}</th>
                                     </tr>
                                   <tbody >
                                       <tr class="clickable_row" id="row1" rel="owned_unit_row{{$index}}_edit">
-                                          <td  class="T8">
+                                          <td  class="T8 text-center">
                                           {{PartPopUp.partModel.OrderLots}}
                                           </td>
-                                          <td  class="T8" >
+                                          <td  class="T8 text-center" >
                                             {{PartPopUp.partModel.PackagedQty}}
                                           </td>
-                                          <td  class="T8">
+                                          <td  class="T8 text-center">
                                             {{PartPopUp.partModel.Cost}}
                                           </td>
-                                          <td  class="T8">{{PartPopUp.partModel.PackagedCost}} </td>
-                                           <td  class="T8">{{PartPopUp.partModel.SpecialOrder}} </td>
+                                          <td  class="T8 text-center">{{PartPopUp.partModel.PackagedCost}} </td>
+                                           <td  class="T8 text-center">
+                                           	<span style="margin-top: 1%;" ng-class="{'green' : PartPopUp.partModel.Retail - PartPopUp.partModel.Cost >= 0, 'red' : PartPopUp.partModel.Retail - PartPopUp.partModel.Cost < 0}">
+	                                              <i class="fa fa-arrow-up" ng-if="PartPopUp.partModel.Retail - PartPopUp.partModel.Cost >= 0"> </i>
+	                                              <i class="fa fa-arrow-down" ng-if="PartPopUp.partModel.Retail - PartPopUp.partModel.Cost < 0"> </i>
+	                                        </span>
+	                                        <span style="margin-left: 2%;" ng-class="{'green' : PartPopUp.partModel.Retail - PartPopUp.partModel.Cost >= 0, 'red' : PartPopUp.partModel.Retail - PartPopUp.partModel.Cost < 0}">
+	                                              {!$Label.Currency_Symbol}{{PartPopUp.partModel.Retail - PartPopUp.partModel.Cost | number : 2}}
+	                                        </span>
+	                                        <span ng-class="{'green' : PartPopUp.partModel.Retail - PartPopUp.partModel.Cost >= 0, 'red' : PartPopUp.partModel.Retail - PartPopUp.partModel.Cost < 0}">
+	                                              ({{(PartPopUp.partModel.Retail - PartPopUp.partModel.Cost) * (100) / PartPopUp.partModel.Cost | number : 2}}%)
+	                                        </span> 
+                                           </td>
                                       </tr>
                                   </tbody>
                                 </table>
                              </div>             
                             <div class="Vendor-Order-Part-line"></div>
                              <div class="gid_container_Customer" >
-                     <label  class="T3 MB24">Description</label>
+                     <label  class="T3 MB24">{!$Label.Label_Description}</label>
                      <p class="T8">{{PartPopUp.partModel.Description}}</p>
                        <div  style="width:100%; height: 200px; margin: 24px 0 24px 0; ">
                      </div>

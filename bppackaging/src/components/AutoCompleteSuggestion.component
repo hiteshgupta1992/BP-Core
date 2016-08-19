@@ -1,7 +1,7 @@
 <apex:component controller="CustomerOrderCtrl" >
 <style>
     .ErrorBox{
-        border:1px solid red;
+        border: 2px solid red;
     }
 </style>
 
@@ -11,6 +11,7 @@
     app.factory('autoCompleteSuggestionService', function ($q) {
         return {
             searchText : function (textToSearch) {
+            debug(textToSearch);
             	textToSearch = encodeString(textToSearch);
                 var deferred = $q.defer();
                 Visualforce.remoting.Manager.invokeAction( '{!$RemoteAction.CustomerOrderCtrl.getSearchResults}' ,textToSearch, 

@@ -603,7 +603,7 @@ global with sharing class VendorOrderReceivingCtrl_PartialTest {
         String commitLineItems =  BPUtility.getDecodedString(VendorOrderReceivingCtrl.commitRecevingAction(BPUtility.getEncodedString(vorId)));
        	
        	
-       	List<CO_Invoice_Item__c>  coinvoice = [select isActive__c, 	Is_Invoiceable__c, Qty__c,	SO_Payment_Role__c, Service_Order_Header__c, CO_Line_Item__c, CO_Kit_Header__c  from CO_Invoice_Item__c limit 100];
+       	List<CO_Invoice_Item__c>  coinvoice = [select isActive__c, 	Is_Invoiceable__c, Qty__c,	SO_Payment_Role__c, Service_Order_Header__c, CO_Line_Item__c, CO_Kit_Header__c  from CO_Invoice_Item__c];
  		//system.assert(false, coinvoice);
         
         String details = BPUtility.getDecodedString(CustomerOrderCtrl.getCOHeaderDetailsByGridName(BPUtility.getEncodedString(coHeaderId), BPUtility.getEncodedString(null)));

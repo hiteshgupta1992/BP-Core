@@ -20,6 +20,11 @@ global with sharing class SOHeaderPrintPreviewCtrl {
     	List<Account> customerList = new List<Account>();
     	List<Service_Order_Kit_Header__c> soKitHeaderList = new List<Service_Order_Kit_Header__c>();
     	
+    	if(AccessControl.ifObjectFieldIsAccessible('Individual_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	List<Individual_Tax__c> individualTaxList = [select Sales_Tax_Item_Name__c, Tax_Rate__c, Service_Order_Line_Item__c, 		
+    														Service_Order_Line_Item__r.Total__c, Service_Order_Line_Item__r.Tax_Percent__c	 		
+    														from Individual_Tax__c		
+    														where Service_Order_Line_Item__r.Service_Order_Header__c =: soHeaderId];
     	List<Service_Order_Header__c> soHeaderRecList = SOQLUtil.getSODetailsByFieldName(new Map<String, String>{'Id' => soHeaderId});
     	if(soHeaderRecList.size() == 0) {
     		return BPUtility.getEncodedString('{}');
@@ -34,7 +39,7 @@ global with sharing class SOHeaderPrintPreviewCtrl {
             couRecords = (soHeaderRec.Customer_Owned_Unit__c != null) ? SOQLUtil.getCOUListByFieldName('Id', soHeaderRec.Customer_Owned_Unit__c) : new List<Customer_Owned_Unit__c>();
             customerList = SOQLUtil.getCustomer(coHeaderRecs[0].Customer__c, null);
         }
-        PrintingInfo printingInfoObj = new PrintingInfo(customerList, couRecords, coHeaderRecs, soHeaderRec, soKitHeaderList);
+        PrintingInfo printingInfoObj = new PrintingInfo(customerList, couRecords, coHeaderRecs, soHeaderRec, soKitHeaderList, individualTaxList);
         
         return BPUtility.getEncodedString(System.JSON.serialize(printingInfoObj));  
     }
@@ -53,10 +58,12 @@ global with sharing class SOHeaderPrintPreviewCtrl {
 		public Decimal Total_Sublet;
 		public Decimal Total_Other;
 		public Decimal Total;
-		
+		public Decimal SalesTax;		
+		public List<IndividualTax> SalesTaxList;
+		public Boolean IsTaxIncludingPricing;
 		
 		public PrintingInfo(List<Account> customerList, List<Customer_Owned_Unit__c> couList, List<CO_Header__c> coHeaderList, Service_Order_Header__c soHeaderRec, 
-								List<Service_Order_Kit_Header__c> soKitHeaderList) {
+								List<Service_Order_Kit_Header__c> soKitHeaderList, List<Individual_Tax__c> individualTaxList) {
 			this.SOGridItems = new List<SOHeaderWrapper.SOGrid>();
 			
 			this.CustomerInfo = (customerList.size() > 0) ? new Customer(customerList[0]) : new Customer(new Account());
@@ -70,38 +77,100 @@ global with sharing class SOHeaderPrintPreviewCtrl {
 			this.Total_Sublet = 0;
 			this.Total_Other = 0;
 			this.Total = 0;
-			
+			this.SalesTax = 0;		
+			this.SalesTaxList = new List<IndividualTax>();		
+			this.IsTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
 			Set<Id> soliIdSet = new Set<Id>();
 			for(Service_Order_Kit_Header__c soKHRec : soKitHeaderList) {
 				this.SOGridItems.add(new SOHeaderWrapper.SOGrid(soKHRec, soKHRec.Service_Order_Line_Items__r, true));
             	for(Service_Order_Line_Item__c soliRec : sokhRec.Service_Order_Line_Items__r) {
             		soliIdSet.add(soliRec.Id);
-            		if(soliRec.Labour_Code__c != null && soliRec.Part__c == null) {
+            		if(soliRec.Tax_Percent__c == null) {
+            			soliRec.Tax_Percent__c = 0;
+            		}
+            		if(soliRec.Labour_Code__c != null) {
             			this.Total_Laobur += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
-            		} else if(soliRec.Labour_Code__c == null && soliRec.Part__c != null) {
+                        if(isTaxIncludingPricing) {
+                        	this.Total_Laobur += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
+                        } else {
+                        	this.SalesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
+                        }
+            		} else if(soliRec.Part__c != null) {
             			this.Total_Part += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
+            			if(isTaxIncludingPricing) {
+	                    	this.Total_Part += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
+	                    } else {
+	                    	this.SalesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
+	                    }
             		} else if(soliRec.Fee__c != null) {
             			this.Total_Other += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
+            			if(isTaxIncludingPricing) {
+                        	this.Total_Other += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
+                        } else {
+                        	this.SalesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
+                        }
             		}
-            	} 
+            	}
+            	 
 			}
-			
 			for(Service_Order_Line_Item__c soliRec : soHeaderRec.Service_Order_Line_Items__r) {
         		if(!soliIdSet.contains(soliRec.Id)) {
     				this.SOGridItems.add(new SOHeaderWrapper.SOGrid(new Service_Order_Kit_Header__c(), new List<Service_Order_Line_Item__c>{soliRec}, false));
-    				if(soliRec.Labour_Code__c != null && soliRec.Part__c == null) {
+    				if(soliRec.Labour_Code__c != null) {
             			this.Total_Laobur += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
-            		} else if(soliRec.Labour_Code__c == null && soliRec.Part__c != null) {
+            			if(isTaxIncludingPricing) {
+                        	this.Total_Laobur += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
+                        } else {
+                        	this.SalesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
+                        }
+            		} else if(soliRec.Part__c != null) {
             			this.Total_Part += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
+            			if(isTaxIncludingPricing) {
+	                    	this.Total_Part += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
+	                    } else {
+	                    	this.SalesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
+	                    }
             		} else if(soliRec.Fee__c != null) {
             			this.Total_Other += (soliRec.Total__c != null) ? soliRec.Total__c : 0;
+            			if(isTaxIncludingPricing) {
+                        	this.Total_Other += ((soliRec.Total__c * soliRec.Tax_Percent__c) / 100).setScale(2);
+                        } else {
+                        	this.SalesTax += (soliRec.Total__c * soliRec.Tax_Percent__c) / 100;
+                        }
             		}
         		}
         	}
         	this.Total = this.Total_Part + this.Total_Laobur + this.Total_Sublet + this.Total_Other;
-		}
+        	Map<String, Decimal> salesTaxItemNameToTaxValueMap = new Map<String, Decimal>();
+        	for(Individual_Tax__c individualTaxRec : individualTaxList) {
+        		if(!salesTaxItemNameToTaxValueMap.containsKey(individualTaxRec.Sales_Tax_Item_Name__c)) {
+        			salesTaxItemNameToTaxValueMap.put(individualTaxRec.Sales_Tax_Item_Name__c, 0);
+        		}
+        		if(individualTaxRec.Service_Order_Line_Item__r.Total__c != null) {
+        			if(individualTaxRec.Tax_Rate__c == null) {
+        				individualTaxRec.Tax_Rate__c = 0;
+        			}
+        			Decimal oldTaxValue = salesTaxItemNameToTaxValueMap.get(individualTaxRec.Sales_Tax_Item_Name__c) + 
+        						((individualTaxRec.Tax_Rate__c * individualTaxRec.Service_Order_Line_Item__r.Total__c) / 100);
+        			salesTaxItemNameToTaxValueMap.put(individualTaxRec.Sales_Tax_Item_Name__c, oldTaxValue);
+        		}
+        	}
+        	for(String salesTaxName : salesTaxItemNameToTaxValueMap.keySet()) {
+        		this.SalesTaxList.add(new IndividualTax(salesTaxName, salesTaxItemNameToTaxValueMap.get(salesTaxName)));
+        	}
+		}	
+			
 	}
-	
+							
+	public class IndividualTax {		
+    	public String TaxName;		
+    	public Decimal TaxValue;		
+    			
+    	public IndividualTax(String taxName, Decimal taxValue) {		
+    		this.TaxName = taxName;		
+    		this.TaxValue = (taxValue != null) ? taxValue.setScale(2) : 0;		
+    	}		
+    }
 	public class Customer {
 		
 		public String FirstName;

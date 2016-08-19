@@ -105,9 +105,8 @@ global with sharing class AccountingDataMigrationSalesInvoice implements Databas
      * @return:
     **/
 	global void execute(Database.BatchableContext BC, List<sObject> scope) {
-		if(AccessControl.ifObjectFieldIsAccessible('GL_Account__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		List<CO_Invoice_Item__c> coInvoiceItemsList = (List<CO_Invoice_Item__c>) scope;
-		
+		if(AccessControl.ifObjectFieldIsAccessible('GL_Account__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		if(coInvoiceItemsList.size() > 0){
 	    	// Map of MiscellaneousSales records for all applicable saleforce CODeposit records (a map of CODeposit sf fields to equivalent values)
 	    	Map<Integer, Map<String,String>> coDepositRecords = new Map<Integer, Map<String, String>>();
@@ -271,7 +270,7 @@ global with sharing class AccountingDataMigrationSalesInvoice implements Databas
     		}
     	}
     	customFieldsQuery += ', CO_Invoice_Header__r.Name, CO_Invoice_Header__r.Invoice_Status__c, CO_Invoice_Header__r.Invoice_Date__c, CO_Invoice_Header__r.CO_Header__r.Name, CO_Invoice_Header__r.CO_Header__r.Customer__r.Name, CO_Invoice_Header__r.CO_Header__r.Customer__r.FirstName__c, CO_Invoice_Header__r.CO_Header__r.Customer__r.LastName__c, CO_Invoice_Header__r.CO_Header__r.Customer__r.Customer_Number__c';
-    	customFieldsQuery += ', CO_Line_Item__r.Tax__c, CO_Line_Item__r.Part__r.Part_Number__c, CO_Line_Item__r.Part__r.Description__c, CO_Line_Item__r.CO_Header__r.Name';
+    	customFieldsQuery += ', CO_Line_Item__r.Tax__c, CO_Line_Item__r.Part__r.Part_Number__c, CO_Line_Item__r.Part__r.Description__c, CO_Line_Item__r.Part__r.Last_Cost__c, CO_Line_Item__r.CO_Header__r.Name';
     	customFieldsQuery += ', CO_Line_Item__r.Part__r.Category__r.COGS_GL__c, CO_Line_Item__r.Part__r.Category__r.Income_GL__c, CO_Line_Item__r.Part__r.Category__r.Inventory_GL__c';
     	customFieldsQuery += ', CO_Invoice_Header__r.CO_Header__r.Customer__r.Sales_Tax__r.Name__c';
     	
@@ -463,7 +462,7 @@ global with sharing class AccountingDataMigrationSalesInvoice implements Databas
 			    														'Amount__c'			=>	((coInvoiceItem.Price__c < 0) ? '-': '') + '$' + ((coInvoiceItem.Price__c < 0) ? (coInvoiceItem.Price__c * -1 * coInvoiceItem.Qty__c).setScale(2) : (coInvoiceItem.Price__c * coInvoiceItem.Qty__c).setScale(2)),
 			    														'Is_Credit__c'		=>	(coInvoiceItem.Qty__c > 0) ? 'Y' : 'N',
 			    														'Tax_Code__c'		=>	coInvoiceItem.CO_Invoice_Header__r.CO_Header__r.Customer__r.Sales_Tax__r.Name__c,
-																		'Allocation_Memo__c'=>	coInvoiceItem.CO_Line_Item__r.Part__r.Part_Number__c + ' - ' + coInvoiceItem.CO_Line_Item__r.Part__r.Description__c + ' ' + coInvoiceItem.Qty__c + '@$' + coInvoiceItem.Price__c
+																		'Allocation_Memo__c'=>	coInvoiceItem.CO_Line_Item__r.Part__r.Part_Number__c + ' - ' + coInvoiceItem.CO_Line_Item__r.Part__r.Description__c + ' ' + coInvoiceItem.Qty__c + '@$' + coInvoiceItem.CO_Line_Item__r.Part__r.Last_Cost__c
 																	};
     	return inventoryGLRecord;
     }
@@ -506,7 +505,7 @@ global with sharing class AccountingDataMigrationSalesInvoice implements Databas
 		    														'Amount__c'			=>	((coInvoiceItem.Price__c < 0) ? '-': '') + '$' + ((coInvoiceItem.Price__c < 0) ? (coInvoiceItem.Price__c * -1 * coInvoiceItem.Qty__c).setScale(2) : (coInvoiceItem.Price__c * coInvoiceItem.Qty__c).setScale(2)),
 		    														'Is_Credit__c'		=>	(coInvoiceItem.Qty__c > 0) ? 'N' : 'Y',
 		    														'Tax_Code__c'		=>	coInvoiceItem.CO_Invoice_Header__r.CO_Header__r.Customer__r.Sales_Tax__r.Name__c,
-																	'Allocation_Memo__c'=>	coInvoiceItem.CO_Line_Item__r.Part__r.Part_Number__c + ' - ' + coInvoiceItem.CO_Line_Item__r.Part__r.Description__c + ' ' + coInvoiceItem.Qty__c + '@$' + coInvoiceItem.Price__c
+																	'Allocation_Memo__c'=>	coInvoiceItem.CO_Line_Item__r.Part__r.Part_Number__c + ' - ' + coInvoiceItem.CO_Line_Item__r.Part__r.Description__c + ' ' + coInvoiceItem.Qty__c + '@$' + coInvoiceItem.CO_Line_Item__r.Part__r.Last_Cost__c
 																};
     	return COGSGLRecord;
     }

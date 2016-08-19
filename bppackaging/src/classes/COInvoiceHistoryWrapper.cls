@@ -12,6 +12,8 @@ public with sharing class COInvoiceHistoryWrapper {
 	// CO Invoice line Item
 	public List<COInvoiceItem> COInvoiceItesRecs {get; set;}
 	
+	public Boolean IsTaxIncludingPricing;
+	
 	// constructor
 	public COInvoiceHistoryWrapper(CO_Invoice_Header__c coInvoiceHeaderRec, List<CO_Invoice_Item__c> coInvoiceItemList ) {
 		this.COInvoiceHeaderRec = new COInvoiceHeader(coInvoiceHeaderRec);
@@ -19,6 +21,8 @@ public with sharing class COInvoiceHistoryWrapper {
 		for(CO_Invoice_Item__c coInvoiceItemRec : coInvoiceItemList) {
 			this.COInvoiceItesRecs.add(new COInvoiceItem(coInvoiceItemRec));
 		}
+		//system.assert(false, COInvoiceItesRecs);
+		this.IsTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
 	}
 	
 }

@@ -61,7 +61,6 @@ public with sharing class PreviewGridRecordsCtrl {
     **/
     @RemoteAction
     public static String getReportData(String filterJSON, String selectedObjName, String uniqueValueFieldLastValue) {
-     
         return HomeSearchCtrl.getReportData(filterJSON, selectedObjName, uniqueValueFieldLastValue);
     }
     

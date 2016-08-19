@@ -38,6 +38,11 @@ public with sharing class LabourRecord {
 	// Labour Category record
 	public Category LabourCategory {get; set;}
 	
+	public String ApplicableTaxId {get; private set;}
+	public String ApplicableTaxName {get; private set;}
+	
+	public Integer PriorityLevel{get; set;}
+	
 	// Constructor
 	public LabourRecord(Id labourId) {
 		if(labourId != null && String.valueOf(labourId).trim().length() != 0){
@@ -59,6 +64,8 @@ public with sharing class LabourRecord {
 				this.LabourDescription = labourCode.Description__c;
 				
 				this.LabourCategory = new Category(labourCode.Category__c, labourCode.Category__r.Name);
+				this.ApplicableTaxId = labourCode.Applicable_Tax__c;
+				this.ApplicableTaxName = labourCode.Applicable_Tax__r.Name__c;
 			}
 		}
 	}
@@ -79,6 +86,23 @@ public with sharing class LabourRecord {
 		}
 	}
 	
+	// Constructor
+	public LabourRecord(Labour_Code__c labourCode, Integer priorityLevel) {
+		if(labourCode != null){
+			this.Id = labourCode.Id;
+			this.LabourNumber = labourCode.Name;
+			this.LabourName = labourCode.Name__c;
+			this.LabourHours = (labourCode.Hours__c != null) ? (labourCode.Hours__c + '') : '0.0';
+			this.LabourRate = (labourCode.Rate__c != null) ? (labourCode.Rate__c + '') : '0.00';
+			this.LabourCode = labourCode.Code__c;
+			this.LabourStatus = labourCode.Active__c;
+			this.LabourTaxable = labourCode.Taxable__c;
+			this.LabourFixedRate = labourCode.Fixed_Rate__c;
+			this.LabourDescription = labourCode.Description__c;
+			this.PriorityLevel = priorityLevel;
+		}
+	}
+	
 	// A method to define the list of Labour object fields to be used in queries
 	public static List<String> fieldsList(){
 		List<String> labourFields = new List<String>{	'Id', 
@@ -92,7 +116,9 @@ public with sharing class LabourRecord {
 														'Rate__c',
 														'Taxable__c',
 														'Category__c',
-														'Category__r.Name'
+														'Category__r.Name',
+														'Applicable_Tax__c',
+														'Applicable_Tax__r.Name__c'
 													};
 		return labourFields;
 	}

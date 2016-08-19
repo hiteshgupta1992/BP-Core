@@ -4,7 +4,7 @@
  * Name: HomeSearchSOSL
  * Description: Apex class which contains all SOSL Methods.
 **/
-public with sharing class HomeSearchSOSL {
+public without sharing class HomeSearchSOSL {
 	private static Integer totalRecordsFound;
 	
     /**
@@ -132,8 +132,8 @@ public with sharing class HomeSearchSOSL {
 								                            Map<String, List<HomeSearchFilterInterface.FieldFilter>> objectFiltersMap,
 								                            PaginationSorting pageAndSortMapping
 														){
-		textToSearch = BPUtility.escapeSingleQuotes(textToSearch );														
     	// SOSL query string
+    	textToSearch = BPUtility.escapeSingleQuotes(textToSearch);
 		String soslQuery = 'Find \'';
 		if(textToSearch.trim().length() != 0){
 			soslQuery += textToSearch + ' OR ' + textToSearch + '* ' + ' OR ' + '*' + textToSearch + '*';

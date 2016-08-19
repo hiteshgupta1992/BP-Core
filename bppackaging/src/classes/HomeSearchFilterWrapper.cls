@@ -77,6 +77,9 @@ public with sharing class HomeSearchFilterWrapper {
 	public String CO_Invoice_Header_Customer_Order;
 	public String CO_Invoice_Header_Status;
 	
+	// Customer Payments
+	public String CO_Payment_Customer_Order;
+	public BetweenFilter CO_Payment_Payment_Method;
 	
 	
 	//Vendor Ordering - Group
@@ -159,6 +162,9 @@ public with sharing class HomeSearchFilterWrapper {
 		
 		this.CO_Invoice_Header_Customer_Order = '';
 		this.CO_Invoice_Header_Status = '';
+		
+		this.CO_Payment_Customer_Order = '';
+		this.CO_Payment_Payment_Method = new BetweenFilter();
 		
 		this.Customer_Order_Deposits = new BetweenFilter();
 		this.Customer_Order_Payments = new BetweenFilter();

@@ -75,6 +75,7 @@ public with sharing class VendorOverviewCtrl {
 			for(String qFields : vendorFields){
 				customerQuery += ', ' + qFields;
 			}
+			vendorID = BPUtility.escapeSingleQuotes(vendorID);
 			customerQuery += ' From Account where Id =: vendorID';
 			
 			if(AccessControl.ifObjectIsAccessible('Account') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE);}

@@ -1,8 +1,8 @@
 <apex:component >
   <style>
-  	body{
+  	/* body{
   		font-size:13px;
-  	}
+  	} */
   	.T1{
 			font-family: 'Open Sans', sans-serif;
 			font-weight: lighter;
@@ -247,7 +247,7 @@
 		.userNameblock{
 			float: left;
 			margin-left: 10px;
-			margin-top: 8px;
+			/* margin-top: 8px; */
 		}
 		.userNameblock p{
 			margin: 0;
@@ -1020,7 +1020,7 @@
               font-size: 14px;
               width: 200px;
         }
-        .volineItem_row_clickable .edit_panel .edit_box .its-heading:after{
+        /* .volineItem_row_clickable .edit_panel .edit_box .its-heading:after{
               content: "";
               width: 0;
               height: 0;
@@ -1030,7 +1030,7 @@
               position: absolute;
               right: 1px;
               top: 12px;
-        }
+        } */
         .volineItem_row_clickable .edit_panel .edit_box .its-heading .img_action{
             margin-right:5px;
         }
@@ -1118,5 +1118,12 @@
             border-radius : 3px;
             border: 1px solid #fff;
         }
+        .T3_1{
+			font-family: 'Open Sans', sans-serif;
+			font-weight: 700;
+			font-size: 13px;
+			margin: 0.01em;
+			color: #414449;
+		}
   </style>
 </apex:component>

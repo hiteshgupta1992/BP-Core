@@ -190,7 +190,7 @@
 	float: left;
 	width: 30px;
 	height: 30px;
-	background: url("/resource/Images/circlefornumber.png") no-repeat;
+	background-image: url('{!URLFOR($Resource.Images, 'circlefornumber.png')}') no-repeat;
 }
 
 .popupright .tabconainer form .lable_fields .form_lable_icons.text {
@@ -355,7 +355,7 @@
 	display: block;
 	width: 30px;
 	height: 30px;
-	background: url("/resource/Images/circlefornumber.png") no-repeat;
+	background-image: url('{!URLFOR($Resource.Images, 'circlefornumber.png')}') no-repeat;
 	background-size: 100%;
 	color: #f79420;
 	font-weight: bold;
@@ -426,8 +426,7 @@
 
 .popupright .tabconainer form .form-group .chkbox_custom.disabled .leftchked.checked
 	{
-	background: url("/resource/Images/chkpngleft_trimmed_disabled.png")
-		no-repeat;
+	background-image: url('{!URLFOR($Resource.Images, 'chkpngleft_trimmed_disabled.png')}') no-repeat;
 	color: #FFFFFF;
 	background-size: 100% 100%;
 	font-size: 12px;
@@ -451,8 +450,7 @@
 
 .popupright .tabconainer form .form-group .chkbox_custom.disabled .rightchked.checked
 	{
-	background: url("/resource/Images/chkpngright_trimmed_disabled.png")
-		no-repeat;
+	background-image: url('{!URLFOR($Resource.Images, 'chkpngleft_trimmed_disabled.png')}') no-repeat;
 	color: #FFFFFF;
 	background-size: 100% 100%;
 	font-size: 12px;
@@ -478,8 +476,7 @@
 	width: 55%;
 	float: left;
 	height: 34px;
-	background: url("/resource/Images/chkpngleft_trimmed_disabled.png")
-		no-repeat;
+	background-image: url('{!URLFOR($Resource.Images, 'chkpngleft_trimmed_disabled.png')}') no-repeat;
 	color: #FFFFFF;
 	background-size: 100% 100%;
 	font-size: 12px;
@@ -494,8 +491,7 @@
 	width: 55%;
 	float: left;
 	height: 34px;
-	background: url("/resource/Images/chkpngright_trimmed_disabled.png")
-		no-repeat;
+	background-image: url('{!URLFOR($Resource.Images, 'chkpngleft_trimmed_disabled.png')}') no-repeat;
 	color: #FFFFFF;
 	background-size: 100% 100%;
 	font-size: 12px;
@@ -510,7 +506,7 @@
 
 .popupright .tabconainer form .form-group .chkbox_custom .leftchked.checked
 	{
-	background: url("/resource/Images/chkpngleft_trimmed.png") no-repeat;
+	background-image: url('{!URLFOR($Resource.Images, 'chkpngleft_trimmed_disabled.png')}') no-repeat;
 	color: #FFFFFF;
 	background-size: 100% 100%;
 	font-size: 12px;
@@ -522,7 +518,7 @@
 
 .popupright .tabconainer form .form-group .chkbox_custom .rightchked.checked
 	{
-	background: url("/resource/Images/chkpngright_trimmed.png") no-repeat;
+	background-image: url('{!URLFOR($Resource.Images, 'chkpngleft_trimmed_disabled.png')}') no-repeat;
 	color: #FFFFFF;
 	background-size: 100% 100%;
 	font-size: 12px;
@@ -600,7 +596,7 @@
                   top: -50px;
                     
                   height: 170px;
-                  background:  url("/resource/Images/arrow.png")   no-repeat !important;
+                  background-image: url('{!URLFOR($Resource.Images, 'arrow.png')}') no-repeat !important;
               }
               */
 .ConfirmBox-overlay {
@@ -820,7 +816,7 @@
                                 
                                 $scope.CustomerModal.ClearAlldata =function()
                                 {
-                                                
+                                                debug($scope.CustomerModal.CustomerMasterData);
                                                 $scope.CustomerModal.Country=$scope.CustomerModal.CustomerMasterData.CountryList;
                                                 $scope.CustomerModal.ShippingCountry=$scope.CustomerModal.CustomerMasterData.CountryList;
                                                 $scope.CustomerModal.PriceLevel=$scope.CustomerModal.CustomerMasterData.PriceLevelList;
@@ -866,7 +862,6 @@
                                                 JobTitle : {isPrimary: false, label: 'Job Title', fieldId:'jobTitle', displayType: 'Individual'},
                                                 VIPLevel : {isPrimary: false, label: 'VIP Level', displayType: 'Both'},
                                                 PriceLevel : {isPrimary: false, label: 'Price Level', fieldId:'priceLevelDropDown', displayType: 'Both'},
-                                                TaxLevel : {isPrimary: false, label: 'Tax Level', fieldId:'taxLevel', displayType: 'Both'},
                                                 IsVendor : {isPrimary: false, label: 'Vendor', fieldId:'vendorDropDown', displayType: 'Both'},
                                                 Active:{isPrimary: false, label: 'Active', displayType: 'Both'}
                                             } 
@@ -1078,23 +1073,6 @@
                                             
 
 
-                                            if($scope.CustomerModal.CustomerInfo.SalesTaxId !=null ){
-                                                    
-                                                      for(i=0 ; i < $scope.CustomerModal.SalesTax.length ; i++)
-
-                                                        {
-                                                            if( $scope.CustomerModal.SalesTax[i].Id == $scope.CustomerModal.CustomerInfo.SalesTaxId)
-
-                                                                {   
-                                                                    $scope.CustomerModal.SelectedSalesTax=$scope.CustomerModal.SalesTax[i];
-                                                                    
-                                                                }
-
-
-
-                                                        }   
-                                                        $scope.CustomerModal.AdditionalFieldsInfo['TaxLevel'].isPrimary=true;       
-                                            }
 
                                             //vedor
 
@@ -1242,15 +1220,11 @@
                                         
                                         $scope.CustomerModal.SetDafaultPriceLevel();
                                         
-                                     }else if(fieldrel == 'TaxLevel') {
-                                     
-                                        $scope.CustomerModal.SetDafaultSalesTax();
                                      }
                                      else if(fieldrel == 'Birthdate')
                                      {
                                         $scope.CustomerModal.SetDefaultBirthday();
-                                     }
-                                    else if(fieldrel=='IsVendor')
+                                     }else if(fieldrel=='IsVendor')
                                       {
                                         $scope.CustomerModal.SetDafaultPurchaseTax();
                                      
@@ -1607,7 +1581,6 @@
                                 Company:{value:[{val:'Company', fieldType:'text'}],isPrimary:false},
                                 JobTitle:{value:[{val:'JobTitle', fieldType:'text'}],isPrimary:false},
                                 PriceLevel :{value:[{val:'PriceLevel', fieldType:'lookup'}],isPrimary:false},
-                                TaxLevel : {value:[{val:'TaxLevel', fieldType:'lookup'}],isPrimary:false},
                                 OtherPhone : {value:[{val:'OtherPhone', fieldType:'text'}],isPrimary:false},
                                 OtherEmail : {value:[{val:'OtherEmail', fieldType:'text'}],isPrimary:false},
                                 IsVendor: {value:[{val:'IsVendor', fieldType:'boolean'}],isPrimary:false},
@@ -2241,13 +2214,6 @@
                             else
                             { 
                                 $scope.CustomerModal.CustomerInfo.PriceLevelId = null;
-                            }
-                            if($scope.CustomerModal.AdditionalFieldsInfo['TaxLevel'].isPrimary == true) {
-
-                                $scope.CustomerModal.CustomerInfo.SalesTaxId = $scope.CustomerModal.SelectedSalesTax.Id;
-                            }
-                            else{
-                                    $scope.CustomerModal.CustomerInfo.SalesTaxId=null;
                             }
                             
                             if( $scope.CustomerModal.AdditionalFieldsInfo['IsVendor'].isPrimary == true && $scope.CustomerModal.CustomerInfo['IsVendor']==true ){
@@ -3053,10 +3019,10 @@
 
 											</div>
 											<div class="form-group half">
-												<label for="exampleInputEmail1">Postal/Zip</label> <input
+												<label for="exampleInputEmail1">Postal/Zip Code</label> <input
 													type="text" class="form-control" id="exampleInputEmail1"
 													ng-model="CustomerModal.CustomerInfo.BillingPostalCode"
-													placeholder="Postal/Zip" rel="CityPostal"
+													placeholder="Postal/Zip Code" rel="CityPostal"
 													ng-attr-tabindex="{{CustomerModal.tabIndexValue + 16}}" />
 
 											</div>
@@ -3169,10 +3135,10 @@
 
 											</div>
 											<div class="form-group half">
-												<label for="exampleInputEmail1">Postal/Zip</label> <input
+												<label for="exampleInputEmail1">Postal/Zip Code</label> <input
 													type="text" class="form-control"
 													ng-model="CustomerModal.CustomerInfo.ShippingPostalCode"
-													id="exampleInputEmail1" placeholder="Postal/Zip"
+													id="exampleInputEmail1" placeholder="Postal/Zip Code"
 													rel="CityPostalShipping"
 													ng-attr-tabindex="{{CustomerModal.tabIndexValue + 23}}" />
 
@@ -3635,38 +3601,6 @@
 										</div>
 									</div>
 
-
-									<div class="clearfix"></div>
-									<div class="option_field"
-										ng-show="CustomerModal.AdditionalFieldsInfo.TaxLevel.isPrimary">
-										<div class="lable_fields">
-											<p>Tax Level</p>
-										</div>
-										<div class="form_fields">
-											<div class="form-group half">
-												<select class="form-control" rel="TaxLevelIcon"
-													id="taxLevel" ng-model="CustomerModal.SelectedSalesTax"
-													ng-options="salesTax as salesTax.SalesTaxName for salesTax in CustomerModal.SalesTax track by salesTax.Id"
-													ng-change="CustomerModal.changeSalesTax()"
-													ng-attr-tabindex="{{CustomerModal.tabIndexValue + 200}}">
-
-
-
-
-												</select>
-											</div>
-
-											<div class="controls" id="TaxLevelIcon">
-												<i class="fa fa-question-circle" data-toggle="tooltip"
-													title="Add Tax Level for the Customer"></i> <i
-													class="fa fa-times"
-													ng-click="CustomerModal.ClearAndRemoveField('TaxLevel')"></i>
-											</div>
-										</div>
-									</div>
-
-
-
 									<div class="option_field"
 										ng-show="CustomerModal.AdditionalFieldsInfo.IsVendor.isPrimary">
 
@@ -3762,8 +3696,8 @@
             
             $(this).hasClass('keep_open') && e.stopPropagation();
             // This replace if conditional.
-        }); 
-        //$("#sameAsBA").click(function(){
+        });  
+        //$("#sameAsBA").click(function(){ 
                 //alert($(this).hasClass("chked"));
           //      if($(this).hasClass("chked") == true){
             //        $(this).removeClass("chked");

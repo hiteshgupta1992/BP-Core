@@ -558,6 +558,7 @@ public with sharing class Utility {
     **/
     public static Map<String, List<String>> parseFilterJSONInSOSL(String JSONString) {
     	if(AccessControl.ifObjectFieldIsAccessible('User') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	
         Map<String, List<String>> filterFieldToSearchedValueMap = new Map<String, List<String>>();
         JSONParser parser = JSON.createParser(JSONString);
         while (parser.nextToken() != null) {

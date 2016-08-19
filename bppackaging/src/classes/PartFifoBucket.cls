@@ -74,7 +74,7 @@ public with sharing class PartFifoBucket {
 				this.Reference = partFifoActivityLineItemRec.Reference__c;
 				this.UniqueId = (partFifoActivityLineItemRec.Part_Adjustment__c != null) ? partFifoActivityLineItemRec.Part_Adjustment__r.Unique_Id__c :  null;
 			} else if(partFifoActivityLineItemRec.CO_Invoice_Header__c != null) {
-				this.UniqueId = (partFifoActivityLineItemRec.CO_Invoice_Header__c != null) ? partFifoActivityLineItemRec.CO_Invoice_Header__r.Name : null;
+				this.UniqueId = (partFifoActivityLineItemRec.CO_Invoice_Header__c != null) ? partFifoActivityLineItemRec.CO_Invoice_Header__r.Invoice_Number__c : null;
 				this.Reference = (partFifoActivityLineItemRec.CO_Invoice_Header__c != null) ? (partFifoActivityLineItemRec.CO_Invoice_Header__r.CO_Header__c!= null? partFifoActivityLineItemRec.CO_Invoice_Header__r.CO_Header__r.Customer__r.Name: null ): null;
 			}
 			
@@ -127,6 +127,7 @@ public with sharing class PartFifoBucket {
 					                                                    'Part_Adjustment__r.Unique_Id__c',
 					                                                    'Unique_Id__c',
 					                                                    'CO_Invoice_Header__r.Name',
+					                                                    'CO_Invoice_Header__r.Invoice_Number__c',
 					                                                    'CO_Invoice_Header__r.CO_Header__r.Customer__r.Name'
 					                                                };  
         return partFIFOBucketLineItemFields;

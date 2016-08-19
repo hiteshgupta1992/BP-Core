@@ -52,34 +52,51 @@ public with sharing class COInvoiceItem {
     
     public String CheckoutType;
     public String ItemType;
+    public Boolean isTaxIncludingPricing;
     
     // Constructor
     public COInvoiceItem(CO_Invoice_Item__c  coInvoiceItemRec) { 
     	this.TaxAmount = 0;
     	this.IsInvoiceable = false;
+    	this.isTaxIncludingPricing = GeneralConfiguration.getTaxIncludingPricing();
     	if(coInvoiceItemRec.CO_Line_Item__c != null) {
     		this.Item = coInvoiceItemRec.CO_Line_Item__r.Item_ID__c;
 	    	//this.Item = coInvoiceItemRec.CO_Line_Item__r.Part__r.Part_Number__c + ' - ' + coInvoiceItemRec.CO_Line_Item__r.Part__r.Description__c;
 	    	this.Qty = coInvoiceItemRec.CO_Line_Item__r.Qty_Committed__c;
 	    	this.COLineItemId = coInvoiceItemRec.CO_Line_Item__c;
-	        this.Price = coInvoiceItemRec.CO_Line_Item__r.Price__c;
-	        
+	        this.Price = (coInvoiceItemRec.CO_Line_Item__r.Price__c != null) ? coInvoiceItemRec.CO_Line_Item__r.Price__c.setScale(2) : 0.00;
+	        if(coInvoiceItemRec.CO_Line_Item__r.Price__c == null) {		
+	            this.Price = 0;		
+	        } else {		
+	            if(!isTaxIncludingPricing) {		
+	            	this.Price = coInvoiceItemRec.CO_Line_Item__r.Price__c.setScale(2);
+	            	if(coInvoiceItemRec.CO_Line_Item__r.Tax__c == null) {
+	            		coInvoiceItemRec.CO_Line_Item__r.Tax__c = 0;
+	            	} 
+	            	this.TaxAmount = ((this.Qty) * (this.Price) * (coInvoiceItemRec.CO_Line_Item__r.Tax__c / 100)).setScale(2);		
+	            } else {		
+	            	if(coInvoiceItemRec.CO_Line_Item__r.Tax__c == null) {
+	            		coInvoiceItemRec.CO_Line_Item__r.Tax__c = 0;
+	            	}
+	            	this.Price = (coInvoiceItemRec.CO_Line_Item__r.Price__c * (1 + coInvoiceItemRec.CO_Line_Item__r.Tax__c /100)).setScale(2);	
+	            	this.TaxAmount = ((this.Qty) * (coInvoiceItemRec.CO_Line_Item__r.Price__c) * (coInvoiceItemRec.CO_Line_Item__r.Tax__c / 100)).setScale(2);	
+	            }		
+	        }
 	        if(coInvoiceItemRec.CO_Line_Item__r.Tax__c == null) {
 	        	coInvoiceItemRec.CO_Line_Item__r.Tax__c = 0;
 	        }
-	        this.TaxAmount = (this.Qty) * (this.Price) * (coInvoiceItemRec.CO_Line_Item__r.Tax__c / 100);
 	        
-	        this.Total = ((this.Qty) * (this.Price));
+	        this.Total = ((this.Qty) * (this.Price)).setScale(2);
 	        this.isActive = coInvoiceItemRec.isActive__c;
 	        this.COInvoiceItemNumber = coInvoiceItemRec.Name;
 	        
 	        this.QtyRequired = coInvoiceItemRec.CO_Line_Item__r.Qty__c;
-	        this.RetailPrice = coInvoiceItemRec.CO_Line_Item__r.Retail__c;
+	        this.RetailPrice = (coInvoiceItemRec.CO_Line_Item__r.Retail__c != null) ? coInvoiceItemRec.CO_Line_Item__r.Retail__c.setScale(2) : 0.00;
 	        if(coInvoiceItemRec.CO_Line_Item__r.Retail__c == null) {
-	        	coInvoiceItemRec.CO_Line_Item__r.Retail__c = 0;
+	        	coInvoiceItemRec.CO_Line_Item__r.Retail__c = 0.00;
 	        } 
 	        if(coInvoiceItemRec.CO_Line_Item__r.Price__c == null) {
-	        	coInvoiceItemRec.CO_Line_Item__r.Price__c = 0;
+	        	coInvoiceItemRec.CO_Line_Item__r.Price__c = 0.00;
 	        }
 	        this.Saving = (this.QtyRequired) * (coInvoiceItemRec.CO_Line_Item__r.Retail__c - coInvoiceItemRec.CO_Line_Item__r.Price__c);
 	        
@@ -97,8 +114,8 @@ public with sharing class COInvoiceItem {
 	        
 	        if(coInvoiceItemRec.CO_Line_Item__r.Qty__c < 0) {
 	        	this.Qty = coInvoiceItemRec.CO_Line_Item__r.Qty__c;
-	        	this.Total = ((this.Qty) * (this.Price));
-	        	this.TaxAmount = (this.Qty) * (this.Price) * (coInvoiceItemRec.CO_Line_Item__r.Tax__c / 100);
+	        	this.Total = ((this.Qty) * (this.Price)).setScale(2);
+	        	this.TaxAmount = ((this.Qty) * (this.Price) * (coInvoiceItemRec.CO_Line_Item__r.Tax__c / 100)).setScale(2);
 	        	this.IsFinalizable = true;
 	        	this.IsInvoiceable = true;
 	        }
@@ -123,14 +140,25 @@ public with sharing class COInvoiceItem {
 	    			this.CheckoutType = Constants.CHECKOUT_TYPE_CUSTOMER;
     			}
 	    		this.isActive = coInvoiceItemRec.isActive__c;
-	    		this.Total = coInvoiceItemRec.Service_Order_Header__r.Total__c;
+	    		this.Total = coInvoiceItemRec.Service_Order_Header__r.Total__c;		
+	    		this.TaxAmount = (coInvoiceItemRec.Service_Order_Header__r.Tax_Amount__c != null) ? coInvoiceItemRec.Service_Order_Header__r.Tax_Amount__c.setScale(2) : 0.00;
+	    		if(isTaxIncludingPricing) {		
+	    			if(this.Total == null) {		
+	    				this.Total = 0;		
+	    			}		
+	    			if(this.TaxAmount == null) {		
+	    				this.TaxAmount = 0;		
+	    			}		
+	    			this.Total = this.Total + this.TaxAmount;		
+	    		}		
+	    		this.Price = this.Total;
 	    		if(coInvoiceItemRec.Service_Order_Header__r.Work_Status__c == 'Signed Out') {
 	    			this.IsInvoiceable = coInvoiceItemRec.Is_Invoiceable__c;
 	    		} else {
 	    			this.isActive = false;
 	    		}
 	    		this.SOStatus = coInvoiceItemRec.Service_Order_Header__r.Status__c;
-	    		this.TaxAmount = coInvoiceItemRec.Service_Order_Header__r.Tax_Amount__c;
+	    		
 	    		if(coInvoiceItemRec.isActive__c &&  coInvoiceItemRec.Is_Invoiceable__c && (coInvoiceItemRec.Service_Order_Header__r.Status__c == 'Complete'|| coInvoiceItemRec.Service_Order_Header__r.Status__c == 'Reviewed')){
 			 		this.IsFinalizable = true;
 	    		} else {
@@ -145,11 +173,16 @@ public with sharing class COInvoiceItem {
     		}
     		this.isActive = coInvoiceItemRec.isActive__c;
     		this.IsInvoiceable = coInvoiceItemRec.Is_Invoiceable__c;
-    		this.Total = coInvoiceItemRec.CO_Kit_Header__r.Price__c;
-    		this.TaxAmount = coInvoiceItemRec.CO_Kit_Header__r.Tax_Amount__c;
-    		if(coInvoiceItemRec.isActive__c &&  coInvoiceItemRec.Is_Invoiceable__c ){
+    		if(!isTaxIncludingPricing) {
+    			this.Total = (coInvoiceItemRec.CO_Kit_Header__r.Price__c != null) ? coInvoiceItemRec.CO_Kit_Header__r.Price__c.setScale(2) : 0.00;
+    			this.TaxAmount = (coInvoiceItemRec.CO_Kit_Header__r.Tax_Amount__c != null) ? coInvoiceItemRec.CO_Kit_Header__r.Tax_Amount__c.setScale(2) : 0.00;
+    		}else{
+    				this.TaxAmount = (coInvoiceItemRec.CO_Kit_Header__r.Tax_Amount__c != null) ? coInvoiceItemRec.CO_Kit_Header__r.Tax_Amount__c.setScale(2) : 0.00;
+    				this.Total = ((coInvoiceItemRec.CO_Kit_Header__r.Price__c != null) ? coInvoiceItemRec.CO_Kit_Header__r.Price__c.setScale(2) : 0.00) + ((coInvoiceItemRec.CO_Kit_Header__r.Tax_Amount__c != null) ? coInvoiceItemRec.CO_Kit_Header__r.Tax_Amount__c.setScale(2) : 0.00);
+    		}
+    		if(coInvoiceItemRec.isActive__c && coInvoiceItemRec.Is_Invoiceable__c ){
     		 	this.IsFinalizable = true;
-    		} else {
+    		} else {  
     			this.IsFinalizable = false;
     		}
     		this.CheckoutType = Constants.CHECKOUT_TYPE_CUSTOMER;
@@ -169,7 +202,7 @@ public with sharing class COInvoiceItem {
     				this.Item = coInvoiceItemRec.SO_Payment_Role__r.Service_Order_Header__r.Name__c + ' - CLAIM - Deductible';
     			} 
     			this.isActive = coInvoiceItemRec.isActive__c;
-	    		this.Total = coInvoiceItemRec.SO_Payment_Role__r.Total_Amount__c;
+	    		this.Total = (coInvoiceItemRec.SO_Payment_Role__r.Total_Amount__c != null) ? coInvoiceItemRec.SO_Payment_Role__r.Total_Amount__c.setScale(2) : 0.00;
 	    		this.IsInvoiceable = coInvoiceItemRec.Is_Invoiceable__c;
 	    		this.CheckoutType = Constants.CHECKOUT_TYPE_CUSTOMER;
     		}
@@ -180,7 +213,7 @@ public with sharing class COInvoiceItem {
 				this.Item = coInvoiceItemRec.SO_Payment_Role__r.Service_Order_Header__r.Name__c + ' - CLAIM - ' + coInvoiceItemRec.Service_Order_Header__r.Claim_Status__c + ' - ' + coInvoiceItemRec.Service_Order_Header__r.Provider__r.Name;
     			
     			this.isActive = coInvoiceItemRec.isActive__c;
-	    		this.Total = coInvoiceItemRec.SO_Payment_Role__r.Total_Amount__c;
+	    		this.Total = (coInvoiceItemRec.SO_Payment_Role__r.Total_Amount__c != null) ? coInvoiceItemRec.SO_Payment_Role__r.Total_Amount__c.setScale(2) : 0.00;
 	    		if(coInvoiceItemRec.SO_Payment_Role__r.Service_Order_Header__r.Work_Status__c == 'Signed Out') {
 	    			this.IsInvoiceable = coInvoiceItemRec.Is_Invoiceable__c;
 	    		} else {
@@ -194,7 +227,7 @@ public with sharing class COInvoiceItem {
     		if(coInvoiceItemRec.Service_Order_Header__r != null) {
 				this.Item = coInvoiceItemRec.Service_Order_Header__r.Name__c + ' - CLAIM VARIANCE ' + ((coInvoiceItemRec.SO_Payment_Role__r.Category__c != null) ? (' - ' + coInvoiceItemRec.SO_Payment_Role__r.Category__r.Name) : '');
     			this.isActive = coInvoiceItemRec.isActive__c;
-	    		this.Total = coInvoiceItemRec.SO_Payment_Role__r.Total_Amount__c;
+	    		this.Total = (coInvoiceItemRec.SO_Payment_Role__r.Total_Amount__c != null) ? coInvoiceItemRec.SO_Payment_Role__r.Total_Amount__c.setScale(2) : 0.00;
 	    		if(coInvoiceItemRec.SO_Payment_Role__r.Service_Order_Header__r.Work_Status__c == 'Signed Out' && coInvoiceItemRec.SO_Payment_Role__r.Claim__r.Claim_Disposition__c != 'Denied') {
 	    			this.IsInvoiceable = coInvoiceItemRec.Is_Invoiceable__c;
 	    		} else {
@@ -209,7 +242,7 @@ public with sharing class COInvoiceItem {
 				this.Item = coInvoiceItemRec.Service_Order_Header__r.Name__c + ' - CLAIM VARIANCE -  [item/desc from the claim]';
     			this.isActive = coInvoiceItemRec.isActive__c;
     			this.Qty = coInvoiceItemRec.SO_Payment_Role__r.Qty__c;
-	    		this.Total = coInvoiceItemRec.SO_Payment_Role__r.Total_Amount__c;
+	    		this.Total = (coInvoiceItemRec.SO_Payment_Role__r.Total_Amount__c != null) ? coInvoiceItemRec.SO_Payment_Role__r.Total_Amount__c.setScale(2) : 0.00;
 	    		if(coInvoiceItemRec.SO_Payment_Role__r.Service_Order_Header__r.Work_Status__c == 'Signed Out' && coInvoiceItemRec.SO_Payment_Role__r.Claim__r.Claim_Disposition__c != 'Denied') {
 	    			this.IsInvoiceable = coInvoiceItemRec.Is_Invoiceable__c;
 	    		} else {
@@ -225,6 +258,12 @@ public with sharing class COInvoiceItem {
     	}
     	
     	this.TaxAmount = (coInvoiceItemRec.SO_Payment_Role__r.Tax_Amount__c == null) ? 0 : coInvoiceItemRec.SO_Payment_Role__r.Tax_Amount__c;
+    	if(this.isTaxIncludingPricing) {
+    		if(this.Total == null) {
+				this.Total = 0;
+			}
+    		this.Total = this.Total + this.TaxAmount;
+    	}
     	this.ItemType = Constants.CLAIM_SERVICE_ORDER_INVOICE_ITEM_TYPE;
     }
      

@@ -259,7 +259,7 @@ app.directive('angucomplete', function ($parse, $sce, $timeout, $q, userService,
             
             $scope.ProcessResponsedataMerchandise = function(responseData, str,counter) {
             
-            if (responseData && responseData.length > 0 ) {
+            if (responseData && responseData.length >= 0 ) {
                     $scope.results = [];
                     var titleFields = [];
                     if ($scope.titleField && $scope.titleField != "") {
@@ -296,6 +296,7 @@ app.directive('angucomplete', function ($parse, $sce, $timeout, $q, userService,
                             }
                             $scope.results[$scope.results.length] = resultRow;
                         }
+                        console.log(responseData);
                     if (responseData.length > 10) {
                         var AddationalRow = {
                             title : "...and " + (responseData.length - counter).toString() + " other results",
@@ -317,7 +318,7 @@ app.directive('angucomplete', function ($parse, $sce, $timeout, $q, userService,
 
                     }
                     $scope.results.push({
-                        title : "ADVANCE SEACRH",
+                        title : "ADVANCED SEARCH",
                         description : "AdditionalInfo",
                         originalObject : " ",
 
@@ -588,7 +589,7 @@ app.directive('angucomplete', function ($parse, $sce, $timeout, $q, userService,
                                 $scope.selectedObject.CreateFeeFromCO();
                                 
                             } 
-                            else if (result["title"] == "ADVANCE SEACRH"){
+                            else if (result["title"] == "ADVANCE SEARCH"){
                                         $scope.searchStr = "";      
                                         window.location="{!$Page.HomeSearch}";
                             
@@ -607,8 +608,17 @@ app.directive('angucomplete', function ($parse, $sce, $timeout, $q, userService,
                                         $scope.selectedObject.UpdateMerchandiseFromSearchResult(successfulSearchResult,true);
                                         $scope.selectedObject.COUList = successfulSearchResult.COUList;
                                         $scope.selectedObject.populateLeftSideHeadingLables();
+                                        
+                                        $scope.selectedObject.coHeaderDetails = successfulSearchResult.coHeaderRec;
+                                        $scope.selectedObject.coHeaderId = successfulSearchResult.coHeaderRec.COHeaderId;
+                                        var url = '?id=' + $scope.selectedObject.coHeaderId;
+                                        window.history.pushState("string", "Title" , url);
                                 });
                                     
+                            }
+                            else if(result["description"] == ""){
+                            	$scope.searchStr = "";
+                                $scope.selectedObject.CreateCustomerFromCO();
                             }
                             else {  
                                 $scope.searchStr = $scope.lastSearchTerm = result.title;

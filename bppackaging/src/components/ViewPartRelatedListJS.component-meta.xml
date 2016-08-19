@@ -3,9 +3,4 @@
     <apiVersion>30.0</apiVersion>
     <description>This is a generic template for Visualforce Component.  With this template, you may adjust the default elements and values and add new elements and values.</description>
     <label>ViewPartRelatedListJS</label>
-    <packageVersions>
-        <majorNumber>1</majorNumber>
-        <minorNumber>7</minorNumber>
-        <namespace>sf_com_apps</namespace>
-    </packageVersions>
 </ApexComponent>

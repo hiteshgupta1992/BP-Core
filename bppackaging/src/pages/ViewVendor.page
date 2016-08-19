@@ -10,7 +10,8 @@
     <c:Css_and_Js ></c:Css_and_Js> 
           
     <!-- Scripts -->
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+<!--     <apex:includeScript value="{!URLFOR($Resource.AngularResources, 'js/googlemapapiv3.js') }" /> -->
+	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
     <apex:includeScript value="{!$Resource.AngularMap}"/>
     <apex:includeScript value="{!$Resource.niceScroll}"/>  
     <apex:stylesheet value="{!URLFOR($Resource.simpleCalender, 'assets/css/style.css')}"/>

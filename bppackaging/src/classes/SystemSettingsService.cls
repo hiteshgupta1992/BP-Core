@@ -414,6 +414,7 @@ public with sharing class SystemSettingsService {
     public static void saveSalesTaxJSON(String JSONString) { 
     	if(AccessControl.ifObjectFieldIsCreateable('Sales_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 		if(AccessControl.ifObjectFieldIsUpdateable('Sales_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+    	
         Sales_Tax__c salesTax = new Sales_Tax__c();  
         List<Sales_Tax__c> salesTaxList = (List<Sales_Tax__c>)Utility.parseJSON(JSONString, salesTax, Constants.SALES_TAX_JSON_TO_FIELDS_MAPPING, Constants.SALES_TAX_FIELDS_TO_DATA_TYPE_MAPPING);
         for(Sales_Tax__c salesTaxRec : salesTaxList) {
@@ -483,9 +484,9 @@ public with sharing class SystemSettingsService {
      * @param: (1) JSONString - String - JSON formatted String
      * @return: 
     **/
-    public static void savePriceLevelJSON(String JSONString) {
+    public static void savePriceLevelJSON(String JSONString) { 
     	if(AccessControl.ifObjectFieldIsCreateable('Price_Level__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
-		if(AccessControl.ifObjectFieldIsUpdateable('Price_Level__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); } 
+		if(AccessControl.ifObjectFieldIsUpdateable('Price_Level__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         Price_Level__c priceLevel = new Price_Level__c();    
         List<Price_Level__c> priceLevelList = (List<Price_Level__c>) Utility.parseJSON(JSONString, priceLevel, Constants.PRICE_LEVEL_JSON_TO_FIELDS_MAPPING, Constants.PRICE_LEVEL_FIELDS_TO_DATA_TYPE_MAPPING);
         for(Price_Level__c priceLevelRec : priceLevelList) {
@@ -501,9 +502,9 @@ public with sharing class SystemSettingsService {
      * @param: (1) JSONString - String - JSON formatted String
      * @return: - Id - Id of upserted customer record
     **/
-    public static Id saveIndividualCustomerJSON(String JSONString) { 
+    public static Id saveIndividualCustomerJSON(String JSONString) {
     	if(AccessControl.ifObjectFieldIsAccessible('Contact') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	if(AccessControl.ifObjectFieldIsCreateable('Contact') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
+    	if(AccessControl.ifObjectFieldIsCreateable('Contact') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); } 
         Contact individualCustomer = new Contact();    
         List<Contact> individualCustomerList = (List<Contact>) Utility.parseJSON(JSONString, individualCustomer, Constants.INDIVIDUAL_CUSTOMER_JSON_TO_FIELDS_MAPPING, Constants.INDIVIDUAL_CUSTOMER_FIELDS_TO_DATA_TYPE_MAPPING);
         if(individualCustomerList[0] != null) {
@@ -546,35 +547,37 @@ public with sharing class SystemSettingsService {
 		if(AccessControl.ifObjectFieldIsUpdateable('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
         Account individualCustomer = new Account();    
         List<Account> individualCustomerList = (List<Account>) Utility.parseJSON(JSONString, individualCustomer, Constants.COMAPANY_CUSTOMER_JSON_TO_FIELDS_MAPPING, Constants.COMAPANY_CUSTOMER_FIELDS_TO_DATA_TYPE_MAPPING);
-        if(individualCustomerList.size() > 0 && individualCustomerList[0] != null) {
-        	Account individualCustomerRec = individualCustomerList[0];
-            individualCustomerRec.Is_Customer__c = true;
-            update individualCustomerRec;
-            
-            if(AccessControl.ifObjectFieldIsUpdateable('Contact') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-            Contact customerContact = [Select Id from Contact where AccountId =: individualCustomer.Id];
-	        String fName = individualCustomer.Name.split(' ')[0];
-	        customerContact.FirstName = fName;
-	        customerContact.LastName = (individualCustomer.Name).substring(fName.length());
-	        
-	        customerContact.MailingStreet = individualCustomer.BillingStreet;
-	        customerContact.MailingCity = individualCustomer.BillingCity;
-	        customerContact.MailingState = individualCustomer.BillingState;
-	        customerContact.MailingCountry = individualCustomer.BillingCountry;
-	        customerContact.MailingPostalCode = individualCustomer.BillingPostalCode;
-	        
-	        customerContact.OtherStreet = individualCustomer.ShippingStreet;
-	        customerContact.OtherCity = individualCustomer.ShippingCity;
-	        customerContact.OtherState = individualCustomer.ShippingState;
-	        customerContact.OtherCountry = individualCustomer.ShippingCountry;
-	        customerContact.OtherPostalCode = individualCustomer.ShippingPostalCode;
-	        
-	        customerContact.Phone = individualCustomer.Phone;
-	        customerContact.Email = individualCustomer.Email__c;
-	        customerContact.Price_Level__c = individualCustomer.Price_Level__c;
-	        customerContact.Sales_Tax__c = individualCustomer.Sales_Tax__c;
-	        update customerContact;
-	        return individualCustomer.Id;
+       for(Account individualCustomerRec : individualCustomerList) {
+	        if(individualCustomerRec != null) {
+              individualCustomerRec.Is_Customer__c = true;
+              update individualCustomerRec;
+
+              if(AccessControl.ifObjectFieldIsAccessible('Contact') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+              Contact customerContact = [Select Id from Contact where AccountId =: individualCustomer.Id];
+              String fName = individualCustomer.Name.split(' ')[0];
+              customerContact.FirstName = fName;
+              customerContact.LastName = (individualCustomer.Name).substring(fName.length());
+
+              customerContact.MailingStreet = individualCustomer.BillingStreet;
+              customerContact.MailingCity = individualCustomer.BillingCity;
+              customerContact.MailingState = individualCustomer.BillingState;
+              customerContact.MailingCountry = individualCustomer.BillingCountry;
+              customerContact.MailingPostalCode = individualCustomer.BillingPostalCode;
+
+              customerContact.OtherStreet = individualCustomer.ShippingStreet;
+              customerContact.OtherCity = individualCustomer.ShippingCity;
+              customerContact.OtherState = individualCustomer.ShippingState;
+              customerContact.OtherCountry = individualCustomer.ShippingCountry;
+              customerContact.OtherPostalCode = individualCustomer.ShippingPostalCode;
+
+              customerContact.Phone = individualCustomer.Phone;
+              customerContact.Email = individualCustomer.Email__c;
+              customerContact.Price_Level__c = individualCustomer.Price_Level__c;
+              customerContact.Sales_Tax__c = individualCustomer.Sales_Tax__c;
+              if(AccessControl.ifObjectFieldIsUpdateable('Contact') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+              update customerContact;
+              return individualCustomer.Id;
+         	}
         }
         return null;
     }
@@ -606,10 +609,11 @@ public with sharing class SystemSettingsService {
      * @param: (1) JSONString - String - JSON formatted String
      * @return: String - Upserted Part Record Id and part Id field in String 
     **/
-    public static String savePartJSON(String JSONString) {
-    	if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    public static String savePartJSON(String JSONString) { 
     	if(AccessControl.ifObjectFieldIsCreateable('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
-		if(AccessControl.ifObjectFieldIsUpdateable('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); } 
+		if(AccessControl.ifObjectFieldIsUpdateable('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+		if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		
         Part__c part = new Part__c();
         List<Part__c> partList = (List<Part__c>) Utility.parseJSON(JSONString, part, Constants.PART_ALL_JSON_TO_FIELDS_MAPPING, Constants.PART_ALL_FIELDS_TO_DATA_TYPE_MAPPING);
         for(Part__c partRec : partList) {
@@ -620,6 +624,7 @@ public with sharing class SystemSettingsService {
 	        	throw e;
 	        } 
         }
+        if(AccessControl.ifObjectFieldIsAccessible('Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         List<Part__c> parts = [select Part_ID__c from Part__c where Id = :part.Id];
         return String.valueOf( part.Id)+'|'+ String.valueOf(parts[0].Part_ID__c);
     }
