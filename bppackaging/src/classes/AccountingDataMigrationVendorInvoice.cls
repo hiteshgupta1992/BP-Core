@@ -108,8 +108,30 @@ global with sharing class AccountingDataMigrationVendorInvoice implements Databa
 	    	// For each co voInvoice account, create a MiscellaneousPurchases entry:
 	    	String lastInvoiceNumber = '';
 	    	Integer loopIndex = 0;
+	    	Set<String> ids = new Set<String>();
+	    	for(Vendor_Invoicing_Group__c voInvoice : voInvoiceList){
+	    		ids.add(voInvoice.Vendor_Receiving_Group__r.Part__r.Id);
+	    	}
+	    	
+	    	Map<String, List<Part_FIFO_Bucket_Activity_Line_Item__c>> idToActivityRecMap = new Map<String, List<Part_FIFO_Bucket_Activity_Line_Item__c>>();
+	    	List<Part_FIFO_Bucket_Activity_Line_Item__c> ActivityLineItemRec  =  [SELECT Id, Part_FIFO_Bucket__r.Part__c, Part_FIFO_Bucket__r.cost__c, Qty_Out__c, Part_FIFO_Bucket__r.VRCost__c, Part_FIFO_Bucket__r.Variance__c FROM Part_FIFO_Bucket_Activity_Line_Item__c WHERE Part_FIFO_Bucket__r.Variance__c != 0 
+	    																		 AND Part_FIFO_Bucket__r.Part__c In :ids ];
+	    																		 
+	    	for(Part_FIFO_Bucket_Activity_Line_Item__c partActivityLineItem :  ActivityLineItemRec ){
+	    		if(idToActivityRecMap.containsKey(partActivityLineItem.Part_FIFO_Bucket__r.Part__c)){
+	    			List<Part_FIFO_Bucket_Activity_Line_Item__c> partActivityRec = idToActivityRecMap.get(partActivityLineItem.Part_FIFO_Bucket__r.Part__c);
+	    			partActivityRec.add(partActivityLineItem);
+	    			idToActivityRecMap.put(partActivityLineItem.Part_FIFO_Bucket__r.Part__c,partActivityRec);
+	    		} else{
+	    			List<Part_FIFO_Bucket_Activity_Line_Item__c> partActivityRec = new List<Part_FIFO_Bucket_Activity_Line_Item__c>();
+	    			partActivityRec.add(partActivityLineItem);
+	    			idToActivityRecMap.put(partActivityLineItem.Part_FIFO_Bucket__r.Part__c,partActivityRec);
+	    		}
+	    	}
+	    	
 	    	
 	    	for(Vendor_Invoicing_Group__c voInvoice : voInvoiceList){
+	    		
 	    		loopIndex++;
 	    		decimal totalInvoicePayment = voInvoice.VI_SubTotal__c;
 	    		decimal receivingGroupTotalAmount = 0;
@@ -143,7 +165,37 @@ global with sharing class AccountingDataMigrationVendorInvoice implements Databa
 		    																				createMiscellaneousPurchasesRecordFromAdjustment(voInvoice, GLAccountMap, discountAmount, 'Inventory Adjustment'),
 			    																			miscellaneousPurchasesSFFieldToAccountingFieldsMap
 			    																		);
+			    																		
+			    																		
 	    		}
+	    		
+	    		if(idToActivityRecMap.containsKey(voInvoice.Vendor_Receiving_Group__r.Part__c)){
+	    			for(Part_FIFO_Bucket_Activity_Line_Item__c activityRec : idToActivityRecMap.get(voInvoice.Vendor_Receiving_Group__r.Part__c)){
+	    			//decimal recievingAmount = idToActivityRecMap.get(voInvoice.Vendor_Receiving_Group__r.Part__c).get()
+		    			decimal vendorRecevingAmount = 0;
+		    			decimal vendorInvoiceAmount = 0;
+		    			if(activityRec.Part_FIFO_Bucket__r.VRCost__c != null && activityRec.Qty_out__c!= null ){
+		    				vendorRecevingAmount = activityRec.Part_FIFO_Bucket__r.VRCost__c * activityRec.Qty_out__c;
+		    			}
+		    			if(activityRec.Part_FIFO_Bucket__r.Cost__c != null && activityRec.Qty_out__c!= null){
+		    				vendorInvoiceAmount = activityRec.Part_FIFO_Bucket__r.Cost__c * activityRec.Qty_out__c;
+		    			}
+		    			
+		    			decimal varianceAmount = vendorRecevingAmount - vendorInvoiceAmount;
+		    			miscPurchasesExportTextData += createImportableTextForInvoiceItemRecord(miscPurchasesIndexVal++, 
+			    																				createMiscellaneousPurchasesRecordForAdjustment(voInvoice, GLAccountMap, (vendorInvoiceAmount - vendorRecevingAmount)  , 'COSGL Adjustment'),
+				    																			miscellaneousPurchasesSFFieldToAccountingFieldsMap
+				    																		);
+		    			
+		    			
+		    			miscPurchasesExportTextData += createImportableTextForInvoiceItemRecord(miscPurchasesIndexVal++, 
+		    																				createMiscellaneousPurchasesRecordForAdjustment(voInvoice, GLAccountMap, varianceAmount, 'Inventory Adjustment'),
+			    																			miscellaneousPurchasesSFFieldToAccountingFieldsMap
+			    																		);
+			    		miscPurchasesExportTextData += '\n';
+	    			}
+	    		}
+	    		
 	    		
 	    		// Process to include new line for new invoice included
 	    		if(lastInvoiceNumber != String.valueOf(voInvoice.Vendor_Invoicing_Header__c)){
@@ -375,4 +427,41 @@ global with sharing class AccountingDataMigrationVendorInvoice implements Databa
     	
     	return miscPurchases;
     }
+    
+    
+    /**
+     * Name: createMiscellaneousPurchasesRecordFromAdjustment
+     * Desc: Method to create a MiscellaneousPurchases record by cocoInvoiceItem Adjustment record. MiscellaneousPurchases record is a map of field name to equivalent value for field
+     * @param: Vendor_Invoicing_Group__c voInvoice, Map<String, String> GLAccountMap
+     * @return: Map<String, String>
+    **/
+    private static Map<String, String> createMiscellaneousPurchasesRecordForAdjustment(Vendor_Invoicing_Group__c voInvoice, 
+    																					Map<String, String> GLAccountMap,
+    																					decimal amount, 
+    																					String description) {
+    	DateTime invoiceDate = (voInvoice.Vendor_Invoicing_Header__r.Status__c == 'Invoiced') ? datetime.newInstance(voInvoice.Vendor_Invoicing_Header__r.Invoice_Date__c.year(), voInvoice.Vendor_Invoicing_Header__r.Invoice_Date__c.month(), voInvoice.Vendor_Invoicing_Header__r.Invoice_Date__c.day()) : voInvoice.CreatedDate;
+    	Map<String, String> miscPurchases = new Map<String, String>{'Last_Name__c'			=>	(voInvoice.Vendor_Invoicing_Header__r.Vendor__r.Type__c == 'Individual') ? voInvoice.Vendor_Invoicing_Header__r.Vendor__r.LastName__c : voInvoice.Vendor_Invoicing_Header__r.Vendor__r.Name,
+    																'Date__c'				=>	invoiceDate.format(DataExportService.dateFormat),
+    																'Supplier_Invoice_No__c'=>	voInvoice.Vendor_Invoicing_Header__r.Invoice_Number__c,
+    																'Inclusive__c'			=>	'X',
+    																'Memo__c'				=>	voInvoice.Vendor_Invoicing_Header__r.Vendor__r.Name + ';' + voInvoice.Vendor_Invoicing_Header__r.Name.replace('VI-', '') + ';Purchase',
+    																'Description__c'		=>	voInvoice.Vendor_Receiving_Group__r.Part__r.Part_Number__c + '-' + voInvoice.Vendor_Receiving_Group__r.Part__r.Description__c + ' ' + 'pre-sold Cost Adjustment',
+    																'Account_No__c'			=>	(GLAccountMap.containsKey('Received Inventory Accrual')) ? GLAccountMap.get('Received Inventory Accrual') : '',
+	    															'Amount__c'				=>	((amount >= 0) ? '$' : '-$') + ((amount >= 0) ? amount.setScale(2) : (amount * -1).setScale(2)),
+																	'Tax_Code__c'			=>	'N-T',
+																	'Tax_Amount__c'			=>	'$0',
+																	'Payment_Status__c'		=>	'B',
+																	'Card_ID__c'			=>	voInvoice.Vendor_Invoicing_Header__r.Vendor__r.Vendor_Code__c
+																};
+    	
+    	if(description == 'COSGL Adjustment'){
+    		miscPurchases.put('Account_No__c', ((voInvoice.Vendor_Receiving_Group__r.Part__r.Category__r != null && voInvoice.Vendor_Receiving_Group__r.Part__r.Category__r.COGS_GL__c != null) ? voInvoice.Vendor_Receiving_Group__r.Part__r.Category__r.COGS_GL__c : ''));
+    	} else if(description == 'Inventory Adjustment'){
+    		miscPurchases.put('Account_No__c', ((voInvoice.Vendor_Receiving_Group__r.Part__r.Category__r != null && voInvoice.Vendor_Receiving_Group__r.Part__r.Category__r.Inventory_GL__c != null) ? voInvoice.Vendor_Receiving_Group__r.Part__r.Category__r.Inventory_GL__c : ''));
+    	}
+    	
+    	//system.assert(false,miscPurchases);
+    	return miscPurchases;
+    }
+    
 }

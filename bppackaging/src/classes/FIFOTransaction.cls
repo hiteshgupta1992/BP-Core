@@ -29,6 +29,7 @@ public with sharing class FIFOTransaction {
 			//bucket.Reference__c = '';
 			bucket.Qty_In__c = partRec.Qty_In_Stock__c;
 			bucket.Cost__c =  partRec.Last_Cost__c;
+			bucket.VRCost__c = partRec.Last_Cost__c;
 			bucket.Is_FIFO_Bucket__c = true;
 			bucket.Part__c = partRec.Id;
 			bucketList.add(bucket);
@@ -69,6 +70,7 @@ public with sharing class FIFOTransaction {
 			bucket.Is_FIFO_Bucket__c = true;
 			bucket.Vendor_Receiving_Header__c = vrHeaderId;
 			bucket.Part__c = partRec.Id;
+			bucket.VRCost__c = partRec.Last_Cost__c;
 			bucketList.add(bucket);
 		}
 		if(bucketList.size() > 0){
@@ -98,7 +100,7 @@ public with sharing class FIFOTransaction {
 					bucket.Source_Name__c = 'Vendor Invoice';
 					bucket.Cost__c =  partRec.Last_Cost__c;
 					bucket.Vendor_Invoicing_Header__c = viHeaderId;
-					bucket.Vendor_Receiving_Header__c = null;
+					//bucket.Vendor_Receiving_Header__c = null;
 				}
 			}
 			
@@ -124,6 +126,7 @@ public with sharing class FIFOTransaction {
 				bucket.Source_Name__c = 'Customer Return';
 				bucket.Qty_In__c = partRec.Qty_In_Stock__c;
 				bucket.Cost__c =  partRec.Last_Cost__c;
+				bucket.VRCost__c = partRec.Last_Cost__c;
 				bucket.Customer_Return__c = CoInvoiceHeader;
 				bucket.Part__c = partRec.Id;
 				bucket.Is_FIFO_Bucket__c = true;
@@ -185,6 +188,7 @@ public with sharing class FIFOTransaction {
 					bucket.Source_Name__c = 'Oversold';
 					bucket.Qty_In__c =-partRec.Qty_In_Stock__c;
 					bucket.Cost__c =  partRec.Last_Cost__c;
+					bucket.VRCost__c = partRec.Last_Cost__c;
 					bucket.Customer_Return__c = invoiceHeaderId;
 					bucket.Part__c = partRec.Id;
 					bucket.Is_FIFO_Bucket__c = true;
