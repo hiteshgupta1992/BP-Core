@@ -151,9 +151,6 @@ private class BusinessHoursMathTest {
 		system.debug('***BROKE');
 
 		Test.stopTest();
-		
-		List<Account> accList = [select Id from Account limit 100];
-		system.assertEquals(accList.size(), 0);
 	}
 
 	@isTest(SeeAllData=false)
@@ -207,7 +204,5 @@ private class BusinessHoursMathTest {
 		BusinessHoursMath businessHoursMath = new BusinessHoursMath().setBusinessHours(businessHours).setHolidays(holidays);
 
 		Test.stopTest();
-		List<Account> accList = [select Id from Account limit 100];
-		system.assertEquals(accList.size(), 0);
 	}
 }

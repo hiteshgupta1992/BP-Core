@@ -26,9 +26,6 @@ private class BlackPurlContentCtrlTest {
 	@testSetup
 	private static void setupTestData() {
 		TestUtil.createNameSpaceInGeneralConfig();
-		
-		List<General_Configurations__c> config = [SELECT Id FROM General_Configurations__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
-		System.assertNotEquals(0, config.size());
 	}
 	
 	/**
@@ -481,7 +478,6 @@ private class BlackPurlContentCtrlTest {
      * @param: customerId - Id of customer
      * @return: 
     **/
-    /*
     private static String generateTestJSONForCustomer(String customerId, String customerType){
         String prefix;
         if(customerType == 'Business') {
@@ -505,5 +501,5 @@ private class BlackPurlContentCtrlTest {
         gen.writeEndObject();
         return gen.getAsString();
     }
-    */
+    
 }

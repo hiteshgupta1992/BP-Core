@@ -43,9 +43,7 @@ private class RecentCustomerTriggerHelperTest {
         Account newCustomer = TestUtil.createCustomer(true, 'new Customer', 'google@gmail.com', 'Peris', '1800111265');
         Test.stopTest();
      
-        List<Recent_Customer__c> recentCustomerList = [select Id from Recent_Customer__c Limit 100];
-        List<Contact> accList = [select Id, Name from Contact limit 100];
-       	system.assertEquals(accList.size(), 0);
+        List<Recent_Customer__c> recentCustomerList = [select Id from Recent_Customer__c];
         //system.assertEquals(recentCustomerList.size(), 20);
     }
 }

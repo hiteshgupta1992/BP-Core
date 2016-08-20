@@ -1,5 +1,5 @@
 global without sharing class PostInstallClass implements InstallHandler {
-	public static final String NAMESPACE = '';
+	public static final String NAMESPACE = 'BPCoreClone__';
 	
 	global void onInstall(InstallContext context) {
 		String emailTextBody = 'Thanks for installing the package.';
@@ -14,20 +14,19 @@ global without sharing class PostInstallClass implements InstallHandler {
         } catch (Exception ex) {
             emailTextBody = 'Package got installed with post installed script failure. Please install configuration record manually.' +  ex.getMessage() + ex.getStackTraceString() ;
         }
-        if(AccessControl.ifObjectFieldIsAccessible('User') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        User u = [Select Id, Email from User where Id =  : context.installerID()];
-        String toAddress = u.Email;
-        String[] toAddresses = new String[]{toAddress};
+		User u = [Select Id, Email from User where Id =  : context.installerID()];
+		String toAddress = u.Email;
+		String[] toAddresses = new String[]{toAddress};
 
-        if (AccessControl.ifSingleEmailSendAllowed() == false) {
-            throw new BlackPurlException(Constants.EMAIL_SEND_NOT_PERMIT);
-        }
-        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        mail.setToAddresses(toAddresses);
-        mail.setReplyTo('support@package.dev');
-        mail.setSenderDisplayName('My Package Support');
-        mail.setSubject('Package install successful');
-        mail.setPlainTextBody(emailTextBody);
-        Messaging.sendEmail(new Messaging.Email[]{mail});
-    }
+		if (AccessControl.ifSingleEmailSendAllowed() == false) {
+			throw new BlackPurlException(Constants.EMAIL_SEND_NOT_PERMIT);
+		}
+		Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+		mail.setToAddresses(toAddresses);
+		mail.setReplyTo('support@package.dev');
+		mail.setSenderDisplayName('My Package Support');
+		mail.setSubject('Package install successful');
+		mail.setPlainTextBody(emailTextBody);
+		Messaging.sendEmail(new Messaging.Email[]{mail});
+	}
 }

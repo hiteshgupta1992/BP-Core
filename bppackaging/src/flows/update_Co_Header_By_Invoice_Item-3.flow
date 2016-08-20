@@ -154,7 +154,7 @@
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>myVariable_current.CO_Invoice_Header__r.CO_Header__c</elementReference>
+                <elementReference>myVariable_current.BPCoreClone__CO_Invoice_Header__r.CO_Header__c</elementReference>
             </value>
         </filters>
         <inputAssignments>
@@ -184,7 +184,7 @@
             </processMetadataValues>
             <field>Owner__c</field>
             <value>
-                <elementReference>myVariable_current.CO_Invoice_Header__r.CO_Header__r.Owner__c</elementReference>
+                <elementReference>myVariable_current.BPCoreClone__CO_Invoice_Header__r.BPCoreClone__CO_Header__r.Owner__c</elementReference>
             </value>
         </inputAssignments>
         <object>CO_Header__c</object>

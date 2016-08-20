@@ -185,7 +185,7 @@ public with sharing class COKH_Recalcualtion {
            }
            
           if(AccessControl.ifObjectFieldIsAccessible('Sales_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-          if(AccessControl.ifObjectFieldIsAccessible('Applicable_Taxe__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+          if(AccessControl.ifObjectFieldIsAccessible('Applicable_Taxes__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
           List<Sales_Tax__c>  salesTaxList   = new list<Sales_Tax__c>([Select Id,(Select Id, Name, Sales_Tax_Item__r.Tax_Parts__c,Sales_Tax_Item__r.Rate__c  From Applicable_Taxes__r) From Sales_Tax__c  where  Id =: salesTax.Id]);
           Decimal SalesTaxRate =0.00;
           for(Sales_Tax__c  saleTaxRec : salesTaxList){

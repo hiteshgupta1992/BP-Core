@@ -25,8 +25,6 @@ private class PartDetailTest {
 		
         String JSONString = JSON.serialize(new List<PartDetail>{detail});
         List<PartDetail> obj = PartDetail.parse(JSONString);
-        List<Contact> accList = [select Id, Name from Contact limit 100];
-      	system.assertEquals(accList.size(), 0);
 	}
 	
 	static testMethod void testFieldsList() {
@@ -34,6 +32,6 @@ private class PartDetailTest {
 		List<String> fieldsList = PartDetail.fieldsList();
 		
 		System.assertNotEquals(null, fieldsList);
-		System.assertEquals(31, fieldsList.size());
+		System.assertEquals(33, fieldsList.size());
 	}
 }

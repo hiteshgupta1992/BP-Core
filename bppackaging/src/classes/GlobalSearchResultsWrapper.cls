@@ -155,7 +155,7 @@ public with sharing class GlobalSearchResultsWrapper {
 	    		this.Type = 9;
 	    		this.ObjectName = 'Customer Invoice';
 	    		this.ItemName = (searchedObj.get('Name') != null) ? String.valueOf(searchedObj.get('Name')) : null;
-	    		this.AdditionalInfo1 = (searchedObj.getSobject(Constants.NAMESPACE +'CO_Header__r') != null && searchedObj.getSobject(Constants.NAMESPACE +'Customer__r') != null && searchedObj.getSobject(Constants.NAMESPACE +'Customer__r').get('Name') != null) ? String.valueOf(searchedObj.getSObject(Constants.NAMESPACE +'CO_Header__r').getSObject(Constants.NAMESPACE +'Customer__r').get('Name')) : null;
+	    		this.AdditionalInfo1 = (searchedObj.getSobject(Constants.NAMESPACE +'CO_Header__r') != null && searchedObj.getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Customer__r') != null && searchedObj.getSobject(Constants.NAMESPACE +'CO_Header__r').getSobject(Constants.NAMESPACE +'Customer__r').get('Name') != null) ? String.valueOf(searchedObj.getSObject(Constants.NAMESPACE +'CO_Header__r').getSObject(Constants.NAMESPACE +'Customer__r').get('Name')) : null;
 	    		this.AdditionalInfoLabel1 = 'Customer Name';
 	    		  
 	    	} else if(objName == Constants.NAMESPACE + 'Vendor_Order_Header__c') {

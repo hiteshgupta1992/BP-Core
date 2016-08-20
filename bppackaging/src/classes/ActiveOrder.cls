@@ -151,7 +151,7 @@ global with sharing class ActiveOrder {
 		
 		Map<String, String> sortFieldMap = new Map<String, String>();
     	if(pageSortAttrs.sorting != null && pageSortAttrs.sorting[0].sortDirection.length() != 0){
-    		sortFieldMap.put('Vendor_Order_Header__r.Name', pageSortAttrs.sorting[0].sortDirection);
+    		sortFieldMap.put('Name', pageSortAttrs.sorting[0].sortDirection);
     	}
 		
 		List<ActiveOrder> activeOrders = new List<ActiveOrder>();
@@ -188,7 +188,7 @@ global with sharing class ActiveOrder {
 		
 		Map<String, String> sortFieldMap = new Map<String, String>();
     	if(pageSortAttrs.sorting != null && pageSortAttrs.sorting[0].sortDirection.length() != 0){
-    		sortFieldMap.put('Vendor_Order_Header__r.Name', pageSortAttrs.sorting[0].sortDirection);
+    		sortFieldMap.put('Name', pageSortAttrs.sorting[0].sortDirection);
     	}
 		
 		List<ActiveOrder> activeOrders = new List<ActiveOrder>();

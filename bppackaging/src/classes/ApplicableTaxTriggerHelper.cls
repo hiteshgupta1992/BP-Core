@@ -39,7 +39,7 @@ public with sharing class ApplicableTaxTriggerHelper {
         }
         
         if(AccessControl.ifObjectFieldIsAccessible('Sales_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        if(AccessControl.ifObjectFieldIsAccessible('Applicable_Taxes__r') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        if(AccessControl.ifObjectFieldIsAccessible('Applicable_Taxes__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         
         mapOfST = new Map<Id,Sales_Tax__c>([Select Rate__c, 
                                                   (select Id, Sales_Tax_Item__c,
@@ -51,18 +51,18 @@ public with sharing class ApplicableTaxTriggerHelper {
                                             From Sales_Tax__c limit : Limits.getLimitDMLRows()]);
         
         for(Id salesTaxId : mapOfST.keyset()) {
-        	Sales_Tax__c tax = mapOfST.get(salesTaxId);
+            Sales_Tax__c tax = mapOfST.get(salesTaxId);
             tax.Rate__c = 0;
             tax.Labour_Tax__c = 0;
             if( tax.Applicable_Taxes__r != null ) {
                 for( Applicable_Taxes__c app : tax.Applicable_Taxes__r) {
                     tax.Rate__c += app.Sales_Tax_Item__r.Rate__c;      
                     if(app.Sales_Tax_Item__r.Tax_Labour__c) {
-                    	tax.Labour_Tax__c += app.Sales_Tax_Item__r.Rate__c;
+                        tax.Labour_Tax__c += app.Sales_Tax_Item__r.Rate__c;
                     }        
                 } 
             }
-        	mapOfST.put(salesTaxId, tax);
+            mapOfST.put(salesTaxId, tax);
         }
         
         if(AccessControl.ifObjectFieldIsUpdateable('Sales_Tax__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }

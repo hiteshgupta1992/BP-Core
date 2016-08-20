@@ -238,7 +238,6 @@ public with sharing class HomeSearchReportUtil {
 	    											uniqueValueFieldLastValue,
 	    											pageAndSortMapping
 	    										);
-	    	if(AccessControl.ifObjectFieldIsAccessible(objAPIName) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }									
 	    	System.debug('QUERYYYYYYY objAPIName: \n' + objQuery);
 	    	List<sObject> resultRecords = Database.query(objQuery);
 	    	resultRecordsMap.put(objAPIName, resultRecords);

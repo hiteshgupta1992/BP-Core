@@ -14,9 +14,9 @@ trigger CustomerTrigger on Account (before delete, after insert, after update, b
     
     if(Trigger.isBefore) {
         if(Trigger.isInsert) {
-            CustomerTriggerHelper.populatesFieldsBeforeInsert();
+            //CustomerTriggerHelper.populatesFieldsBeforeInsert();
         } else if(Trigger.isUpdate) {
-            CustomerTriggerHelper.populatesFieldsBeforeInsert();
+            //CustomerTriggerHelper.populatesFieldsBeforeInsert();
             /*if(!MakeGeoLocationCalloutBatch.isBatchExecuted) {
             	CustomerTriggerHelper.getGeoLocation();
             }*/

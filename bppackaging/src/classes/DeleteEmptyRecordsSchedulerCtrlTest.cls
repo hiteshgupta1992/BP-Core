@@ -25,9 +25,6 @@ private class DeleteEmptyRecordsSchedulerCtrlTest {
     @testSetup
     private static void setupTestData() {
         TestUtil.createNameSpaceInGeneralConfig();
-        
-		List<General_Configurations__c> config = [SELECT Id FROM General_Configurations__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
-		System.assertNotEquals(0, config.size());
     } 
     
     static testMethod void deleteCustomerOrderTest() {
@@ -72,13 +69,13 @@ private class DeleteEmptyRecordsSchedulerCtrlTest {
         String lineitems3 = BPUtility.getDecodedString(CustomerOrderCtrl.addLineItems(BPUtility.getEncodedString(labourCode.Id), BPUtility.getEncodedString(soHeaderDetailsObj.SOList[0].SOHeaderInfo.Id), BPUtility.getEncodedString(coHeader.Id), BPUtility.getEncodedString(customer.Id)));
     
         
-        list<CO_Header__c> coHeaderlist = [select  Customer__c from CO_Header__c Limit: 100];
+        list<CO_Header__c> coHeaderlist = [select  Customer__c from CO_Header__c];
         system.assertEquals(coHeaderlist.size(), 1 );
         
         DeleteEmptyRecordsSchedulerCtrl.deleteCustomerOrder();
         Test.stopTest();
         
-        list<CO_Header__c> coHeaderlist1 = [select  Customer__c from CO_Header__c Limit : 100];
+        list<CO_Header__c> coHeaderlist1 = [select  Customer__c from CO_Header__c];
         system.assertEquals(coHeaderlist1.size(), 1 );
         
     }
@@ -93,12 +90,12 @@ private class DeleteEmptyRecordsSchedulerCtrlTest {
         CO_Header__c coHeader = TestUtil.createCOHeader(true, customer.Id);
         //CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 20);
         
-        list<CO_Header__c> coHeaderlist = [select  Customer__c from CO_Header__c Limit : 100];
+        list<CO_Header__c> coHeaderlist = [select  Customer__c from CO_Header__c];
         system.assertEquals(coHeaderlist.size(), 1 );
         
         DeleteEmptyRecordsSchedulerCtrl.deleteCustomerOrder();
         
-        list<CO_Header__c> coHeaderlist1 = [select  Customer__c from CO_Header__c Limit : 100];
+        list<CO_Header__c> coHeaderlist1 = [select  Customer__c from CO_Header__c];
         system.assertEquals(coHeaderlist1.size(), 0);
         
     }
@@ -116,12 +113,12 @@ private class DeleteEmptyRecordsSchedulerCtrlTest {
 
         CO_Line_Item__c coLineItem = TestUtil.createCOLineItem(true, coHeader.Id, part.Id, 20);
         
-        list<CO_Header__c> coHeaderlist = [select  Customer__c from CO_Header__c Limit : 100];
+        list<CO_Header__c> coHeaderlist = [select  Customer__c from CO_Header__c];
         system.assertEquals(coHeaderlist.size(), 1 );
         
         DeleteEmptyRecordsSchedulerCtrl.deleteCustomerOrder();
         
-        list<CO_Header__c> coHeaderlist1 = [select  Customer__c from CO_Header__c Limit : 100];
+        list<CO_Header__c> coHeaderlist1 = [select  Customer__c from CO_Header__c];
         system.assertEquals(coHeaderlist1.size(), 1 );
         
     }
@@ -158,12 +155,12 @@ private class DeleteEmptyRecordsSchedulerCtrlTest {
         system.assertEquals(voLineItems.TotalLineItemGroups, 1);
         system.assertEquals(voLineItems.VendorOrderLineItemGroupList[0].Need, 50);
         
-        list<Vendor_Order_Header__c> voHeaderlist = [select  Vendor__c from Vendor_Order_Header__c Limit : 100];
+        list<Vendor_Order_Header__c> voHeaderlist = [select  Vendor__c from Vendor_Order_Header__c];
         system.assertEquals(voHeaderlist.size(), 1 );
         
         DeleteEmptyRecordsSchedulerCtrl.deleteVendorOrder();
         
-        list<Vendor_Order_Header__c> voHeaderlist1 = [select  Vendor__c from Vendor_Order_Header__c Limit : 100];
+        list<Vendor_Order_Header__c> voHeaderlist1 = [select  Vendor__c from Vendor_Order_Header__c];
         system.assertEquals(voHeaderlist1.size(), 1);
         
          }  
@@ -195,12 +192,12 @@ static testMethod void deleteVendorOrderATest() {
         Vendor_Order_Header__c voHeader = TestUtil.createVendorOrderHeader(true, Vendor.Id);
         
         
-        list<Vendor_Order_Header__c> voHeaderlist = [select  Vendor__c from Vendor_Order_Header__c Limit : 100];
+        list<Vendor_Order_Header__c> voHeaderlist = [select  Vendor__c from Vendor_Order_Header__c];
         system.assertEquals(voHeaderlist.size(), 1 );
         
         DeleteEmptyRecordsSchedulerCtrl.deleteVendorOrder();
         
-        list<Vendor_Order_Header__c> voHeaderlist1 = [select  Vendor__c from Vendor_Order_Header__c Limit : 100];
+        list<Vendor_Order_Header__c> voHeaderlist1 = [select  Vendor__c from Vendor_Order_Header__c];
         system.assertEquals(voHeaderlist1.size(), 0);
         
          } 
@@ -253,12 +250,12 @@ static testMethod void deleteVendorRecievingTest() {
         VendorOrderReceivingCtrl.VendorOrderReceiving voLineReceiveItems1 = (VendorOrderReceivingCtrl.VendorOrderReceiving)System.JSON.deserialize(allLineItems, VendorOrderReceivingCtrl.VendorOrderReceiving.class);
         Test.stopTest();
         
-        list<Vendor_Receiving_Header__c> vrHeaderlist = [select  Status__c from Vendor_Receiving_Header__c Limit : 100];
+        list<Vendor_Receiving_Header__c> vrHeaderlist = [select  Status__c from Vendor_Receiving_Header__c];
         system.assertEquals(vrHeaderlist.size(), 2 );
         
         DeleteEmptyRecordsSchedulerCtrl.deleteVendorRecieving();
         
-        list<Vendor_Receiving_Header__c> vrHeaderlist1 = [select  Status__c from Vendor_Receiving_Header__c Limit : 100];
+        list<Vendor_Receiving_Header__c> vrHeaderlist1 = [select  Status__c from Vendor_Receiving_Header__c];
         system.assertEquals(vrHeaderlist1.size(), 1);
         
 }
@@ -303,7 +300,14 @@ static testMethod void deleteVendorInvoicingTest() {
         VendorOrderLineItemWrapper voLineItems = (VendorOrderLineItemWrapper) System.JSON.deserialize(finalizedLineItems, VendorOrderLineItemWrapper.class);
         Vendor_Receiving_Header__c vrh = TestUtil.createVendorOrderReceiveHeader(true, vendor.Id, 'In Progress');
         Id vorId = BPUtility.getDecodedString(VendorOrderReceivingCtrl.addVendor(BPUtility.getEncodedString(vendor.Id), BPUtility.getEncodedString(null)));
-        String VendorOrderReceiveItems = BPUtility.getDecodedString(VendorOrderReceivingCtrl.receiveVendorOrderItems(BPUtility.getEncodedString(voHeader.Id), BPUtility.getEncodedString(vorId) , true));
+        String VendorOrderReceiveItems = BPUtility.getDecodedString(VendorOrderReceivingCtrl.receiveVendorOrderItems(BPUtility.getEncodedString(voHeader.Id), BPUtility.getEncodedString(vorId)
+        
+        
+        
+        
+        , true));
+        
+        
         String allLineItems = BPUtility.getDecodedString(VendorOrderReceivingCtrl.addAllLineItemsToItemSubsection(BPUtility.getEncodedString(vorId), BPUtility.getEncodedString(voHeader.Id), BPUtility.getEncodedString(null), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort))));
         VendorOrderReceivingCtrl.VendorOrderReceiving voLineReceiveItems1 = (VendorOrderReceivingCtrl.VendorOrderReceiving)System.JSON.deserialize(allLineItems, VendorOrderReceivingCtrl.VendorOrderReceiving.class);
         
@@ -315,12 +319,12 @@ static testMethod void deleteVendorInvoicingTest() {
         String commitLineItems = BPUtility.getDecodedString(VendorOrderReceivingCtrl.commitRecevingAction(BPUtility.getEncodedString(vorId)));
          Vendor_Invoicing_Header__c viHeader = TestUtil.createVendorInvoiceHeader(true, vendor.Id, 'In Progress');
          
-        list<Vendor_Invoicing_Header__c> viHeaderlist = [select  Status__c from Vendor_Invoicing_Header__c Limit : 100];
+        list<Vendor_Invoicing_Header__c> viHeaderlist = [select  Status__c from Vendor_Invoicing_Header__c];
         system.assertEquals(viHeaderlist.size(), 1 );
         
         DeleteEmptyRecordsSchedulerCtrl.deleteVendorInvoicing();
         
-        list<Vendor_Invoicing_Header__c> viHeaderlist1 = [select  Status__c from Vendor_Invoicing_Header__c Limit : 100];
+        list<Vendor_Invoicing_Header__c> viHeaderlist1 = [select  Status__c from Vendor_Invoicing_Header__c];
         system.assertEquals(viHeaderlist1.size(), 0);
 
     }
@@ -385,12 +389,12 @@ static testMethod void deleteVendorInvoicingATest() {
         String vendorInvoices = BPUtility.getDecodedString(VendorInvoicingCtrl.addVendor(BPUtility.getEncodedString(vendor.Id), BPUtility.getEncodedString(viHeader.Id), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort))));
         String addedVendorInvoice = BPUtility.getDecodedString(VendorInvoicingCtrl.addToItemsSubsection(BPUtility.getEncodedString(viHeader.Id), BPUtility.getEncodedString(vorId), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort))));
         String finalaizedInvoice = BPUtility.getDecodedString(VendorInvoicingCtrl.finalizeInvoiceAction(BPUtility.getEncodedString(viHeader.Id), BPUtility.getEncodedString(System.JSON.serialize(pageSort)), BPUtility.getEncodedString(System.JSON.serialize(pageSort))));
-        list<Vendor_Invoicing_Header__c> viHeaderlist = [select  Status__c from Vendor_Invoicing_Header__c Limit : 100];
+        list<Vendor_Invoicing_Header__c> viHeaderlist = [select  Status__c from Vendor_Invoicing_Header__c];
         system.assertEquals(viHeaderlist.size(), 1 );
         
         DeleteEmptyRecordsSchedulerCtrl.deleteVendorInvoicing();
         
-        list<Vendor_Invoicing_Header__c> viHeaderlist1 = [select  Status__c from Vendor_Invoicing_Header__c Limit : 100];
+        list<Vendor_Invoicing_Header__c> viHeaderlist1 = [select  Status__c from Vendor_Invoicing_Header__c];
         system.assertEquals(viHeaderlist1.size(), 1);
     }
                        /**
@@ -399,11 +403,9 @@ static testMethod void deleteVendorInvoicingATest() {
      * @param:  (1) JSONString - String - JSON String 
      * @return: RelatedListPaginationSorting - Class Object
     **/
-    /*
     public static VendorPaginationSorting parsePageAttrs(String json) {
         return (VendorPaginationSorting) System.JSON.deserialize(json, VendorPaginationSorting.class);
     }
-    */
     
     // Wrapper class for related list pagination and sorting combination
     public class VendorPaginationSorting {

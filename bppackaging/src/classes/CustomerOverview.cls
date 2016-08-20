@@ -41,7 +41,6 @@ public with sharing class CustomerOverview {
     **/
 	public CustomerOverview(){
 		if(AccessControl.ifObjectFieldIsAccessible('Account') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		if(AccessControl.ifObjectFieldIsAccessible('Price_Level__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 		currentPN = ApexPages.currentPage().getParameters().get('pageno');
 		currentPN = String.escapeSingleQuotes(currentPN);
 		
@@ -176,7 +175,6 @@ public with sharing class CustomerOverview {
     **/
     public String getOrgStates(){
     	if(AccessControl.ifObjectFieldIsAccessible('State__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-    	if(AccessControl.ifObjectFieldIsAccessible('Country__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	Map<String, String> countryToStatesHtmlMap = new Map<String, String>();
 		Map<String, List<State__c>> countryToStatesMap = new Map<String, List<State__c>>();
 		

@@ -1051,7 +1051,7 @@
                     
                     </div>
                         
-                    <apex:iframe src="{!$Page.chatter}?Id={!$User.Id}" height="400" scrolling="true" /> 
+                    <apex:iframe src="{!$Page.Chatter}?Id={!$User.Id}" height="400" scrolling="true" /> 
                 </div>
                     
                 </div>

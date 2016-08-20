@@ -839,8 +839,9 @@ global with sharing class BlackPurlContentCtrl {
     	if(AccessControl.ifObjectFieldIsCreateable('Recent_Customer__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 		if(AccessControl.ifObjectFieldIsUpdateable('Recent_Customer__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		if(AccessControl.ifObjectFieldIsAccessible('Recent_Customer__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		selectedCustomerId = BPUtility.escapeSingleQuotes(selectedCustomerId);
+		
         Recent_Customer__c recentCustomerToBeInsert = new Recent_Customer__c();
+        selectedCustomerId = BPUtility.escapeSingleQuotes(selectedCustomerId);
         recentCustomerToBeInsert.Customer__c = selectedCustomerId;
 		Constants.IS_RECENT_CUSTOMER_TO_BE_CREATED = true;
 		
@@ -864,8 +865,9 @@ global with sharing class BlackPurlContentCtrl {
     	if(AccessControl.ifObjectFieldIsCreateable('Recent_Vendor__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 		if(AccessControl.ifObjectFieldIsUpdateable('Recent_Vendor__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		if(AccessControl.ifObjectFieldIsAccessible('Recent_Vendor__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-		selectedVendorId = BPUtility.escapeSingleQuotes(selectedVendorId);
+		
         Recent_Vendor__c recentVendorToBeInsert = new Recent_Vendor__c();
+        selectedVendorId = BPUtility.escapeSingleQuotes(selectedVendorId);
         recentVendorToBeInsert.Vendor__c = selectedVendorId;
         Constants.IS_RECENT_VENDOR_TO_BE_CREATED = true;
         
@@ -888,10 +890,9 @@ global with sharing class BlackPurlContentCtrl {
     	if(AccessControl.ifObjectFieldIsCreateable('Recent_Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
 		if(AccessControl.ifObjectFieldIsUpdateable('Recent_Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
 		if(AccessControl.ifObjectFieldIsAccessible('Recent_Part__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
-        selectedPartId = BPUtility.escapeSingleQuotes(selectedPartId);
         Recent_Part__c recentPartToBeInsert = new Recent_Part__c();
+        selectedPartId = BPUtility.escapeSingleQuotes(selectedPartId);
         recentPartToBeInsert.Part__c = selectedPartId;
-        
         
         List<Recent_Part__c> recentPartList = [select Id, Part__c from Recent_Part__c where part__c =:selectedPartId and createdById = :UserInfo.getUserId()];
         if(recentPartList.size() > 0) {

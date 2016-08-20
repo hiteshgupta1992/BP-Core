@@ -6,12 +6,10 @@
 **/
 global without sharing class ConfigurationScript {
     public static boolean isPostInstallRunning = false;
-    
      global static void runAll() {
-     	isPostInstallRunning = true;
-     	
+         isPostInstallRunning = true;
         //deleteNativeRecords();
-        //deleteConfigurations();
+       // deleteConfigurations();
         createConfigurations();
         createWidgets();
         createGlAccount();

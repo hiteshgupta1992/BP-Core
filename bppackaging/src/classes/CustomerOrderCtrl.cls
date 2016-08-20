@@ -1469,8 +1469,8 @@ global with sharing class CustomerOrderCtrl {
             CO_Invoice_Header__c coInvoiceHeaderRec = [select Invoice_Status__c from CO_Invoice_Header__c where Id = :activeCOInvoiceHeaderId];
 
             if(coInvoiceHeaderRec !=null &&  coHeaderRec != null ){
-            	if(AccessControl.ifObjectFieldIsCreateable('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
-            	if(AccessControl.ifObjectFieldIsCreateable('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
+            	//if(AccessControl.ifObjectFieldIsCreateable('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
+            	//if(AccessControl.ifObjectFieldIsCreateable('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
             	
 
                 coInvoiceHeaderRec.Invoice_Status__c = 'Closed';
@@ -1481,8 +1481,9 @@ global with sharing class CustomerOrderCtrl {
 	            insert AutonumberRec;
 	            if(AutonumberRec.Id !=null){
 	            	coInvoiceHeaderRec.AutoNumberHolder__c = AutonumberRec.Id;
-	            	if(AccessControl.ifObjectFieldIsUpdateable('coHeaderRec') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
-	            	update coInvoiceHeaderRec;
+	            	if(AccessControl.ifObjectFieldIsUpdateable('CO_Invoice_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+	            	if(AccessControl.ifObjectFieldIsUpdateable('CO_Header__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+                    update coInvoiceHeaderRec;
 	            	update coHeaderRec;  
 
 	            }

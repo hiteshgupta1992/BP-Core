@@ -54,7 +54,8 @@ global with sharing class AccountingDataMigrationFifoBucket implements Database.
 		//Last_Synched_Date = dataMigration.Last_Synched_Date__c;
 		//System.assert(false,Last_Synched_Date);
     	//dataMigration.Last_Synched_Date__c = Datetime.now();
-    	
+    	if(AccessControl.ifObjectFieldIsAccessible('Part_FIFO_Bucket__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+    	if(AccessControl.ifObjectFieldIsAccessible('Part_FIFO_Bucket_Activity_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
     	query = createQuery(recordIds);
 	}
 	
@@ -75,7 +76,7 @@ global with sharing class AccountingDataMigrationFifoBucket implements Database.
     **/
 	global Database.QueryLocator start(Database.BatchableContext BC) {
 		return Database.getQueryLocator(query);
-	}
+	} 
 	
 	/**
      * Name: execute
@@ -104,7 +105,7 @@ global with sharing class AccountingDataMigrationFifoBucket implements Database.
 	    	for(GL_Account__c glAcc : glAccounts){
 	    		GLAccountMap.put(glAcc.Type__c, glAcc.MYOB_Account_Number__c);
 	    	}
-	    	
+	    	if(AccessControl.ifObjectFieldIsAccessible('Part_FIFO_Bucket_Activity_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 	    	String StockAdjustmentValue = (GLAccountMap.containsKey('Received Inventory Accrual')) ? GLAccountMap.get('Received Inventory Accrual') : '';
 	    	String costRecQuery = 'Select Name, Part_FIFO_Bucket__c, Qty_Out__c,CO_Line_Item__c,Part_Adjustment__r.Unique_Id__c,Type__c, Part_FIFO_Bucket__r.Part__r.Category__r.Inventory_GL__c, Part_FIFO_Bucket__r.Part__r.Part_ID__c, Part_FIFO_Bucket__r.Cost__c, Part_Adjustment__c,CreatedDate, Reference__c, Unique_Id__c,Part_FIFO_Bucket__r.Qty_In__c, CO_Invoice_Header__c, LastModifiedDate From Part_FIFO_Bucket_Activity_Line_Item__c where Reference__c = \'Cost Adjustment\' AND Part_FIFO_Bucket__r.Reference__c != \'Cost Adjustment\' ';
 	    	String countRecQuery = 'Select Name, Part_FIFO_Bucket__c, Qty_Out__c,CO_Line_Item__c,Part_Adjustment__r.Unique_Id__c,Type__c, Part_FIFO_Bucket__r.Part__r.Category__r.Inventory_GL__c, Part_FIFO_Bucket__r.Part__r.Part_ID__c, Part_FIFO_Bucket__r.Cost__c, Part_Adjustment__c,CreatedDate, Reference__c, Unique_Id__c,Part_FIFO_Bucket__r.Qty_In__c, CO_Invoice_Header__c, LastModifiedDate From Part_FIFO_Bucket_Activity_Line_Item__c where Reference__c = \'Count Adjustment\' AND Part_FIFO_Bucket__r.Reference__c != \'Count Adjustment\'';
@@ -230,9 +231,6 @@ global with sharing class AccountingDataMigrationFifoBucket implements Database.
     	//system.assert(false,vrsQuery);
     	return vrsQuery;
 	}
-    
-    
-    
     
     
 }

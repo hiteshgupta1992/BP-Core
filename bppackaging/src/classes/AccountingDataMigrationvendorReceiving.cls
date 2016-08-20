@@ -163,7 +163,9 @@ global with sharing class AccountingDataMigrationvendorReceiving implements Data
     	insert attachment;
     	
     	// Execute next batch
-		AccountingDataMigrationFifoBucket.executeDataMigrationBatch(200, null, exportAllData);
+    	//if(exportAllData){
+    		AccountingDataMigrationFifoBucket.executeDataMigrationBatch(200, null, exportAllData);
+    	//}
 	}
 	
 	/**

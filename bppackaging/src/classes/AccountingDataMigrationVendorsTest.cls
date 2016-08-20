@@ -20,9 +20,6 @@ private class AccountingDataMigrationVendorsTest {
     	
     	// Account Data Migration have been created 
     	List<Accounting_Data_Migration__c> accountMigrate = TestUtil.createAccountMigration(true, 1, 'Supplier Card', 'Supplier Cards');
-    	
-		List<Account> accList = [SELECT Id FROM Account LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
-		System.assertNotEquals(0, accList.size());
     }
     /**
      * Name: executeVendorCardsDataMigrationBatchTest

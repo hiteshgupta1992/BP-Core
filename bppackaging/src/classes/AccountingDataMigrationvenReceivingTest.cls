@@ -4,9 +4,6 @@ public with sharing class AccountingDataMigrationvenReceivingTest {
 	@testSetup
 	private static void setupTestData() {
 		TestUtil.createNameSpaceInGeneralConfig();
-		
-		List<General_Configurations__c> config = [SELECT Id FROM General_Configurations__c LIMIT : SOQLUtil.getAvailableQueryRowsLimit()];
-		System.assertNotEquals(0, config.size());
 	}
 	
 	@isTest
@@ -47,8 +44,20 @@ public with sharing class AccountingDataMigrationvenReceivingTest {
         Vendor_Receiving_Header__c vrh = TestUtil.createVendorOrderReceiveHeader(true, vendor.Id, 'In Progress');
         Id vorId = BPUtility.getDecodedString(VendorOrderReceivingCtrl.addVendor(BPUtility.getEncodedString(vendor.Id), BPUtility.getEncodedString(null)));
         String VendorOrderReceiveItems = BPUtility.getDecodedString(VendorOrderReceivingCtrl.receiveVendorOrderItems(BPUtility.getEncodedString(voHeader.Id), BPUtility.getEncodedString(vorId), true));
-        VendorOrderReceivingCtrl_PartialTest.createExcessTestDataforBothStockAndCustomer(vendor.Id, vorId, voHeader.Id, part.Id);
+        //VendorOrderReceivingCtrl_PartialTest.createExcessTestDataforBothStockAndCustomer(vendor.Id, vorId, voHeader.Id, part.Id);
         
+        CO_Header__c coHeader1 = TestUtil.createCOHeader(true, null);
+        //Part__c part = TestUtil.createPart(true, '123', vendor.Id, 'Test Part', testCategory.Id, 10, 20, 50, 100, 100);
+        
+        String partsJSONString = BPUtility.getDecodedString(ViewPartCtrl.getPartInfo(BPUtility.getEncodedString(part.Id)));
+        PartDetailWrapper partObjRec = (PartDetailWrapper) System.JSON.deserialize(partsJSONString, PartDetailWrapper.class);
+       	Test.startTest();
+        String decreasedStock = BPUtility.getDecodedString(ViewPartCtrl.decreaseAdjustInStock(BPUtility.getEncodedString(part.Id), 20, BPUtility.getEncodedString(System.JSON.serialize(partObjRec.PartFIFOBucketList))));
+        PartDetailWrapper partObjRec1 = (PartDetailWrapper) System.JSON.deserialize(decreasedStock, PartDetailWrapper.class);
+		
+		String modifyCost = BPUtility.getDecodedString(ViewPartCtrl.modifyCostSummary(BPUtility.getEncodedString(System.JSON.serialize(partObjRec.PartFIFOBucketList)), 50));
+        PartDetailWrapper partObjRec2 = (PartDetailWrapper) System.JSON.deserialize(modifyCost, PartDetailWrapper.class); 
+		          
          List<Accounting_Data_Migration__c> accountMigrate = TestUtil.createAccountMigration(true, 1, 'General Journal Entries', 'General Journal Entries');
         
         
@@ -71,12 +80,12 @@ public with sharing class AccountingDataMigrationvenReceivingTest {
         
         
         
-        Test.startTest();
+        
     	Id batchId = AccountingDataMigrationvendorReceiving.executeDataMigrationBatch( 200 , null, false);
     	Test.stopTest();
     	List<Accounting_Data_Migration__c>  accountMigrateId = [ SELECT Id FROM Accounting_Data_Migration__c WHERE  Object_Name__c = 'General Journal Entries' ];
     	List<Attachment> attachmentList = [SELECT Id FROM Attachment WHERE ParentId in :accountMigrateId ];
-    	system.assertEquals(1, attachmentList.size());
+    	system.assertEquals(3, attachmentList.size());
         
         
     }

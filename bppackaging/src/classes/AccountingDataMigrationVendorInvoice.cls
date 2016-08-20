@@ -112,7 +112,7 @@ global with sharing class AccountingDataMigrationVendorInvoice implements Databa
 	    	for(Vendor_Invoicing_Group__c voInvoice : voInvoiceList){
 	    		ids.add(voInvoice.Vendor_Receiving_Group__r.Part__r.Id);
 	    	}
-	    	
+	    	if(AccessControl.ifObjectFieldIsAccessible('Part_FIFO_Bucket_Activity_Line_Item__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
 	    	Map<String, List<Part_FIFO_Bucket_Activity_Line_Item__c>> idToActivityRecMap = new Map<String, List<Part_FIFO_Bucket_Activity_Line_Item__c>>();
 	    	List<Part_FIFO_Bucket_Activity_Line_Item__c> ActivityLineItemRec  =  [SELECT Id, Part_FIFO_Bucket__r.Part__c, Part_FIFO_Bucket__r.cost__c, Qty_Out__c, Part_FIFO_Bucket__r.VRCost__c, Part_FIFO_Bucket__r.Variance__c FROM Part_FIFO_Bucket_Activity_Line_Item__c WHERE Part_FIFO_Bucket__r.Variance__c != 0 
 	    																		 AND Part_FIFO_Bucket__r.Part__c In :ids ];
