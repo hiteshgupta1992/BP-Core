@@ -105,7 +105,65 @@ public with sharing class GeneralConfiguration {
      * @return: Decimal
     **/
     public static Decimal getAustralianMarketSalesTaxRate() {
-    	if(AccessControl.ifObjectFieldIsAccessible('Australian_Market__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         return Australian_Market__c.getInstance().Sales_Tax_Rate__c ;
     }
+    
+    /**
+     * Name: getTaxIncludingPricing
+     * Desc: To get if tax Including pricing is true or not
+     * @param: 
+     * @return: Decimal
+    **/
+    public static Boolean getTaxIncludingPricing() {
+        return Configurations__c.getOrgDefaults().Tax_Included_Pricing__c;
+}
+    
+    public static Boolean getCalcTax_Invoice() {
+        return Configurations__c.getOrgDefaults().CalcTax_Invoice__c;
+    }
+    
+    public static Boolean getCalcTax_LineItem() {
+        return Configurations__c.getOrgDefaults().CalcTax_LineItem__c;
+    }
+     
+    /**
+     * Name: getIsTrialOrg
+     * Desc: To get if trail Org is true or not
+     * @param: 
+     * @return: Boolean
+    **/
+    public static Boolean isTrialOrg() {
+        return General_Configurations__c.getOrgDefaults().Is_Trial_Org__c;
+    }
+    
+     /**  
+     * Name: getIsSystemSettingVisites
+     * Desc: To get if System Setting is visited or not
+     * @param: 
+     * @return: Boolean
+    **/
+    public static Boolean isSystemSettingVisited() {
+        return General_Configurations__c.getOrgDefaults().Is_System_Setting_Visited__c;
+    } 
+    
+    /**  
+     * Name: communityLink
+     * Desc: To get communityLink
+     * @param: 
+     * @return: String
+    **/
+    public static String communityLink() {
+        return BP_Configurations__c.getOrgDefaults().Community_Link__c;
+    } 
+    
+    
+    /**  
+     * Name: getSupportEmail
+     * Desc: To get SupportEmail
+     * @param: 
+     * @return: String
+    **/
+    public static String getSupportEmail() {
+        return BP_Configurations__c.getOrgDefaults().Support_Email__c;
+    } 
 }
