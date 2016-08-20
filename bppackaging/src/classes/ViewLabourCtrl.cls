@@ -122,7 +122,8 @@ global with sharing class ViewLabourCtrl {
 	       		}
 	            return BPUtility.getEncodedString(labourRecordsToDML[0].Id);
 	        }
-	        return BPUtility.getEncodedString(null);
+	        //return BPUtility.getEncodedString(null);
+	        return BPUtility.getEncodedString('{}'); 
     	}
         catch(Exception e){
         	throw new BlackPurlException(BlackPurlException.getErrorMessage(e.getMessage(), e.getStackTraceString()));
