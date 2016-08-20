@@ -911,6 +911,7 @@
                                       <th class="T3 text-center">{!$Label.Profitability_Label}</th>
                                     </tr>
                                   <tbody >
+									<!--
                                       <tr class="clickable_row" id="row1" rel="owned_unit_row{{$index}}_edit">
                                           <td  class="T8 text-center">
                                           {{PartPopUp.partModel.OrderLots}}
@@ -935,6 +936,7 @@
 	                                        </span> 
                                            </td>
                                       </tr>
+									  -->
                                   </tbody>
                                 </table>
                              </div>             

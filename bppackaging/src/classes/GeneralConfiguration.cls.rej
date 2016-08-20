@@ -1,0 +1,9 @@
+diff a/bppackaging/src/classes/GeneralConfiguration.cls b/bppackaging/src/classes/GeneralConfiguration.cls	(rejected hunks)
+@@ -24,7 +24,6 @@
+      * @return: Decimal
+     **/
+     public static Decimal getRelatedListPageSize() {
+-        if(AccessControl.ifObjectFieldIsAccessible('General_Configurations__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+         return General_Configurations__c.getInstance().Related_List_Page_Size__c  ;
+     }
+     
