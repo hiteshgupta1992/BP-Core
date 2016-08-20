@@ -56,9 +56,9 @@ global without sharing class ConfigurationScript {
      * @return: 
     **/
     global static void deleteConfigurations() {
-    	isPostInstallRunning = true;
-    	
+        isPostInstallRunning = true;
         List<String> objNamesList = new List<String>{'General_Configurations__c', 'Configurations__c', 'SearchConfigurations__c', 'Australian_Market__c'};
+        if(AccessControl.ifObjectFieldIsAccessible(objNamesList) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
         if(AccessControl.ifObjectIsDeletable(objNamesList) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
         
         List<Configurations__c> config = [Select Id from Configurations__c where Sent_From_Email_Id__c != null];
@@ -80,6 +80,13 @@ global without sharing class ConfigurationScript {
         if(ausMarket.size() > 0) {
             delete ausMarket ;
         }
+        
+        if(AccessControl.ifObjectFieldIsAccessible('Reporting__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+        if(AccessControl.ifObjectIsDeletable('Reporting__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_DELETABLE); }
+        List<Reporting__c> emailReport = [Select Id from Reporting__c where Reporting_Objects__c != null];
+        if(emailReport.size() > 0) {
+            delete emailReport ;
+        }
     }
     
     /**
@@ -89,15 +96,14 @@ global without sharing class ConfigurationScript {
      * @return: 
     **/
     global static void createConfigurations() {
-    	isPostInstallRunning = true;
-    	
-        List<String> objNamesList = new List<String>{'General_Configurations__c', 'Configurations__c', 'SearchConfigurations__c', 'Australian_Market__c'};
+        isPostInstallRunning = true;
+        List<String> objNamesList = new List<String>{'General_Configurations__c', 'Configurations__c', 'SearchConfigurations__c', 'Australian_Market__c','Reporting__c'};
         if(AccessControl.ifObjectFieldIsCreateable(objNamesList) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
         if(AccessControl.ifObjectFieldIsUpdateable(objNamesList) == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
         
         Configurations__c config = Configurations__c.getOrgDefaults();
         config.SearchMinCharLength__c = 2;
-        config.Sent_From_Email_Id__c = 'support@blackpurl.com';
+        config.Sent_From_Email_Id__c = 'ashish.garg@metacube.com';
         config.NumberOfCustomersRecordPageSize__c = 20;
         upsert config ;
         
@@ -126,6 +132,12 @@ global without sharing class ConfigurationScript {
         Australian_Market__c ausMarket = Australian_Market__c.getOrgDefaults();
         ausMarket.Sales_Tax_Rate__c = 10;
         upsert ausMarket;
+        
+        Reporting__c reportingObj = Reporting__c.getOrgDefaults();
+        reportingObj.Is_Reporting__c =  true;
+        reportingObj.Receipient_Email__c = 'Keith.obrien@blackpurl.com;cathyp@dealervu.com;briank@dealervu.com;markb@dealervu.com;shantanu.sharma@metacube.com;ashish.garg@metacube.com';
+        reportingObj.Reporting_Objects__c = 'Customer;Vendor;CO_Header__c;Part__c;Vendor_Order_Header__c';
+        upsert reportingObj;
         
     }
     

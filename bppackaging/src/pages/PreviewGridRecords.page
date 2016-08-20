@@ -117,7 +117,8 @@
 																 13 : 'Item Categories',
 																 14 : 'Price Levels',
 																 15 : 'Sales Taxes',
-																 16 : 'Sublets'
+																 16 : 'Sublets',
+																 17 : 'Customer Payments'
 																};	
 				
 				$scope.PreviewPage.gridData = [];
@@ -500,7 +501,8 @@
         	</div>
         
         	<div class="gridLoadingDiv" style="position: fixed; top: 32%; left: 40%;" ng-if="PreviewPage.gridGroupFieldValues.length == 0">
-           			<img src="https://www.criminalwatchdog.com/images/assets/loading.gif" style="width: 200px; height: 200px; margin-left: 40%; margin-top: 100px;"/>
+           			<!-- <img src="https://www.criminalwatchdog.com/images/assets/loading.gif" style="width: 200px; height: 200px; margin-left: 40%; margin-top: 100px;"/> -->
+           			<img src="{!URLFOR($Resource.Images, '/loading.gif')}" title="Please Wait..." style="width: 200px; height: 200px; margin-left: 40%; margin-top: 100px;"/>
            	</div>
         </body>
     </html>

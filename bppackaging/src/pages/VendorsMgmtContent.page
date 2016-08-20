@@ -4,8 +4,7 @@
 	
 	<apex:outputPanel id="contentPanel">
 		<apex:outputPanel id="vendorsGrid" >
-			<h2>Page is deprecated.</h2>
-<!-- 			<c:VendorList uniqueId="Vendors_"/> -->
+			<c:VendorList uniqueId="Vendors_"/>
 	    </apex:outputPanel>
     </apex:outputPanel>
     

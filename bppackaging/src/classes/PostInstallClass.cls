@@ -1,10 +1,9 @@
 global without sharing class PostInstallClass implements InstallHandler {
-    public static final String NAMESPACE = 'BlackPurlCore__';
-
-    
-    global void onInstall(InstallContext context) {
-        String emailTextBody = 'Thanks for installing the package.';
-        try {
+	public static final String NAMESPACE = '';
+	
+	global void onInstall(InstallContext context) {
+		String emailTextBody = 'Thanks for installing the package.';
+		try {
             if (context.previousVersion() == null || Test.isRunningTest()) {
                 ConfigurationScript.runAll();
                 DataLoadForCountryState ds = new DataLoadForCountryState();

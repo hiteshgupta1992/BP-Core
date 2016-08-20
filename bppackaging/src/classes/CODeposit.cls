@@ -32,7 +32,7 @@ public with sharing class CODeposit {
         this.DepositName = coDepositObj.Name;
         this.COHeaderId = coDepositObj.CO_Header__c;
         this.PaymentMethod = coDepositObj.Payment_Method__c;
-        this.Amount = coDepositObj.Amount__c;
+        this.Amount = (coDepositObj.Amount__c != null) ? coDepositObj.Amount__c.setScale(2) : 0.00;
         if(coDepositObj.Id != null) {
             this.CODepositId = coDepositObj.Id;
             this.CreatedDate = String.valueOf(DateTime.valueOf(coDepositObj.CreatedDate).format('dd/MMM/yyyy')); 

@@ -731,7 +731,7 @@ global with sharing class BlackPurlContentCtrl {
     @RemoteAction
     global static String increaseCountries(Integer currentCountryInGrid) {
     	isIncreaseCountriesMethodExecuted = true;
-    	return BPUtility.getEncodedString(generateJSONForCountries(currentCountryInGrid));
+    	return generateJSONForCountries(currentCountryInGrid);
     }
     
     /**

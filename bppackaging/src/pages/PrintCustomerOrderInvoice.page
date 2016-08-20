@@ -8,13 +8,12 @@
             <c:PrintPreviewStyle />
     		<script type="text/javascript">
     			  var InvoicePrintPreviewModule = angular.module('InvoicePrintPreviewModule', ['ui-notification']);
-           		 InvoicePrintPreviewModule.controller('InvoicePrintPreviewController', function($scope, $window, $q, $timeout, Notification, InvoicePrintPreviewInfoService) {
-            			 if ($scope.InvoicePrintPreviewModel == undefined) {
-	                        $scope.InvoicePrintPreviewModel = {};
-	                       
+           		 	InvoicePrintPreviewModule.controller('InvoicePrintPreviewController', function($scope, $window, $q, $timeout, Notification, InvoicePrintPreviewInfoService) {
+            			if($scope.InvoicePrintPreviewModel == undefined) {
+	                    	$scope.InvoicePrintPreviewModel = {};
 	                    }
-	                      $scope.parseFloat = parseFloat;
-            			 $scope.InvoicePrintPreviewModel.InvoicePrintPreviewInfo=[];
+                        $scope.parseFloat = parseFloat;
+            			$scope.InvoicePrintPreviewModel.InvoicePrintPreviewInfo=[];
             			$scope.InvoicePrintPreviewModel.printview = function(){
             				 $timeout($window.print, 0);
             			}
@@ -31,7 +30,9 @@
                                     function (successfulSearchResult) {
                                             debug(successfulSearchResult);
                                             $scope.InvoicePrintPreviewModel.InvoicePrintPreviewInfo=successfulSearchResult;
-                                            debug($scope.InvoicePrintPreviewModel.InvoicePrintPreviewInfo);
+                                            debug("$scope.InvoicePrintPreviewModel.InvoicePrintPreviewInfo : "+JSON.stringify($scope.InvoicePrintPreviewModel.InvoicePrintPreviewInfo));
+                                            debug("$scope.InvoicePrintPreviewModel.InvoicePrintPreviewInfo.Merchandises : "+JSON.stringify($scope.InvoicePrintPreviewModel.InvoicePrintPreviewInfo.Merchandises));
+                                            debug("$scope.InvoicePrintPreviewModel.InvoicePrintPreviewInfo.Services : "+JSON.stringify($scope.InvoicePrintPreviewModel.InvoicePrintPreviewInfo.Services));
                                         
                                     	 if(Object.keys($scope.InvoicePrintPreviewModel.InvoicePrintPreviewInfo).length != 0){
                                             $scope.InvoicePrintPreviewModel.showContent = true;
@@ -327,13 +328,21 @@
                            			 				<td class="T3 col-md-6 BR0">sub-Total</td>
                            			 				<td class="T3 col-md-6 text-right TDB">{{InvoicePrintPreviewModel.InvoicePrintPreviewInfo.COInvoice.SubTotal | currency}}</td>
                            			 			</tr>
-                           			 			<tr>
+                           			 			<tr ng-if="!InvoicePrintPreviewModel.InvoicePrintPreviewInfo.IsTaxIncludingPricing">
                            			 				<td class="T7 col-md-6">sales-Tax</td>
                            			 				<td class="T3 col-md-6 text-right BB0">{{InvoicePrintPreviewModel.InvoicePrintPreviewInfo.COInvoice.SalesTax | currency}}</td>
                            			 			</tr>
                            			 			<tr>
                            			 				<td class="T3 col-md-6 text-uppercase BR0">Total</td>
-                           			 				<td class="T3 col-md-6 text-right TDB totalBG text-uppercase ">{{(parseFloat(InvoicePrintPreviewModel.InvoicePrintPreviewInfo.COInvoice.SubTotal) + parseFloat(InvoicePrintPreviewModel.InvoicePrintPreviewInfo.COInvoice.SalesTax)) | currency}}</td>
+                           			 				<td class="T3 col-md-6 text-right TDB totalBG text-uppercase">
+                           			 				<span ng-if="!InvoicePrintPreviewModel.InvoicePrintPreviewInfo.IsTaxIncludingPricing">{{(parseFloat(InvoicePrintPreviewModel.InvoicePrintPreviewInfo.COInvoice.SubTotal) + parseFloat(InvoicePrintPreviewModel.InvoicePrintPreviewInfo.COInvoice.SalesTax)) | currency}}</span>
+                									<span ng-if="InvoicePrintPreviewModel.InvoicePrintPreviewInfo.IsTaxIncludingPricing">{{InvoicePrintPreviewModel.InvoicePrintPreviewInfo.COInvoice.SubTotal | currency}}</span>
+                           			 				           			 				
+                           			 			</td>
+                           			 			</tr>
+                           			 			<tr ng-if="InvoicePrintPreviewModel.InvoicePrintPreviewInfo.IsTaxIncludingPricing">
+                           			 				<td class="T7 col-md-6">sales-Tax</td>
+                           			 				<td class="T3 col-md-6 text-right BB0">{{InvoicePrintPreviewModel.InvoicePrintPreviewInfo.COInvoice.SalesTax | currency}}</td>
                            			 			</tr>
                            			 		</tbody>
                            			 	</table>
