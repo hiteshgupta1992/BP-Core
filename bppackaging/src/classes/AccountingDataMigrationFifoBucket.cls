@@ -34,6 +34,10 @@ global with sharing class AccountingDataMigrationFifoBucket implements Database.
      * Desc: Constructor to start the batch for data export
     **/
 	global AccountingDataMigrationFifoBucket(List<Id> recordIds,boolean exportAllData) {
+		if(AccessControl.ifObjectFieldIsAccessible('Accounting_Data_Migration__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+		if(AccessControl.ifObjectFieldIsCreateable('Accounting_Data_Migration__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE); }
+		if(AccessControl.ifObjectFieldIsUpdateable('Accounting_Data_Migration__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+		
 		this.exportAllData = exportAllData;
 		generalJournalEntriesData = '';
 		indexVal = 1;
@@ -81,6 +85,9 @@ global with sharing class AccountingDataMigrationFifoBucket implements Database.
      * @return:
     **/
 	global void execute(Database.BatchableContext BC, List<sObject> scope) {
+		if(AccessControl.ifObjectFieldIsUpdateable('Vendor_Receiving_Group__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_UPDATEABLE); }
+		if(AccessControl.ifObjectFieldIsAccessible('GL_Account__c') == false) { throw new BlackPurlException(Constants.OBJIECT_NOT_ACCESSIBLE); }
+
 		value = '{} \n';
 		value +=  'Journal Number\tDate\tMemo\tGST (BAS) Reporting\tInclusive\tAccount Number\tIs Credit\tAmount\tTax Code\tAllocation Memo\n\n';
 		costValue = '{} \n';

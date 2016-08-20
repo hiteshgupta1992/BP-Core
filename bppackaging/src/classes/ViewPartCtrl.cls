@@ -105,6 +105,7 @@ global with sharing class ViewPartCtrl {
 	 	  	partBucketRec.Reference__c = 'Count Adjustment';
 	 	  	partBucketRec.Qty_In__c = qtyIn;
 	 	  	partBucketRec.Cost__c = cost;
+			partBucketRec.VRCost__c = cost;
 	 	  	partBucketRec.Part__c = partId;
 	 	  	partBucketRec.Is_FIFO_Bucket__c = true;
 	 	  	if(AccessControl.ifObjectIsCreateable('Part_FIFO_Bucket__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
@@ -147,6 +148,7 @@ global with sharing class ViewPartCtrl {
 	 	  	partBucketRec.Reference__c = 'Stock Adjustment';
 	 	  	partBucketRec.Qty_In__c = 0;
 	 	  	partBucketRec.Cost__c = 0;
+			partBucketRec.VRCost__c = 0;
 	 	  	partBucketRec.Part__c = partId;
 	 	  	partBucketRec.Is_FIFO_Bucket__c = false;
 	 	  	if(AccessControl.ifObjectIsCreateable('Part_FIFO_Bucket__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
@@ -213,11 +215,11 @@ global with sharing class ViewPartCtrl {
 	 	  	partBucketRec.Reference__c = 'Cost Adjustment';
 	 	  	partBucketRec.Qty_In__c = totalQtyRemaining;
 	 	  	partBucketRec.Cost__c = newCost;
+			partBucketRec.VRCost__c = newCost;
 	 	  	partBucketRec.Part__c = partId;
 	 	  	partBucketRec.Is_FIFO_Bucket__c = true;
 	 	  	if(AccessControl.ifObjectIsCreateable('Part_FIFO_Bucket__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
  	  		insert partBucketRec;
- 	  	
 	 	  	for(PartFifoBucket partBucketObj : PartFifoObjList) {
 	 	  		Part_FIFO_Bucket_Activity_Line_Item__c partActivityLineItemRec = new Part_FIFO_Bucket_Activity_Line_Item__c();
 	 	  		partActivityLineItemRec.Part_Adjustment__c = partBucketRec.Id;
@@ -272,9 +274,10 @@ global with sharing class ViewPartCtrl {
 	 	  		partBucketRec.Qty_In__c = PartFifoBucketobj.RemainingQty;
 	 	  	}
 	 	  	else{
-	 	  		partBucketRec.Qty_In__c = PartFifoBucketobj.QtyIn;
+	 	  		partBucketRec.Qty_In__c = PartFifoBucketobj.QtyIn;partBucketRec.VRCost__c = newCost;
 	 	  	}
 	 	  	partBucketRec.Cost__c = newCost;
+			partBucketRec.VRCost__c = newCost;
 	 	  	partBucketRec.Is_FIFO_Bucket__c = true;
 	 	  	if(AccessControl.ifObjectIsCreateable('Part_FIFO_Bucket__c') == false ){throw new BlackPurlException(Constants.OBJIECT_NOT_CREATEABLE);}
 	 	  	insert partBucketRec;
